@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goal Alignment Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid #3C603C; flex-wrap: wrap; }
+  .q:first-of-type { border-top: none; }
+  .q span { flex: 1; min-width: 200px; font-size: .92rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; margin-top: 5px; }
+  .res .d { opacity: .85; font-size: .92rem; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Goal Alignment Checker</h1>
+  <p class="sub">Is this goal actually yours? Run it through 7 honest checks before you spend another year on it.</p>
+
+  <div class="panel">
+    <label for="goal">The goal in question</label>
+    <input id="goal" placeholder="Write the goal exactly as you tell it to yourself">
+    <div id="qs" style="margin-top:6px"></div>
+    <button class="btn" onclick="run()">Check Alignment</button>
+    <button class="btn ghost" onclick="reset()">Reset</button>
+  </div>
+
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    "I would still want this if no one knew I achieved it",
+    "It aligns with my top values, not just the world's idea of success",
+    "I can name WHY it matters to me, specifically",
+    "Pursuing it costs are things I am genuinely willing to pay",
+    "The image of having it (one year in) excites me, not just the achieving",
+    "I am willing to be a beginner / look bad to get there",
+    "If nothing changed for 2 years, I would still pick it"
+  ];
+  const g=id=>document.getElementById(id);
+  g('qs').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q}</span>
+    <select id="q${i}"><option value="0">No</option><option value="0.5">Unsure</option><option value="1">Yes</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('gac')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('gac',JSON.stringify(o)); }); });
+  ['goal'].forEach(k=>{ const s=localStorage.getItem('gac_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('gac_'+k,g(k).value)); });
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0), pct=Math.round(sc/Q.length*100);
+    const vd= pct>=85?['Aligned','This goal is genuinely yours. Go.']:pct>=60?['Mostly aligned','Real, but one or two checks were "no" &mdash; address those before going deeper.']:pct>=35?['Misaligned somewhere','Some of this is yours, some is borrowed. Re-write the goal in your own words and rerun.']:['Not your goal','This may be someone else\'s definition of success. Worth questioning before you spend more energy on it.'];
+    g('res').innerHTML='<div class="res"><div class="n">'+pct+'%</div><div class="vd">'+vd[0]+'</div><div class="d">'+vd[1]+'</div></div>';
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function reset(){ if(confirm('Reset?')){ localStorage.removeItem('gac'); Q.forEach((_,i)=>g('q'+i).value='0'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

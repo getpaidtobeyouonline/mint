@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hiking Preparation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .87rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  .grp { font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; opacity: .85; margin: 10px 0 4px; }
+  .water { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px; text-align: center; margin-top: 10px; }
+  .water .big { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .water .l { font-size: .78rem; opacity: .7; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hiking Preparation Tool</h1>
+  <p class="sub">The ten essentials, a water estimate, and the safety steps for any hike.</p>
+
+  <div class="panel">
+    <h3>The hiking essentials</h3>
+    <div id="checks"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Water estimate</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="flex:1;min-width:120px"><label>Hike length (hours)</label><input id="hours" type="number" min="0" step="0.5" placeholder="e.g. 4" oninput="water()"></div>
+      <div style="flex:1;min-width:120px"><label>Conditions</label><input id="hot" type="number" min="0" step="0.5" placeholder="hot? add hours" value="0" oninput="water()"></div>
+    </div>
+    <div class="water" id="waterOut"></div>
+    <div class="note">Roughly 0.5L per hour, more in heat or at altitude. Always carry extra and never rely on finding water.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GROUPS={
+    "The ten essentials":["Navigation — map, compass or GPS","Sun protection","Insulation — extra warm layer","Headlamp / torch","First-aid kit","Fire — lighter/matches","Repair kit &amp; knife","Extra food","Extra water","Emergency shelter"],
+    "Before you go":["Checked the weather forecast","Told someone your route &amp; return time","Know the trail difficulty &amp; distance","Phone charged + power bank","Suitable footwear &amp; clothing"]
+  };
+  let st=JSON.parse(localStorage.getItem('hpt5')||'{}');
+  const save=()=>localStorage.setItem('hpt5',JSON.stringify(st));
+  function tog(k){ st[k]=!st[k]; save(); draw(); }
+  function draw(){
+    let h='';
+    Object.entries(GROUPS).forEach(([grp,items])=>{
+      h+='<div class="grp">'+grp+'</div>';
+      items.forEach(it=>{ const k=grp+'|'+it;
+        h+='<div class="item" onclick="tog(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(st[k]?' on':'')+'">'+(st[k]?'✓':'')+'</span><span>'+it+'</span></div>';
+      });
+    });
+    g('checks').innerHTML=h;
+  }
+  function water(){
+    const hours=parseFloat(g('hours').value)||0, hot=parseFloat(g('hot').value)||0;
+    const litres=(hours+hot)*0.5;
+    if(!hours){ g('waterOut').innerHTML='<div class="l">Enter the hike length</div>'; return; }
+    g('waterOut').innerHTML='<div class="big">'+litres.toFixed(1)+' L</div><div class="l">minimum to carry · round up, and carry a little extra</div>';
+  }
+  draw(); water();
+</script>
+</body>
+</html>

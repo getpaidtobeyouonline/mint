@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freelance Rate Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:28px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:640px;margin:0 auto 18px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+.hint{font-size:.72rem;color:#BFD8BF;margin-top:-12px;margin-bottom:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.inp-wrap{position:relative;margin-bottom:18px}
+.inp-wrap .prefix,.inp-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);color:#BFD8BF;font-size:.85rem;pointer-events:none}
+.inp-wrap .prefix{left:12px}
+.inp-wrap .suffix{right:12px}
+input{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:11px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;transition:border .2s}
+input:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+.has-prefix input{padding-left:26px}
+.has-suffix input{padding-right:28px}
+.slider-row{margin-bottom:18px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#4C724C;border:none;padding:0;margin-top:6px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#5AE57A;cursor:pointer}
+.slider-labels{display:flex;justify-content:space-between;font-size:.7rem;color:#BFD8BF;margin-top:4px}
+.rate-hero{text-align:center;padding:10px 0 16px}
+.rate-hero-val{font-family:'Playfair Display',serif;font-size:3.5rem;color:#5AE57A;line-height:1}
+.rate-hero-lbl{font-size:.78rem;color:#BFD8BF;margin-top:6px;text-transform:uppercase;letter-spacing:.06em}
+.rate-rec{font-size:.85rem;color:#FFFFFF;margin-top:10px;opacity:.8}
+.rate-rec strong{color:#5AE57A}
+.divider{border:none;border-top:1px solid #4C724C;margin:16px 0}
+.pkg-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pkg{background:#325132;border:1px solid #4C724C;border-radius:10px;padding:14px;text-align:center}
+.pkg-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:#5AE57A;margin-bottom:3px}
+.pkg-lbl{font-size:.72rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+.pkg-hrs{font-size:.7rem;color:#5A845A}
+.breakdown{margin-top:16px}
+.br-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #3C603C;font-size:.85rem}
+.br-row:last-child{border-bottom:none;padding-top:10px;font-weight:700;font-size:.92rem}
+.br-row span:last-child{color:#5AE57A}
+.tag{display:inline-block;font-size:.65rem;background:#C9A84C22;border:1px solid #C9A84C44;color:#5AE57A;border-radius:4px;padding:2px 7px;margin-left:6px;vertical-align:middle;font-weight:700}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:500px){.row{grid-template-columns:1fr}.row3{grid-template-columns:1fr 1fr}.pkg-grid{grid-template-columns:1fr 1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Freelance Rate Calculator</h1>
+<p class="sub">Know your number — what you must charge to thrive, not just survive</p>
+
+<!-- Income -->
+<div class="card">
+  <div class="card-title">Your Income Goals</div>
+  <div class="row">
+    <div>
+      <label>Annual Take-Home Target</label>
+      <div class="inp-wrap has-prefix">
+        <span class="prefix">$</span>
+        <input id="takeHome" type="number" placeholder="60,000" value="60000" oninput="calc()">
+      </div>
+    </div>
+    <div>
+      <label>Annual Business Expenses</label>
+      <div class="inp-wrap has-prefix">
+        <span class="prefix">$</span>
+        <input id="expenses" type="number" placeholder="5,000" value="5000" oninput="calc()">
+      </div>
+    </div>
+  </div>
+  <label>Tax Rate <span id="taxVal" style="color:#FFFFFF;font-size:.85rem;text-transform:none;letter-spacing:0">25%</span></label>
+  <div class="slider-row">
+    <input type="range" id="taxRate" min="10" max="50" value="25" oninput="document.getElementById('taxVal').textContent=this.value+'%';calc()">
+    <div class="slider-labels"><span>10%</span><span>Self-employed avg</span><span>50%</span></div>
+  </div>
+</div>
+
+<!-- Hours -->
+<div class="card">
+  <div class="card-title">Your Working Hours</div>
+  <div class="row3">
+    <div>
+      <label>Hours / Week</label>
+      <div class="inp-wrap">
+        <input id="hoursWk" type="number" placeholder="40" value="40" oninput="calc()">
+      </div>
+    </div>
+    <div>
+      <label>Weeks Off / Year</label>
+      <div class="inp-wrap">
+        <input id="weeksOff" type="number" placeholder="4" value="4" oninput="calc()">
+      </div>
+    </div>
+    <div>
+      <label>Retainer Hrs / Mo</label>
+      <div class="inp-wrap">
+        <input id="retainerHrs" type="number" placeholder="20" value="20" oninput="calc()">
+      </div>
+    </div>
+  </div>
+  <label>Non-Billable Time (admin, marketing, calls) <span id="nonBillVal" style="color:#FFFFFF;font-size:.85rem;text-transform:none;letter-spacing:0">30%</span></label>
+  <div class="slider-row">
+    <input type="range" id="nonBill" min="0" max="60" value="30" oninput="document.getElementById('nonBillVal').textContent=this.value+'%';calc()">
+    <div class="slider-labels"><span>0%</span><span>Typical freelancer</span><span>60%</span></div>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card" id="results">
+  <div class="card-title">Your Rates</div>
+  <div class="rate-hero">
+    <div class="rate-hero-val" id="heroRate">$—</div>
+    <div class="rate-hero-lbl">Minimum Hourly Rate</div>
+    <div class="rate-rec" id="recRate"></div>
+  </div>
+  <hr class="divider">
+  <div class="pkg-grid">
+    <div class="pkg"><div class="pkg-lbl">Half Day</div><div class="pkg-val" id="halfDay">$—</div><div class="pkg-hrs">4 hours</div></div>
+    <div class="pkg"><div class="pkg-lbl">Full Day</div><div class="pkg-val" id="fullDay">$—</div><div class="pkg-hrs">8 hours</div></div>
+    <div class="pkg"><div class="pkg-lbl">5-Day Project</div><div class="pkg-val" id="weekRate">$—</div><div class="pkg-hrs">40 hours</div></div>
+    <div class="pkg"><div class="pkg-lbl">Monthly Retainer</div><div class="pkg-val" id="retainer">$—</div><div class="pkg-hrs" id="retainerHrLbl">20 hrs/month</div></div>
+  </div>
+  <hr class="divider">
+  <div class="breakdown">
+    <div class="br-row"><span>Desired take-home</span><span id="brTakeHome">—</span></div>
+    <div class="br-row"><span>Business expenses</span><span id="brExp">—</span></div>
+    <div class="br-row"><span>Tax provision</span><span id="brTax">—</span></div>
+    <div class="br-row"><span>Billable hours / year</span><span id="brHours">—</span></div>
+    <div class="br-row"><span>Gross income needed</span><span id="brGross">—</span></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+function fmt(n,dec=0){return'$'+n.toFixed(dec).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function fmtN(n){return Math.round(n).toLocaleString()}
+
+function calc(){
+  const takeHome = parseFloat(document.getElementById('takeHome').value)||0;
+  const expenses = parseFloat(document.getElementById('expenses').value)||0;
+  const taxRate  = parseFloat(document.getElementById('taxRate').value)||25;
+  const hoursWk  = parseFloat(document.getElementById('hoursWk').value)||40;
+  const weeksOff = parseFloat(document.getElementById('weeksOff').value)||4;
+  const nonBill  = parseFloat(document.getElementById('nonBill').value)||30;
+  const retHrs   = parseFloat(document.getElementById('retainerHrs').value)||20;
+
+  const grossNeeded = (takeHome + expenses) / (1 - taxRate/100);
+  const taxProvision = grossNeeded - takeHome - expenses;
+  const workingWeeks = 52 - weeksOff;
+  const rawHours = hoursWk * workingWeeks;
+  const billableHours = rawHours * (1 - nonBill/100);
+  const minRate = billableHours > 0 ? grossNeeded / billableHours : 0;
+  const recRate = minRate * 1.25;
+
+  document.getElementById('heroRate').textContent = fmt(minRate);
+  document.getElementById('recRate').innerHTML =
+    `Recommended rate with 25% buffer: <strong>${fmt(recRate)}/hr</strong>`;
+
+  document.getElementById('halfDay').textContent  = fmt(recRate * 4);
+  document.getElementById('fullDay').textContent  = fmt(recRate * 8);
+  document.getElementById('weekRate').textContent = fmt(recRate * 40);
+  document.getElementById('retainer').textContent = fmt(recRate * retHrs);
+  document.getElementById('retainerHrLbl').textContent = retHrs + ' hrs/month';
+
+  document.getElementById('brTakeHome').textContent = fmt(takeHome);
+  document.getElementById('brExp').textContent      = fmt(expenses);
+  document.getElementById('brTax').textContent      = fmt(taxProvision);
+  document.getElementById('brHours').textContent    = fmtN(billableHours) + ' hrs';
+  document.getElementById('brGross').textContent    = fmt(grossNeeded);
+}
+
+calc();
+</script>
+</body>
+</html>

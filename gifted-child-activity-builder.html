@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gifted Child Activity Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gifted Child Activity Builder</h1>
+  <p class="sub">Plan deeper, more interesting work for a child who is racing ahead.</p>
+
+  <div class="panel">
+    <label for="interest">What they are obsessed with</label>
+    <input id="interest" placeholder="The current passion they cannot stop talking about">
+    <label for="stretch">A stretch goal — beyond what they already know</label>
+    <textarea id="stretch" placeholder="An idea, problem or skill just out of reach"></textarea>
+    <label for="project">A real project to work on</label>
+    <textarea id="project" placeholder="Something they make, write, build or teach others"></textarea>
+    <label for="rest">How you will protect rest and play</label>
+    <input id="rest" placeholder="Bored time, free time, plain silly fun">
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['interest','stretch','project','rest'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('gcab_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('gcab_'+k,g(k).value)); });
+  function gen(){
+    const t='GIFTED CHILD — ENRICHMENT PLAN\n\nTHEIR CURRENT PASSION:\n'+(v('interest')||'[their obsession]')+
+    '\n\nSTRETCH GOAL (the just-out-of-reach idea):\n'+(v('stretch')||'[a problem, skill or concept that excites them]')+
+    '\n\nREAL PROJECT TO WORK ON:\n'+(v('project')||'[something they make, write, build or teach]')+
+    '\n\nPROTECTING REST & PLAY:\n'+(v('rest')||'[bored time, free time, silly time]')+
+    '\n\n--- Supporting a gifted child ---\nGo deeper, not just further — the same topic from a new angle is gold.\nGive them real problems to solve, not just harder worksheets.\nProtect time to be bored, daydream and play — that is where new ideas come from.\nHelp them learn to be a beginner at something — gifted kids often fear failing.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

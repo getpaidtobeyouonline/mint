@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Garden Planting Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .month { margin-bottom: 10px; }
+  .month .mh { font-size: .82rem; color: #5AE57A; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 4px; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .item .act { color: #5AE57A; font-size: .8rem; flex: none; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Garden Planting Calendar</h1>
+  <p class="sub">Plan what to sow, plant and harvest, month by month — so nothing misses its window.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Plant / crop</label><input id="plant" placeholder="e.g. Tomatoes"></div>
+      <div><label>Month</label><select id="month"></select></div>
+      <div><label>Activity</label><select id="act"><option>Sow indoors</option><option>Sow outdoors</option><option>Plant out</option><option>Harvest</option><option>Prune</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  g('month').innerHTML=MONTHS.map((m,i)=>'<option value="'+i+'">'+m+'</option>').join('');
+  g('month').value=new Date().getMonth();
+  let R=JSON.parse(localStorage.getItem('gpc')||'[]');
+  const save=()=>localStorage.setItem('gpc',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('plant')){ alert('Enter a plant.'); return; }
+    R.push({p:v('plant'),m:+g('month').value,a:g('act').value}); g('plant').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the calendar?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No plants added yet.</div>'; return; }
+    L.innerHTML=MONTHS.map((m,mi)=>{
+      const items=R.map((x,i)=>({x,i})).filter(o=>o.x.m===mi);
+      if(!items.length)return '';
+      return '<div class="month"><div class="mh">'+m+'</div>'+items.map(({x,i})=>
+        '<div class="item"><span>'+esc(x.p)+'</span><span><span class="act">'+x.a+'</span> <span class="x" onclick="del('+i+')">✕</span></span></div>').join('')+'</div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Goal Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .goal { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 10px; }
+  .goal .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .goal .nm { font-weight: 500; }
+  .goal .pct { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .goal .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .track { background: #3C603C; border-radius: 4px; height: 7px; overflow: hidden; margin-top: 6px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .acts { display: flex; gap: 12px; margin-top: 6px; font-size: .8rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Investment Goal Tracker</h1>
+  <p class="sub">Track multiple investing goals — house, retirement, kids — with one clear progress view.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Goal name</label><input id="nm" placeholder="e.g. House deposit"></div>
+      <div><label>Target ($)</label><input id="tgt" type="number" min="0"></div>
+      <div><label>Current ($)</label><input id="cur" type="number" min="0"></div>
+      <div><label>Target date</label><input id="dt" type="date"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let G=JSON.parse(localStorage.getItem('igt')||'[]');
+  const save=()=>localStorage.setItem('igt',JSON.stringify(G));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Name the goal.');return;} G.push({nm,tgt:nu('tgt'),cur:nu('cur'),dt:v('dt')}); ['nm','tgt','cur','dt'].forEach(k=>g(k).value=''); save(); render(); }
+  function bump(i){ const a=prompt('Add to balance ($):'); const p=parseFloat(a); if(!p)return; G[i].cur+=p; save(); render(); }
+  function del(i){ G.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ G=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!G.length){ L.innerHTML='<div class="empty">No investing goals yet.</div>'; return; }
+    const today=new Date().toISOString().slice(0,10);
+    L.innerHTML=G.map((x,i)=>{ const pct=x.tgt>0?Math.min(100,Math.round(x.cur/x.tgt*100)):0;
+      const gap=Math.max(0,x.tgt-x.cur); let mNeed='—';
+      if(x.dt){ const m=Math.max(1,Math.round((new Date(x.dt)-new Date(today))/(86400000*30))); mNeed='$'+Math.ceil(gap/m).toLocaleString()+'/mo'; }
+      return `<div class="goal"><div class="top"><span class="nm">${esc(x.nm)}</span><span class="pct">${pct}%</span></div>
+        <div class="meta">$${x.cur.toLocaleString()} of $${x.tgt.toLocaleString()}${x.dt?` · by ${x.dt}`:''} · need ${mNeed}</div>
+        <div class="track"><i style="width:${pct}%"></i></div>
+        <div class="acts"><span onclick="bump(${i})">+ Add contribution</span><span onclick="del(${i})">✕ Delete</span></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

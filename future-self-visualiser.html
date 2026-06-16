@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Self Visualiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 50px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px 18px; }
+  .res h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; margin-bottom: 8px; }
+  .res p { font-size: .95rem; margin-bottom: 8px; }
+  .res b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Future Self Visualiser</h1>
+  <p class="sub">Write a letter from your future self — the one who already made it. Read it whenever you forget.</p>
+
+  <div class="panel">
+    <label for="years">How many years in the future?</label>
+    <select id="years"><option>1</option><option selected>3</option><option>5</option><option>10</option></select>
+    <label for="proud">What is future-you most proud of?</label>
+    <textarea id="proud" placeholder="The thing they kept going on, even when it was hard"></textarea>
+    <label for="learn">What did future-you learn that current-you doesn't quite get yet?</label>
+    <textarea id="learn" placeholder="The lesson on the other side of this season"></textarea>
+    <label for="stop">What does future-you wish you would stop doing TODAY?</label>
+    <textarea id="stop" placeholder="The habit / thought / worry that wasted the most time"></textarea>
+    <label for="trust">What does future-you want you to trust?</label>
+    <input id="trust" placeholder="One sentence">
+    <button class="btn" onclick="gen()">Write the Letter</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['years','proud','learn','stop','trust'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('fsv_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('fsv_'+k,g(k).value)); });
+  function gen(){
+    g('out').innerHTML='<div class="res"><h3>A letter from '+esc(g('years').value)+' years ahead</h3>'+
+      '<p>Hi, it is me. The me you become if you keep going.</p>'+
+      '<p>I want you to know: <b>'+esc(v('proud')||'(what you are proud of)')+'</b>. We did it. It was harder than I made it look from where you stand &mdash; and worth all of it.</p>'+
+      '<p>Here is the thing you do not see yet: <b>'+esc(v('learn')||'(the lesson)')+'</b>.</p>'+
+      '<p>Please stop doing this today: <b>'+esc(v('stop')||'(what to stop)')+'</b>. It is not protecting us. It is the only thing slowing us down.</p>'+
+      '<p>And trust this: <b>'+esc(v('trust')||'(what to trust)')+'</b>.</p>'+
+      '<p style="margin-top:14px;opacity:.85">I love you. I have got us. Keep going.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Write first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

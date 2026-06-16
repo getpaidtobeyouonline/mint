@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gratitude Practice Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .stat { text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .stat .l { font-size: .72rem; text-transform: uppercase; opacity: .6; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .entry .d { font-size: .76rem; color: #5AE57A; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .entry .x { cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; }
+  .entry ul { margin-left: 18px; font-size: .9rem; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gratitude Practice Tool</h1>
+  <p class="sub">Three good things, every day — the simplest practice that shifts everything.</p>
+
+  <div class="panel">
+    <div class="stat"><div class="n" id="streak">0</div><div class="l">day streak</div></div>
+    <label for="g1">1. I am grateful for...</label>
+    <input id="g1" placeholder="Something big or beautifully small">
+    <label for="g2">2. I am grateful for...</label>
+    <input id="g2" placeholder="A person, a moment, a comfort">
+    <label for="g3">3. I am grateful for...</label>
+    <input id="g3" placeholder="Something about today, or about you">
+    <button class="btn" onclick="save()">Save Today's Gratitude</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('gpt')||'[]');
+  const save2=()=>localStorage.setItem('gpt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function save(){
+    const items=[v('g1'),v('g2'),v('g3')].filter(x=>x);
+    if(!items.length){ alert('Write at least one thing you are grateful for.'); return; }
+    const today=new Date().toISOString().slice(0,10);
+    R=R.filter(e=>e.key!==today);
+    R.unshift({key:today,date:new Date().toLocaleDateString(),items:items});
+    save2(); ['g1','g2','g3'].forEach(k=>g(k).value=''); render();
+  }
+  function del(i){ R.splice(i,1); save2(); render(); }
+  function streak(){
+    let s=0, d=new Date();
+    for(;;){ const k=d.toISOString().slice(0,10); if(R.some(e=>e.key===k)){ s++; d.setDate(d.getDate()-1); } else break; }
+    if(s===0){ const y=new Date(); y.setDate(y.getDate()-1); if(R.some(e=>e.key===y.toISOString().slice(0,10))){ /* yesterday only */ } }
+    return s;
+  }
+  function render(){
+    g('streak').textContent=streak();
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">Your gratitude entries will appear here.</div>'; return; }
+    L.innerHTML=R.map((e,i)=>'<div class="entry"><div class="d"><span>'+e.date+'</span><span class="x" onclick="del('+i+')">✕</span></div><ul>'+e.items.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

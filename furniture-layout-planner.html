@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Furniture Layout Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 80px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .roombox { background: #2A442A; border: 2px dashed #4C724C; border-radius: 8px; margin: 12px 0; position: relative; }
+  .piece { position: absolute; background: rgba(201,168,76,0.3); border: 1px solid #5AE57A; border-radius: 4px; font-size: .68rem; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2px; color: #FFFFFF; overflow: hidden; }
+  .scaleinfo { text-align: center; font-size: .8rem; opacity: .65; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .85rem; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Furniture Layout Planner</h1>
+  <p class="sub">Sketch a room to scale and check furniture fits before you buy or move it.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Room width (cm)</label><input id="rw" type="number" min="50" value="400" oninput="render()"></div>
+      <div><label>Room length (cm)</label><input id="rl" type="number" min="50" value="350" oninput="render()"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <label>Add furniture (drawn to scale, top-left placement)</label>
+    <div class="row">
+      <div style="flex:2"><input id="fname" placeholder="e.g. Sofa"></div>
+      <div><input id="fw" type="number" min="10" placeholder="W cm"></div>
+      <div><input id="fl" type="number" min="10" placeholder="L cm"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+    <div class="roombox" id="roombox"></div>
+    <div class="scaleinfo" id="scaleinfo"></div>
+    <div id="list" style="margin-top:10px"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+    <div class="note">Pieces stack from the top-left so you can see how much floor they take. Aim to keep ~60-90cm walkways clear.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('flp')||'[]');
+  const save=()=>localStorage.setItem('flp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const w=parseInt(g('fw').value)||0, l=parseInt(g('fl').value)||0;
+    if(!v('fname')||!w||!l){ alert('Enter a name, width and length.'); return; }
+    R.push({n:v('fname'),w,l}); ['fname','fw','fl'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all furniture?')){ R=[]; save(); render(); } }
+  function render(){
+    const rw=parseInt(g('rw').value)||400, rl=parseInt(g('rl').value)||350;
+    const maxW=g('roombox').parentElement.clientWidth-40;
+    const scale=Math.min(maxW/rw, 1.2);
+    const box=g('roombox');
+    box.style.width=(rw*scale)+'px';
+    box.style.height=(rl*scale)+'px';
+    let x=0,y=0,rowH=0;
+    box.innerHTML=R.map((p,i)=>{
+      const pw=p.w*scale, pl=p.l*scale;
+      if(x+pw>rw*scale){ x=0; y+=rowH; rowH=0; }
+      const style='left:'+x+'px;top:'+y+'px;width:'+pw+'px;height:'+pl+'px';
+      x+=pw+2; rowH=Math.max(rowH,pl+2);
+      return '<div class="piece" style="'+style+'">'+esc(p.n)+'</div>';
+    }).join('');
+    const used=R.reduce((s,p)=>s+p.w*p.l,0);
+    const total=rw*rl;
+    g('scaleinfo').textContent='Room '+rw+'×'+rl+'cm · furniture covers ~'+Math.round(used/total*100)+'% of the floor';
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No furniture added yet.</div>'; return; }
+    L.innerHTML=R.map((p,i)=>'<div class="item"><span>'+esc(p.n)+' · '+p.w+'×'+p.l+'cm</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+  window.addEventListener('resize',render);
+</script>
+</body>
+</html>

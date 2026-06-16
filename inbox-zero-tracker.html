@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inbox Zero Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .ichips { display: flex; gap: 7px; flex-wrap: wrap; }
+  .ichip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 6px 14px; border-radius: 16px; font-size: 0.79rem; cursor: pointer; transition: all 0.15s; }
+  .ichip.sel { border-color: var(--ic); color: var(--ic); background: var(--ib); }
+  .count-hero { text-align: center; padding: 18px 0 14px; }
+  .count-big { font-family: 'Playfair Display', serif; font-size: 5.5rem; line-height: 1; margin-bottom: 8px; }
+  .count-meta { font-size: 0.8rem; color: #BFD8BF; margin-bottom: 12px; }
+  .zero-title { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; margin-bottom: 6px; animation: glow 2.5s ease-in-out infinite; }
+  @keyframes glow { 0%,100%{text-shadow:0 0 8px #C9A84C44} 50%{text-shadow:0 0 22px #C9A84Caa} }
+  .bar-track { background: #325132; border-radius: 5px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+  .log-row { display: flex; gap: 8px; margin-top: 16px; }
+  .count-input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 11px 14px; border-radius: 8px; font-family: 'Playfair Display', serif; font-size: 1.1rem; outline: none; text-align: center; }
+  .count-input:focus { border-color: #5AE57A; }
+  .btn-log { background: #5AE57A; color: #325132; border: none; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-log:hover { background: #5AE57A; }
+  .tally-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 7px; margin-bottom: 12px; }
+  .tally-btn { background: #325132; border: 1px solid #3C603C; border-radius: 10px; padding: 12px 4px 10px; text-align: center; cursor: pointer; transition: transform 0.1s, border-color 0.15s; user-select: none; }
+  .tally-btn:hover { border-color: var(--tc); }
+  .tally-btn:active { transform: scale(0.88); }
+  .t-icon { font-size: 1rem; margin-bottom: 4px; }
+  .t-count { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--tc); line-height: 1; }
+  .t-lbl { font-size: 0.58rem; color: #BFD8BF; margin-top: 3px; }
+  .tally-total { text-align: right; font-size: 0.78rem; color: #BFD8BF; }
+  .stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .snap-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.83rem; }
+  .snap-item:last-child { border-bottom: none; }
+  .snap-time { color: #BFD8BF; width: 72px; flex-shrink: 0; }
+  .snap-count { font-family: 'Playfair Display', serif; font-size: 1rem; flex-shrink: 0; }
+  .snap-delta { font-size: 0.78rem; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 14px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Inbox Zero Tracker</h1>
+<p class="subtitle">Log where you are. Track what you process. Get to zero.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="field-label" style="margin-bottom:10px">Which inbox?</div>
+  <div class="ichips" id="inboxChips"></div>
+</div>
+
+<div class="card">
+  <div id="countHero"><div class="count-meta" style="padding:18px 0">Log your inbox count below to begin.</div></div>
+  <div class="log-row">
+    <input class="count-input" id="countInput" type="number" min="0" placeholder="Current inbox count" />
+    <button class="btn-log" onclick="logCount()">Log Count</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Processing Tally</div>
+  <div class="tally-grid" id="tallyGrid"></div>
+  <div class="tally-total">Total processed today: <span id="tallyTotal">0</span></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statStreak">0</div><div class="stat-l">zero streak</div></div>
+  <div class="stat-box"><div class="stat-n" id="statZeroToday">—</div><div class="stat-l">zero today</div></div>
+  <div class="stat-box"><div class="stat-n" id="statCleared">0</div><div class="stat-l">cleared today</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Count Log</div>
+  <div id="snapList"><p class="empty">No count logs yet today.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const INBOXES = [
+  {id:'email',    icon:'📧', label:'Email',    color:'#5AE57A', bg:'#1a150818'},
+  {id:'slack',    icon:'💬', label:'Slack',    color:'#5AE57A', bg:'#080e1818'},
+  {id:'linkedin', icon:'💼', label:'LinkedIn', color:'#5AE57A', bg:'#10081818'},
+  {id:'teams',    icon:'🟦', label:'Teams',    color:'#5AE57A', bg:'#08101818'},
+  {id:'other',    icon:'📥', label:'Other',    color:'#5AE57A', bg:'#08140818'},
+];
+const ACTIONS = [
+  {id:'done',      icon:'✓',  label:'Replied',  color:'#5AE57A'},
+  {id:'deleted',   icon:'🗑', label:'Deleted',  color:'#5AE57A'},
+  {id:'archived',  icon:'📁', label:'Archived', color:'#5AE57A'},
+  {id:'delegated', icon:'→',  label:'Delegated',color:'#5AE57A'},
+  {id:'snoozed',   icon:'⏰', label:'Snoozed',  color:'#5AE57A'},
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+let selInbox = 'email';
+let data = load(), zeroLog = JSON.parse(localStorage.getItem('izt_zeros')||'[]');
+
+function load() {
+  const d = JSON.parse(localStorage.getItem('izt_'+selInbox+'_'+TODAY)||'null');
+  return d || {snapshots:[], tally:{done:0,deleted:0,archived:0,delegated:0,snoozed:0}};
+}
+function save() { localStorage.setItem('izt_'+selInbox+'_'+TODAY, JSON.stringify(data)); }
+function fmtTime(ts){const d=new Date(ts),h=d.getHours(),m=d.getMinutes();return`${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;}
+
+document.getElementById('inboxChips').innerHTML = INBOXES.map(ib=>
+  `<div class="ichip${ib.id===selInbox?' sel':''}" style="--ic:${ib.color};--ib:${ib.bg}" id="ic-${ib.id}" onclick="pickInbox('${ib.id}')">${ib.icon} ${ib.label}</div>`).join('');
+
+document.getElementById('tallyGrid').innerHTML = ACTIONS.map(a=>
+  `<div class="tally-btn" style="--tc:${a.color}" id="tb-${a.id}" onclick="tapTally('${a.id}')">
+    <div class="t-icon">${a.icon}</div>
+    <div class="t-count" id="tc-${a.id}">0</div>
+    <div class="t-lbl">${a.label}</div>
+  </div>`).join('');
+
+function pickInbox(id) {
+  selInbox=id;
+  INBOXES.forEach(ib=>document.getElementById('ic-'+ib.id).classList.toggle('sel',ib.id===id));
+  data=load(); render();
+}
+
+function logCount() {
+  const val=parseInt(document.getElementById('countInput').value);
+  if(isNaN(val)||val<0) return;
+  data.snapshots.push({ts:Date.now(),count:val});
+  document.getElementById('countInput').value='';
+  if(val===0){
+    const key=TODAY+'_'+selInbox;
+    if(!zeroLog.includes(key)){zeroLog.push(key);localStorage.setItem('izt_zeros',JSON.stringify(zeroLog));}
+  }
+  save(); render();
+}
+
+function tapTally(id) {
+  data.tally[id]++;
+  save();
+  document.getElementById('tc-'+id).textContent=data.tally[id];
+  document.getElementById('tallyTotal').textContent=Object.values(data.tally).reduce((s,v)=>s+v,0);
+  const btn=document.getElementById('tb-'+id);
+  btn.style.transform='scale(0.88)';
+  setTimeout(()=>btn.style.transform='',120);
+}
+
+function getStreak() {
+  const days=[...new Set(zeroLog.filter(k=>k.endsWith('_'+selInbox)).map(k=>k.replace('_'+selInbox,'')))].sort((a,b)=>b.localeCompare(a));
+  let streak=0,prev=null;
+  for(const d of days){
+    if(!prev){prev=d;streak=1;continue;}
+    if((new Date(prev+'T12:00:00')-new Date(d+'T12:00:00'))/86400000<=1){streak++;prev=d;}else break;
+  }
+  return streak;
+}
+
+function render() {
+  const ib=INBOXES.find(i=>i.id===selInbox);
+  const snaps=data.snapshots;
+  const hero=document.getElementById('countHero');
+
+  if(!snaps.length){
+    hero.innerHTML='<div class="count-meta" style="padding:18px 0 6px">Log your starting inbox count below to begin.</div>';
+  } else {
+    const start=snaps[0].count, cur=snaps[snaps.length-1].count;
+    const cleared=start-cur, pct=start>0?Math.min(100,Math.max(0,cleared/start*100)):100;
+    if(cur===0){
+      hero.innerHTML=`<div class="zero-title">✦ Inbox Zero</div><div class="count-meta">Achieved at ${fmtTime(snaps[snaps.length-1].ts)}${start>0?' · '+start+' messages cleared':''}</div>`;
+    } else {
+      hero.innerHTML=`<div class="count-big" style="color:${ib.color}">${cur}</div>
+        <div class="count-meta">${start>0?'Started at '+start+(cleared>0?' · '+cleared+' cleared':''):'First log — keep going'}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${ib.color}"></div></div>`;
+    }
+  }
+
+  ACTIONS.forEach(a=>{ document.getElementById('tc-'+a.id).textContent=data.tally[a.id]; });
+  document.getElementById('tallyTotal').textContent=Object.values(data.tally).reduce((s,v)=>s+v,0);
+
+  const todayZero=zeroLog.includes(TODAY+'_'+selInbox);
+  document.getElementById('statStreak').textContent=getStreak();
+  document.getElementById('statZeroToday').textContent=todayZero?'✓':'—';
+  const start=snaps.length?snaps[0].count:0, cur=snaps.length?snaps[snaps.length-1].count:0;
+  document.getElementById('statCleared').textContent=Math.max(0,start-cur);
+
+  const el=document.getElementById('snapList');
+  if(!snaps.length){el.innerHTML='<p class="empty">No count logs yet today.</p>';return;}
+  el.innerHTML=[...snaps].reverse().map((s,i,arr)=>{
+    const prev=arr[i+1];
+    const diff=prev?s.count-prev.count:null;
+    const delta=diff!==null?(diff<0?`<span class="snap-delta" style="color:#5AE57A">↓${Math.abs(diff)}</span>`:diff>0?`<span class="snap-delta" style="color:#5AE57A">↑${diff}</span>':''):'' ;
+    return `<div class="snap-item">
+      <span class="snap-time">${fmtTime(s.ts)}</span>
+      <span class="snap-count" style="color:${s.count===0?'#5AE57A':ib.color}">${s.count===0?'✦ Zero':s.count}</span>
+      ${delta}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('countInput').addEventListener('keydown',e=>{if(e.key==='Enter')logCount();});
+render();
+</script>
+</body>
+</html>

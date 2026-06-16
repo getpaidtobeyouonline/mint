@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homesickness Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .lead { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; font-size: .87rem; font-style: italic; margin-bottom: 6px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 10px 16px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .entry .d { color: #5AE57A; font-size: .82rem; }
+  .entry .x { float: right; cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; color: #5AE57A; }
+  .entry p { font-size: .89rem; margin-top: 3px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Homesickness Journal</h1>
+  <p class="sub">Missing home is normal and human. Writing through it helps it pass faster.</p>
+
+  <div class="panel">
+    <div class="lead">Homesickness is love with nowhere to go. It does not mean you made the wrong choice — it means you have things worth missing.</div>
+    <label for="miss">What I am missing right now</label>
+    <textarea id="miss" placeholder="Name it honestly — a person, a place, a feeling, a food"></textarea>
+    <label for="feel">How homesick I feel today</label>
+    <select id="feel"><option>A gentle ache</option><option>Up and down</option><option>Really struggling today</option><option>Better than yesterday</option></select>
+    <label for="grateful">One good thing about where I am now</label>
+    <input id="grateful" placeholder="However small">
+    <label for="connect">One way I will connect with home this week</label>
+    <input id="connect" placeholder="A call, a message, a familiar recipe...">
+    <button class="btn" onclick="add()">Save Entry</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('hsj2')||'[]');
+  const save=()=>localStorage.setItem('hsj2',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){
+    if(!v('miss')&&!v('grateful')){ alert('Write at least one part.'); return; }
+    R.push({d:new Date().toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}),miss:v('miss'),feel:g('feel').value,grateful:v('grateful'),connect:v('connect')});
+    ['miss','grateful','connect'].forEach(k=>g(k).value=''); save(); render();
+  }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all entries?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No entries yet — write when you need to.</div>'; return; }
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      let p='<p style="opacity:.7">'+esc(x.feel)+'</p>';
+      if(x.miss)p+='<p>💭 '+esc(x.miss)+'</p>';
+      if(x.grateful)p+='<p style="color:#5AE57A">✨ '+esc(x.grateful)+'</p>';
+      if(x.connect)p+='<p>🤍 Connecting with home: '+esc(x.connect)+'</p>';
+      return '<div class="entry"><span class="x" onclick="del('+i+')">✕</span><div class="d">'+x.d+'</div>'+p+'</div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

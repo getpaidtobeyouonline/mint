@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hook Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .sub { opacity: 0.85; max-width: 540px; margin: 0 auto; }
+  .card {
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #5AE57A;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid rgba(240, 235, 224, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 18px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  button:hover { transform: translateY(-1px); opacity: 0.92; }
+  button.ghost {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .hook {
+    background: rgba(201, 168, 76, 0.06);
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: start;
+  }
+  .hook-type {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #5AE57A;
+    background: rgba(201, 168, 76, 0.14);
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .hook-text { font-size: 1.02rem; line-height: 1.5; }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid rgba(201, 168, 76, 0.5);
+    color: #5AE57A;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;
+    white-space: nowrap;
+    margin-top: 18px;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .actions button { flex: 1; min-width: 130px; width: auto; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Hook Generator</h1>
+    <p class="sub">12 scroll-stopping first lines, built around your topic. Pick the one that fits, paste, and post.</p>
+  </header>
+
+  <div class="card" id="inputCard">
+    <label for="topic">Your post topic</label>
+    <input id="topic" type="text" placeholder="e.g. starting a podcast, healing burnout, raising prices" />
+
+    <label for="audience">Your audience</label>
+    <input id="audience" type="text" placeholder="e.g. solopreneurs, new moms, creative directors" />
+
+    <label for="platform">Platform</label>
+    <select id="platform">
+      <option>Instagram</option>
+      <option>TikTok</option>
+      <option>LinkedIn</option>
+      <option>YouTube</option>
+      <option>Twitter / X</option>
+      <option>Threads</option>
+    </select>
+
+    <button onclick="generate()">Generate 12 Hooks</button>
+  </div>
+
+  <div id="output" class="hidden"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const HOOKS = [
+    { type: "Curiosity",  text: "Nobody talks about this part of {{topic}}, but it changes everything." },
+    { type: "Contrarian", text: "Unpopular opinion: most {{audience}} are doing {{topic}} completely backwards." },
+    { type: "Stat",       text: "9 out of 10 {{audience}} get {{topic}} wrong in the first 30 days. Here's why." },
+    { type: "Question",   text: "If {{topic}} feels impossible right now, this is for you." },
+    { type: "Mistake",    text: "I wasted 2 years on {{topic}} doing what everyone told me to. Don't repeat it." },
+    { type: "Promise",    text: "By the end of this post, you'll know exactly what to do about {{topic}} this week." },
+    { type: "Story",      text: "The day I almost quit {{topic}} is the day everything shifted." },
+    { type: "List",       text: "5 signs you're closer to cracking {{topic}} than you think." },
+    { type: "Direct",     text: "{{audience}}: read this before you touch {{topic}} again." },
+    { type: "Reframe",    text: "{{topic}} isn't the problem. The way you've been taught it is." },
+    { type: "Confession", text: "I'm a little embarrassed to admit how long {{topic}} took me to figure out." },
+    { type: "FOMO",       text: "Everyone is quietly winning at {{topic}} this year — here's how they're doing it." }
+  ];
+
+  function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    const audience = document.getElementById('audience').value.trim();
+    const platform = document.getElementById('platform').value;
+
+    if (!topic || !audience) {
+      alert('Please fill in topic and audience first.');
+      return;
+    }
+
+    let html = `<div class="card">
+      <h2 style="font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.5rem;margin-bottom:6px;">12 Hooks Ready For ${platform}</h2>
+      <p style="opacity:0.8;margin-bottom:14px;font-size:0.92rem;">Each one is a different angle. Test 2-3 over the next week and watch your watch time climb.</p>`;
+
+    HOOKS.forEach((h, i) => {
+      const text = h.text.replace(/{{topic}}/g, topic).replace(/{{audience}}/g, audience);
+      html += `<div class="hook">
+        <div>
+          <span class="hook-type">${h.type}</span>
+          <div class="hook-text" id="hook-${i}">${text}</div>
+        </div>
+        <button class="copy-btn" onclick="copyHook(${i})">Copy</button>
+      </div>`;
+    });
+
+    html += `<div class="actions">
+      <button class="ghost" onclick="copyAll()">Copy All 12</button>
+      <button class="ghost" onclick="reset()">Try Another Topic</button>
+    </div></div>`;
+
+    const out = document.getElementById('output');
+    out.innerHTML = html;
+    out.classList.remove('hidden');
+    document.getElementById('inputCard').classList.add('hidden');
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyHook(i) {
+    const txt = document.getElementById('hook-' + i).innerText;
+    navigator.clipboard.writeText(txt).then(() => flash(i));
+  }
+
+  function flash(i) {
+    const btn = document.querySelectorAll('.copy-btn')[i];
+    const orig = btn.innerText;
+    btn.innerText = 'Copied';
+    setTimeout(() => btn.innerText = orig, 1200);
+  }
+
+  function copyAll() {
+    const all = Array.from(document.querySelectorAll('.hook')).map((h, i) => {
+      const type = h.querySelector('.hook-type').innerText;
+      const text = h.querySelector('.hook-text').innerText;
+      return `${i + 1}. [${type}]\n${text}\n`;
+    }).join('\n');
+    navigator.clipboard.writeText(all).then(() => alert('All 12 hooks copied.'));
+  }
+
+  function reset() {
+    document.getElementById('output').classList.add('hidden');
+    document.getElementById('inputCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

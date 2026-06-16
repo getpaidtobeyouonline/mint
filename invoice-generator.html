@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.65; margin-bottom: 1.75rem; font-size: 0.9rem; }
+    .container { max-width: 720px; margin: 0 auto; }
+    .card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.3rem; margin-bottom: 1rem; }
+    .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 1rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.65rem; }
+    .field { margin-bottom: 0.65rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.78rem; opacity: 0.55; margin-bottom: 0.3rem; }
+    input[type="text"], input[type="number"], input[type="date"], textarea { width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.6rem 0.85rem; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; resize: vertical; }
+    input:focus, textarea:focus { border-color: #5AE57A; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .items-header { display: grid; grid-template-columns: 1fr 65px 90px 85px 28px; gap: 0.5rem; padding: 0.4rem 0; font-size: 0.72rem; opacity: 0.5; border-bottom: 1px solid #4C724C; margin-bottom: 0.5rem; }
+    .item-row { display: grid; grid-template-columns: 1fr 65px 90px 85px 28px; gap: 0.5rem; margin-bottom: 0.4rem; align-items: center; }
+    .item-total { font-size: 0.88rem; color: #5AE57A; text-align: right; }
+    .del-btn { background: transparent; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; transition: color 0.2s; }
+    .del-btn:hover { color: #5AE57A; }
+    .add-item-btn { background: transparent; border: 1px dashed #4C724C; color: #BFD8BF; padding: 0.5rem; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; width: 100%; margin-top: 0.25rem; transition: all 0.2s; }
+    .add-item-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+    .totals { margin-top: 1rem; border-top: 1px solid #3C603C; padding-top: 0.75rem; }
+    .total-row { display: flex; justify-content: flex-end; gap: 2.5rem; padding: 0.35rem 0; font-size: 0.9rem; }
+    .total-row.grand { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; border-top: 1px solid #4C724C; margin-top: 0.3rem; padding-top: 0.5rem; }
+    .total-label { opacity: 0.6; }
+    .tax-inline { width: 48px; padding: 0.2rem 0.4rem !important; display: inline !important; border-radius: 4px; font-size: 0.85rem !important; }
+    .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 1rem 2rem; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 2rem; transition: opacity 0.2s; }
+    .btn-gold:hover { opacity: 0.85; }
+    .btn-row { display: flex; gap: 0.65rem; margin-bottom: 2.5rem; }
+    .btn-outline { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.7rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; transition: all 0.2s; }
+    .btn-outline:hover { background: #5AE57A; color: #325132; }
+    #previewView { display: none; }
+    .invoice { background: #FFFFFF; color: #3C603C; border-radius: 10px; padding: 2.5rem; margin-bottom: 1.25rem; }
+    .inv-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+    .inv-company { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #3C603C; }
+    .inv-from-sub { font-size: 0.82rem; color: #BFD8BF; line-height: 1.6; margin-top: 0.3rem; white-space: pre-line; }
+    .inv-word { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; text-align: right; }
+    .inv-num-sub { font-size: 0.82rem; color: #BFD8BF; text-align: right; margin-top: 0.2rem; }
+    .inv-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 1.5rem 0; border-top: 2px solid #FFFFFF; border-bottom: 2px solid #FFFFFF; margin-bottom: 2rem; }
+    .inv-meta-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #5AE57A; margin-bottom: 0.4rem; }
+    .inv-meta-val { font-size: 0.88rem; color: #4C724C; line-height: 1.65; white-space: pre-line; }
+    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.88rem; }
+    .inv-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: #BFD8BF; border-bottom: 2px solid #FFFFFF; padding: 0.5rem 0.5rem 0.5rem 0; }
+    .inv-table th:not(:first-child) { text-align: right; }
+    .inv-table td { padding: 0.75rem 0.5rem 0.75rem 0; border-bottom: 1px solid #FFFFFF; color: #5A845A; vertical-align: top; }
+    .inv-table td:not(:first-child) { text-align: right; }
+    .inv-totals { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; margin-bottom: 1.5rem; min-width: 220px; margin-left: auto; }
+    .inv-trow { display: flex; justify-content: space-between; width: 100%; font-size: 0.88rem; color: #BFD8BF; gap: 2rem; }
+    .inv-trow.final { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #3C603C; border-top: 2px solid #3C603C; padding-top: 0.5rem; margin-top: 0.25rem; }
+    .inv-notes { background: #FFFFFF; border-left: 3px solid #5AE57A; padding: 1rem 1.2rem; border-radius: 0 6px 6px 0; }
+    .inv-notes-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.12em; color: #5AE57A; margin-bottom: 0.4rem; }
+    .inv-notes-body { font-size: 0.85rem; color: #BFD8BF; line-height: 1.6; white-space: pre-line; }
+    .inv-foot { text-align: center; font-size: 0.75rem; color: #FFFFFF; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid #FFFFFF; }
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; margin-top: 1rem; }
+    @media (max-width: 520px) {
+      .grid2, .grid3 { grid-template-columns: 1fr; }
+      .items-header { display: none; }
+      .item-row { grid-template-columns: 1fr 55px 80px 70px 24px; }
+      .inv-top { flex-direction: column; gap: 1rem; }
+      .inv-word { text-align: left; }
+      .inv-meta { grid-template-columns: 1fr; }
+    }
+    @media print {
+      body { background: #FFFFFF; padding: 0; }
+      #editView, .btn-row, footer { display: none !important; }
+      #previewView { display: block !important; }
+      .invoice { border-radius: 0; padding: 1.5rem; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Invoice Generator</h1>
+  <p class="subtitle">Fill in your details, generate a professional invoice, and save as PDF in one click.</p>
+
+  <div id="editView">
+    <div class="card">
+      <div class="card-title">Your Business</div>
+      <div class="grid2">
+        <div class="field"><label>Business / Your Name</label><input type="text" id="fromName" placeholder="Your Business Name"></div>
+        <div class="field"><label>Email</label><input type="text" id="fromEmail" placeholder="you@email.com"></div>
+      </div>
+      <div class="field"><label>Address / Details (optional)</label><textarea id="fromAddr" rows="2" placeholder="Street, City, State ZIP"></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Bill To</div>
+      <div class="grid2">
+        <div class="field"><label>Client Name</label><input type="text" id="toName" placeholder="Client or Business Name"></div>
+        <div class="field"><label>Client Email</label><input type="text" id="toEmail" placeholder="client@email.com"></div>
+      </div>
+      <div class="field"><label>Client Address (optional)</label><textarea id="toAddr" rows="2" placeholder="Street, City, State ZIP"></textarea></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Invoice Details</div>
+      <div class="grid3">
+        <div class="field"><label>Invoice #</label><input type="text" id="invNum" placeholder="INV-001"></div>
+        <div class="field"><label>Invoice Date</label><input type="date" id="invDate"></div>
+        <div class="field"><label>Due Date</label><input type="date" id="dueDate"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Line Items</div>
+      <div class="items-header"><span>Description</span><span>Qty</span><span style="text-align:right">Rate</span><span style="text-align:right">Amount</span><span></span></div>
+      <div id="itemRows"></div>
+      <button class="add-item-btn" onclick="addItem()">+ Add line item</button>
+      <div class="totals">
+        <div class="total-row"><span class="total-label">Subtotal</span><span id="subtotal">$0.00</span></div>
+        <div class="total-row">
+          <span class="total-label">Tax&nbsp;<input type="number" id="taxRate" class="tax-inline" placeholder="0" min="0" max="100" step="0.1" oninput="calcTotals()">%</span>
+          <span id="taxAmt">$0.00</span>
+        </div>
+        <div class="total-row grand"><span>Total Due</span><span id="grandTotal">$0.00</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Notes (optional)</div>
+      <textarea id="notes" rows="3" placeholder="Payment instructions, bank details, thank you note…"></textarea>
+    </div>
+
+    <button class="btn-gold" onclick="generateInvoice()">✦ Generate Invoice</button>
+  </div>
+
+  <div id="previewView">
+    <div class="invoice" id="invoiceDoc"></div>
+    <div class="btn-row">
+      <button class="btn-outline" onclick="window.print()">Print / Save PDF</button>
+      <button class="btn-outline" onclick="backToEdit()">Edit Invoice</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const today = new Date().toISOString().slice(0,10);
+  const due30 = new Date(Date.now()+30*864e5).toISOString().slice(0,10);
+  document.getElementById('invDate').value = today;
+  document.getElementById('dueDate').value = due30;
+  document.getElementById('invNum').value  = 'INV-001';
+
+  const biz = JSON.parse(localStorage.getItem('gpbyo_inv') || '{}');
+  ['fromName','fromEmail','fromAddr'].forEach(id => {
+    if (biz[id]) document.getElementById(id).value = biz[id];
+    document.getElementById(id).addEventListener('change', saveBiz);
+  });
+  function saveBiz() {
+    localStorage.setItem('gpbyo_inv', JSON.stringify({
+      fromName: document.getElementById('fromName').value,
+      fromEmail: document.getElementById('fromEmail').value,
+      fromAddr: document.getElementById('fromAddr').value
+    }));
+  }
+
+  function fmt(n) { return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function fmtDate(d) {
+    if (!d) return '—';
+    const [y,m,dd] = d.split('-');
+    return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]+' '+parseInt(dd)+', '+y;
+  }
+
+  function addItem(desc='',qty='1',rate='') {
+    const r = document.createElement('div');
+    r.className = 'item-row';
+    r.innerHTML = `
+      <input type="text" placeholder="Description" value="${desc}" oninput="calcTotals()">
+      <input type="number" placeholder="1" value="${qty}" min="0" step="any" oninput="calcTotals()">
+      <input type="number" placeholder="0.00" value="${rate}" min="0" step="0.01" oninput="calcTotals()">
+      <span class="item-total">$0.00</span>
+      <button class="del-btn" onclick="this.closest('.item-row').remove();calcTotals()">✕</button>`;
+    document.getElementById('itemRows').appendChild(r);
+    calcTotals();
+  }
+
+  function calcTotals() {
+    let sub = 0;
+    document.querySelectorAll('#itemRows .item-row').forEach(row => {
+      const qty  = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+      const rate = parseFloat(row.querySelectorAll('input')[2].value) || 0;
+      const amt  = qty * rate; sub += amt;
+      row.querySelector('.item-total').textContent = fmt(amt);
+    });
+    const tax = sub * (parseFloat(document.getElementById('taxRate').value)||0) / 100;
+    document.getElementById('subtotal').textContent   = fmt(sub);
+    document.getElementById('taxAmt').textContent     = fmt(tax);
+    document.getElementById('grandTotal').textContent = fmt(sub+tax);
+  }
+
+  function generateInvoice() {
+    const g   = id => document.getElementById(id).value.trim();
+    const taxPct = parseFloat(document.getElementById('taxRate').value) || 0;
+    let sub = 0;
+    const rows = [...document.querySelectorAll('#itemRows .item-row')].map(row => {
+      const desc = row.querySelectorAll('input')[0].value.trim() || '—';
+      const qty  = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+      const rate = parseFloat(row.querySelectorAll('input')[2].value) || 0;
+      const amt  = qty * rate; sub += amt;
+      return `<tr><td>${desc}</td><td>${qty}</td><td>${fmt(rate)}</td><td>${fmt(amt)}</td></tr>`;
+    }).join('');
+    const tax = sub * taxPct / 100;
+    const fromSub = [g('fromEmail'),g('fromAddr')].filter(Boolean).join('\n');
+    const toSub   = [g('toEmail'),g('toAddr')].filter(Boolean).join('\n');
+
+    document.getElementById('invoiceDoc').innerHTML = `
+      <div class="inv-top">
+        <div><div class="inv-company">${g('fromName')||'Your Business'}</div>${fromSub?`<div class="inv-from-sub">${fromSub}</div>`:''}</div>
+        <div><div class="inv-word">INVOICE</div><div class="inv-num-sub">${g('invNum')}</div></div>
+      </div>
+      <div class="inv-meta">
+        <div><div class="inv-meta-lbl">Bill To</div><div class="inv-meta-val"><strong>${g('toName')||'Client'}</strong>${toSub?'\n'+toSub:''}</div></div>
+        <div style="display:flex;gap:2rem">
+          <div><div class="inv-meta-lbl">Invoice Date</div><div class="inv-meta-val">${fmtDate(g('invDate'))}</div></div>
+          <div><div class="inv-meta-lbl">Due Date</div><div class="inv-meta-val" style="color:#5AE57A;font-weight:600">${fmtDate(g('dueDate'))}</div></div>
+        </div>
+      </div>
+      <table class="inv-table">
+        <thead><tr><th>Description</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="inv-totals">
+        <div class="inv-trow"><span>Subtotal</span><span>${fmt(sub)}</span></div>
+        ${taxPct>0?`<div class="inv-trow"><span>Tax (${taxPct}%)</span><span>${fmt(tax)}</span></div>`:''}
+        <div class="inv-trow final"><span>Total Due</span><span>${fmt(sub+tax)}</span></div>
+      </div>
+      ${g('notes')?`<div class="inv-notes"><div class="inv-notes-lbl">Notes</div><div class="inv-notes-body">${g('notes')}</div></div>`:''}
+      <div class="inv-foot">Thank you for your business.</div>`;
+
+    document.getElementById('editView').style.display   = 'none';
+    document.getElementById('previewView').style.display = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function backToEdit() {
+    document.getElementById('editView').style.display   = 'block';
+    document.getElementById('previewView').style.display = 'none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  addItem('','1','');
+</script>
+</body>
+</html>

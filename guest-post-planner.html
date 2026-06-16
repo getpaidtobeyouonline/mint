@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guest Post Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 22px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 8px;
+  }
+  .section-body { font-size: 0.98rem; white-space: pre-wrap; }
+  .section-body ul { padding-left: 20px; margin-top: 4px; }
+  .section-body li { margin-bottom: 5px; }
+  .countdown {
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+  }
+  .countdown strong { color: #5AE57A; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Guest Post Planner</h1>
+  <p class="subtitle">You landed the slot. Now don't fumble it. Get a working title, outline, bio, and promo plan in 60 seconds.</p>
+
+  <label for="host">Host Publication / Newsletter Name</label>
+  <input type="text" id="host" placeholder="e.g. The Sunday Letter, Indie Hackers, Maya's Newsletter" />
+
+  <label for="audience">Their Audience (who reads it)</label>
+  <input type="text" id="audience" placeholder="e.g. freelance designers earning $40-100k who want to raise rates" />
+
+  <div class="grid">
+    <div>
+      <label for="topic">Your Topic / Angle</label>
+      <input type="text" id="topic" placeholder="e.g. how to price by outcome, not hours" />
+    </div>
+    <div>
+      <label for="words">Target Word Count</label>
+      <select id="words">
+        <option>800</option><option selected>1200</option><option>1500</option><option>2000</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label for="goal">Your Goal From This Post</label>
+      <select id="goal">
+        <option value="leadmag">Drive lead magnet signups</option>
+        <option value="newsletter">Grow my newsletter</option>
+        <option value="product">Sell a specific product</option>
+        <option value="authority">Build authority in a new niche</option>
+      </select>
+    </div>
+    <div>
+      <label for="deadline">Draft Deadline</label>
+      <input type="date" id="deadline" />
+    </div>
+  </div>
+
+  <label for="bio">One-Line Bio</label>
+  <input type="text" id="bio" placeholder="e.g. Sasha Lee teaches freelance designers to price their work like consultants" />
+
+  <label for="link">Where You Want Readers To Go</label>
+  <input type="text" id="link" placeholder="e.g. sashalee.com/pricing-guide" />
+
+  <button class="build-btn" id="buildBtn">Build My Plan</button>
+
+  <div class="plan" id="plan">
+    <div class="countdown" id="countdown"></div>
+
+    <div class="section">
+      <div class="section-title">Working Title Options</div>
+      <div class="section-body" id="titles"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Hook (opening 2-3 sentences)</div>
+      <div class="section-body" id="hook"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Outline</div>
+      <div class="section-body" id="outline"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Author Bio Block</div>
+      <div class="section-body" id="bioBlock"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">CTA Strategy</div>
+      <div class="section-body" id="cta"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Post-Publish Promo Plan</div>
+      <div class="section-body" id="promo"></div>
+    </div>
+
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Plan</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function build() {
+    const host = document.getElementById('host').value.trim() || '[host]';
+    const audience = document.getElementById('audience').value.trim() || '[their audience]';
+    const topic = document.getElementById('topic').value.trim() || '[your topic]';
+    const words = document.getElementById('words').value;
+    const goal = document.getElementById('goal').value;
+    const dl = document.getElementById('deadline').value;
+    const bio = document.getElementById('bio').value.trim() || '[your bio]';
+    const link = document.getElementById('link').value.trim() || '[your link]';
+
+    if (dl) {
+      const days = Math.ceil((new Date(dl + 'T23:59:59') - new Date()) / (1000*60*60*24));
+      document.getElementById('countdown').innerHTML = days >= 0
+        ? `<strong>${days}</strong> day${days===1?'':'s'} until draft is due`
+        : `Deadline passed ${-days} day${-days===1?'':'s'} ago — send the host an update today.`;
+    } else {
+      document.getElementById('countdown').textContent = 'Set a deadline to get a countdown.';
+    }
+
+    const titles = [
+      `The ${topic} playbook for ${audience.split(' ').slice(0,3).join(' ')}`,
+      `Why most advice on ${topic} fails — and what to do instead`,
+      `${topic}: the 3-step shift I wish I'd learned earlier`
+    ];
+    document.getElementById('titles').innerHTML = '<ul>' + titles.map(t=>`<li>${t}</li>`).join('') + '</ul>';
+
+    const hook = `Open with a specific moment: a real conversation, a quote from a reader of ${host}, or a counterintuitive stat about ${topic}. In sentence two, name the exact reader you're writing for (${audience}). In sentence three, promise what they'll walk away with — and earn the next paragraph.`;
+    document.getElementById('hook').textContent = hook;
+
+    const wordBudget = parseInt(words);
+    const sections = Math.max(3, Math.min(5, Math.round(wordBudget / 350)));
+    const outline = [
+      `Intro hook + promise (~${Math.round(wordBudget*0.12)} words)`,
+      `Section 1 — the common belief about ${topic} that holds ${audience} back (~${Math.round(wordBudget*0.22)} words)`,
+      `Section 2 — the reframe and why it works (~${Math.round(wordBudget*0.25)} words)`,
+      `Section 3 — a concrete example or mini case study (~${Math.round(wordBudget*0.22)} words)`,
+    ];
+    if (sections >= 5) outline.push(`Section 4 — the most common mistake when applying this (~${Math.round(wordBudget*0.1)} words)`);
+    outline.push(`Conclusion + tie back to the hook + CTA (~${Math.round(wordBudget*0.09)} words)`);
+    document.getElementById('outline').innerHTML = '<ul>' + outline.map(o=>`<li>${o}</li>`).join('') + '</ul>';
+
+    document.getElementById('bioBlock').textContent = `${bio}. ${goal==='leadmag'?'Grab the free guide at':goal==='newsletter'?'Subscribe to the weekly newsletter at':goal==='product'?'Learn more at':'More writing at'} ${link}.`;
+
+    const ctaMap = {
+      leadmag: `End with one specific CTA: a free resource that directly extends the post. If the post is about "${topic}", the lead magnet should be "the next step in ${topic}" — not generic.`,
+      newsletter: `Close with: "If this was useful, I write a similar post every Sunday. You can subscribe at ${link}." Don't pitch the newsletter inside the post — let the work do the selling.`,
+      product: `Mention your product once in the body (in context, not a sales pitch) and once in the bio. Resist the urge to plug 3+ times — ${host}'s editors will cut it and so will the readers' attention.`,
+      authority: `Skip the heavy CTA. End with a question to the reader and your handle. Authority compounds when the reader feels you weren't selling.`
+    };
+    document.getElementById('cta').textContent = ctaMap[goal];
+
+    const promo = [
+      `Day of publish: share to your stories with a screenshot + quote pull. Tag ${host}.`,
+      `Day 1: post a Threads/LinkedIn version of the strongest paragraph with a link in the comments.`,
+      `Day 3: email your list a short note about the post — no pitch, just "here's where I showed up this week".`,
+      `Day 7: reply to every comment on the host's post. This is where most guest posters lose the long-term win.`,
+      `Day 30: repurpose the strongest 3 ideas into your own posts. The content was yours to begin with.`
+    ];
+    document.getElementById('promo').innerHTML = '<ul>' + promo.map(p=>`<li>${p}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const grab = id => document.getElementById(id).innerText;
+    const text = ['GUEST POST PLAN','',grab('countdown'),'','TITLE OPTIONS',grab('titles'),'','HOOK',grab('hook'),'','OUTLINE',grab('outline'),'','BIO',grab('bioBlock'),'','CTA STRATEGY',grab('cta'),'','PROMO PLAN',grab('promo')].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Plan', 1500);
+    });
+  });
+
+  document.getElementById('deadline').valueAsDate = new Date(Date.now() + 7*24*60*60*1000);
+</script>
+</body>
+</html>

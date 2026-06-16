@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job Application Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 70px; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; text-transform: uppercase; opacity: .6; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+  .item .co { font-weight: 500; }
+  .item .meta { font-size: .8rem; opacity: .65; }
+  .tag { font-size: .72rem; color: #5AE57A; border: 1px solid #5AE57A; border-radius: 20px; padding: 1px 9px; flex: none; }
+  .x { cursor: pointer; opacity: .5; flex: none; } .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Job Application Tracker</h1>
+  <p class="sub">Keep every application, interview and offer in one organised place.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Company</label><input id="co" placeholder="Company name"></div>
+      <div style="flex:2"><label>Role</label><input id="role" placeholder="Job title"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Status</label><select id="status"><option>Saved</option><option>Applied</option><option>Interviewing</option><option>Offer</option><option>Rejected</option></select></div>
+      <div><label>Date</label><input id="date" type="date"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="stats" id="stats"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const ST=['Saved','Applied','Interviewing','Offer','Rejected'];
+  let R=JSON.parse(localStorage.getItem('jst')||'[]');
+  const save=()=>localStorage.setItem('jst',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('co')){ alert('Enter a company.'); return; }
+    R.push({co:v('co'),role:v('role'),status:g('status').value,date:g('date').value}); g('co').value=''; g('role').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all applications?')){ R=[]; save(); render(); } }
+  function render(){
+    g('stats').innerHTML=ST.map(s=>'<div class="stat"><div class="n">'+R.filter(x=>x.status===s).length+'</div><div class="l">'+s+'</div></div>').join('');
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No applications tracked yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="item"><div><div class="co">'+esc(x.co)+'</div><div class="meta">'+(esc(x.role)||'—')+(x.date?'  ·  '+x.date:'')+'</div></div><span class="tag">'+x.status+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Bio Optimiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.88; }
+  .bio {
+    background: #325132;
+    border: 1px dashed #5AE57A;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 12px;
+    white-space: pre-wrap;
+    font-size: 15px;
+  }
+  .copy {
+    background: transparent;
+    border: 1px solid #5AE57A;
+    color: #5AE57A;
+    padding: 8px 14px;
+    font-size: 13px;
+    margin-top: 10px;
+    width: auto;
+  }
+  .meta { font-size: 13px; opacity: 0.7; margin-top: 8px; }
+  footer { text-align: center; margin-top: 32px; font-size: 13px; opacity: 0.6; }
+  .instructions { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Instagram Bio Optimiser</h1>
+  <p class="sub">Turn your generic bio into a scroll-stopping intro that converts followers into customers.</p>
+
+  <div class="card">
+    <p class="instructions">Fill in the boxes below and hit <strong>Generate</strong>. You'll get 3 bio options optimised for clarity, hook, and call-to-action — all within Instagram's 150-character limit.</p>
+    <label>What you do (your niche or role)</label>
+    <input id="niche" placeholder="e.g. Helping coaches sell digital products">
+    <label>Who you help</label>
+    <input id="audience" placeholder="e.g. Burnt-out 9-to-5ers">
+    <label>Main result / outcome you deliver</label>
+    <input id="result" placeholder="e.g. Build a $5k/mo side income">
+    <label>Vibe</label>
+    <select id="vibe">
+      <option>Bold &amp; punchy</option>
+      <option>Friendly &amp; warm</option>
+      <option>Luxury &amp; minimal</option>
+      <option>Playful &amp; cheeky</option>
+    </select>
+    <label>Call-to-action link target</label>
+    <input id="cta" placeholder="e.g. Free guide below">
+    <button onclick="generate()">Generate 3 Bios</button>
+  </div>
+
+  <div id="output"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const emojis = {
+  'Bold & punchy': ['', '', '', ''],
+  'Friendly & warm': ['', '', '', ''],
+  'Luxury & minimal': ['', '', '', ''],
+  'Playful & cheeky': ['', '', '', '']
+};
+
+function pick(arr, n) { return arr[n % arr.length]; }
+
+function build(niche, audience, result, vibe, cta) {
+  const e = emojis[vibe];
+  const templates = [
+    `${e[0]} ${niche}\n${e[1]} For ${audience}\n${e[2]} ${result}\n${e[3]} ${cta} `,
+    `${result} — for ${audience}.\n${e[0]} ${niche}\n${e[1]} ${cta} `,
+    `${e[0]} ${niche}\n${e[1]} Helping ${audience} ${result.toLowerCase()}\n${e[2]} Tap ${cta.toLowerCase()} `
+  ];
+  return templates;
+}
+
+function generate() {
+  const niche = document.getElementById('niche').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const result = document.getElementById('result').value.trim();
+  const vibe = document.getElementById('vibe').value;
+  const cta = document.getElementById('cta').value.trim();
+  const out = document.getElementById('output');
+
+  if (!niche || !audience || !result || !cta) {
+    out.innerHTML = '<div class="card" style="border-color:#5AE57A">Please fill in all fields to generate your bios.</div>';
+    return;
+  }
+
+  const bios = build(niche, audience, result, vibe, cta);
+  out.innerHTML = bios.map((b, i) => {
+    const count = b.length;
+    const ok = count <= 150;
+    return `<div class="card">
+      <label>Option ${i + 1}</label>
+      <div class="bio" id="bio${i}">${b}</div>
+      <div class="meta" style="color:${ok ? '#5AE57A' : '#5AE57A'}">${count}/150 characters ${ok ? '' : '— trim to fit'}</div>
+      <button class="copy" onclick="copyBio(${i})">Copy</button>
+    </div>`;
+  }).join('');
+}
+
+function copyBio(i) {
+  const text = document.getElementById('bio' + i).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy');
+    btns[i].innerText = 'Copied!';
+    setTimeout(() => btns[i].innerText = 'Copy', 1500);
+  });
+}
+</script>
+</body>
+</html>

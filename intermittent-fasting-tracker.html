@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intermittent Fasting Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .big { text-align: center; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .big .l { opacity: .7; font-size: .9rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; width: 100%; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; font-size: .85rem; padding: 9px; }
+  .stats { display: flex; gap: 10px; margin-top: 12px; }
+  .stat { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 11px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .stat .s { font-size: .66rem; opacity: .65; text-transform: uppercase; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .84rem; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .8; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Intermittent Fasting Tracker</h1>
+  <p class="sub">Start a fast, watch the timer, and log each completed fast.</p>
+
+  <div class="panel">
+    <div class="big"><span class="n" id="timer">—</span><div class="l" id="status">Not fasting</div></div>
+    <button class="btn" id="go" onclick="toggle()">Start Fast</button>
+    <div class="stats">
+      <div class="stat"><div class="v" id="sCount">0</div><div class="s">Fasts logged</div></div>
+      <div class="stat"><div class="v" id="sAvg">—</div><div class="s">Avg length</div></div>
+      <div class="stat"><div class="v" id="sBest">—</div><div class="s">Longest</div></div>
+    </div>
+    <div class="note">A simple timer and log — not medical advice. Intermittent fasting is not suitable for everyone; check with a doctor first.</div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear History</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let S=JSON.parse(localStorage.getItem('ift')||'{"start":null,"log":[]}');
+  const save=()=>localStorage.setItem('ift',JSON.stringify(S));
+  let tick=null;
+  function toggle(){
+    if(S.start){
+      const hrs=(Date.now()-S.start)/3600000;
+      S.log.push({h:hrs,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+      S.start=null; save(); render();
+    } else { S.start=Date.now(); save(); render(); }
+  }
+  function clearAll(){ if(confirm('Clear fast history?')){ S.log=[]; save(); render(); } }
+  function fmt(h){ const H=Math.floor(h), M=Math.floor((h-H)*60); return H+'h '+String(M).padStart(2,'0')+'m'; }
+  function render(){
+    if(tick){ clearInterval(tick); tick=null; }
+    if(S.start){
+      g('go').textContent='End Fast';
+      g('status').textContent='Fasting since '+new Date(S.start).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+      const upd=()=>{ g('timer').textContent=fmt((Date.now()-S.start)/3600000); };
+      upd(); tick=setInterval(upd,1000);
+    } else {
+      g('go').textContent='Start Fast';
+      g('timer').textContent='—'; g('status').textContent='Not fasting';
+    }
+    g('sCount').textContent=S.log.length;
+    if(S.log.length){
+      g('sAvg').textContent=fmt(S.log.reduce((s,x)=>s+x.h,0)/S.log.length);
+      g('sBest').textContent=fmt(Math.max(...S.log.map(x=>x.h)));
+    } else { g('sAvg').textContent=g('sBest').textContent='—'; }
+    const L=g('list');
+    if(!S.log.length){ L.innerHTML='<div style="text-align:center;opacity:.5;font-size:.86rem;font-style:italic;padding:10px 0">No fasts logged yet.</div>'; return; }
+    L.innerHTML=[...S.log].reverse().map(x=>{ const i=S.log.indexOf(x);
+      return '<div class="row2"><span>'+x.d+'</span><span><b style="color:#5AE57A">'+fmt(x.h)+'</b> <span class="x" onclick="(function(){S.log.splice('+i+',1);save();render();})()">✕</span></span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

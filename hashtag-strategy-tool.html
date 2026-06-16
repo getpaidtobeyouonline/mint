@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hashtag Strategy Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: 0.85; margin-bottom: 24px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { opacity: 0.88; }
+  .instructions { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+  .tier {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .tier-name {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .tier-desc { font-size: 13px; opacity: 0.7; margin-bottom: 10px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    background: #C9A84C22;
+    color: #FFFFFF;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    border: 1px solid #C9A84C44;
+  }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .actions button { flex: 1; }
+  .ghost { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; }
+  .full {
+    background: #325132;
+    border: 1px dashed #5AE57A;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 14px;
+    word-break: break-word;
+    margin-top: 8px;
+  }
+  footer { text-align: center; margin-top: 32px; font-size: 13px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hashtag Strategy Tool</h1>
+  <p class="sub">A balanced 30-hashtag mix using the proven mega → niche tier method that actually grows reach.</p>
+
+  <div class="card">
+    <p class="instructions">Top creators don't just stack the biggest hashtags — they layer reach. Enter your niche and we'll build a 30-tag set split across 4 tiers: mega (broad), large (category), medium (community), and small (niche). Higher chance of ranking + better quality followers.</p>
+
+    <label>Your niche or topic (1-3 words)</label>
+    <input id="niche" placeholder="e.g. digital marketing, watercolor, sourdough">
+
+    <label>Sub-focus (optional — sharpens the niche tags)</label>
+    <input id="sub" placeholder="e.g. for beginners, vegan, on Etsy">
+
+    <label>Platform</label>
+    <select id="platform">
+      <option>Instagram</option>
+      <option>TikTok</option>
+      <option>LinkedIn</option>
+    </select>
+
+    <button onclick="generate()">Build My Hashtag Strategy</button>
+  </div>
+
+  <div id="output"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+function clean(s) {
+  return s.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+}
+
+function camel(words) {
+  return words.split(' ').filter(Boolean).map((w, i) => i === 0 ? w : w[0].toUpperCase() + w.slice(1)).join('');
+}
+
+function joined(words) {
+  return words.split(' ').filter(Boolean).join('');
+}
+
+function generate() {
+  const nicheRaw = document.getElementById('niche').value.trim();
+  const subRaw = document.getElementById('sub').value.trim();
+  const platform = document.getElementById('platform').value;
+  const out = document.getElementById('output');
+
+  if (!nicheRaw) {
+    out.innerHTML = '<div class="card" style="border-color:#5AE57A">Enter your niche first.</div>';
+    return;
+  }
+
+  const niche = clean(nicheRaw);
+  const sub = clean(subRaw);
+  const base = joined(niche);
+  const baseCamel = camel(niche);
+  const subBase = sub ? joined(sub) : '';
+  const subCamel = sub ? camel(sub) : '';
+
+  const mega = ['love', 'inspiration', 'motivation', 'lifestyle', 'business', 'entrepreneur', 'success', 'mindset', 'goals', 'community'];
+
+  const large = [
+    `${base}`,
+    `${base}tips`,
+    `${base}life`,
+    `${base}lover`,
+    `${base}daily`,
+    `${base}community`,
+    `${base}inspo`,
+    `${base}gram`
+  ];
+
+  const medium = [
+    `${base}forbeginners`,
+    `${base}coach`,
+    `${base}journey`,
+    `${base}tutorial`,
+    `${base}strategy`,
+    `learn${base}`,
+    `${base}ideas`,
+    `${base}content`
+  ];
+
+  let small;
+  if (sub) {
+    small = [
+      `${base}${subBase}`,
+      `${subBase}${base}`,
+      `${base}for${subBase}`,
+      `${subBase}${base}tips`,
+      `${baseCamel}${subCamel}`,
+      `${base}${subBase}community`,
+      `small${base}${subBase}`,
+      `${base}${subBase}guide`
+    ];
+  } else {
+    small = [
+      `small${base}business`,
+      `${base}beginner`,
+      `${base}studio`,
+      `indie${base}`,
+      `${base}club`,
+      `${base}weekly`,
+      `${base}howto`,
+      `${base}guide`
+    ];
+  }
+
+  const picks = {
+    mega: mega.slice(0, 6),
+    large: large.slice(0, 8),
+    medium: medium.slice(0, 8),
+    small: small.slice(0, 8)
+  };
+
+  // Platform caps: IG/TikTok allow many, LinkedIn fewer
+  const cap = platform === 'LinkedIn' ? 5 : 30;
+  let all = [...picks.mega, ...picks.large, ...picks.medium, ...picks.small].slice(0, cap);
+  // dedupe
+  all = [...new Set(all)];
+
+  const tier = (name, desc, list) => `
+    <div class="tier">
+      <div class="tier-name">${name}</div>
+      <div class="tier-desc">${desc}</div>
+      <div class="tags">${list.map(t => `<span class="tag">#${t}</span>`).join('')}</div>
+    </div>`;
+
+  const flat = all.map(t => '#' + t).join(' ');
+
+  out.innerHTML = `<div class="card">
+    ${tier('Mega tier (1M+ posts)', 'Broad reach — use sparingly, 2-3 max. High competition.', picks.mega.slice(0, 3))}
+    ${tier('Large tier (100K-1M posts)', 'Category-level. Your foundation — use 5-7.', picks.large)}
+    ${tier('Medium tier (10K-100K posts)', 'Community tags — your sweet spot for ranking.', picks.medium)}
+    ${tier('Small / Niche tier (<10K posts)', 'Hyper-relevant. Highest chance of being seen.', picks.small)}
+    <label style="margin-top:8px">Copy-ready set (${platform})</label>
+    <div class="full" id="full">${flat}</div>
+    <div class="actions">
+      <button onclick="copyAll()">Copy All Hashtags</button>
+      <button class="ghost" onclick="generate()">Regenerate</button>
+    </div>
+    <p style="font-size:12px;opacity:0.6;margin-top:14px">Tip: rotate 2-3 sets weekly. Using the same 30 tags every post can hurt reach.</p>
+  </div>`;
+}
+
+function copyAll() {
+  const text = document.getElementById('full').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.actions button');
+    btn.innerText = 'Copied!';
+    setTimeout(() => btn.innerText = 'Copy All Hashtags', 1500);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jewellery Making Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .res { display: none; }
+  .big { text-align: center; margin-bottom: 12px; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .rows { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 6px 14px; }
+  .line { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #4C724C; font-size: .92rem; }
+  .line:last-child { border-bottom: none; }
+  .line .v { color: #5AE57A; font-weight: 500; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Jewellery Making Calculator</h1>
+  <p class="sub">Price a handmade piece honestly — materials, time and a healthy margin.</p>
+
+  <div class="panel">
+    <label>Material cost</label>
+    <input id="mat" type="number" step="0.01" min="0" placeholder="e.g. 7.50">
+    <div class="row">
+      <div><label>Time (minutes)</label><input id="mins" type="number" min="0" placeholder="45"></div>
+      <div><label>Hourly rate</label><input id="rate" type="number" min="0" step="0.01" placeholder="15"></div>
+    </div>
+    <div class="row">
+      <div><label>Packaging</label><input id="pack" type="number" step="0.01" min="0" placeholder="1.00"></div>
+      <div><label>Selling fee %</label><input id="fee" type="number" step="0.01" min="0" placeholder="10"></div>
+    </div>
+    <div class="row">
+      <div><label>Retail markup ×</label><input id="markup" type="number" step="0.1" min="1" placeholder="2.5"></div>
+    </div>
+    <button class="btn" onclick="calc()">Calculate</button>
+  </div>
+
+  <div class="panel res" id="res">
+    <div class="big"><div class="n" id="retail">—</div><div style="opacity:.7;font-size:.85rem">suggested retail price</div></div>
+    <div class="rows" id="rows"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const fmt=x=>x.toFixed(2);
+  function calc(){
+    const mat=n('mat'), mins=n('mins'), rate=n('rate'), pack=n('pack'), feePct=n('fee'), mark=n('markup')||2;
+    if(!mat&&!mins){ alert('Enter at least materials or time.'); return; }
+    const labour=(mins/60)*rate;
+    const cost=mat+labour+pack;
+    let base=cost*mark;
+    const fee=feePct?base*(feePct/100):0;
+    base=base+fee;
+    g('retail').textContent=fmt(Math.ceil(base*4)/4); // round up to .25
+    g('rows').innerHTML=
+      '<div class="line"><span>Material cost</span><span class="v">'+fmt(mat)+'</span></div>'+
+      '<div class="line"><span>Labour ('+mins+' min @ '+fmt(rate)+')</span><span class="v">'+fmt(labour)+'</span></div>'+
+      '<div class="line"><span>Packaging</span><span class="v">'+fmt(pack)+'</span></div>'+
+      '<div class="line"><span>Total cost</span><span class="v">'+fmt(cost)+'</span></div>'+
+      '<div class="line"><span>×'+mark+' markup</span><span class="v">'+fmt(cost*mark)+'</span></div>'+
+      (feePct?'<div class="line"><span>Selling fee '+feePct+'%</span><span class="v">+ '+fmt(fee)+'</span></div>':'')+
+      '<div class="line"><span style="opacity:.7">Wholesale (cost × 2)</span><span class="v">'+fmt(cost*2)+'</span></div>';
+    g('res').style.display='block'; g('res').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giveaway Planning Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #5AE57A;
+  }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 24px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #5AE57A;
+    margin-bottom: 10px;
+  }
+  .section-body { font-size: 0.98rem; white-space: pre-wrap; }
+  .section-body ul { padding-left: 20px; margin-top: 4px; }
+  .section-body li { margin-bottom: 4px; }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Giveaway Planning Tool</h1>
+  <p class="subtitle">Fill in 6 fields and get a complete giveaway plan: timeline, rules, ready-to-post announcement, and tips.</p>
+
+  <div class="grid">
+    <div>
+      <label for="prize">The Prize</label>
+      <input type="text" id="prize" placeholder="e.g. my $97 course + a 30-min coaching call" />
+    </div>
+    <div>
+      <label for="value">Total Prize Value</label>
+      <input type="text" id="value" placeholder="e.g. $150" />
+    </div>
+    <div>
+      <label for="platform">Primary Platform</label>
+      <select id="platform">
+        <option>Instagram</option>
+        <option>Threads</option>
+        <option>LinkedIn</option>
+        <option>X / Twitter</option>
+        <option>Email</option>
+      </select>
+    </div>
+    <div>
+      <label for="goal">Main Goal</label>
+      <select id="goal">
+        <option value="followers">Grow followers</option>
+        <option value="email">Grow email list</option>
+        <option value="engagement">Boost engagement</option>
+        <option value="launch">Warm up a launch</option>
+      </select>
+    </div>
+    <div>
+      <label for="duration">Duration (days)</label>
+      <input type="number" id="duration" value="7" min="2" max="30" />
+    </div>
+    <div>
+      <label for="startdate">Start Date</label>
+      <input type="date" id="startdate" />
+    </div>
+  </div>
+
+  <label for="handle">Your @handle</label>
+  <input type="text" id="handle" placeholder="@yourname" />
+
+  <button class="build-btn" id="buildBtn">Build My Giveaway Plan</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Giveaway Summary</div>
+      <div class="section-body" id="summary"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Entry Rules</div>
+      <div class="section-body" id="rules"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Timeline</div>
+      <div class="section-body" id="timeline"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Announcement Post (copy-ready)</div>
+      <div class="section-body" id="announce"></div>
+      <div class="actions">
+        <button class="secondary-btn" id="copyBtn">Copy Announcement</button>
+        <button class="secondary-btn" id="copyAllBtn">Copy Full Plan</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Pro Tips</div>
+      <div class="section-body" id="tips"></div>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function formatDate(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function buildPlan() {
+    const prize = document.getElementById('prize').value.trim() || '[your prize]';
+    const value = document.getElementById('value').value.trim() || '[value]';
+    const platform = document.getElementById('platform').value;
+    const goal = document.getElementById('goal').value;
+    const duration = parseInt(document.getElementById('duration').value) || 7;
+    const startStr = document.getElementById('startdate').value;
+    const handle = document.getElementById('handle').value.trim() || '@you';
+    const start = startStr ? new Date(startStr + 'T12:00:00') : new Date();
+    const end = new Date(start); end.setDate(end.getDate() + duration);
+    const mid = new Date(start); mid.setDate(mid.getDate() + Math.floor(duration / 2));
+    const winnerDay = new Date(end); winnerDay.setDate(winnerDay.getDate() + 1);
+
+    document.getElementById('summary').textContent =
+      `Prize: ${prize} (worth ${value})\nPlatform: ${platform}\nGoal: ${{followers:'Grow followers',email:'Grow email list',engagement:'Boost engagement',launch:'Warm up a launch'}[goal]}\nRuns: ${formatDate(start)} → ${formatDate(end)}`;
+
+    const rulesMap = {
+      followers: [`Follow ${handle}`, `Like this post`, `Tag 2 friends in the comments (1 entry per tag, max 3 comments)`],
+      email: [`Join my free email list (link in bio)`, `Reply with the word YES once you've joined`, `Bonus entry: share this post to your story and tag ${handle}`],
+      engagement: [`Like this post`, `Drop a comment answering: "What would you do first with this prize?"`, `Save the post for a bonus entry`],
+      launch: [`Follow ${handle}`, `Comment "WAITLIST" to be added to the early-bird list`, `Share to stories tagging ${handle} for a bonus entry`]
+    };
+    const rules = rulesMap[goal];
+    document.getElementById('rules').innerHTML = '<ul>' + rules.map(r => `<li>${r}</li>`).join('') + '</ul>';
+
+    const timeline = [
+      `Day 1 — ${formatDate(start)}: Post the announcement. Pin it.`,
+      `Day ${Math.floor(duration/2)} — ${formatDate(mid)}: Midpoint reminder + show current entries / sneak peek of the prize.`,
+      `Day ${duration-1}: "Last 24 hours" reminder post or story.`,
+      `Day ${duration} — ${formatDate(end)}: Close entries at end of day. Thank everyone publicly.`,
+      `Day ${duration+1} — ${formatDate(winnerDay)}: Announce winner on stories + post. DM them.`
+    ];
+    document.getElementById('timeline').innerHTML = '<ul>' + timeline.map(t => `<li>${t}</li>`).join('') + '</ul>';
+
+    const announce =
+`I'm giving away ${prize} (worth ${value}). One person walks away with the whole thing.
+
+To enter:
+${rules.map((r,i)=>`${i+1}. ${r}`).join('\n')}
+
+Open until ${formatDate(end)}. Winner announced ${formatDate(winnerDay)} on stories.
+
+No purchase necessary. Open worldwide unless restricted by your local laws. Not affiliated with ${platform}.`;
+
+    document.getElementById('announce').textContent = announce;
+
+    const tipsMap = {
+      followers: ["Pin the post for the full duration.", "Reply to every comment in the first 2 hours to boost reach.", "Don't require follows from giant accounts — algorithms flag it."],
+      email: ["Use a dedicated landing page so entries are easy to count.", "Send a welcome email the moment they sign up — set the relationship.", "Tag new subscribers with a 'giveaway' tag so you can track retention later."],
+      engagement: ["Ask a question that requires a real answer, not a tag.", "Quote the best 3 answers in your next post — it doubles engagement.", "Save and screenshot the comments as content for next week."],
+      launch: ["Add waitlist entrants to a private email sequence immediately.", "Send a 'thank you + sneak peek' email the day after the giveaway closes.", "Offer waitlist-only pricing when you launch — they'll convert higher."]
+    };
+    document.getElementById('tips').innerHTML = '<ul>' + tipsMap[goal].map(t => `<li>${t}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', buildPlan);
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    copyText(document.getElementById('announce').textContent, e.target);
+  });
+
+  document.getElementById('copyAllBtn').addEventListener('click', (e) => {
+    const full = ['GIVEAWAY PLAN','','SUMMARY',document.getElementById('summary').textContent,'','RULES',
+      Array.from(document.querySelectorAll('#rules li')).map(li=>'• '+li.textContent).join('\n'),'','TIMELINE',
+      Array.from(document.querySelectorAll('#timeline li')).map(li=>'• '+li.textContent).join('\n'),'','ANNOUNCEMENT',
+      document.getElementById('announce').textContent,'','TIPS',
+      Array.from(document.querySelectorAll('#tips li')).map(li=>'• '+li.textContent).join('\n')
+    ].join('\n');
+    copyText(full, e.target);
+  });
+
+  document.getElementById('startdate').valueAsDate = new Date();
+</script>
+</body>
+</html>

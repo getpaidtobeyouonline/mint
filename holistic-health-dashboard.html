@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Holistic Health Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .score { text-align: center; margin-bottom: 6px; }
+  .score .n { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .score .l { opacity: .7; font-size: .85rem; }
+  .metric { margin-bottom: 13px; }
+  .metric .top { display: flex; justify-content: space-between; font-size: .88rem; margin-bottom: 3px; }
+  .metric .top b { color: #5AE57A; }
+  .metric .top .val { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  input[type=range] { width: 100%; accent-color: #5AE57A; }
+  .barwrap { background: #3C603C; border-radius: 4px; height: 10px; overflow: hidden; margin-top: 3px; }
+  .barwrap>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .verdict { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 15px; font-size: .9rem; margin-top: 8px; }
+  .verdict b { color: #5AE57A; }
+  .date { text-align: center; font-size: .8rem; opacity: .6; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Holistic Health Dashboard</h1>
+  <p class="sub">A daily snapshot of the whole picture — body, mind and life. Rate each, see the balance.</p>
+
+  <div class="panel">
+    <div class="score"><span class="n" id="overall">—</span><div class="l">today's overall health score</div></div>
+    <div class="verdict" id="verdict"></div>
+  </div>
+
+  <div class="panel" id="metrics"></div>
+
+  <div class="panel date" id="hist"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const M=[
+    {k:'sleep',l:'Sleep'},{k:'energy',l:'Energy'},{k:'movement',l:'Movement'},
+    {k:'nutrition',l:'Nutrition'},{k:'mood',l:'Mood'},{k:'stress',l:'Stress (calm = high)'},
+    {k:'connection',l:'Connection'},{k:'mind',l:'Mind / focus'}
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  let H=JSON.parse(localStorage.getItem('hhd')||'{}');
+  let V=H[today]||{};
+  M.forEach(m=>{ if(V[m.k]==null)V[m.k]=5; });
+  function save(){ H[today]=V; localStorage.setItem('hhd',JSON.stringify(H)); }
+  function build(){
+    g('metrics').innerHTML=M.map(m=>'<div class="metric"><div class="top"><b>'+m.l+'</b><span class="val" id="v_'+m.k+'">'+V[m.k]+'</span></div>'+
+      '<input type="range" min="1" max="10" value="'+V[m.k]+'" oninput="upd(\''+m.k+'\',this.value)">'+
+      '<div class="barwrap"><i id="b_'+m.k+'" style="width:'+(V[m.k]*10)+'%"></i></div></div>').join('');
+  }
+  function upd(k,val){ V[k]=+val; g('v_'+k).textContent=val; g('b_'+k).style.width=(val*10)+'%'; save(); render(); }
+  function render(){
+    const avg=M.reduce((s,m)=>s+V[m.k],0)/M.length;
+    g('overall').textContent=avg.toFixed(1);
+    const low=M.reduce((a,b)=>V[a.k]<=V[b.k]?a:b);
+    const high=M.reduce((a,b)=>V[a.k]>=V[b.k]?a:b);
+    let msg;
+    if(avg>=8) msg='<b>Thriving.</b> Strong across the board — note what is working so you can repeat it.';
+    else if(avg>=6) msg='<b>Doing well.</b> Solid overall. Your lowest area today is <b>'+low.l.replace(' (calm = high)','')+'</b> — give it a little attention.';
+    else if(avg>=4) msg='<b>Running low.</b> A few areas need care. Start with <b>'+low.l.replace(' (calm = high)','')+'</b> — small change, big ripple.';
+    else msg='<b>Depleted.</b> Be gentle today. Pick one thing — likely <b>'+low.l.replace(' (calm = high)','')+'</b> — and lower every other demand.';
+    g('verdict').innerHTML=msg+' Strongest right now: <b>'+high.l.replace(' (calm = high)','')+'</b>.';
+    const days=Object.keys(H).sort().slice(-7);
+    if(days.length>1){
+      const avgs=days.map(d=>{ const v=H[d]; return M.reduce((s,m)=>s+(v[m.k]||0),0)/M.length; });
+      g('hist').textContent='7-day trend: '+avgs.map(a=>a.toFixed(1)).join('  →  ');
+    } else g('hist').textContent='Check in daily — your trend will appear here.';
+  }
+  build(); render();
+</script>
+</body>
+</html>

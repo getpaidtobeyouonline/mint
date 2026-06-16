@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 130px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 130px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 15px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .72rem; opacity: .65; text-transform: uppercase; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 15px; margin-top: 14px; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Growth Rate Calculator</h1>
+  <p class="sub">See your real growth rate, how it compounds, and when you'll hit your next milestone.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="start">Followers at start</label><input id="start" type="number" min="0" value="1000" oninput="calc()"></div>
+      <div><label for="end">Followers now</label><input id="end" type="number" min="0" value="1450" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="period">Over how many</label><input id="period" type="number" min="1" value="30" oninput="calc()"></div>
+      <div><label for="unit">Unit</label><select id="unit" onchange="calc()"><option value="d">Days</option><option value="w">Weeks</option><option value="m">Months</option></select></div>
+    </div>
+    <label for="target">Target followers</label>
+    <input id="target" type="number" min="0" value="10000" oninput="calc()">
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="total">0%</div><div class="l">Total growth</div></div>
+    <div class="stat"><div class="v" id="monthly">0%</div><div class="l">Per month</div></div>
+    <div class="stat"><div class="v" id="dbl">—</div><div class="l">Doubling time</div></div>
+    <div class="stat"><div class="v" id="hit">—</div><div class="l">Reach target in</div></div>
+  </div>
+  <div class="note" id="note"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['start','end','period','unit','target'].forEach(k=>{ const s=localStorage.getItem('grc_'+k); if(s!==null)g(k).value=s; });
+  function calc() {
+    ['start','end','period','unit','target'].forEach(k=>localStorage.setItem('grc_'+k,g(k).value));
+    const s=n('start'), e=n('end'), p=Math.max(1,n('period')), u=g('unit').value, tgt=n('target');
+    const days = u==='d'?p : u==='w'?p*7 : p*30;
+    const totalPct = s>0 ? (e-s)/s*100 : 0;
+    const dailyR = s>0 ? Math.pow(e/s, 1/days) - 1 : 0;
+    const monthlyPct = (Math.pow(1+dailyR,30)-1)*100;
+    g('total').textContent = totalPct.toFixed(1)+'%';
+    g('monthly').textContent = (isFinite(monthlyPct)?monthlyPct.toFixed(1):'0')+'%';
+    if (dailyR>0) {
+      const dblDays = Math.log(2)/Math.log(1+dailyR);
+      g('dbl').textContent = dblDays<60? Math.round(dblDays)+'d' : (dblDays/30).toFixed(1)+'mo';
+      if (tgt>e) {
+        const need = Math.log(tgt/e)/Math.log(1+dailyR);
+        g('hit').textContent = need<90? Math.round(need)+'d' : (need/30).toFixed(1)+'mo';
+      } else g('hit').textContent = '✓ reached';
+    } else { g('dbl').textContent='—'; g('hit').textContent = e>=tgt?'✓ reached':'never (flat)'; }
+    g('note').textContent = dailyR>0
+      ? `At this compounding pace you're adding roughly ${Math.round(dailyR*e)} followers/day right now. Small % gains compound hard — protect the rate, don't just chase big spikes.`
+      : 'Growth is flat or negative over this window. Audit your last 10 posts: hook, format, and posting time are the usual culprits.';
+  }
+  calc();
+</script>
+</body>
+</html>

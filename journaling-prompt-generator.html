@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journaling Prompt Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .p { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; line-height: 1.45; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Journaling Prompt Generator</h1>
+  <p class="sub">Three deep prompts on demand — pick the territory, write what surfaces.</p>
+
+  <div class="panel">
+    <label for="cat">Territory</label>
+    <select id="cat"><option value="self">Self / identity</option><option value="grow">Growth / change</option><option value="rel">Relationships</option><option value="work">Work / purpose</option><option value="fear">Fear / blocks</option><option value="grat">Gratitude / abundance</option><option value="future">Future / vision</option><option value="past">Past / healing</option></select>
+    <button class="btn" onclick="gen()">Give Me Prompts</button>
+    <button class="btn ghost" onclick="gen()">↻ Different</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const T={
+    self:["Who am I when no one is watching?","What part of me am I still pretending not to know?","What truth about myself am I most afraid to say out loud?","What do I love about who I am becoming?"],
+    grow:["What am I outgrowing right now?","What is the next version of me asking me to do?","What used to feel hard that I now do easily?","Where am I waiting to feel ready that I already am?"],
+    rel:["Who in my life feels safe? Who feels like work? Why?","What am I not saying that needs to be said?","Where am I performing in my relationships?","What would I do for me if no one would be upset by it?"],
+    work:["What does meaningful work feel like in my body?","If money were handled, what would I still want to spend my hours on?","What am I being asked to put down so I can pick something else up?","Where am I confusing busy with useful?"],
+    fear:["What am I most afraid of right now? What is underneath it?","Where am I letting fear make my decisions?","What is the worst case, and could I actually recover from it?","What is one tiny thing I can do today that fear says I cannot?"],
+    grat:["What am I taking for granted right now?","Who would past-me be amazed to know is in my life today?","What is enough about today?","What is in my life that I prayed for once?"],
+    future:["Where do I want to be in 5 years? Be honest, not safe.","Who do I want to be at 80, looking back?","What am I building right now that will matter then?","If this year were the most aligned year of my life, what would have to happen?"],
+    past:["What old story am I ready to put down?","What did past-me do their best with that I can finally forgive?","What lesson is the universe trying to repeat?","What would younger-me say to current-me?"]
+  };
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const p=[...T[g('cat').value]]; for(let i=p.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+    g('out').innerHTML=p.slice(0,3).map(x=>'<div class="p">'+esc(x)+'</div>').join('');
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

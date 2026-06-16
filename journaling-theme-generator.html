@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journaling Theme Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .theme { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; text-align: left; }
+  .theme h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; }
+  .theme p { font-size: .92rem; margin-top: 6px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Journaling Theme Generator</h1>
+  <p class="sub">Open the page with a theme — and let the page do the rest.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="theme" id="theme"></div>
+    <button class="btn" onclick="next()">New Theme</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const T={
+    'Self':[
+      {n:'What I am quietly proud of',d:'List five things, however small. Choose one and write a page on why it matters to you.'},
+      {n:'A truth I am circling',d:'Something I am almost ready to admit. Write toward it slowly.'},
+      {n:'The version of me I am becoming',d:'Describe her or him in detail. What do they wear, eat, read, refuse?'},
+      {n:'A line I am ready to cross',d:'What changes when I do?'}
+    ],
+    'Relationships':[
+      {n:'The conversation I keep rehearsing',d:'Write the version where I say what I mean.'},
+      {n:'A person who shaped me',d:'A scene with them. The before, the during, the after.'},
+      {n:'What I owe and what I do not owe',d:'In love, in family, in friendship — be honest, not harsh.'},
+      {n:'The relationship I want',d:'In all directions — with myself, others, the world.'}
+    ],
+    'Reflection':[
+      {n:'The last 90 days',d:'Three wins, three lessons, three things to carry forward.'},
+      {n:'Where my time really went',d:'No judgement — just the truth.'},
+      {n:'A small joy I almost missed',d:'Sit with it on the page. Let it grow back to size.'},
+      {n:'What I would do differently',d:'And what I will do, starting tomorrow.'}
+    ],
+    'Future':[
+      {n:'A year from today',d:'A morning in detail. What is changed?'},
+      {n:'The thing I am almost ready to begin',d:'What is in the way? What is the first true step?'},
+      {n:'A bigger life',d:'Describe one I am secretly imagining.'},
+      {n:'My next chapter title',d:'What does it want to be called? Why?'}
+    ]
+  };
+  let cat='Self';
+  const g=id=>document.getElementById(id);
+  function drawPresets(){ g('presets').innerHTML=Object.keys(T).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=T[cat]; const t=list[Math.floor(Math.random()*list.length)]; g('theme').innerHTML='<h3>'+t.n+'</h3><p>'+t.d+'</p>'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

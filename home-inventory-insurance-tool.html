@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Home Inventory Insurance Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .total { text-align: center; margin-bottom: 12px; }
+  .total .n { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  .grp { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 12px 0 5px; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .item .val { color: #5AE57A; flex: none; }
+  .item .x { cursor: pointer; opacity: .5; flex: none; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Home Inventory Insurance Tool</h1>
+  <p class="sub">List your belongings room by room — for accurate contents insurance and faster claims.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Room</label><select id="room"><option>Living room</option><option>Kitchen</option><option>Bedroom(s)</option><option>Bathroom</option><option>Office / study</option><option>Garage / outdoors</option><option>Other</option></select></div>
+      <div style="flex:2"><label>Item</label><input id="item" placeholder="e.g. TV, sofa, laptop"></div>
+      <div><label>Est. value</label><input id="value" type="number" min="0" placeholder="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="total"><span class="n" id="total">0</span><div style="opacity:.7;font-size:.85rem">total estimated contents value</div></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="copyAll()" style="margin-top:8px">Copy Inventory</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+    <div class="note">Photograph valuable items and keep receipts where you can. Store a copy of this inventory somewhere outside the home (cloud or with family).</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const ROOMS=["Living room","Kitchen","Bedroom(s)","Bathroom","Office / study","Garage / outdoors","Other"];
+  let R=JSON.parse(localStorage.getItem('hiit')||'[]');
+  const save=()=>localStorage.setItem('hiit',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:0});
+  function add(){ if(!v('item')){ alert('Enter an item.'); return; }
+    R.push({r:g('room').value,i:v('item'),val:parseFloat(g('value').value)||0}); g('item').value=''; g('value').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the inventory?')){ R=[]; save(); render(); } }
+  function copyAll(){ if(!R.length){ alert('Nothing to copy.'); return; }
+    let t='HOME CONTENTS INVENTORY\n';
+    ROOMS.forEach(r=>{ const items=R.filter(x=>x.r===r); if(items.length)t+='\n'+r.toUpperCase()+'\n'+items.map(x=>'  - '+x.i+(x.val?' ('+fmt(x.val)+')':'')).join('\n')+'\n'; });
+    t+='\nTOTAL: '+fmt(R.reduce((s,x)=>s+x.val,0));
+    navigator.clipboard.writeText(t).then(()=>alert('Inventory copied!'),()=>alert('Copy failed.'));
+  }
+  function render(){
+    g('total').textContent=fmt(R.reduce((s,x)=>s+x.val,0));
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No items added yet.</div>'; return; }
+    L.innerHTML=ROOMS.map(r=>{
+      const items=R.map((x,i)=>({x,i})).filter(o=>o.x.r===r);
+      if(!items.length)return '';
+      return '<div class="grp">'+r+'</div>'+items.map(({x,i})=>
+        '<div class="item"><span>'+esc(x.i)+'</span><span>'+(x.val?'<span class="val">'+fmt(x.val)+'</span> ':'')+'<span class="x" onclick="del('+i+')">✕</span></span></div>').join('');
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

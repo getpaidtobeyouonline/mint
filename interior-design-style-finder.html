@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interior Design Style Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { font-size: .92rem; margin-bottom: 8px; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; font-size: .87rem; cursor: pointer; margin-bottom: 6px; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt.on { background: #325132; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 6px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Interior Design Style Finder</h1>
+  <p class="sub">Not sure what your style is? Five questions point you toward a direction.</p>
+
+  <div class="panel" id="quiz"></div>
+  <div class="result" id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const Q=[
+    {q:"Your ideal colour palette?",a:[["Warm neutrals &amp; natural wood","S"],["Crisp white, black &amp; clean lines","M"],["Rich, moody, layered colours","E"],["Soft pastels &amp; vintage tones","C"]]},
+    {q:"Pick a material you love",a:[["Linen, rattan, raw wood","S"],["Glass, steel, polished concrete","M"],["Velvet, brass, dark wood","E"],["Florals, lace, painted wood","C"]]},
+    {q:"How much 'stuff' on display?",a:[["Minimal — calm and uncluttered","S"],["Very little — sleek and sparse","M"],["Lots — collected and curated","E"],["A cosy, lived-in amount","C"]]},
+    {q:"Your dream living room has...",a:[["Plants, texture, soft light","S"],["Statement furniture, open space","M"],["A bold rug, art, atmosphere","E"],["Comfy seating, personal touches","C"]]},
+    {q:"A word for how home should feel?",a:[["Calm","S"],["Sharp","M"],["Dramatic","E"],["Cosy","C"]]}
+  ];
+  let ans=Array(Q.length).fill(-1);
+  function draw(){
+    g('quiz').innerHTML=Q.map((o,i)=>'<div class="q">'+(i+1)+'. '+o.q+'</div>'+
+      o.a.map((a,j)=>'<div class="opt'+(ans[i]===j?' on':'')+'" onclick="pick('+i+','+j+')">'+a[0]+'</div>').join('')).join('')+
+      '<button class="btn" onclick="score()">Find My Style</button>';
+  }
+  function pick(i,j){ ans[i]=j; draw(); }
+  function score(){
+    if(ans.includes(-1)){ alert('Answer all five questions.'); return; }
+    const c={S:0,M:0,E:0,C:0};
+    ans.forEach((a,i)=>c[Q[i].a[a][1]]++);
+    const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];
+    const R={
+      S:{t:"Scandi / Natural",d:"You love calm, light, organic spaces — neutral tones, natural materials and uncluttered rooms.",tips:["Layer textures: linen, wool, wood, rattan.","Keep palettes soft and tonal.","Let in light; add greenery."]},
+      M:{t:"Modern / Minimalist",d:"You are drawn to clean lines, sleek finishes and 'less but better' — open, sharp, intentional.",tips:["Choose fewer, higher-quality pieces.","Stick to a tight colour palette.","Hide clutter; let space breathe."]},
+      E:{t:"Eclectic / Maximalist",d:"You love personality, depth and drama — rich colour, collected objects, layered character.",tips:["Anchor bold choices with one neutral.","Mix eras and textures confidently.","Curate, do not just accumulate."]},
+      C:{t:"Cosy / Cottage",d:"You want warmth, comfort and a lived-in, personal home — soft, inviting and full of charm.",tips:["Prioritise comfy, tactile furniture.","Use soft lighting, never harsh overheads.","Display the things you genuinely love."]}
+    }[top];
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>Your style: '+R.t+'</h3><p style="font-size:.9rem;margin:6px 0">'+R.d+'</p><p style="color:#5AE57A;font-size:.88rem">To lean in:</p><ul>'+R.tips.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

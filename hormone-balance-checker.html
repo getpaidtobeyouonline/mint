@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hormone Balance Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .9rem; }
+  .q:last-of-type { border-bottom: none; }
+  .box { width: 22px; height: 22px; border: 2px solid #5AE57A; border-radius: 6px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .box.on { background: #5AE57A; color: #325132; font-weight: 700; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 14px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hormone Balance Checker</h1>
+  <p class="sub">A self-reflection on lifestyle factors that influence hormone balance — not a test.</p>
+
+  <div class="panel">
+    <p style="font-size:.86rem;opacity:.8;margin-bottom:8px">Tick anything you have noticed in the last few weeks:</p>
+    <div id="qs"></div>
+    <button class="btn" onclick="score()">See Reflection</button>
+    <div class="note">This is an educational reflection tool, NOT a diagnosis. Hormone symptoms have many causes — only a doctor and blood tests can assess hormones. Please see a professional for persistent symptoms.</div>
+  </div>
+  <div class="result" id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const Q=["Persistent fatigue even after sleep","Mood swings or unusual irritability","Trouble falling or staying asleep","Strong sugar or carb cravings","Unexplained weight changes","Low or absent libido","Brain fog or poor concentration","Feeling wired but tired at night","Skin breakouts or dryness changes","Feeling cold often, or hot flushes"];
+  let A=Array(Q.length).fill(false);
+  function draw(){
+    g('qs').innerHTML=Q.map((q,i)=>'<div class="q" onclick="tog('+i+')"><span class="box'+(A[i]?' on':'')+'">'+(A[i]?'✓':'')+'</span><span>'+q+'</span></div>').join('');
+  }
+  function tog(i){ A[i]=!A[i]; draw(); }
+  function score(){
+    const n=A.filter(Boolean).length;
+    let title,lines;
+    const base=["Prioritise 7-9 hours of consistent sleep — hormones reset overnight.","Steady blood sugar: protein with each meal, fewer refined carbs.","Manage stress actively — chronic cortisol disrupts everything else.","Move daily, but do not over-train — recovery matters.","Cut back on alcohol and excess caffeine."];
+    if(n===0){ title="Nothing flagged today";
+      lines=["You did not tick anything — a good sign.","Keep up sleep, movement, balanced meals and stress care.","Re-check now and then; bodies change."]; }
+    else if(n<=3){ title="A few things to keep an eye on";
+      lines=["A small number of signals — often lifestyle-related.","Start with sleep and blood-sugar balance.","Track whether these ease over 4-6 weeks of better habits."]; }
+    else { title="Several signals worth discussing";
+      lines=["You ticked several items. That does not mean a hormone problem — but it is worth a conversation.","Book a check-up and mention these to your doctor; ask about appropriate testing.","Meanwhile, the foundations below help regardless of cause."]; }
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>'+title+' ('+n+'/'+Q.length+')</h3><ul>'+lines.map(x=>'<li>'+x+'</li>').join('')+
+      '</ul><p style="margin-top:10px;color:#5AE57A;font-size:.88rem">Supportive foundations:</p><ul>'+base.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

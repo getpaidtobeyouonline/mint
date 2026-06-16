@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hunger Scale Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .scale { display: flex; flex-direction: column; gap: 5px; }
+  .lvl { display: flex; align-items: center; gap: 10px; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 12px; cursor: pointer; font-size: .86rem; }
+  .lvl:hover { border-color: #5AE57A; }
+  .lvl.on { border-color: #5AE57A; background: #325132; }
+  .lvl .num { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; width: 26px; flex: none; text-align: center; }
+  .out { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 15px; margin-top: 14px; display: none; }
+  .out h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .out p { font-size: .9rem; margin-top: 5px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hunger Scale Tool</h1>
+  <p class="sub">Rate your hunger 1-10 before eating. The aim: start around 3, stop around 7.</p>
+
+  <div class="panel">
+    <div class="scale" id="scale"></div>
+    <div class="out" id="out"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const L=[
+    [1,"Painfully hungry — shaky, dizzy, irritable"],
+    [2,"Very hungry — empty, low energy, can think only of food"],
+    [3,"Hungry — clear stomach signal, ready to eat"],
+    [4,"Slightly hungry — first gentle signs"],
+    [5,"Neutral — neither hungry nor full"],
+    [6,"Satisfied — comfortable, content"],
+    [7,"Pleasantly full — could stop here easily"],
+    [8,"Full — a touch more than needed"],
+    [9,"Too full — uncomfortable, sluggish"],
+    [10,"Stuffed — overfull, almost unwell"]
+  ];
+  const ADVICE={
+    1:["Eat now — and gently",'You waited too long. Eat soon, but slowly — extreme hunger leads to overeating past comfortable full. Start with something steadying.'],
+    2:["Time to eat",'A good moment to eat a proper meal. Slow down so you can notice when you reach a 7.'],
+    3:["Ideal time to eat",'This is the sweet spot to begin a meal — hungry enough to enjoy it, calm enough to choose well. Eat mindfully.'],
+    4:["You could eat soon",'Not urgent. If a meal is coming shortly, you can wait. If not, a small balanced snack keeps you out of the danger zone.'],
+    5:["Probably not hunger",'Your body is not asking for food. If you want to eat, pause — is it boredom, habit, stress, or thirst?'],
+    6:["No need to eat",'You are content. Eating now is more want than need. That can be a fine choice — just make it consciously.'],
+    7:["Great place to stop",'This is the ideal stopping point. Satisfied, comfortable, energised. If you are eating, this is your cue to finish.'],
+    8:["Consider stopping",'A little past comfortable. Put the fork down, take a breath — fullness keeps rising for a few minutes after you stop.'],
+    9:["Stop now",'You have gone past comfortable. Stop, drink water, and move gently. Note what led here for next time.'],
+    10:["Overfull",'Uncomfortably full. Be kind to yourself — no guilt. Notice the trigger so the next meal can start and end better.']
+  };
+  let sel=0;
+  function draw(){
+    g('scale').innerHTML=L.map(([n,t])=>'<div class="lvl'+(sel===n?' on':'')+'" onclick="pick('+n+')"><span class="num">'+n+'</span><span>'+t+'</span></div>').join('');
+  }
+  function pick(n){ sel=n; draw(); const a=ADVICE[n];
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>'+a[0]+'</h3><p>'+a[1]+'</p>';
+  }
+  draw();
+</script>
+</body>
+</html>

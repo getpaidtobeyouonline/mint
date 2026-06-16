@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hydration Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; } .row>div { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; text-align: center; margin-top: 12px; display: none; }
+  .result .big { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .result .l { font-size: .85rem; opacity: .75; }
+  .result .glasses { font-size: .88rem; margin-top: 6px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Hydration Calculator</h1>
+  <p class="sub">Estimate how much water to aim for based on your weight and activity.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Weight (kg)</label><input id="wt" type="number" min="20" placeholder="kg"></div>
+      <div><label>Exercise today (min)</label><input id="ex" type="number" min="0" value="0" placeholder="0"></div>
+    </div>
+    <label>Climate</label>
+    <select id="climate"><option value="0">Mild / normal</option><option value="0.4">Warm</option><option value="0.7">Hot</option></select>
+    <button class="btn" onclick="calc()">Calculate</button>
+    <div class="result" id="result"></div>
+    <div class="note">A general estimate. Needs vary — thirst, urine colour and how you feel are good everyday guides. Drink more when ill, pregnant or breastfeeding.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  function calc(){
+    const wt=+g('wt').value, ex=+g('ex').value||0;
+    if(!wt){ alert('Enter your weight.'); return; }
+    let litres=wt*0.033;
+    litres+=Math.floor(ex/30)*0.35;
+    litres+=+g('climate').value;
+    const glasses=Math.round(litres*1000/250);
+    g('result').style.display='block';
+    g('result').innerHTML='<div class="big">'+litres.toFixed(1)+' L</div><div class="l">suggested water intake today</div><div class="glasses">≈ '+glasses+' glasses (250ml each)</div>';
+    g('result').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

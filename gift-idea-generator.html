@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Idea Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .ideas { margin-top: 16px; display: none; }
+  .gift { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 8px; font-size: .92rem; text-align: left; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gift Idea Generator</h1>
+  <p class="sub">Stuck for a present? Set who it is for and get a fresh batch of ideas.</p>
+
+  <div class="panel">
+    <label for="who">Who is it for?</label>
+    <select id="who"><option value="partner">Partner</option><option value="parent">Parent</option><option value="child">Child</option><option value="friend">Friend</option><option value="teen">Teen</option><option value="colleague">Colleague</option></select>
+    <label for="interest">Their interest</label>
+    <select id="interest"><option value="any">Surprise me</option><option value="cozy">Cozy &amp; home</option><option value="active">Active &amp; outdoors</option><option value="creative">Creative</option><option value="foodie">Food &amp; drink</option><option value="experience">Experiences</option></select>
+    <button class="btn" onclick="gen()">Generate Gift Ideas</button>
+  </div>
+
+  <div class="ideas" id="ideas"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const G={
+    cozy:["A weighted blanket or luxe throw","A scented candle set in their favourite notes","Quality pyjamas or slippers","A subscription to an audiobook service","A personalised mug and good coffee or tea"],
+    active:["A reusable water bottle that keeps things cold","A day pass to a class they have wanted to try","Quality walking socks or gloves","A picnic blanket for outdoor adventures","A fitness tracker or activity journal"],
+    creative:["A beginner kit for a craft they have eyed","A beautiful notebook and a set of good pens","A class in pottery, painting or photography","A puzzle or art print they would love","Materials for a project they keep mentioning"],
+    foodie:["A cookbook from a cuisine they love","A tasting box — cheese, chocolate, hot sauce","A nice bottle of something special","A cooking class for two","Quality kitchen tools they would not buy themselves"],
+    experience:["Tickets to a show, gig or game","A spa or relaxation day","A weekend trip, even a local one","A membership to a museum or garden","A shared adventure — escape room, climbing, cooking"],
+    generic:["A heartfelt photo book of shared memories","A handwritten letter paired with a small treat","A donation to a cause they care about","A 'date jar' of activities to do together","Something practical they have mentioned needing"]
+  };
+  const PERSONAL={
+    partner:"A memory of yours together, framed or written out",
+    parent:"A recorded interview of their life stories",
+    child:"A keepsake box to fill with their treasures",
+    friend:"A 'reasons I appreciate you' jar",
+    teen:"A gift card with a planned outing attached",
+    colleague:"A nice desk plant or quality stationery"
+  };
+  function gen(){
+    const interest=g('interest').value, who=g('who').value;
+    let pool=interest==='any'?[].concat(G.cozy,G.active,G.creative,G.foodie,G.experience):G[interest].slice();
+    pool=pool.concat(G.generic);
+    pool=pool.sort(()=>Math.random()-0.5).slice(0,4);
+    pool.push(PERSONAL[who]);
+    g('ideas').style.display='block';
+    g('ideas').innerHTML=pool.map(x=>'<div class="gift">🎁 '+x+'</div>').join('');
+  }
+</script>
+</body>
+</html>

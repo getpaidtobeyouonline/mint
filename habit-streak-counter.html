@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Habit Streak Counter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 580px; margin: 0 auto 20px; display: flex; gap: 8px; }
+  .add-input { flex: 1; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; }
+  .add-input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Habit cards */
+  .habits { max-width: 580px; margin: 0 auto; }
+  .habit-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .habit-top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .habit-name { flex: 1; font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.9rem; padding: 3px 6px; border-radius: 4px; }
+  .del-btn:hover { color: #5AE57A; }
+
+  /* 7-day dots */
+  .dots-row { display: flex; gap: 6px; margin-bottom: 16px; }
+  .dot-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #4C724C; transition: all 0.2s; }
+  .dot.done { background: #5AE57A; border-color: #5AE57A; }
+  .dot.today-done { background: #5AE57A; border-color: #5AE57A; box-shadow: 0 0 10px #C9A84C55; }
+  .dot.missed { background: transparent; border-color: #3C603C; }
+  .dot-label { font-size: 0.65rem; color: #5A845A; }
+  .dot-label.today { color: #5AE57A; }
+
+  /* Stats + check-in */
+  .habit-bottom { display: flex; align-items: center; gap: 0; }
+  .streaks { display: flex; gap: 20px; flex: 1; }
+  .streak-box { text-align: center; }
+  .streak-num { font-family: 'Playfair Display', serif; font-size: 1.6rem; line-height: 1; }
+  .streak-num.fire { color: #5AE57A; }
+  .streak-num.best { color: #BFD8BF; }
+  .streak-label { font-size: 0.68rem; color: #BFD8BF; margin-top: 2px; }
+  .checkin-btn {
+    margin-left: auto; border-radius: 50px; padding: 9px 20px;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem;
+    cursor: pointer; border: 2px solid #4C724C; background: #325132; color: #BFD8BF;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .checkin-btn.done { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .checkin-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+
+  /* Streak pop animation */
+  @keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.3)} }
+  .pop { animation: pop 0.3s ease; }
+
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Habit Streak Counter</h1>
+<p class="subtitle">Don't break the chain. One check-in at a time.</p>
+
+<div class="add-card">
+  <input class="add-input" id="habitInput" placeholder="Add a habit — e.g. Meditate, Read, Exercise…" maxlength="50" />
+  <button class="btn-gold" onclick="addHabit()">Add</button>
+</div>
+
+<div class="habits" id="habitList">
+  <p class="empty" id="emptyMsg">No habits yet — add your first one above.</p>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const DAY_LETTERS = ['S','M','T','W','T','F','S'];
+  let habits = JSON.parse(localStorage.getItem('hsc_habits') || '[]');
+
+  function save() { localStorage.setItem('hsc_habits', JSON.stringify(habits)); }
+
+  function addHabit() {
+    const input = document.getElementById('habitInput');
+    const name = input.value.trim();
+    if (!name) return;
+    habits.push({ id: Date.now(), name, dates: [] });
+    save(); render();
+    input.value = ''; input.focus();
+  }
+
+  function remove(id) {
+    if (!confirm('Delete this habit and all its history?')) return;
+    habits = habits.filter(h => h.id !== id);
+    save(); render();
+  }
+
+  function toggleToday(id) {
+    const h = habits.find(h => h.id === id);
+    if (!h) return;
+    const idx = h.dates.indexOf(TODAY);
+    idx === -1 ? h.dates.push(TODAY) : h.dates.splice(idx, 1);
+    save(); render();
+    // pop animation on streak number
+    setTimeout(() => {
+      const el = document.getElementById(`streak-${id}`);
+      if (el) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    }, 10);
+  }
+
+  function currentStreak(dates) {
+    const set = new Set(dates);
+    const now = new Date(); now.setHours(0,0,0,0);
+    const todayKey = now.toISOString().slice(0,10);
+    const start = new Date(now);
+    if (!set.has(todayKey)) start.setDate(start.getDate() - 1);
+    let streak = 0, d = new Date(start);
+    while (set.has(d.toISOString().slice(0,10))) {
+      streak++; d.setDate(d.getDate() - 1);
+    }
+    return streak;
+  }
+
+  function bestStreak(dates) {
+    if (!dates.length) return 0;
+    const sorted = [...dates].sort();
+    let best = 1, run = 1;
+    for (let i = 1; i < sorted.length; i++) {
+      const diff = (new Date(sorted[i]+'T12:00:00') - new Date(sorted[i-1]+'T12:00:00')) / 86400000;
+      run = diff === 1 ? run + 1 : 1;
+      best = Math.max(best, run);
+    }
+    return best;
+  }
+
+  function last7(dates) {
+    const set = new Set(dates);
+    return Array.from({length: 7}, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - (6 - i));
+      const key = d.toISOString().slice(0,10);
+      return { key, done: set.has(key), letter: DAY_LETTERS[d.getDay()], isToday: key === TODAY };
+    });
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    const list = document.getElementById('habitList');
+    const empty = document.getElementById('emptyMsg');
+    if (!habits.length) {
+      list.innerHTML = '<p class="empty" id="emptyMsg">No habits yet — add your first one above.</p>';
+      return;
+    }
+
+    list.innerHTML = habits.map(h => {
+      const doneToday = h.dates.includes(TODAY);
+      const curr = currentStreak(h.dates);
+      const best = bestStreak(h.dates);
+      const days = last7(h.dates);
+
+      const dotsHtml = days.map(d => `
+        <div class="dot-wrap">
+          <div class="dot ${d.done ? (d.isToday ? 'today-done' : 'done') : 'missed'}"></div>
+          <div class="dot-label ${d.isToday ? 'today' : ''}">${d.letter}</div>
+        </div>`).join('');
+
+      return `
+        <div class="habit-card">
+          <div class="habit-top">
+            <div class="habit-name">${esc(h.name)}</div>
+            <button class="del-btn" onclick="remove(${h.id})">✕</button>
+          </div>
+          <div class="dots-row">${dotsHtml}</div>
+          <div class="habit-bottom">
+            <div class="streaks">
+              <div class="streak-box">
+                <div class="streak-num fire" id="streak-${h.id}">${curr > 0 ? '🔥 ' + curr : '—'}</div>
+                <div class="streak-label">current streak</div>
+              </div>
+              <div class="streak-box">
+                <div class="streak-num best">⭐ ${best || '—'}</div>
+                <div class="streak-label">best streak</div>
+              </div>
+            </div>
+            <button class="checkin-btn ${doneToday ? 'done' : ''}" onclick="toggleToday(${h.id})">
+              ${doneToday ? '✓ Done Today' : '+ Mark Today'}
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('habitInput').addEventListener('keydown', e => { if (e.key === 'Enter') addHabit(); });
+  render();
+</script>
+</body>
+</html>

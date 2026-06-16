@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gifted Learner Challenge Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .challenge { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-top: 14px; display: none; }
+  .challenge .big { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .challenge .ext { font-size: .87rem; margin-top: 8px; }
+  .challenge .ext b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gifted Learner Challenge Builder</h1>
+  <p class="sub">When a learner has mastered the basics, stretch them — depth and creativity, not just more work.</p>
+
+  <div class="panel">
+    <label for="topic">The topic they have mastered</label>
+    <input id="topic" placeholder="e.g. Fractions / the water cycle / WW2">
+    <label for="mode">Type of challenge</label>
+    <select id="mode">
+      <option value="any">Surprise me</option>
+      <option value="create">Create something</option>
+      <option value="teach">Teach it to others</option>
+      <option value="connect">Connect it to other fields</option>
+      <option value="deepen">Go deeper</option>
+      <option value="apply">Apply it to the real world</option>
+    </select>
+    <button class="btn" onclick="gen()">Build a Challenge</button>
+    <div class="challenge" id="out"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const M={
+    create:t=>["Create something with "+t,"Design and build an original project — a game, a model, a story, an invention — that uses "+t+" at its core."],
+    teach:t=>["Teach "+t+" to someone else","Prepare and deliver a 5-minute lesson on "+t+" for a younger learner. Teaching reveals the gaps and deepens mastery."],
+    connect:t=>["Connect "+t+" across fields","Find and explain three surprising links between "+t+" and completely different subjects — art, history, sport, music."],
+    deepen:t=>["Go deeper into "+t,"Research the hardest, most advanced question you can find about "+t+", and write up what you discover."],
+    apply:t=>["Apply "+t+" in the real world","Find a genuine real-world problem that "+t+" could help solve, and propose how you would use it."]
+  };
+  const EXT=["Set your own success criteria — how will you know it is excellent?","Add a constraint to make it harder: a time limit, no help, or a twist.","Present your result to a real audience.","Reflect afterwards: what was hard, and what would you do differently?"];
+  function gen(){
+    const topic=g('topic').value.trim();
+    if(!topic){ alert('Enter the topic they have mastered.'); return; }
+    let mode=g('mode').value;
+    if(mode==='any')mode=Object.keys(M)[Math.floor(Math.random()*Object.keys(M).length)];
+    const [title,desc]=M[mode](topic);
+    const ext=EXT[Math.floor(Math.random()*EXT.length)];
+    g('out').style.display='block';
+    g('out').innerHTML='<div class="big">'+title+'</div><div class="ext" style="margin-top:6px">'+desc+'</div><div class="ext"><b>Push it further:</b> '+ext+'</div>';
+  }
+</script>
+</body>
+</html>

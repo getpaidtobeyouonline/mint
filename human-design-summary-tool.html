@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Design Summary Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 56px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 12px; font-size: .8rem; opacity: .72; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.35rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Human Design Summary Tool</h1>
+  <p class="sub">Record your Human Design type and capture what it means for how you live.</p>
+
+  <div class="panel">
+    <label for="type">Your type</label>
+    <select id="type"><option value="">—</option><option>Generator</option><option>Manifesting Generator</option><option>Manifestor</option><option>Projector</option><option>Reflector</option></select>
+    <div class="grid">
+      <div><label for="auth">Your authority</label><input id="auth" placeholder="e.g. Sacral, Emotional, Splenic"></div>
+      <div><label for="profile">Your profile</label><input id="profile" placeholder="e.g. 1/3, 5/1"></div>
+    </div>
+    <label for="reflect">Your reflections</label>
+    <textarea id="reflect" placeholder="Where does this resonate? What might you experiment with?"></textarea>
+    <button class="btn" onclick="gen()">Build My Summary</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+    <div class="note">Look up your type with a free Human Design chart (you will need your birth date, time and place). This tool helps you record and reflect on it.</div>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const TYPES={
+    'Generator':['Strategy: respond','You have steady, sustainable life-force energy. You thrive by responding to what genuinely lights you up, rather than chasing or initiating from the mind.'],
+    'Manifesting Generator':['Strategy: respond, then inform','A fast, multi-passionate energy. You respond to what excites you, move quickly, and keep others in the loop as you go. Skipping steps is allowed.'],
+    'Manifestor':['Strategy: inform before you act','You are here to initiate and start things. Your power flows when you act on your urges and inform those affected — freeing yourself from resistance.'],
+    'Projector':['Strategy: wait for the invitation','You are a natural guide who sees others deeply. You thrive when your gifts are recognised and invited, and when you rest more than you push.'],
+    'Reflector':['Strategy: wait a lunar cycle','Rare and deeply sensitive, you mirror the health of your community. Big decisions ask for time — about a full moon cycle — and the right environment.']
+  };
+  ['type','auth','profile','reflect'].forEach(k=>{ const s=localStorage.getItem('hds_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('hds_'+k,g(k).value)); g(k).addEventListener('change',()=>localStorage.setItem('hds_'+k,g(k).value)); });
+  function gen(){
+    const ty=v('type'); if(!ty){ alert('Choose your type.'); return; }
+    const d=TYPES[ty];
+    const t='MY HUMAN DESIGN SUMMARY\n\nTYPE: '+ty+'\n'+d[0]+'\n'+d[1]+
+    '\n\nAUTHORITY: '+(v('auth')||'[your authority]')+'\n  Your authority is your trustworthy inner compass for decisions — learn to follow it over the mind.'+
+    '\n\nPROFILE: '+(v('profile')||'[your profile]')+'\n  Your profile describes the role and flavour you bring to life and relationships.'+
+    '\n\nMY REFLECTIONS:\n'+(v('reflect')||'[where this resonates, what to experiment with]')+
+    '\n\n--- Living your design ---\nHuman Design is an experiment, not a label — try your strategy and notice what changes.\nThe invitation is to live as yourself, and to trust your own authority.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

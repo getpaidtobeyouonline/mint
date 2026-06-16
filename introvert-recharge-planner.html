@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Introvert Recharge Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .9rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Introvert Recharge Planner</h1>
+  <p class="sub">Solitude is not antisocial — it is how some of us refuel. Plan your recharge on purpose.</p>
+
+  <div class="panel">
+    <label for="drain">What drained you?</label>
+    <select id="drain" onchange="gen()">
+      <option value="people">A long stretch of people / socialising</option>
+      <option value="work">Back-to-back meetings or calls</option>
+      <option value="event">A big event or crowd</option>
+      <option value="conflict">A hard or tense conversation</option>
+      <option value="overstim">Noise / overstimulation generally</option>
+    </select>
+    <label for="time">Recharge time you can carve out</label>
+    <select id="time" onchange="gen()"><option>15 minutes</option><option>1 hour</option><option>An evening</option><option>A whole day</option></select>
+    <button class="btn" onclick="gen()">Plan My Recharge</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  ['drain','time'].forEach(k=>{ const s=localStorage.getItem('irp_'+k); if(s!==null)g(k).value=s; });
+  function gen(){
+    ['drain','time'].forEach(k=>localStorage.setItem('irp_'+k,g(k).value));
+    const D=g('drain').value, T=g('time').value;
+    const restore={
+      people:["Get genuinely alone — a room, a walk, a parked car","No talking, no input — let the silence do the work","Do something slow with your hands or eyes only"],
+      work:["Step fully away from screens and notifications","Move your body gently to discharge meeting tension","Do one thing with zero performance involved"],
+      event:["Lower all stimulation: dim lights, quiet, soft clothes","Do not debrief the event yet — just decompress first","Hydrate, eat something simple, slow your breathing"],
+      conflict:["Let your nervous system settle before you analyse anything","Move or shake it off physically — tension lives in the body","Comfort first: warmth, quiet, something familiar"],
+      overstim:["Reduce input on every channel — sound, light, screens","Find a small, contained, predictable space","Let your senses rest before adding anything back"]
+    }[D];
+    const ideas={
+      "15 minutes":["A quiet walk alone, no podcast","Sit by a window and just look","A few slow breaths in a calm room"],
+      "1 hour":["Read something purely for you","A solo walk or a long shower or bath","A creative or absorbing task done alone"],
+      "An evening":["No plans, no obligations — protect the whole evening","A comforting routine: food, book, early bed","Say no to anything that needs your social energy"],
+      "A whole day":["A genuine low-demand day — guard it like an appointment","Mix gentle solo activity with real rest","Tell people in advance so you are not pulled back in"]
+    }[T];
+    g('out').innerHTML='<div class="blk"><h4>First — restore from the drain</h4><ul>'+restore.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>Then — recharge ideas for '+T.toLowerCase()+'</h4><ul>'+ideas.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>Permission</h4><p style="font-size:.9rem">Needing solitude is not rude or broken. You are not avoiding life — you are making it possible to show up for the next part of it.</p></div>';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

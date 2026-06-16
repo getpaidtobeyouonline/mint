@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freelance Rate Setter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .rng { font-size: .9rem; opacity: .8; margin-top: 6px; }
+  .bd { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .86rem; }
+  .bd div { display: flex; justify-content: space-between; padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Freelance Rate Setter</h1>
+  <p class="sub">Reverse-engineer your hourly rate from the salary you actually need to live.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="salary">Salary you want ($/yr)</label><input id="salary" type="number" min="0" value="90000" oninput="calc()"></div>
+      <div><label for="business">Business overhead ($/yr)</label><input id="business" type="number" min="0" value="6000" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="weeks">Working weeks / yr</label><input id="weeks" type="number" min="1" max="52" value="46" oninput="calc()"></div>
+      <div><label for="billable">Billable hours / week</label><input id="billable" type="number" min="1" value="22" oninput="calc()"></div>
+    </div>
+    <label for="tax">Tax + insurance set-aside (% of revenue)</label>
+    <input id="tax" type="number" min="0" max="50" value="30" oninput="calc()">
+  </div>
+
+  <div class="res">
+    <div class="n" id="rate">$0</div>
+    <div class="rng" id="rng">your minimum hourly rate</div>
+    <div class="bd" id="bd"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['salary','business','weeks','billable','tax'].forEach(k=>{ const s=localStorage.getItem('frs_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['salary','business','weeks','billable','tax'].forEach(k=>localStorage.setItem('frs_'+k,g(k).value));
+    const totalNeed=n('salary')+n('business');
+    const grossNeed=totalNeed/(1-n('tax')/100);
+    const totalHours=Math.max(1,n('weeks'))*Math.max(1,n('billable'));
+    const rate=grossNeed/totalHours;
+    g('rate').textContent='$'+Math.round(rate).toLocaleString();
+    g('rng').textContent=`fair range: $${Math.round(rate*1.25).toLocaleString()} (premium) — never go below $${Math.round(rate*0.85).toLocaleString()}`;
+    g('bd').innerHTML=[
+      ['Take-home wanted','$'+n('salary').toLocaleString()+'/yr'],
+      ['Overhead','$'+n('business').toLocaleString()+'/yr'],
+      ['Tax/insurance buffer',n('tax')+'%'],
+      ['Gross revenue needed','$'+Math.round(grossNeed).toLocaleString()+'/yr'],
+      ['Billable hours/yr',totalHours.toLocaleString()]
+    ].map(([l,x])=>`<div><span>${l}</span><span style="color:#5AE57A">${x}</span></div>`).join('');
+  }
+  calc();
+</script>
+</body>
+</html>

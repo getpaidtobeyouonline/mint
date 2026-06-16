@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gut Health Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 8px; }
+  .hab { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .9rem; }
+  .hab:last-child { border-bottom: none; }
+  .box { width: 22px; height: 22px; border: 2px solid #5AE57A; border-radius: 6px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .box.on { background: #5AE57A; color: #325132; font-weight: 700; }
+  .prog { text-align: center; margin-bottom: 14px; }
+  .prog .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .fiber input { width: 60px; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family:'DM Sans',sans-serif; padding: 6px 8px; border-radius: 6px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gut Health Planner</h1>
+  <p class="sub">A happy gut likes fibre, fermented foods, plant variety and calm. Check off today's habits.</p>
+
+  <div class="panel prog">
+    <div><span class="n" id="done">0</span><span style="opacity:.7"> / <span id="tot">0</span> gut habits today</span></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="msg" style="font-size:.88rem;opacity:.85"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Today's gut-friendly habits</h3>
+    <div id="habs"></div>
+  </div>
+
+  <div class="panel fiber">
+    <h3>Plant variety</h3>
+    <p style="font-size:.88rem;opacity:.85">Different plants this week (aim for 30): <input id="plants" type="number" min="0" oninput="savePlants()"></p>
+    <div class="note">General wellbeing guidance, not medical advice. See a professional for ongoing digestive issues.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const HABITS=["Ate a fermented food (yogurt, kefir, kimchi, sauerkraut)","Had 2+ servings of vegetables","Ate a high-fibre food (beans, oats, whole grains)","Drank enough water","Ate a prebiotic food (garlic, onion, banana, oats)","Did not rush a meal — ate slowly","Limited ultra-processed food","Moved my body (helps digestion)"];
+  const today=new Date().toISOString().slice(0,10);
+  let D=JSON.parse(localStorage.getItem('ghp')||'{}');
+  if(D.day!==today)D={day:today,done:[],plants:D.plants||0};
+  const save=()=>localStorage.setItem('ghp',JSON.stringify(D));
+  g('tot').textContent=HABITS.length;
+  g('plants').value=D.plants||'';
+  function tog(i){ D.done.includes(i)?D.done=D.done.filter(x=>x!==i):D.done.push(i); save(); render(); }
+  function savePlants(){ D.plants=parseInt(g('plants').value)||0; save(); }
+  function render(){
+    g('habs').innerHTML=HABITS.map((h,i)=>'<div class="hab" onclick="tog('+i+')"><span class="box'+(D.done.includes(i)?' on':'')+'">'+(D.done.includes(i)?'✓':'')+'</span><span>'+h+'</span></div>').join('');
+    const n=D.done.length;
+    g('done').textContent=n;
+    g('bar').style.width=Math.round(n/HABITS.length*100)+'%';
+    g('msg').textContent= n===HABITS.length?'Full house — your gut is well looked after today.':n>=5?'Strong day for your gut.':n>=2?'Good start — pick one more habit.':'Tap a habit as you do it today.';
+  }
+  render();
+</script>
+</body>
+</html>

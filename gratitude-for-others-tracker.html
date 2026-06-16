@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gratitude for Others Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 10px 16px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: .85rem; margin-top: 8px; cursor: pointer; }
+  .toggle .box { width: 18px; height: 18px; border: 2px solid #5AE57A; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .toggle .box.on { background: #5AE57A; color: #325132; }
+  .stat { text-align: center; font-size: .85rem; opacity: .8; margin-bottom: 12px; }
+  .stat b { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .entry.told { border-left: 3px solid #5AE57A; }
+  .entry .who { color: #5AE57A; font-weight: 500; }
+  .entry .x { float: right; cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; color: #5AE57A; }
+  .entry p { font-size: .88rem; margin-top: 2px; }
+  .entry .told-tag { font-size: .76rem; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Gratitude for Others Tracker</h1>
+  <p class="sub">Notice the people who make life better — then take the bold step of telling them.</p>
+
+  <div class="panel">
+    <label>Who are you grateful for?</label>
+    <input id="who" placeholder="A name">
+    <label>What they did or are</label>
+    <textarea id="what" placeholder="Be specific — the moment, the quality, the help"></textarea>
+    <div class="toggle" onclick="toggleTold()"><span class="box" id="tbox"></span><span>I have told them</span></div>
+    <button class="btn" onclick="add()">Save</button>
+  </div>
+
+  <div class="panel">
+    <div class="stat"><b id="total">0</b> noted · <b id="told">0</b> actually told them</div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('gfot')||'[]'), told=false;
+  const save=()=>localStorage.setItem('gfot',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function toggleTold(){ told=!told; g('tbox').className='box'+(told?' on':''); g('tbox').textContent=told?'✓':''; }
+  function add(){ if(!v('who')||!v('what')){ alert('Add a name and what you appreciate.'); return; }
+    R.push({who:v('who'),what:v('what'),told,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+    g('who').value=''; g('what').value=''; if(told)toggleTold(); save(); render(); }
+  function flip(i){ R[i].told=!R[i].told; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function render(){
+    g('total').textContent=R.length;
+    g('told').textContent=R.filter(x=>x.told).length;
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No entries yet — and remember to tell them.</div>'; return; }
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      return '<div class="entry'+(x.told?' told':'')+'"><span class="x" onclick="del('+i+')">✕</span><div class="who">'+esc(x.who)+' <span style="opacity:.5;font-weight:400;font-size:.78rem">· '+x.d+'</span></div><p>'+esc(x.what)+'</p>'+
+        (x.told?'<div class="told-tag">✓ You told them</div>':'<div class="told-tag" style="color:#5AE57A;cursor:pointer" onclick="flip('+i+')">Mark as told →</div>')+'</div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>
