@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Party Game Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .game { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 14px; text-align: left; min-height: 90px; }
+  .game h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; margin-bottom: 4px; }
+  .game p { font-size: .92rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Party Game Generator</h1>
+  <p class="sub">Tap and get a party-tested game — no equipment, no fuss.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="game" id="game"><h3>Tap below to start</h3><p>A fresh game idea appears here each time.</p></div>
+    <button class="btn" onclick="next()">New Game</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GAMES={
+    'Active':[
+      {n:'Musical Statues',d:'Play music while everyone dances. When the music stops, freeze! Anyone caught moving is out. Last one in wins.'},
+      {n:'Pass the Parcel',d:'Wrap a small prize in many layers, with a tiny treat between each. Music plays, parcel passes. When the music stops, unwrap one layer.'},
+      {n:'Sleeping Lions',d:'All kids lie down "asleep". The grown-up walks around — anyone who moves is out. Best calm-down game of all time.'},
+      {n:'Limbo',d:'Hold a broom handle and let players bend backward to pass underneath. Lower it each round. How low can they go?'},
+      {n:'Hot Potato',d:'Sit in a circle and toss a soft "potato" while music plays. Whoever holds it when the music stops is out.'},
+      {n:'Balloon Keep-Up',d:'Each team must keep their balloon in the air without it touching the ground. Add more balloons as it gets easier.'}
+    ],
+    'Calm':[
+      {n:'What\'s in the Bag?',d:'Place mystery objects in a bag. Players reach in and guess by touch alone.'},
+      {n:'Telephone',d:'Whisper a phrase down the line. The last person says it out loud. Hilarity ensues.'},
+      {n:'Memory Tray',d:'Put 10 objects on a tray, show for 30 seconds, cover up. Who can list the most?'},
+      {n:'Drawing Telephone',d:'Pass a paper around with words and drawings alternating. Read out the funny final result.'},
+      {n:'Guess Who I Am',d:'Tape an animal or character name to each child\'s back. They ask yes/no questions to guess.'}
+    ],
+    'Creative':[
+      {n:'Decorate Your Own',d:'Cupcakes, biscuits, party hats or paper plates. Lay out supplies and let them go wild.'},
+      {n:'Story Building',d:'One person starts a story with a sentence. Each child adds the next sentence. Record it for fun.'},
+      {n:'Treasure Hunt',d:'Hide objects with clues that lead to the next. End at a small treasure.'},
+      {n:'Talent Show',d:'Give 5 minutes to prepare a "talent" — singing, joke, magic trick, dance. Everyone performs.'},
+      {n:'Make a Movie',d:'Pick a theme, hand over a phone, set a 10-minute timer. Watch the world premiere over cake.'}
+    ],
+    'Outdoor':[
+      {n:'Egg and Spoon Race',d:'Hold an egg (real or wooden) on a spoon and race to the finish without dropping it.'},
+      {n:'Sack Race',d:'Pillowcases or sacks — hop to the finish line!'},
+      {n:'Three-Legged Race',d:'Pair up, tie inside legs together gently, and race in pairs.'},
+      {n:'Water Balloon Toss',d:'Pairs stand close, toss, step back, toss again. The dry team wins.'},
+      {n:'Tug of War',d:'Two teams, one rope, a line on the ground. Pull!'}
+    ]
+  };
+  let cat='Active';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(GAMES).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=GAMES[cat]; const gm=list[Math.floor(Math.random()*list.length)]; g('game').innerHTML='<h3>'+gm.n+'</h3><p>'+gm.d+'</p>'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

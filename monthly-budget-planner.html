@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Budget Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 8px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 6px; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 120px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 7px; padding: 9px 13px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 10px; font-size: .9rem; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .85rem; padding: 6px 0; font-style: italic; }
+  .leftover { color: #5AE57A; } .negative { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Monthly Budget Planner</h1>
+  <p class="sub">Plan every dollar before the month starts. What gets a job stays.</p>
+
+  <div class="panel">
+    <h2>Income</h2>
+    <div class="row"><div style="flex:2"><label>Source</label><input id="iN" placeholder="e.g. Salary"></div><div><label>Amount ($)</label><input id="iA" type="number" min="0"></div><div style="flex:0"><button class="btn" onclick="add('i')">+ Add</button></div></div>
+    <div id="iL"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Expenses</h2>
+    <div class="row"><div style="flex:2"><label>Category</label><input id="eN" placeholder="e.g. Rent"></div><div><label>Amount ($)</label><input id="eA" type="number" min="0"></div><div style="flex:0"><button class="btn" onclick="add('e')">+ Add</button></div></div>
+    <div id="eL"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sI">$0</div><div class="l">Income</div></div>
+    <div class="stat"><div class="v" id="sE">$0</div><div class="l">Expenses</div></div>
+    <div class="stat"><div class="v" id="sL">$0</div><div class="l">Left to allocate</div></div>
+  </div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let I=JSON.parse(localStorage.getItem('mbp_i')||'[]'), E=JSON.parse(localStorage.getItem('mbp_e')||'[]');
+  const save=()=>{ localStorage.setItem('mbp_i',JSON.stringify(I)); localStorage.setItem('mbp_e',JSON.stringify(E)); };
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(k){ const n=k==='i'?v('iN'):v('eN'), a=parseFloat((k==='i'?g('iA').value:g('eA').value))||0; if(!n||!a){alert('Add a name and amount.');return;}
+    (k==='i'?I:E).push({n,a}); (k==='i'?'iN iA':'eN eA').split(' ').forEach(x=>g(x).value=''); save(); render(); }
+  function del(k,i){ (k==='i'?I:E).splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ I=[]; E=[]; save(); render(); } }
+  function render(){
+    const ti=I.reduce((s,x)=>s+x.a,0), te=E.reduce((s,x)=>s+x.a,0);
+    g('sI').textContent='$'+Math.round(ti).toLocaleString();
+    g('sE').textContent='$'+Math.round(te).toLocaleString();
+    const lo=ti-te;
+    g('sL').textContent=(lo<0?'-$':'$')+Math.abs(Math.round(lo)).toLocaleString();
+    g('sL').className='v '+(lo<0?'negative':'leftover');
+    g('iL').innerHTML = I.length?I.map((x,i)=>`<div class="row2"><span>${esc(x.n)}</span><span>$${x.a.toLocaleString()} <span class="x" onclick="del('i',${i})">✕</span></span></div>`).join(''):'<div class="empty">No income added yet.</div>';
+    g('eL').innerHTML = E.length?E.map((x,i)=>`<div class="row2"><span>${esc(x.n)}</span><span>$${x.a.toLocaleString()} <span class="x" onclick="del('e',${i})">✕</span></span></div>`).join(''):'<div class="empty">No expenses added yet.</div>';
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labyrinth Walk Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Labyrinth Walk Planner</h1>
+  <p class="sub">Prepare for a contemplative labyrinth walk — release, receive, return.</p>
+
+  <div class="panel">
+    <label for="intention">Your intention for the walk</label>
+    <textarea id="intention" placeholder="Why you are walking today"></textarea>
+    <label for="question">A question you are carrying</label>
+    <input id="question" placeholder="Something you are sitting with">
+    <label for="release">Walking IN — what you will release</label>
+    <textarea id="release" placeholder="What you let go of, step by step, on the way to the centre"></textarea>
+    <label for="receive">At the CENTRE — what you will receive</label>
+    <textarea id="receive" placeholder="What you pause to listen for or accept"></textarea>
+    <label for="carry">Walking OUT — what you will carry forward</label>
+    <textarea id="carry" placeholder="What you bring back into your life"></textarea>
+    <button class="btn" onclick="gen()">Build Guide</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['intention','question','release','receive','carry'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('lwp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('lwp_'+k,g(k).value)); });
+  function gen(){
+    const t='LABYRINTH WALK GUIDE\n\nINTENTION:\n'+(v('intention')||'[why you walk today]')+
+    '\n\nQUESTION I CARRY:\n'+(v('question')||'[what you are sitting with]')+
+    '\n\n--- THE THREE MOVEMENTS ---\n\n1. WALKING IN — RELEASING\n'+(v('release')||'[what you let go of toward the centre]')+
+    '\n\n2. THE CENTRE — RECEIVING\n'+(v('receive')||'[what you pause to receive]')+
+    '\n\n3. WALKING OUT — RETURNING\n'+(v('carry')||'[what you carry forward]')+
+    '\n\n--- Walking the labyrinth ---\nThere are no wrong turns — the path holds you; simply follow it.\nWalk at whatever pace your body wants. Slow is welcome.\nPause at the centre as long as you need.\nThere is nothing to achieve. The walk itself is the prayer.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

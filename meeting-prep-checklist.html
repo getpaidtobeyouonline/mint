@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Prep Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 660px; margin: 0 auto 20px; }
+  .add-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .form-row:last-child { margin-bottom: 0; }
+  input[type="text"] { flex: 1; min-width: 160px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  input[type="text"]:focus { border-color: #5AE57A; }
+  input[type="datetime-local"], select { background: #325132; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  input[type="datetime-local"]:focus, select:focus { border-color: #5AE57A; color: #FFFFFF; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Meeting cards */
+  .meetings { max-width: 660px; margin: 0 auto; }
+  .mtg-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+  .mtg-header { padding: 14px 18px; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 10px; }
+  .mtg-header:hover { background: #3C603C; }
+  .mtg-type-badge { font-size: 0.7rem; padding: 3px 9px; border-radius: 10px; background: #C9A84C22; color: #5AE57A; border: 1px solid #C9A84C44; white-space: nowrap; flex-shrink: 0; }
+  .mtg-name { font-family: 'Playfair Display', serif; font-size: 1rem; flex: 1; }
+  .mtg-when { font-size: 0.75rem; color: #BFD8BF; white-space: nowrap; flex-shrink: 0; }
+  .mtg-prog { font-size: 0.72rem; color: #5AE57A; white-space: nowrap; flex-shrink: 0; }
+  .chevron { color: #5A845A; font-size: 0.72rem; transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+
+  /* Body */
+  .mtg-body { display: none; border-top: 1px solid #3C603C; }
+  .mtg-body.open { display: block; }
+
+  /* Tabs */
+  .tabs { display: flex; border-bottom: 1px solid #3C603C; }
+  .tab { flex: 1; padding: 10px 6px; text-align: center; font-size: 0.8rem; color: #BFD8BF; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; }
+  .tab.active { color: #5AE57A; border-color: #5AE57A; }
+  .tab:hover { color: #F0EBE0aa; }
+
+  /* Panel */
+  .panel { padding: 14px 18px; }
+  .check-item { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid #3C603C; }
+  .check-item:last-child { border-bottom: none; }
+  .check-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5AE57A; cursor: pointer; flex-shrink: 0; }
+  .check-text { flex: 1; font-size: 0.88rem; }
+  .check-text.done { text-decoration: line-through; color: #5A845A; }
+  .item-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; }
+  .item-del:hover { color: #5AE57A; }
+  .text-item { padding: 7px 0; border-bottom: 1px solid #3C603C; font-size: 0.88rem; color: #F0EBE0aa; display: flex; align-items: center; gap: 8px; }
+  .text-item:last-child { border-bottom: none; }
+  .text-item span { flex: 1; }
+  .add-inline { display: flex; gap: 7px; margin-top: 10px; }
+  .add-inline input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 7px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; }
+  .add-inline input:focus { border-color: #5AE57A; }
+  .btn-sm { background: #5AE57A; color: #325132; border: none; padding: 7px 16px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+  .btn-sm:hover { background: #5AE57A; }
+  .panel-empty { color: #5A845A; font-size: 0.82rem; font-style: italic; padding: 8px 0; }
+
+  .page-empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Meeting Prep Checklist</h1>
+<p class="subtitle">Walk into every meeting ready. Walk out with clear next steps.</p>
+
+<div class="add-card">
+  <div class="add-title">Add a Meeting</div>
+  <div class="form-row">
+    <input type="text" id="mtgName" placeholder="Meeting name or topic…" maxlength="70" />
+    <input type="datetime-local" id="mtgDate" />
+    <select id="mtgType">
+      <option value="1on1">👥 1-on-1</option>
+      <option value="client">💼 Client Call</option>
+      <option value="team">🏢 Team Meeting</option>
+      <option value="presentation">📊 Presentation</option>
+      <option value="interview">🎯 Interview</option>
+      <option value="general">📋 General</option>
+    </select>
+    <button class="btn-gold" onclick="addMeeting()">Add</button>
+  </div>
+</div>
+
+<div class="meetings" id="meetingList"><p class="page-empty">No meetings yet — add one above to start preparing.</p></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TEMPLATES = {
+    '1on1':         ['Review previous notes & actions', 'Prepare progress update', 'List blockers to raise', 'Prepare feedback to share'],
+    'client':       ['Review client history & brief', 'Prepare deliverables update', 'Confirm meeting objective', 'Test screen share & tech'],
+    'team':         ['Send agenda 24h before', 'Collect status updates from team', 'Prepare key discussion points', 'Assign time limits per topic'],
+    'presentation': ['Finalise and rehearse slides', 'Test tech and have a backup', 'Prepare strong opening & close', 'Send materials in advance'],
+    'interview':    ['Research company and role', 'Prepare 3 STAR examples', 'Write questions to ask them', 'Confirm time, location, contact'],
+    'general':      ['Set a clear objective', 'Prepare agenda and share it', 'Review relevant background', 'Know your desired outcome'],
+  };
+  const TYPE_LABELS = { '1on1':'1-on-1','client':'Client Call','team':'Team Meeting','presentation':'Presentation','interview':'Interview','general':'General' };
+
+  let meetings = JSON.parse(localStorage.getItem('mpc_meetings') || '[]');
+  let openIds  = new Set(JSON.parse(localStorage.getItem('mpc_open') || '[]'));
+  let tabState = JSON.parse(localStorage.getItem('mpc_tabs') || '{}');
+
+  function save() {
+    localStorage.setItem('mpc_meetings', JSON.stringify(meetings));
+    localStorage.setItem('mpc_open', JSON.stringify([...openIds]));
+    localStorage.setItem('mpc_tabs', JSON.stringify(tabState));
+  }
+
+  // Set default datetime to next hour
+  const d = new Date(); d.setHours(d.getHours() + 1, 0, 0, 0);
+  document.getElementById('mtgDate').value = d.toISOString().slice(0, 16);
+
+  function addMeeting() {
+    const name = document.getElementById('mtgName').value.trim(); if (!name) return;
+    const datetime = document.getElementById('mtgDate').value;
+    const type = document.getElementById('mtgType').value;
+    const prep = TEMPLATES[type].map((text, i) => ({ id: Date.now() + i, text, done: false }));
+    meetings.unshift({ id: Date.now(), name, datetime, type, prep, agenda: [], actions: [] });
+    save(); render();
+    document.getElementById('mtgName').value = '';
+    document.getElementById('mtgName').focus();
+  }
+
+  function removeMeeting(id) {
+    if (!confirm('Delete this meeting?')) return;
+    meetings = meetings.filter(m => m.id !== id); openIds.delete(id);
+    delete tabState[id]; save(); render();
+  }
+
+  function toggleOpen(id) { openIds.has(id) ? openIds.delete(id) : openIds.add(id); save(); render(); }
+  function setTab(id, tab) { tabState[id] = tab; save(); render(); }
+
+  function togglePrep(mid, pid) {
+    const m = meetings.find(m => m.id === mid); if (!m) return;
+    const p = m.prep.find(p => p.id === pid); if (!p) return;
+    p.done = !p.done; save(); render();
+  }
+  function toggleAction(mid, aid) {
+    const m = meetings.find(m => m.id === mid); if (!m) return;
+    const a = m.actions.find(a => a.id === aid); if (!a) return;
+    a.done = !a.done; save(); render();
+  }
+  function addPrep(mid)    { const m = meetings.find(m=>m.id===mid); const t = document.getElementById(`prep-in-${mid}`).value.trim(); if (!m||!t) return; m.prep.push({id:Date.now(),text:t,done:false}); save(); render(); }
+  function addAgenda(mid)  { const m = meetings.find(m=>m.id===mid); const t = document.getElementById(`agd-in-${mid}`).value.trim();  if (!m||!t) return; m.agenda.push(t); save(); render(); }
+  function addAction(mid)  { const m = meetings.find(m=>m.id===mid); const t = document.getElementById(`act-in-${mid}`).value.trim();  if (!m||!t) return; m.actions.push({id:Date.now(),text:t,done:false}); save(); render(); }
+  function delPrep(mid,pid)   { const m=meetings.find(m=>m.id===mid); if(m) m.prep=m.prep.filter(p=>p.id!==pid); save(); render(); }
+  function delAgenda(mid,i)   { const m=meetings.find(m=>m.id===mid); if(m) m.agenda.splice(i,1); save(); render(); }
+  function delAction(mid,aid) { const m=meetings.find(m=>m.id===mid); if(m) m.actions=m.actions.filter(a=>a.id!==aid); save(); render(); }
+
+  function fmtDate(dt) { return dt ? new Date(dt).toLocaleString('en-US',{weekday:'short',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : ''; }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function keydown(e, fn) { if (e.key === 'Enter') fn(); }
+
+  function render() {
+    const el = document.getElementById('meetingList');
+    if (!meetings.length) { el.innerHTML = '<p class="page-empty">No meetings yet — add one above to start preparing.</p>'; return; }
+    el.innerHTML = meetings.map(m => {
+      const isOpen = openIds.has(m.id);
+      const tab = tabState[m.id] || 'prep';
+      const donePrep = m.prep.filter(p=>p.done).length;
+      const progTxt  = m.prep.length ? `${donePrep}/${m.prep.length} prep done` : '';
+
+      const prepPanel = `
+        ${m.prep.map(p=>`<div class="check-item"><input type="checkbox" ${p.done?'checked':''} onchange="togglePrep(${m.id},${p.id})">
+          <span class="check-text ${p.done?'done':''}">${esc(p.text)}</span>
+          <button class="item-del" onclick="delPrep(${m.id},${p.id})">✕</button></div>`).join('')}
+        ${!m.prep.length ? '<p class="panel-empty">No prep items.</p>' : ''}
+        <div class="add-inline">
+          <input id="prep-in-${m.id}" placeholder="Add prep item…" maxlength="80" onkeydown="if(event.key==='Enter')addPrep(${m.id})" />
+          <button class="btn-sm" onclick="addPrep(${m.id})">Add</button>
+        </div>`;
+
+      const agdPanel = `
+        ${m.agenda.map((a,i)=>`<div class="text-item"><span>${esc(a)}</span><button class="item-del" onclick="delAgenda(${m.id},${i})">✕</button></div>`).join('')}
+        ${!m.agenda.length ? '<p class="panel-empty">No agenda items.</p>' : ''}
+        <div class="add-inline">
+          <input id="agd-in-${m.id}" placeholder="Add agenda item or question…" maxlength="80" onkeydown="if(event.key==='Enter')addAgenda(${m.id})" />
+          <button class="btn-sm" onclick="addAgenda(${m.id})">Add</button>
+        </div>`;
+
+      const actPanel = `
+        ${m.actions.map(a=>`<div class="check-item"><input type="checkbox" ${a.done?'checked':''} onchange="toggleAction(${m.id},${a.id})">
+          <span class="check-text ${a.done?'done':''}">${esc(a.text)}</span>
+          <button class="item-del" onclick="delAction(${m.id},${a.id})">✕</button></div>`).join('')}
+        ${!m.actions.length ? '<p class="panel-empty">No follow-up actions yet.</p>' : ''}
+        <div class="add-inline">
+          <input id="act-in-${m.id}" placeholder="Add follow-up action…" maxlength="80" onkeydown="if(event.key==='Enter')addAction(${m.id})" />
+          <button class="btn-sm" onclick="addAction(${m.id})">Add</button>
+        </div>`;
+
+      return `<div class="mtg-card">
+        <div class="mtg-header" onclick="toggleOpen(${m.id})">
+          <span class="mtg-type-badge">${TYPE_LABELS[m.type]||m.type}</span>
+          <span class="mtg-name">${esc(m.name)}</span>
+          <span class="mtg-when">${fmtDate(m.datetime)}</span>
+          ${progTxt ? `<span class="mtg-prog">${progTxt}</span>` : ''}
+          <button class="del-btn" onclick="event.stopPropagation();removeMeeting(${m.id})">✕</button>
+          <span class="chevron ${isOpen?'open':''}">▼</span>
+        </div>
+        <div class="mtg-body ${isOpen?'open':''}">
+          <div class="tabs">
+            <div class="tab ${tab==='prep'?'active':''}" onclick="setTab(${m.id},'prep')">✦ Prep</div>
+            <div class="tab ${tab==='agenda'?'active':''}" onclick="setTab(${m.id},'agenda')">📋 Agenda</div>
+            <div class="tab ${tab==='actions'?'active':''}" onclick="setTab(${m.id},'actions')">✅ Actions</div>
+          </div>
+          <div class="panel">${tab==='prep'?prepPanel:tab==='agenda'?agdPanel:actPanel}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('mtgName').addEventListener('keydown', e => { if (e.key==='Enter') addMeeting(); });
+  render();
+</script>
+</body>
+</html>

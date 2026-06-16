@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Membership Tier Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:calc(50% - .3rem);background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.opt-row.row3 .opt{min-width:0}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap}
+.m-name{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1;min-width:200px}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.tier-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.2rem 1.25rem;margin-bottom:.9rem;border-left:3px solid #5AE57A}
+.tier-top{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.tier-num{font-size:.68rem;font-weight:600;opacity:.35;text-transform:uppercase;letter-spacing:.08em}
+.tier-name{font-family:'Playfair Display',serif;font-size:1.1rem;flex:1}
+.tier-price{border-radius:6px;padding:.2rem .65rem;font-size:.82rem;font-weight:700;white-space:nowrap}
+.tier-for{font-size:.8rem;opacity:.58;margin-bottom:.65rem;font-style:italic}
+.tier-prev{font-size:.74rem;opacity:.4;font-style:italic;padding:.3rem 0 .5rem;border-top:1px solid #3C603C}
+.tier-items{list-style:none;margin-bottom:.5rem}
+.tier-items li{font-size:.83rem;padding:.26rem 0 .26rem 1rem;border-bottom:1px solid #3C603C;opacity:.82;position:relative}
+.tier-items li::before{content:'✓';position:absolute;left:0;font-size:.72rem;top:.3rem;color:#5AE57A}
+.tier-items li:last-child{border-bottom:none}
+.tier-hook{font-size:.78rem;margin-top:.55rem;padding-top:.55rem;border-top:1px solid #3C603C;opacity:.75}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Membership Tier Planner</h1>
+    <p class="subtitle">Design your membership tiers — with names, pricing, inclusions, and upgrade hooks — ready to launch or refine.</p>
+  </header>
+
+  <div class="card">
+    <h2>Membership Details</h2>
+    <label>Topic / Niche</label>
+    <input type="text" id="inTopic" placeholder="e.g. copywriting, fitness, personal finance, social media">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Target Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. freelancers, new coaches">
+      </div>
+      <div>
+        <label style="margin-top:0">Member Outcome</label>
+        <input type="text" id="inGoal" placeholder="e.g. grow a 6-figure business">
+      </div>
+    </div>
+    <label>Number of Tiers</label>
+    <div class="opt-row row3">
+      <button class="opt" onclick="pickTiers(2)" id="t2">2 Tiers</button>
+      <button class="opt sel" onclick="pickTiers(3)" id="t3">3 Tiers</button>
+      <button class="opt" onclick="pickTiers(4)" id="t4">4 Tiers</button>
+    </div>
+    <label>Membership Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickType('content')"   id="typcontent">Content</button>
+      <button class="opt"     onclick="pickType('community')" id="typcommunity">Community</button>
+      <button class="opt"     onclick="pickType('coaching')"  id="typcoaching">Coaching</button>
+      <button class="opt"     onclick="pickType('hybrid')"    id="typhybrid">Hybrid</button>
+    </div>
+    <button class="btn" onclick="generate()">Plan My Membership Tiers →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="m-name" id="mName"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ Title</button>
+      <button class="regen-btn" onclick="regenNames()">↻ Tier Names</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="tierCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyPlan()">Copy Membership Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const tData = {
+  content:{
+    b:['Monthly {T} content bundle','Full content library access','Private member community','Monthly Q&A thread','Downloadable templates and cheat sheets'],
+    m:['Live monthly {T} training session','Premium {T} template library','Priority support and replies','Full content archive access'],
+    p:['Monthly live group Q&A call','Advanced {T} deep-dive content vault','Private premium member group','Early access to all new content'],
+    v:['Quarterly private {T} intensive','VIP hot seat in every monthly call','Personalised {T} quarterly review','1:1 onboarding and strategy session'],
+  },
+  community:{
+    b:['Private {T} community access','Monthly live community event','Peer support and accountability threads','Member welcome guide and resources'],
+    m:['Smaller VIP group within the community','Monthly expert guest session','Member networking directory','All event and session recordings'],
+    p:['Elite inner circle group access','Direct Q&A access to the host','Monthly mastermind discussion thread','Priority access to all events'],
+    v:['Private welcome call with the host','VIP retreat or intensive (quarterly)','Personal introduction to the host\'s network','Co-create and collaborate opportunity'],
+  },
+  coaching:{
+    b:['Monthly group coaching call','Call recordings and replay library','Private community access','Peer accountability threads'],
+    m:['Weekly group coaching sessions','Live Q&A and hot seat access','{T} resource and template library','Direct voice note support channel'],
+    p:['Monthly 1:1 {T} review session','Priority hot seat in all group calls','Advanced {T} coaching resource vault','Personalised {T} action plan'],
+    v:['Monthly private 1:1 coaching session','Unlimited voice note access','Quarterly VIP {T} intensive','Priority 24-hour response support'],
+  },
+  hybrid:{
+    b:['Monthly {T} training and content drop','Private member community access','Monthly group Q&A call','Downloadable {T} templates and tools'],
+    m:['Weekly live {T} training sessions','Premium template and resource library','Priority Q&A access','Full session and content archive'],
+    p:['Monthly group hot seat coaching','Advanced {T} resource vault','Private premium community group','Quarterly {T} strategy session'],
+    v:['Monthly private 1:1 {T} coaching','VIP community and networking access','Quarterly private {T} intensive','Co-creation and collaboration access'],
+  },
+};
+
+const hooks = {
+  content:   ['Go deeper with live monthly {T} training and the premium template library','Unlock monthly group Q&A calls, the advanced {T} vault, and a private premium group','Get quarterly intensives, VIP hot seat access, and personalised {T} quarterly reviews'],
+  community: ['Access the VIP group, expert guest sessions, and the member networking directory','Join the elite inner circle, get direct host Q&A access, and priority event spots','Unlock a private host welcome call, VIP retreats, and personal network introductions'],
+  coaching:  ['Join weekly sessions, get live Q&A access, and direct voice note support','Get monthly 1:1 {T} reviews, priority hot seat, and your personalised action plan','Access monthly 1:1 coaching, quarterly {T} intensives, and unlimited voice note support'],
+  hybrid:    ['Get weekly live {T} training, premium resources, and priority Q&A access','Unlock group hot seat coaching, the advanced {T} vault, and quarterly strategy sessions','Access monthly 1:1 {T} coaching, the VIP community, and quarterly private intensives'],
+};
+
+const forText = [
+  '{A} starting their {T} journey who want consistent resources and community',
+  '{A} ready to accelerate with live training, templates, and more hands-on support',
+  '{A} serious about {T} who want expert guidance and monthly accountability',
+  '{A} who want fully personalised {T} support and priority access to everything',
+];
+
+const prices   = {2:['$17/mo','$67/mo'], 3:['$17/mo','$47/mo','$97/mo'], 4:['$17/mo','$37/mo','$77/mo','$197/mo']};
+const tierCols = ['#5AE57A','#5AE57A','#5AE57A','#5AE57A'];
+const tierKeys = ['b','m','p','v'];
+const namesets = [
+  ['Starter','Growth','Pro','VIP'],
+  ['Foundation','Builder','Accelerator','Mastermind'],
+  ['Essential','Core','Premium','Elite'],
+  ['Member','Plus','Expert','Inner Circle'],
+  ['Bronze','Silver','Gold','Platinum'],
+];
+const typeLabel = {content:'Content', community:'Community', coaching:'Coaching', hybrid:'Hybrid'};
+const titleFns  = [
+  (T,A,X) => `The ${cap(T)} Membership`,
+  (T,A,X) => `${cap(T)} for ${cap(A)}: A Monthly Membership`,
+  (T,A,X) => `The ${cap(T)} Club for ${cap(A)}`,
+  (T,A,X) => `${cap(X)}: The ${cap(T)} Monthly Membership`,
+  (T,A,X) => `The ${cap(T)} Society`,
+  (T,A,X) => `${cap(A)}'s ${cap(T)} Membership Community`,
+];
+
+let state = {tiers:3, type:'content', T:'', A:'', X:''};
+let titleIdx = 0, nameIdx = 0;
+
+function pickTiers(n) {
+  state.tiers = n;
+  [2,3,4].forEach(x => document.getElementById(`t${x}`).classList.toggle('sel', x===n));
+}
+function pickType(t) {
+  state.type = t;
+  ['content','community','coaching','hybrid'].forEach(x => document.getElementById(`typ${x}`).classList.toggle('sel', x===t));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to plan your membership.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0; nameIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('mName').textContent = titleFns[titleIdx](state.T, state.A, state.X);
+}
+function regenNames() { nameIdx = (nameIdx + 1) % namesets.length; renderAll(); }
+
+function renderAll() {
+  const {tiers, type, T, A, X} = state;
+  const names = namesets[nameIdx].slice(0, tiers);
+  const px    = prices[tiers];
+  const hs    = hooks[type];
+
+  document.getElementById('mName').textContent = titleFns[titleIdx](T, A, X);
+  document.getElementById('statsBar').innerHTML =
+    st(tiers,'Tiers') + st(px[0],'Starting') + st(px[tiers-1],'Top Tier') + st(typeLabel[type],'Type');
+
+  document.getElementById('tierCards').innerHTML = tierKeys.slice(0, tiers).map((key, i) => {
+    const col   = tierCols[i];
+    const items = tData[type][key].map(it => `<li>${fill(it,T,A,X)}</li>`).join('');
+    const prev  = i > 0 ? `<div class="tier-prev">+ Everything in ${names[i-1]}, plus:</div>` : '';
+    const hook  = i < tiers-1 ? `<div class="tier-hook" style="color:${col}">→ Upgrade to <strong>${names[i+1]}</strong>: ${fill(hs[i],T,A,X)}</div>` : '';
+    return `<div class="tier-card" style="border-left-color:${col}">
+      <div class="tier-top">
+        <span class="tier-num">Tier ${i+1}</span>
+        <span class="tier-name" style="color:${col}">${names[i]}</span>
+        <span class="tier-price" style="color:${col};background:${col}18;border:1px solid ${col}33">${px[i]}</span>
+      </div>
+      <div class="tier-for">${fill(forText[i],T,A,X)}</div>
+      ${prev}
+      <ul class="tier-items">${items}</ul>
+      ${hook}
+    </div>`;
+  }).join('');
+}
+
+function copyPlan() {
+  const {tiers, type, T, A, X} = state;
+  const names = namesets[nameIdx].slice(0, tiers);
+  const px    = prices[tiers];
+  const hs    = hooks[type];
+  let text = `MEMBERSHIP TIER PLAN\n${titleFns[titleIdx](T,A,X)}\nTopic: ${T}  |  Audience: ${A}  |  Type: ${typeLabel[type]}\n\n`;
+  tierKeys.slice(0, tiers).forEach((key, i) => {
+    text += `TIER ${i+1}: ${names[i]}  —  ${px[i]}\n`;
+    text += `Who it's for: ${fill(forText[i],T,A,X)}\n`;
+    if (i > 0) text += `(Includes everything in ${names[i-1]}, plus:)\n`;
+    tData[type][key].forEach(it => { text += `  ✓ ${fill(it,T,A,X)}\n`; });
+    if (i < tiers-1) text += `→ Upgrade to ${names[i+1]}: ${fill(hs[i],T,A,X)}\n`;
+    text += '\n';
+  });
+  text += '---\nCreated with Membership Tier Planner by GetPaidToBeYouOnline';
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Membership Plan as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

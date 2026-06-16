@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindset Reset Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 14px; padding: 26px; min-height: 220px; }
+  .step { font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 14px; }
+  .body { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; line-height: 1.4; }
+  .body .small { font-family: 'DM Sans', sans-serif; font-size: .92rem; color: #FFFFFF; opacity: .85; margin-top: 12px; display: block; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin-top: 18px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mindset Reset Tool</h1>
+  <p class="sub">Spiralling? A 5-step reset to interrupt the loop and come back to yourself.</p>
+
+  <div class="card" id="card"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const STEPS=[
+    {l:"Name it",b:"Right now I am feeling…",s:"Say the emotion out loud. Specific words: anxious, frustrated, ashamed, scared. Not 'fine'. Naming reduces the grip."},
+    {l:"Breathe — 4-7-8",b:"In through your nose for 4 · hold for 7 · out through your mouth for 8.",s:"Do three rounds. This is not woo — it physically shifts your nervous system out of fight-or-flight."},
+    {l:"Locate it",b:"Where do you feel this in your body?",s:"Chest? Throat? Gut? Just notice it. Don't fix. Sensations move when you let them be seen."},
+    {l:"Get smaller",b:"What is the smallest true next thing?",s:"Not the whole problem. The next ten minutes. Drink water. Take a walk. Put one thing back. Action shrinks anxiety."},
+    {l:"Speak to yourself like someone you love",b:"What would you say to a friend in this exact moment?",s:"Now say it to yourself, out loud, by name. This is the step people skip. It is also the one that works."}
+  ];
+  const g=id=>document.getElementById(id);
+  let i=0;
+  function show(){ const s=STEPS[i];
+    g('card').innerHTML='<div class="step">Step '+(i+1)+' of '+STEPS.length+' · '+s.l+'</div>'+
+      '<div class="body">'+s.b+'<span class="small">'+s.s+'</span></div>'+
+      (i<STEPS.length-1?'<button class="btn" onclick="next()">Next →</button>':'<button class="btn" onclick="restart()">Start Over</button><button class="btn ghost" onclick="window.close()">I am okay now</button>');
+  }
+  function next(){ i++; show(); }
+  function restart(){ i=0; show(); }
+  show();
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Health Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 22px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; margin-top: 6px; }
+  .res .d { font-size: .9rem; opacity: .78; margin-top: 6px; }
+  .bd { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .86rem; }
+  .bd div { display: flex; justify-content: space-between; padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>List Health Checker</h1>
+  <p class="sub">A big list does not mean a healthy one. Score yours on the metrics that actually drive revenue.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="size">List size</label><input id="size" type="number" min="0" value="2000" oninput="calc()"></div>
+      <div><label for="active30">% opened in last 30 days</label><input id="active30" type="number" min="0" max="100" value="35" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="open">Avg open rate (%)</label><input id="open" type="number" min="0" step="0.1" value="28" oninput="calc()"></div>
+      <div><label for="click">Avg click rate (%)</label><input id="click" type="number" min="0" step="0.1" value="3" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="unsub">Avg unsubscribe rate per send (%)</label><input id="unsub" type="number" min="0" step="0.01" value="0.4" oninput="calc()"></div>
+      <div><label for="spam">Avg spam complaint rate (%)</label><input id="spam" type="number" min="0" step="0.01" value="0.05" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="score">0</div>
+    <div class="vd" id="vd">list health</div>
+    <div class="d" id="d"></div>
+    <div class="bd" id="bd"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['size','active30','open','click','unsub','spam'].forEach(k=>{ const s=localStorage.getItem('lhc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['size','active30','open','click','unsub','spam'].forEach(k=>localStorage.setItem('lhc_'+k,g(k).value));
+    const active=Math.min(30, n('active30')*0.6);            // up to 30
+    const open=Math.min(25, n('open'));                      // 25% → 25
+    const click=Math.min(20, n('click')*5);                  // 4% → 20
+    const unsub=Math.max(0, 15 - n('unsub')*15);             // 0.5% → 7.5
+    const spam=Math.max(0, 10 - n('spam')*50);               // 0.1% → 5
+    const score=Math.round(active+open+click+unsub+spam);
+    g('score').textContent=score;
+    g('vd').textContent = score>=80?'Excellent — high-quality list':score>=60?'Healthy':score>=40?'At risk':'Unhealthy';
+    g('d').textContent = score>=60?'Keep cleaning regularly and continue sending consistently — this is what compounds.'
+      :'Run a re-engagement campaign, remove non-responders, and slow your send frequency until rates recover.';
+    g('bd').innerHTML=[['Active in 30d',active,30],['Open rate',open,25],['Click rate',click,20],['Low unsubscribes',unsub,15],['Low complaints',spam,10]]
+      .map(([l,x,m])=>`<div><span>${l}</span><span style="color:#5AE57A">${Math.round(x)}/${m}</span></div>`).join('');
+  }
+  calc();
+</script>
+</body>
+</html>

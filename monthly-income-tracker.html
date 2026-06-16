@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Income Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; padding: 40px 16px 60px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem,5vw,2.6rem); color: #5AE57A; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; opacity: 0.65; font-size: 0.9rem; margin-bottom: 32px; }
+    .container { width: 100%; max-width: 520px; }
+    .month-bar {
+      display: flex; align-items: center; justify-content: space-between;
+      background: #3C603C; border: 1px solid #4C724C;
+      border-radius: 12px; padding: 14px 20px; margin-bottom: 14px;
+    }
+    .month-btn { background: none; border: none; color: #5AE57A; font-size: 1.3rem; cursor: pointer; padding: 0 6px; line-height: 1; }
+    .month-label { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    .summary {
+      background: #3C603C; border: 1px solid #4C724C;
+      border-radius: 12px; padding: 22px 24px; margin-bottom: 14px;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .sum-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.55; margin-bottom: 6px; }
+    .sum-amount { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; line-height: 1; }
+    .sum-count { opacity: 0.4; font-size: 0.8rem; margin-top: 6px; }
+    .sum-avg { text-align: right; }
+    .sum-avg .sum-num { font-size: 1.2rem; font-weight: 600; color: #FFFFFF; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 14px; }
+    .row { display: flex; gap: 10px; }
+    .field { margin-bottom: 12px; flex: 1; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 6px; }
+    input {
+      width: 100%; background: #325132; border: 1px solid #4C724C;
+      border-radius: 8px; color: #FFFFFF;
+      font-family: 'DM Sans', sans-serif; font-size: 0.98rem;
+      padding: 10px 14px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus { border-color: #5AE57A; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+    .btn-add {
+      width: 100%; background: #5AE57A; color: #325132; border: none;
+      border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      font-weight: 700; padding: 12px; cursor: pointer; margin-top: 4px;
+      transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .btn-add:hover { opacity: 0.85; }
+    .entries { display: flex; flex-direction: column; gap: 8px; }
+    .entry {
+      background: #3C603C; border: 1px solid #4C724C; border-radius: 10px;
+      padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .entry-source { font-weight: 600; font-size: 0.93rem; margin-bottom: 3px; }
+    .entry-date { opacity: 0.4; font-size: 0.76rem; }
+    .entry-right { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .entry-amount { font-size: 1.05rem; font-weight: 600; color: #5AE57A; }
+    .btn-del { background: none; border: none; color: #5A845A; cursor: pointer; font-size: 1rem; padding: 0; transition: color 0.2s; }
+    .btn-del:hover { color: #5AE57A; }
+    .empty { text-align: center; opacity: 0.3; font-size: 0.88rem; padding: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.72rem; opacity: 0.35; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Monthly Income Tracker</h1>
+  <p class="subtitle">Log every sale. Watch your month add up.</p>
+
+  <div class="container">
+    <div class="month-bar">
+      <button class="month-btn" onclick="shiftMonth(-1)">&#8592;</button>
+      <span class="month-label" id="month-label"></span>
+      <button class="month-btn" onclick="shiftMonth(1)">&#8594;</button>
+    </div>
+
+    <div class="summary">
+      <div>
+        <div class="sum-label">Total Income</div>
+        <div class="sum-amount" id="total">$0.00</div>
+        <div class="sum-count" id="count">0 entries</div>
+      </div>
+      <div class="sum-avg">
+        <div class="sum-label">Avg per Sale</div>
+        <div class="sum-num" id="avg">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add Income</div>
+      <div class="field">
+        <label>Source / Product</label>
+        <input type="text" id="source" placeholder="e.g. Notion Template Pack" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Amount ($)</label>
+          <input type="number" id="amount" placeholder="0.00" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="date" />
+        </div>
+      </div>
+      <button class="btn-add" onclick="addEntry()">+ Add Entry</button>
+    </div>
+
+    <div class="entries" id="entries"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const MONTHS = ['January','February','March','April','May','June',
+                    'July','August','September','October','November','December'];
+    let now = new Date(), year = now.getFullYear(), month = now.getMonth();
+
+    const key  = () => `income_${year}_${month}`;
+    const load = () => JSON.parse(localStorage.getItem(key()) || '[]');
+    const save = d  => localStorage.setItem(key(), JSON.stringify(d));
+
+    function shiftMonth(dir) {
+      month += dir;
+      if (month > 11) { month = 0; year++; }
+      if (month < 0)  { month = 11; year--; }
+      render();
+    }
+
+    function addEntry() {
+      const source = document.getElementById('source').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value);
+      const date   = document.getElementById('date').value;
+      if (!source || !amount || amount <= 0 || !date) { alert('Please fill in all fields.'); return; }
+      const data = load();
+      data.unshift({ id: Date.now(), source, amount, date });
+      save(data);
+      document.getElementById('source').value = '';
+      document.getElementById('amount').value = '';
+      render();
+    }
+
+    function deleteEntry(id) {
+      save(load().filter(e => e.id !== id));
+      render();
+    }
+
+    const fmt     = n => '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtDate = d => { const [y,m,day] = d.split('-'); return `${MONTHS[+m-1]} ${+day}`; };
+
+    function render() {
+      document.getElementById('month-label').textContent = `${MONTHS[month]} ${year}`;
+      const data  = load();
+      const total = data.reduce((s, e) => s + e.amount, 0);
+      document.getElementById('total').textContent = fmt(total);
+      document.getElementById('count').textContent = `${data.length} entr${data.length === 1 ? 'y' : 'ies'}`;
+      document.getElementById('avg').textContent   = data.length ? fmt(total / data.length) : '—';
+
+      const el = document.getElementById('entries');
+      if (!data.length) { el.innerHTML = '<div class="empty">No income logged for this month yet.</div>'; return; }
+      el.innerHTML = data.map(e => `
+        <div class="entry">
+          <div>
+            <div class="entry-source">${e.source}</div>
+            <div class="entry-date">${fmtDate(e.date)}</div>
+          </div>
+          <div class="entry-right">
+            <span class="entry-amount">${fmt(e.amount)}</span>
+            <button class="btn-del" onclick="deleteEntry(${e.id})" title="Delete">&#10005;</button>
+          </div>
+        </div>`).join('');
+    }
+
+    document.getElementById('date').value = now.toISOString().split('T')[0];
+    render();
+  </script>
+</body>
+</html>

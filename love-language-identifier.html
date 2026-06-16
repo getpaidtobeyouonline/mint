@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Language Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { font-size: .92rem; margin-bottom: 8px; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; font-size: .87rem; cursor: pointer; margin-bottom: 6px; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt.on { background: #325132; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 6px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .bar { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: .82rem; }
+  .bar .lb { width: 130px; flex: none; }
+  .bar .tr { flex: 1; background: #3C603C; border-radius: 4px; height: 11px; overflow: hidden; }
+  .bar .tr>i { display: block; height: 100%; background: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Love Language Identifier</h1>
+  <p class="sub">Find how you most feel loved — so you can ask for it, and give it well.</p>
+
+  <div class="panel" id="quiz"></div>
+  <div class="result" id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const L={W:"Words of Affirmation",T:"Quality Time",G:"Receiving Gifts",S:"Acts of Service",P:"Physical Touch"};
+  const Q=[
+    {q:"What would mean the most after a hard day?",a:[["Hearing “I am proud of you”","W"],["Their full, undistracted attention","T"],["A thoughtful little something","G"],["Them quietly handling a chore","S"],["A long hug","P"]]},
+    {q:"You feel most loved when a partner...",a:[["tells you what they appreciate","W"],["plans time just for the two of you","T"],["surprises you with a gift","G"],["does something to make life easier","S"],["holds your hand or sits close","P"]]},
+    {q:"You naturally show love by...",a:[["giving compliments and encouragement","W"],["making time together","T"],["finding the perfect present","G"],["doing helpful things","S"],["hugs, touch, closeness","P"]]},
+    {q:"A small thing that would hurt is...",a:[["harsh or careless words","W"],["them being distracted when together","T"],["a forgotten occasion","G"],["them never lifting a finger to help","S"],["being pulled away from physical closeness","P"]]},
+    {q:"Your ideal anniversary is...",a:[["a heartfelt card or letter","W"],["a whole day, just you two","T"],["a meaningful gift exchanged","G"],["them taking everything off your plate","S"],["lots of cuddling and closeness","P"]]}
+  ];
+  let ans=Array(Q.length).fill(-1);
+  function draw(){
+    g('quiz').innerHTML=Q.map((o,i)=>'<div class="q">'+(i+1)+'. '+o.q+'</div>'+
+      o.a.map((a,j)=>'<div class="opt'+(ans[i]===j?' on':'')+'" onclick="pick('+i+','+j+')">'+a[0]+'</div>').join('')).join('')+
+      '<button class="btn" onclick="score()">Reveal My Love Language</button>';
+  }
+  function pick(i,j){ ans[i]=j; draw(); }
+  function score(){
+    if(ans.includes(-1)){ alert('Answer all five questions.'); return; }
+    const c={W:0,T:0,G:0,S:0,P:0};
+    ans.forEach((a,i)=>c[Q[i].a[a][1]]++);
+    const sorted=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+    const top=sorted[0][0];
+    const TIPS={
+      W:["Ask loved ones for the words you need — it is not needy, it is clear.","Words land deepest for you, so they cut deepest too. Address careless ones."],
+      T:["Protect device-free time together — that is your fuel.","Quality over quantity: presence matters more than hours."],
+      G:["It is the thought you treasure, not the price. Say that out loud.","Keep a note of small gift ideas for the people you love."],
+      S:["Tell people which help means most — guessing rarely lands.","Notice and thank the quiet things others do for you."],
+      P:["Name your need for closeness; partners cannot read minds.","Small touches through the day matter as much as big ones."]
+    }[top];
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>Your top love language: '+L[top]+'</h3>'+
+      sorted.map(([k,v])=>'<div class="bar"><span class="lb">'+L[k]+'</span><div class="tr"><i style="width:'+(v/Q.length*100)+'%"></i></div></div>').join('')+
+      '<p style="color:#5AE57A;font-size:.88rem;margin-top:10px">Make it work for you:</p><ul>'+TIPS.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

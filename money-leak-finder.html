@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Leak Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .leak { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .leak .nm { font-weight: 500; }
+  .leak .yr { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .leak .x { cursor: pointer; opacity: .5; } .leak .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Money Leak Finder</h1>
+  <p class="sub">Every small recurring drip is bigger than you think. Log them, see the year, fix the biggest.</p>
+
+  <div class="note">A daily $5 coffee = $1,825/yr. A $14.99 subscription you forgot = $179.88/yr. Tiny x time = real.</div>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Leak</label><input id="nm" placeholder="e.g. Daily coffee"></div>
+      <div><label>$/each</label><input id="each" type="number" min="0" step="0.01"></div>
+      <div><label>How often / week</label><input id="freq" type="number" min="0" step="0.5"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sMo">$0</div><div class="l">Per month</div></div>
+    <div class="stat"><div class="v" id="sYr">$0</div><div class="l">Per year</div></div>
+    <div class="stat"><div class="v" id="s10">$0</div><div class="l">Over 10 years</div></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let L=JSON.parse(localStorage.getItem('mlf')||'[]');
+  const save=()=>localStorage.setItem('mlf',JSON.stringify(L));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function yrCost(x){ return x.each*x.freq*52; }
+  function add(){ const nm=v('nm'), e=parseFloat(g('each').value)||0, f=parseFloat(g('freq').value)||0; if(!nm||!e||!f){alert('Add name, $/each and frequency.');return;}
+    L.push({nm,each:e,freq:f}); ['nm','each','freq'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ L.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ L=[]; save(); render(); } }
+  function render(){
+    const yr=L.reduce((s,x)=>s+yrCost(x),0), mo=yr/12;
+    g('sMo').textContent='$'+Math.round(mo).toLocaleString();
+    g('sYr').textContent='$'+Math.round(yr).toLocaleString();
+    g('s10').textContent='$'+Math.round(yr*10).toLocaleString();
+    const Lst=g('list');
+    if(!L.length){ Lst.innerHTML='<div class="empty">No leaks logged.</div>'; return; }
+    Lst.innerHTML=[...L].map((x,i)=>({x,i})).sort((a,b)=>yrCost(b.x)-yrCost(a.x)).map(({x,i})=>`<div class="leak"><span><span class="nm">${esc(x.nm)}</span> — $${x.each.toFixed(2)} × ${x.freq}/wk</span><span><span class="yr">$${Math.round(yrCost(x)).toLocaleString()}/yr</span> <span class="x" onclick="del(${i})">✕</span></span></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

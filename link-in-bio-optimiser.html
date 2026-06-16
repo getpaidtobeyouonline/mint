@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link In Bio Optimiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 10px; }
+  .tip { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 8px; padding: 11px 14px; font-size: .88rem; margin-bottom: 12px; }
+  .lnk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px; }
+  .lnk .h { flex: none; cursor: grab; opacity: .5; }
+  .lnk .nm { flex: 1; font-size: .9rem; }
+  .lnk .pri { font-size: .72rem; color: #5AE57A; }
+  .lnk .a { cursor: pointer; opacity: .55; font-size: .82rem; } .lnk .a:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Link In Bio Optimiser</h1>
+  <p class="sub">Stop dumping 9 links. Order them by what you actually want clicked — most pages get one tap.</p>
+
+  <div class="tip">Rule: your #1 link gets ~80% of clicks. Lead with your single most important destination, label it as a benefit, and keep the list under 5.</div>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Link label (benefit, not "click here")</label><input id="nm" placeholder="e.g. Get the free pricing guide"></div>
+      <div><label for="goal">Purpose</label><select id="goal"><option>Lead capture</option><option>Sale</option><option>Content</option><option>Booking</option><option>Other</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <div id="score" style="font-size:.86rem;opacity:.8;margin-top:10px"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let L=JSON.parse(localStorage.getItem('libo')||'[]');
+  const save=()=>localStorage.setItem('libo',JSON.stringify(L));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Add a link label.');return;} L.push({nm,goal:g('goal').value}); g('nm').value=''; save(); render(); }
+  function mv(i,d){ const j=i+d; if(j<0||j>=L.length)return; [L[i],L[j]]=[L[j],L[i]]; save(); render(); }
+  function del(i){ L.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all links?')){ L=[]; save(); render(); } }
+  function render(){
+    const C=g('list');
+    if(!L.length){ C.innerHTML='<div class="empty">No links yet — add your most important one first.</div>'; g('score').textContent=''; return; }
+    C.innerHTML=L.map((x,i)=>`<div class="lnk"><span class="h">≡</span><span class="nm">${esc(x.nm)} <span class="pri">${i===0?'· PRIMARY':'· '+esc(x.goal)}</span></span>
+      <span class="a" onclick="mv(${i},-1)">↑</span><span class="a" onclick="mv(${i},1)">↓</span><span class="a" onclick="del(${i})">✕</span></div>`).join('');
+    const generic=L.filter(x=>/click here|link|my page/i.test(x.nm)).length;
+    g('score').innerHTML = (L.length>5?'⚠ Too many links — trim to 5 or fewer. ':'')+
+      (generic?`⚠ ${generic} weak label(s) — rewrite as a benefit. `:'')+
+      (L.length<=5&&!generic?'✅ Clean, focused, benefit-led. This is what high-converting pages look like.':'');
+  }
+  render();
+</script>
+</body>
+</html>

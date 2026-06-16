@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Yoga Routine Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 8px 4px 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Yoga Routine Tool</h1>
+  <p class="sub">Pick a mood and get a friendly yoga sequence — no flexibility required.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div style="text-align:center">
+      <button class="btn" onclick="gen()">Build Routine</button>
+      <button class="btn ghost" onclick="copyOut()">Copy</button>
+    </div>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const POSES={
+    'Wake up & wiggle':[
+      ['Mountain pose','Stand tall with feet together. Reach up to the sky like a growing tree.'],
+      ['Star pose','Step feet wide and reach arms wide — you are a star!'],
+      ['Forward fold','Bend slowly forward, let your arms dangle like a ragdoll.'],
+      ['Cat and cow','On hands and knees, arch and round your back like a curious cat.'],
+      ['Roar like a lion','Sit on your heels, stick your tongue out and roar three times.']
+    ],
+    'Animal play':[
+      ['Cobra','Lie on your tummy, push gently up — hiss like a snake.'],
+      ['Dog (downward facing)','Hands and feet on the floor, bottom in the air — woof!'],
+      ['Frog','Squat low with knees out, jump up like a frog. Ribbit!'],
+      ['Butterfly','Sit with soles of feet together, flap your knees like wings.'],
+      ['Bird (warrior 3)','Balance on one leg, the other reaching back. Arms out like wings.']
+    ],
+    'Calm & ready for bed':[
+      ['Child\'s pose','Kneel and fold forward, forehead to the floor. Stay for five slow breaths.'],
+      ['Seated breath','Sit cross-legged, hands on belly, feel three big slow breaths.'],
+      ['Cloud arms','Slowly raise arms up on the in-breath, slowly down on the out-breath.'],
+      ['Ragdoll','Bend forward gently, sway side to side.'],
+      ['Resting pose','Lie on your back, arms by your side, eyes soft. Listen to your breath.']
+    ],
+    'Big feelings':[
+      ['Roaring lion','Roar your "BIG" out three times.'],
+      ['Stomping mountain','Stomp on the spot, feeling the floor under your feet.'],
+      ['Shake it out','Shake your hands, then arms, then whole body for 30 seconds.'],
+      ['Hug yourself','Wrap your arms around you and squeeze gently.'],
+      ['Big breath','Breathe in for four, out for six. Repeat five times.']
+    ]
+  };
+  let mood='Wake up & wiggle';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(POSES).map(p=>'<span class="pre'+(p===mood?' on':'')+'" onclick="setMood(\''+p+'\')">'+p+'</span>').join(''); }
+  function setMood(m){ mood=m; drawPresets(); gen(); }
+  function gen(){
+    const list=POSES[mood];
+    const body=list.map((p,i)=>'  '+(i+1)+'. '+p[0]+'\n     → '+p[1]).join('\n\n');
+    const t='KIDS YOGA — '+mood.toUpperCase()+'\n\n'+body+'\n\n--- After the routine ---\nFinish with a hug or a high-five. Praise effort, not perfection.\nA few minutes is plenty for little bodies — better short and joyful.';
+    g('out').textContent=t; g('out').style.display='block';
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  drawPresets(); gen();
+</script>
+</body>
+</html>

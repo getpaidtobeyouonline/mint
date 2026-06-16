@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Activity Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 540px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .act { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #FFFFFF; min-height: 80px; display: flex; align-items: center; justify-content: center; padding: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .act { font-size: 1.2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Activity Generator</h1>
+  <p class="sub">"I'm bored" — solved. Tap and get a fresh idea.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="act" id="act">Pick a category and tap "Surprise me!"</div>
+    <button class="btn" onclick="next()">Surprise me!</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A={
+    'Indoor':['Build a blanket fort','Have an indoor picnic','Create an obstacle course with cushions','Have a treasure hunt with drawn clues','Make sock puppets and put on a show','Have a freeze dance party','Build the tallest tower with LEGO','Make a paper aeroplane and race them','Set up a "spa" with hand cream and warm towels','Play "guess the object" in a paper bag'],
+    'Outdoor':['Chalk a hopscotch and obstacle course','Hunt for the perfect leaf, stone or stick','Have a bug or bird-watching mission','Picnic in the garden or park','Skip stones at the water','Run a race against the family pet','Make a fairy or dinosaur garden in soil','Have a kite-flying afternoon','Play torch tag at dusk','Bike or scoot a new route'],
+    'Creative':['Paint with leaves, sponges or bubble wrap','Make a comic strip about your day','Design and build a cardboard creation','Sculpt with playdough or clay','Make a paper mache balloon','Create a collage from magazines','Decorate biscuits or pancakes','Make a friendship bracelet','Write and illustrate a tiny book','Make a music video together'],
+    'Quiet time':['Read in a cosy nest of pillows','Do a jigsaw together','Listen to an audiobook with eyes closed','Colour a detailed picture','Write a letter to grandparents','Practice mindful breathing','Draw what you can see from the window','Do a wordsearch or crossword','Build with LEGO in silence','Press flowers between heavy books'],
+    'Learning':['Bake and measure the ingredients','Plan a pretend shop with prices','Practise spelling words as a song','Try a science experiment','Look up an animal and draw it','Learn 10 words in a new language','Time how fast you can do something','Build a budget for a pretend day out','Map your local neighbourhood','Make a sundial and watch it']
+  };
+  let cat='Indoor';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(A).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=A[cat]; g('act').textContent=list[Math.floor(Math.random()*list.length)]; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

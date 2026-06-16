@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Chore Chart Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 60px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Chore Chart Generator</h1>
+  <p class="sub">Build a weekly chore chart that turns "tidy up" into a clear, fair routine.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="name">Child's name</label><input id="name" placeholder="e.g. Maya"></div>
+      <div><label for="age">Age</label><input id="age" placeholder="e.g. 7"></div>
+    </div>
+    <label for="chores">Chores (one per line, age-appropriate)</label>
+    <textarea id="chores" placeholder="e.g. Make bed&#10;Tidy toys&#10;Set the table&#10;Feed the pet"></textarea>
+    <label for="reward">Reward when the week is done</label>
+    <input id="reward" placeholder="e.g. pocket money, a treat, choice of movie">
+    <button class="btn" onclick="gen()">Build Chart</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['name','age','chores','reward'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('kccg_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('kccg_'+k,g(k).value)); });
+  function gen(){
+    const chores=v('chores').split('\n').filter(x=>x.trim());
+    if(!chores.length){ alert('Add at least one chore.'); return; }
+    const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    const pad=s=>s.padEnd(22).slice(0,22);
+    let head='CHORE'.padEnd(22)+days.map(d=>d.padStart(4)).join('');
+    let rows=chores.map(c=>pad(c.trim())+days.map(()=>'  ☐ ').join('')).join('\n');
+    const t='WEEKLY CHORE CHART'+(v('name')?'\n'+v('name')+(v('age')?'  (age '+v('age')+')':''):'')+
+    '\n\n'+head+'\n'+'-'.repeat(22+4*7)+'\n'+rows+
+    (v('reward')?'\n\nREWARD FOR A FULL WEEK:\n'+v('reward'):'')+
+    '\n\n--- How to use ---\nPrint or share it where the chart can be ticked daily.\nPraise effort, not just completion. Some chores can be expected, others rewarded.\nChores grow children\'s confidence — they like feeling capable.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

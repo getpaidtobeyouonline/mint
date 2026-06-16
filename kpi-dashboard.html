@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KPI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.88rem}
+.top-bar{display:flex;align-items:center;justify-content:space-between;max-width:680px;margin:0 auto 24px;gap:12px;flex-wrap:wrap}
+.period{display:flex;align-items:center;gap:8px}
+.period label{font-size:.78rem;letter-spacing:.05em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+.period input{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:8px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;width:160px}
+.period input:focus{outline:none;border-color:#5AE57A}
+.summary{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:10px 18px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.sum-item{text-align:center}
+.sum-val{font-family:'Playfair Display',serif;font-size:1.3rem;color:#5AE57A}
+.sum-lbl{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:680px;margin:0 auto 20px}
+.kpi-card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:18px}
+.kpi-name{width:100%;background:transparent;border:none;border-bottom:1px solid #4C724C;color:#5AE57A;font-family:'Playfair Display',serif;font-size:1rem;padding:0 0 6px;margin-bottom:14px;cursor:text}
+.kpi-name:focus{outline:none;border-bottom-color:#5AE57A}
+.kpi-name::placeholder{color:#5A845A}
+.inputs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.inp-wrap{position:relative}
+.inp-wrap span{position:absolute;top:50%;left:10px;transform:translateY(-50%);font-size:.75rem;color:#BFD8BF;pointer-events:none}
+.inp-wrap input{width:100%;background:#325132;border:1px solid #4C724C;border-radius:6px;padding:8px 8px 8px 22px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;transition:border .2s}
+.inp-wrap input:focus{outline:none;border-color:#5AE57A}
+.inp-wrap.no-prefix input{padding-left:10px}
+.inp-lbl{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.bar-track{background:#325132;border-radius:20px;height:6px;overflow:hidden;margin-bottom:8px}
+.bar-fill{height:100%;border-radius:20px;transition:width .6s ease}
+.kpi-footer{display:flex;justify-content:space-between;align-items:center}
+.pct{font-size:.82rem;color:#BFD8BF}
+.badge{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.04em}
+.badge.behind{background:#ff444420;color:#5AE57A;border:1px solid #ff444440}
+.badge.building{background:#f0a50020;color:#5AE57A;border:1px solid #f0a50040}
+.badge.ontrack{background:#C9A84C22;color:#5AE57A;border:1px solid #C9A84C44}
+.badge.crushed{background:#44ff8820;color:#5AE57A;border:1px solid #44ff8840}
+.actions{max-width:680px;margin:0 auto;display:flex;gap:10px}
+.btn{flex:1;padding:13px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-save{background:#5AE57A;color:#325132;border:none}
+.btn-save:hover{opacity:.85}
+.btn-reset{background:transparent;border:1px solid #4C724C;color:#BFD8BF}
+.btn-reset:hover{border-color:#5AE57A;color:#5AE57A}
+.saved-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#5AE57A;color:#325132;padding:10px 24px;border-radius:8px;font-weight:700;font-size:.88rem;opacity:0;transition:opacity .3s;pointer-events:none}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:520px){.grid{grid-template-columns:1fr}.top-bar{justify-content:center}.summary{justify-content:center}}
+</style>
+</head>
+<body>
+
+<h1>KPI Dashboard</h1>
+<p class="sub">Track your key business metrics and stay focused on what moves the needle</p>
+
+<div class="top-bar">
+  <div class="period">
+    <label>Period</label>
+    <input type="month" id="period">
+  </div>
+  <div class="summary" id="summary">
+    <div class="sum-item"><div class="sum-val" id="sumPct">—</div><div class="sum-lbl">Avg to Goal</div></div>
+    <div class="sum-item"><div class="sum-val" id="sumOn">—</div><div class="sum-lbl">On Track</div></div>
+    <div class="sum-item"><div class="sum-val" id="sumBehind">—</div><div class="sum-lbl">Need Focus</div></div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="actions">
+  <button class="btn btn-save" onclick="save()">Save Progress</button>
+  <button class="btn btn-reset" onclick="confirmReset()">Reset Month</button>
+</div>
+
+<div class="saved-toast" id="toast">Saved!</div>
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const defaults = [
+  {name:'Monthly Revenue',prefix:'$',current:'',goal:''},
+  {name:'New Leads',prefix:'#',current:'',goal:''},
+  {name:'New Clients',prefix:'#',current:'',goal:''},
+  {name:'Email Subscribers',prefix:'#',current:'',goal:''},
+  {name:'Social Followers',prefix:'#',current:'',goal:''},
+  {name:'Website Visits',prefix:'#',current:'',goal:''},
+  {name:'Conversion Rate',prefix:'%',current:'',goal:''},
+  {name:'Revenue Per Client',prefix:'$',current:'',goal:''},
+];
+
+function storageKey(){return'kpi_'+document.getElementById('period').value}
+
+function getStatus(pct){
+  if(pct>=100)return{label:'Crushed It',cls:'crushed'};
+  if(pct>=80)return{label:'On Track',cls:'ontrack'};
+  if(pct>=50)return{label:'Building',cls:'building'};
+  return{label:'Behind',cls:'behind'};
+}
+
+function getColor(pct){
+  if(pct>=100)return'#5AE57A';
+  if(pct>=80)return'#5AE57A';
+  if(pct>=50)return'#5AE57A';
+  return'#5AE57A';
+}
+
+function buildGrid(data){
+  document.getElementById('grid').innerHTML=data.map((kpi,i)=>{
+    const cur=parseFloat(kpi.current)||0;
+    const goal=parseFloat(kpi.goal)||0;
+    const pct=goal>0?Math.min(Math.round(cur/goal*100),999):0;
+    const st=goal>0&&cur>0?getStatus(pct):{label:'No Goal',cls:'building'};
+    const color=goal>0?getColor(pct):'#BFD8BF';
+    const barW=Math.min(pct,100);
+    const pfx=kpi.prefix||'#';
+    return`<div class="kpi-card">
+      <input class="kpi-name" placeholder="Metric name…" value="${kpi.name}" oninput="updateName(${i},this.value)" onchange="updateSummary()">
+      <div class="inputs">
+        <div><div class="inp-lbl">Current</div>
+          <div class="inp-wrap${pfx==='#'?' no-prefix':''}">
+            ${pfx!=='#'?`<span>${pfx}</span>`:''}
+            <input type="number" min="0" placeholder="0" value="${kpi.current}" oninput="updateVal(${i},'current',this.value)">
+          </div>
+        </div>
+        <div><div class="inp-lbl">Goal</div>
+          <div class="inp-wrap${pfx==='#'?' no-prefix':''}">
+            ${pfx!=='#'?`<span>${pfx}</span>`:''}
+            <input type="number" min="0" placeholder="0" value="${kpi.goal}" oninput="updateVal(${i},'goal',this.value)">
+          </div>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill" style="width:${barW}%;background:${color}"></div></div>
+      <div class="kpi-footer">
+        <span class="pct">${goal>0?pct+'% to goal':'Set a goal'}</span>
+        <span class="badge ${st.cls}">${st.label}</span>
+      </div>
+    </div>`;
+  }).join('');
+  updateSummary();
+}
+
+let kpis=[...defaults.map(d=>({...d}))];
+
+function updateName(i,val){kpis[i].name=val}
+function updateVal(i,field,val){kpis[i][field]=val;buildGrid(kpis)}
+
+function updateSummary(){
+  const active=kpis.filter(k=>parseFloat(k.goal)>0&&parseFloat(k.current)>=0);
+  if(!active.length){
+    document.getElementById('sumPct').textContent='—';
+    document.getElementById('sumOn').textContent='—';
+    document.getElementById('sumBehind').textContent='—';
+    return;
+  }
+  const pcts=active.map(k=>Math.min(Math.round(parseFloat(k.current||0)/parseFloat(k.goal)*100),999));
+  const avg=Math.round(pcts.reduce((a,b)=>a+b,0)/pcts.length);
+  const onTrack=pcts.filter(p=>p>=80).length;
+  const behind=pcts.filter(p=>p<50).length;
+  document.getElementById('sumPct').textContent=avg+'%';
+  document.getElementById('sumOn').textContent=onTrack;
+  document.getElementById('sumBehind').textContent=behind;
+}
+
+function save(){
+  localStorage.setItem(storageKey(),JSON.stringify(kpis));
+  const t=document.getElementById('toast');
+  t.style.opacity='1';
+  setTimeout(()=>t.style.opacity='0',1800);
+}
+
+function confirmReset(){
+  if(confirm('Reset all values for this month? Names and goals will be kept.')){
+    kpis=kpis.map(k=>({...k,current:''}));
+    buildGrid(kpis);
+  }
+}
+
+function load(){
+  const saved=localStorage.getItem(storageKey());
+  kpis=saved?JSON.parse(saved):[...defaults.map(d=>({...d}))];
+  buildGrid(kpis);
+}
+
+// Set current month as default
+const now=new Date();
+document.getElementById('period').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+document.getElementById('period').addEventListener('change',load);
+
+load();
+</script>
+</body>
+</html>

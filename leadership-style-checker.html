@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leadership Style Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 16px; }
+  .qt { font-weight: 500; margin-bottom: 7px; font-size: .95rem; }
+  .opt { display: flex; gap: 9px; align-items: flex-start; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 11px; margin-bottom: 5px; cursor: pointer; font-size: .9rem; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt input { accent-color: #5AE57A; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Leadership Style Checker</h1>
+  <p class="sub">Answer eight questions to find your natural leadership style.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">See My Style</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    {q:'A new project lands on your team. You first...',a:['Paint the big picture and the "why"','Ask each person what they want to grow into','Gather everyone to shape the plan together','Set clear targets and assign owners fast']},
+    {q:'A team member is struggling. You...',a:['Reconnect them to the mission and momentum','Coach them patiently and develop the skill','Ask the team how to support them','Step in and show exactly what good looks like']},
+    {q:'You feel most proud when...',a:['People rally behind a shared vision','Someone you mentored levels up','The team makes a great decision together','A tough target gets hit on time']},
+    {q:'In a meeting you tend to...',a:['Inspire and set direction','Ask questions that help people think','Make sure every voice is heard','Keep things sharp, decisive and moving']},
+    {q:'Your idea of a great team is...',a:['United by a compelling purpose','Always learning and growing','Trusting, open and collaborative','High-performing and accountable']},
+    {q:'When things go wrong, you...',a:['Refocus everyone on the goal','Treat it as a coaching moment','Solve it together as a group','Take charge and fix it quickly']},
+    {q:'People would describe you as...',a:['Inspiring and forward-looking','Supportive and developmental','Inclusive and fair','Driven and dependable']},
+    {q:'Your biggest leadership risk is...',a:['Too much vision, not enough detail','Spending too long developing others','Slow decisions from over-consulting','Pushing pace over people']}
+  ];
+  const STYLES=[
+    {n:'The Visionary',d:'You lead with direction and purpose. You energise people around a clear future. Watch that you also handle the day-to-day detail.'},
+    {n:'The Coach',d:'You grow people. You play the long game and build capability. Watch that you still drive short-term results.'},
+    {n:'The Connector',d:'You lead through collaboration and trust. Decisions are shared and inclusive. Watch that consulting does not slow urgent calls.'},
+    {n:'The Commander',d:'You lead with drive and decisiveness. You hit targets and bring clarity. Watch that pace never costs you people.'}
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((item,qi)=>{
+    let h='<div class="q"><p class="qt">'+(qi+1)+'. '+item.q+'</p>';
+    item.a.forEach((opt,oi)=>{ h+='<label class="opt"><input type="radio" name="q'+qi+'" value="'+oi+'"><span>'+opt+'</span></label>'; });
+    g('quiz').insertAdjacentHTML('beforeend',h+'</div>');
+  });
+  function result(){
+    const c=[0,0,0,0];
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please answer all eight questions.'); return; } c[+s.value]++; }
+    let m=0; c.forEach((n,i)=>{ if(n>c[m])m=i; });
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<h2>'+STYLES[m].n+'</h2><p>'+STYLES[m].d+'</p><p style="opacity:.7;font-size:.86rem;margin-top:8px">The best leaders flex between all four styles. Note your second-strongest — that is your natural backup gear.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

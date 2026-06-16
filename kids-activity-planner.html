@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Activity Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 20px; margin-top: 16px; display: none; }
+  .idea .big { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .idea .meta { font-size: .82rem; opacity: .65; margin-top: 6px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Activity Planner</h1>
+  <p class="sub">Beat the “I'm bored” moment. Set the filters and get an activity to do now.</p>
+
+  <div class="panel">
+    <label for="age">Age range</label>
+    <select id="age"><option value="t">Toddler (1-3)</option><option value="p">Preschool (3-5)</option><option value="s">School age (6-9)</option><option value="b">Older (10+)</option></select>
+    <label for="place">Where</label>
+    <select id="place"><option value="any">Anywhere</option><option value="in">Indoors</option><option value="out">Outdoors</option></select>
+    <label for="energy">Energy level</label>
+    <select id="energy"><option value="any">Any</option><option value="calm">Calm / quiet</option><option value="active">Active / busy</option></select>
+    <button class="btn" onclick="gen()">Get an Activity</button>
+  </div>
+
+  <div class="idea" id="idea"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A=[
+    {t:"Sensory bin — rice or water with cups and scoops",ages:["t","p"],p:"in",e:"calm"},
+    {t:"Build the tallest tower you can with blocks or cups",ages:["t","p","s"],p:"in",e:"active"},
+    {t:"Indoor obstacle course with cushions and chairs",ages:["p","s","b"],p:"in",e:"active"},
+    {t:"Dance freeze game — music stops, everyone freezes",ages:["t","p","s"],p:"in",e:"active"},
+    {t:"Read a story together and act out the characters",ages:["t","p","s"],p:"in",e:"calm"},
+    {t:"Draw a comic strip of your day",ages:["s","b"],p:"in",e:"calm"},
+    {t:"Bake or decorate something simple together",ages:["p","s","b"],p:"in",e:"calm"},
+    {t:"Science experiment — baking soda and vinegar volcano",ages:["s","b"],p:"in",e:"active"},
+    {t:"Nature scavenger hunt — leaves, stones, feathers",ages:["p","s","b"],p:"out",e:"active"},
+    {t:"Chalk drawing or hopscotch on the pavement",ages:["p","s"],p:"out",e:"active"},
+    {t:"Bug hunt with a magnifying glass",ages:["p","s"],p:"out",e:"calm"},
+    {t:"Playground trip — race to every piece of equipment",ages:["t","p","s"],p:"out",e:"active"},
+    {t:"Cloud watching — name what you see",ages:["p","s","b"],p:"out",e:"calm"},
+    {t:"Plant a seed and start a little garden patch",ages:["p","s","b"],p:"out",e:"calm"},
+    {t:"Bike, scooter or skate session",ages:["s","b"],p:"out",e:"active"},
+    {t:"Build a fort, indoors or out",ages:["p","s","b"],p:"any",e:"active"},
+    {t:"Puppet show — make puppets, then perform",ages:["p","s"],p:"any",e:"calm"},
+    {t:"Treasure hunt with drawn clues",ages:["s","b"],p:"any",e:"active"},
+    {t:"Quiet craft — collage from old magazines",ages:["p","s","b"],p:"in",e:"calm"},
+    {t:"Board game or card game tournament",ages:["s","b"],p:"in",e:"calm"}
+  ];
+  function gen(){
+    const ag=g('age').value,P=g('place').value,E=g('energy').value;
+    let pool=A.filter(x=>x.ages.includes(ag)&&(P==='any'||x.p===P||x.p==='any')&&(E==='any'||x.e===E));
+    if(!pool.length)pool=A.filter(x=>x.ages.includes(ag));
+    if(!pool.length)pool=A;
+    const pick=pool[Math.floor(Math.random()*pool.length)];
+    const map={t:'Toddler',p:'Preschool',s:'School age',b:'Older',in:'Indoors',out:'Outdoors',any:'Anywhere',calm:'Calm',active:'Active'};
+    g('idea').style.display='block';
+    g('idea').innerHTML='<div class="big">'+pick.t+'</div><div class="meta">'+map[ag]+' · '+map[pick.p]+' · '+map[pick.e]+'</div>';
+  }
+</script>
+</body>
+</html>

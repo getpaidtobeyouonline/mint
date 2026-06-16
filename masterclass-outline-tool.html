@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masterclass Outline Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.mc-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.sec-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.sec-num{font-size:.68rem;font-weight:600;opacity:.38;text-transform:uppercase;letter-spacing:.08em}
+.sec-time{font-size:.72rem;font-weight:600;opacity:.48}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.6rem}
+.pt-list{list-style:none;margin-bottom:.5rem}
+.pt-list li{font-size:.85rem;padding:.28rem 0 .28rem .9rem;border-bottom:1px solid #3C603C;opacity:.85;position:relative}
+.pt-list li::before{content:'▸';position:absolute;left:0;opacity:.42;font-size:.7rem;top:.32rem}
+.pt-list li:last-child{border-bottom:none}
+.style-tip{font-size:.73rem;opacity:.38;font-style:italic;padding-top:.25rem}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Masterclass Outline Tool</h1>
+    <p class="subtitle">Build a professional masterclass outline — section by section, with talking points — ready to record or deliver live.</p>
+  </header>
+
+  <div class="card">
+    <h2>Masterclass Details</h2>
+    <label>Topic</label>
+    <input type="text" id="inTopic" placeholder="e.g. content marketing, sales conversations, productivity systems">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Target Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. online business owners">
+      </div>
+      <div>
+        <label style="margin-top:0">Core Outcome / Promise</label>
+        <input type="text" id="inGoal" placeholder="e.g. book 5 clients in 30 days">
+      </div>
+    </div>
+    <label>Length</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickLen(60)"  id="l60">60 min</button>
+      <button class="opt"     onclick="pickLen(90)"  id="l90">90 min</button>
+      <button class="opt"     onclick="pickLen(120)" id="l120">2 hours</button>
+    </div>
+    <label>Delivery Style</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickStyle('teach')"    id="steach">Teaching</button>
+      <button class="opt"     onclick="pickStyle('workshop')" id="sworkshop">Workshop</button>
+      <button class="opt"     onclick="pickStyle('hybrid')"   id="shybrid">Hybrid</button>
+    </div>
+    <button class="btn" onclick="generate()">Build My Masterclass Outline →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="mc-title" id="mcTitle"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ New Title</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="secCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyOutline()">Copy Full Outline as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const fw = {
+  60:[
+    {sec:'Opening Hook',     col:'#5AE57A', min:8,
+     pts:['Open with a bold claim or surprising fact about {T}','Paint the "before" — the struggle {A} know too well','Promise the "after": what {A} will walk away knowing today','Set the tone and ground rules for the session']},
+    {sec:'The Real Problem', col:'#5AE57A', min:10,
+     pts:['Name the #1 mistake {A} make with {T}','Why conventional advice about {T} keeps {A} stuck','Your reframe: the truth about {T} most people miss','Create a "that\'s me" moment before you teach a thing']},
+    {sec:'Your Framework',   col:'#5AE57A', min:28,
+     pts:['Introduce your {T} framework by name','Pillar 1 — the foundation of {X}','Pillar 2 — the method that makes {T} work','Pillar 3 — how it all leads to {X}','Show a real before/after example for {A}']},
+    {sec:'Proof & Results',  col:'#5AE57A', min:8,
+     pts:['Share a specific result story using your {T} method','Walk through the exact steps they took','The moment it clicked — relatable to {A}','Connect the result back to what {A} can do too']},
+    {sec:'Q&A / Objections', col:'#5AE57A', min:6,
+     pts:['"I don\'t have time for {T}" — the real answer','"I\'ve tried {T} before and it didn\'t work" — your reframe','"Is {T} right for me specifically?" — address this directly']},
+    {sec:'Call to Action',   col:'#5AE57A', min:5,
+     pts:['Recap the transformation available to {A} right now','State your offer clearly in one sentence','One compelling reason to act today','End with energy — leave {A} inspired, not sold to']},
+  ],
+  90:[
+    {sec:'Opening Hook',       col:'#5AE57A', min:10,
+     pts:['Open with a bold claim or surprising fact about {T}','Paint the struggle {A} know too well','Promise the transformation: {X} — here\'s how','Set the agenda and build anticipation for what\'s ahead']},
+    {sec:'Your Story',         col:'#5AE57A', min:8,
+     pts:['Your own "before" — relatable to where {A} are now','The moment that changed your {T} approach','How your results became a system {A} can follow','Why you are the right guide for {A} on {T}']},
+    {sec:'The Real Problem',   col:'#5AE57A', min:10,
+     pts:['The #1 reason {A} are stuck with {T} right now','Why the standard advice about {T} fails','The belief keeping {A} from {X}','Your reframe — and why it changes everything']},
+    {sec:'Framework Part 1',   col:'#5AE57A', min:16,
+     pts:['Introduce your {T} framework by name','Deep dive: Pillar 1 — the foundation of {X}','The most common mistake {A} make at this stage','Concrete action: what to do first with {T}']},
+    {sec:'Framework Part 2',   col:'#5AE57A', min:16,
+     pts:['Pillar 2 — the method that drives {T} results','The shift separating {A} who win from those who don\'t','Step-by-step application of Pillar 2','Address the "yes but" objections {A} are having now']},
+    {sec:'Proof & Examples',   col:'#5AE57A', min:10,
+     pts:['Case study: a specific {A} result using your {T} method','Walk through the exact steps — no fluff','The moment it clicked and how {X} followed','2–3 quick-win examples to reinforce the pattern']},
+    {sec:'Q&A / Objections',   col:'#5AE57A', min:10,
+     pts:['"I don\'t have time for {T}"','"I\'ve tried {T} and it didn\'t work"','"I\'m not sure {T} is right for me"','Handle the top objections before they derail your CTA']},
+    {sec:'Call to Action',     col:'#5AE57A', min:10,
+     pts:['Recap: the exact path from where {A} are to {X}','Introduce your offer as the natural next step','One clear, simple action to take right now','End strong — leave {A} feeling capable and ready']},
+  ],
+  120:[
+    {sec:'Opening Hook',       col:'#5AE57A', min:10,
+     pts:['Open with a bold claim or stat about {T}','Paint the struggle {A} know too well','Promise the transformation: {X} by the end of today','Set the agenda and build anticipation for what\'s ahead']},
+    {sec:'Your Story',         col:'#5AE57A', min:10,
+     pts:['Your own "before" — relatable to where {A} are now','The turning point that changed your {T} approach','How you developed the framework that leads to {X}','Why you are the right guide for {A}']},
+    {sec:'The Real Problem',   col:'#5AE57A', min:12,
+     pts:['The #1 reason {A} are stuck with {T} right now','Why the standard {T} advice keeps people stuck','The belief keeping {A} from {X}','Your reframe — and why it changes everything']},
+    {sec:'Framework Overview', col:'#5AE57A', min:8,
+     pts:['Introduce your {T} framework name and structure','Walk through the three stages that lead to {X}','Show {A} which stage they\'re currently in','Set expectations: here\'s what we\'re covering today']},
+    {sec:'Framework Part 1',   col:'#5AE57A', min:18,
+     pts:['Deep dive: Pillar 1 — the foundation of {X}','The mistake {A} make at this stage of {T}','The exact action to take in Pillar 1','Live example: see this pillar in action for {A}']},
+    {sec:'Framework Part 2',   col:'#5AE57A', min:18,
+     pts:['Pillar 2 — the engine that drives {T} results','The shift that separates those who get {X} from those who don\'t','Step-by-step application of Pillar 2','Check-in: answer the "yes but" objections here']},
+    {sec:'Live Exercise',      col:'#5AE57A', min:10,
+     pts:['Pause: time for {A} to apply the {T} framework','5-minute exercise using your method','Work through it together — share a screen or worksheet','Debrief: what came up and how to move forward']},
+    {sec:'Proof & Case Study', col:'#5AE57A', min:12,
+     pts:['Full case study: a real {A} result using your {T} method','Walk through every step — no fluff','The moment it clicked and how {X} followed','3 quick-win examples to reinforce the pattern']},
+    {sec:'Q&A / Objections',   col:'#5AE57A', min:10,
+     pts:['"I don\'t have time for {T}"','"I\'ve tried this before and it didn\'t work"','"I\'m not sure it\'ll work for me specifically"','Address the top 3 objections directly and confidently']},
+    {sec:'Call to Action',     col:'#5AE57A', min:12,
+     pts:['Recap: the full journey from where {A} are to {X}','Introduce your offer as the obvious next step','Give {A} a single, simple action to take right now','End with energy — leave {A} equipped and ready']},
+  ]
+};
+
+const styleTips = {
+  teach:    ['Prepare a slide per talking point','Use examples rather than live exercises','Aim for 1 key point every 90 seconds'],
+  workshop: ['Add a short hands-on activity here','Pause for audience sharing or input','Prepare a worksheet or fillable template'],
+  hybrid:   ['Slides for teaching, activity to close the section','Invite 1–2 audience responses','Balance instruction with live application'],
+};
+const styleLabel = {teach:'Teaching', workshop:'Workshop', hybrid:'Hybrid'};
+const titleFns = [
+  (T,A,X) => `The ${cap(T)} Masterclass`,
+  (T,A,X) => `${cap(T)} for ${cap(A)}: The Complete Masterclass`,
+  (T,A,X) => `The ${cap(X)} Blueprint: A ${cap(T)} Masterclass`,
+  (T,A,X) => `${cap(A)}'s ${cap(T)} Masterclass: From Stuck to ${cap(X)}`,
+  (T,A,X) => `Master ${cap(T)}: The Deep-Dive Class for ${cap(A)}`,
+  (T,A,X) => `From Zero to ${cap(X)}: The ${cap(T)} Masterclass`,
+];
+
+let state = {len:60, style:'teach', T:'', A:'', X:''};
+let titleIdx = 0;
+
+function pickLen(n) {
+  state.len = n;
+  [60,90,120].forEach(x => document.getElementById(`l${x}`).classList.toggle('sel', x===n));
+}
+function pickStyle(s) {
+  state.style = s;
+  ['teach','workshop','hybrid'].forEach(x => document.getElementById(`s${x}`).classList.toggle('sel', x===s));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to build your outline.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('mcTitle').textContent = titleFns[titleIdx](state.T, state.A, state.X);
+}
+
+function renderAll() {
+  const {len, style, T, A, X} = state;
+  const sections = fw[len];
+  const totalPts = sections.reduce((s,m) => s + m.pts.length, 0);
+  const tips = styleTips[style];
+
+  document.getElementById('mcTitle').textContent = titleFns[titleIdx](T, A, X);
+  document.getElementById('statsBar').innerHTML =
+    st(sections.length,'Sections') + st(Math.round(totalPts*1.4),'Est. Slides') + st(len+' min','Runtime') + st(styleLabel[style],'Style');
+
+  document.getElementById('secCards').innerHTML = sections.map((s, i) =>
+    `<div class="sec-card" style="border-left-color:${s.col}">
+      <div class="sec-head">
+        <span class="sec-num">Section ${i+1}</span>
+        <span class="sec-time">${s.min} min</span>
+      </div>
+      <div class="sec-title" style="color:${s.col}">${s.sec}</div>
+      <ul class="pt-list">${s.pts.map(p => `<li>${cap(fill(p,T,A,X))}</li>`).join('')}</ul>
+      <div class="style-tip">💡 ${tips[i % tips.length]}</div>
+    </div>`
+  ).join('');
+}
+
+function copyOutline() {
+  const {len, style, T, A, X} = state;
+  const tips = styleTips[style];
+  let text = `MASTERCLASS OUTLINE\n${titleFns[titleIdx](T,A,X)}\nTopic: ${T}  |  Audience: ${A}  |  Style: ${styleLabel[style]}  |  Length: ${len} min\n\n`;
+  fw[len].forEach((s, i) => {
+    text += `SECTION ${i+1}: ${s.sec} (${s.min} min)\n`;
+    s.pts.forEach(p => { text += `  • ${cap(fill(p,T,A,X))}\n`; });
+    text += `  💡 ${tips[i % tips.length]}\n\n`;
+  });
+  text += '---\nCreated with Masterclass Outline Tool by GetPaidToBeYouOnline';
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Full Outline as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

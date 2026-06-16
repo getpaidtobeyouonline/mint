@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch Debrief Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=number]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input[type=number]:focus{border-color:#5AE57A}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.hint{font-size:.72rem;opacity:.38;margin-top:.3rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.lt-note{font-size:.75rem;opacity:.4;text-align:center;margin-bottom:1rem;font-style:italic}
+.metric-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.metric-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;gap:.5rem}
+.metric-name{font-family:'Playfair Display',serif;font-size:1rem}
+.metric-badge{font-size:.65rem;font-weight:600;padding:.18rem .55rem;border-radius:4px;white-space:nowrap}
+.metric-row{display:flex;align-items:baseline;gap:.75rem;margin-bottom:.55rem}
+.metric-your{font-family:'Playfair Display',serif;font-size:1.65rem}
+.metric-bench{font-size:.78rem;opacity:.38}
+.metric-rec{font-size:.8rem;opacity:.65;line-height:1.45}
+.metric-rec strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.priority-card{background:#325132;border:1px solid #C9A84C33;border-radius:10px;padding:1.4rem 1.5rem;margin-bottom:1.1rem}
+.pri-lbl{font-size:.72rem;opacity:.5;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.pri-metric{font-family:'Playfair Display',serif;font-size:1.4rem;color:#5AE57A;margin-bottom:.45rem}
+.pri-action{font-size:.83rem;opacity:.72;line-height:1.55}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Launch Debrief Tool</h1>
+    <p class="subtitle">Enter your launch numbers and see exactly how each metric performed — plus your single most important priority for next time.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Launch</h2>
+    <label>Launch Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickLT(0)" id="lt0">Product Launch</button>
+      <button class="opt"     onclick="pickLT(1)" id="lt1">Webinar</button>
+      <button class="opt"     onclick="pickLT(2)" id="lt2">Challenge</button>
+      <button class="opt"     onclick="pickLT(3)" id="lt3">Flash Sale</button>
+      <button class="opt"     onclick="pickLT(4)" id="lt4">Open Cart</button>
+    </div>
+    <label>Email List Size</label>
+    <input type="number" id="inList" placeholder="e.g. 2000" min="1">
+    <label>Average Email Open Rate (%)</label>
+    <input type="number" id="inOpen" placeholder="e.g. 28" min="0" max="100">
+    <p class="hint">Use the average across your launch sequence, not just the best email</p>
+    <label>Average Click Rate (%)</label>
+    <input type="number" id="inClick" placeholder="e.g. 2.5" min="0" max="100">
+    <label>Total Number of Sales</label>
+    <input type="number" id="inSales" placeholder="e.g. 24" min="0">
+    <label>Total Revenue ($)</label>
+    <input type="number" id="inRev" placeholder="e.g. 2400" min="0">
+    <button class="btn" onclick="calculate()">Analyse My Launch →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div class="lt-note" id="ltNote"></div>
+    <div id="metricCards"></div>
+    <div class="priority-card" id="priorityCard"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Debrief as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fmtPct = n => parseFloat(n.toFixed(2)) + '%';
+const fmtM   = n => n >= 1000 ? '$' + (n/1000).toFixed(1) + 'k' : '$' + Math.round(n);
+const fmtN   = n => n >= 1000 ? n.toLocaleString() : String(n);
+const st     = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const score  = (v,lo,hi) => Math.max(0, Math.min(1, (v - lo) / (hi - lo)));
+
+const ltLabel = ['Product Launch','Webinar Launch','Challenge Launch','Flash Sale','Open Cart'];
+const ltNote  = [
+  'Standard cart open/close sequence — open rate and conversion are your two primary levers',
+  'Webinar sequence — registration invite emails count toward open rate; conversion is % of list who purchased post-webinar',
+  'Daily challenge emails — open rate should skew higher due to frequent sends; conversion measured at pitch day',
+  'Short-window urgency sale — higher natural open rates are expected; measure conversion speed, not just total',
+  'Rolling enrollment period — aggregate your full sequence metrics; list health matters more here than urgency tactics',
+];
+
+const recs = {
+  open: {
+    strong:'Your subject lines and sender reputation are strong. A/B test 3 new subject line styles each launch and protect this rate with regular list hygiene.',
+    ok:    'Good foundation. Test curiosity-led and personalised subject lines — a single great subject line tested during launch can lift your whole sequence.',
+    weak:  'Open rate is the foundation of everything. Clean your list, warm subscribers for 2–3 weeks pre-launch, and test 5 subject line styles before cart opens.',
+  },
+  click: {
+    strong:'Email copy is working — your audience trusts your links. Focus more energy on the sales page to convert the traffic that\'s arriving.',
+    ok:    'Decent click rate. Lead with the strongest benefit in line one, tighten your CTA placement, and add a single urgency PS to every email.',
+    weak:  'Email copy needs a rewrite. Shorten each email, open with your #1 benefit, remove competing links, and use one clear CTA per email — nothing else.',
+  },
+  conv: {
+    strong:'Excellent conversion rate. You\'ve earned the right to raise your price or add an order bump — your offer and page are working at a high level.',
+    ok:    'Solid conversion. Audit your sales page for unanswered objections and test adding a bonus, stronger guarantee, or a payment plan to close the gap.',
+    weak:  'Your sales page is losing buyers who want to buy. Add social proof above the fold, write a direct objection-handling FAQ, and offer a payment plan option.',
+  },
+  rps: {
+    strong:'Strong revenue per subscriber. Your list is well-matched to your offer. Test a price increase or add an upsell path for your next launch.',
+    ok:    'On track. Improving any single other metric will push this number up significantly — pick your weakest and fix it first.',
+    weak:  'Low revenue per subscriber usually reflects a compounded issue. Fix your lowest individual metric first, then re-run this debrief after your next launch.',
+  },
+};
+
+const priorityAction = {
+  open: 'Focus your pre-launch energy on list warming. Send 2–3 value-only emails in the two weeks before cart opens, A/B test 5 subject line styles across your sequence, and remove unengaged subscribers before you send launch day one.',
+  click:'Rewrite your top 3 launch emails from scratch. Shorter format, one benefit-led opening sentence, a single CTA, and urgency in the PS. Treat each email as standalone — it may be the only one a subscriber opens.',
+  conv: 'Your sales page is the bottleneck. Add 3 result-specific testimonials above the fold, write a clear FAQ section that directly tackles your top 3 buyer objections, and test a fast-action bonus for the first 24 hrs of cart open.',
+  rps:  'Revenue per subscriber is a compound metric that reflects another weak area. Identify your lowest individual metric above and fix that first — then re-run this debrief after your next launch to see the impact.',
+};
+
+let state = {lt:0};
+
+function pickLT(i) {
+  state.lt = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`lt${x}`).classList.toggle('sel', x===i));
+}
+
+function buildMetrics(list, open, click, sales, rev) {
+  return [
+    {key:'open',  name:'Email Open Rate',        your:open,              lo:20,   hi:30,  bench:'20–30%',       fmt:fmtPct},
+    {key:'click', name:'Click-Through Rate',      your:click,             lo:1.5,  hi:3.5, bench:'1.5–3.5%',     fmt:fmtPct},
+    {key:'conv',  name:'Sales Conversion Rate',   your:sales/list*100,    lo:0.5,  hi:2,   bench:'0.5–2%',       fmt:fmtPct},
+    {key:'rps',   name:'Revenue per Subscriber',  your:rev/list,          lo:0.75, hi:2,   bench:'$0.75–$2.00',  fmt:v=>'$'+v.toFixed(2)},
+  ];
+}
+
+function calculate() {
+  const list  = parseInt(document.getElementById('inList').value);
+  const open  = parseFloat(document.getElementById('inOpen').value);
+  const click = parseFloat(document.getElementById('inClick').value);
+  const sales = parseInt(document.getElementById('inSales').value);
+  const rev   = parseFloat(document.getElementById('inRev').value);
+
+  if (!list || list < 1)                      { alert('Please enter your email list size.'); return; }
+  if (isNaN(open)  || open  < 0 || open  > 100) { alert('Open rate must be between 0 and 100.'); return; }
+  if (isNaN(click) || click < 0 || click > 100) { alert('Click rate must be between 0 and 100.'); return; }
+  if (isNaN(sales) || sales < 0)              { alert('Please enter your number of sales.'); return; }
+  if (isNaN(rev)   || rev   < 0)              { alert('Please enter your total revenue.'); return; }
+
+  const ms = buildMetrics(list, open, click, sales, rev);
+
+  document.getElementById('statsBar').innerHTML =
+    st(fmtN(list),'List Size') + st(fmtPct(open),'Open Rate') +
+    st(fmtPct(click),'Click Rate') + st(fmtM(rev),'Revenue');
+  document.getElementById('ltNote').textContent = ltNote[state.lt];
+
+  document.getElementById('metricCards').innerHTML = ms.map(m => {
+    const sc  = score(m.your, m.lo, m.hi);
+    const col = sc >= 1 ? '#5AE57A' : sc > 0 ? '#5AE57A' : '#5AE57A';
+    const lbl = sc >= 1 ? 'Strong'  : sc > 0 ? 'On Track' : 'Needs Work';
+    const rec = recs[m.key][sc >= 1 ? 'strong' : sc > 0 ? 'ok' : 'weak'];
+    return `<div class="metric-card" style="border-left-color:${col}">
+      <div class="metric-head">
+        <span class="metric-name">${m.name}</span>
+        <span class="metric-badge" style="color:${col};background:${col}18;border:1px solid ${col}44">${lbl}</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-your" style="color:${col}">${m.fmt(m.your)}</span>
+        <span class="metric-bench">Benchmark ${m.bench}</span>
+      </div>
+      <div class="metric-rec"><strong>Next step:</strong> ${rec}</div>
+    </div>`;
+  }).join('');
+
+  const weakest = ms.reduce((a,b) => score(a.your,a.lo,a.hi) <= score(b.your,b.lo,b.hi) ? a : b);
+  document.getElementById('priorityCard').innerHTML =
+    `<div class="pri-lbl">Your #1 Next Launch Priority</div>
+     <div class="pri-metric">${weakest.name}</div>
+     <div class="pri-action">${priorityAction[weakest.key]}</div>`;
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const list  = parseInt(document.getElementById('inList').value);
+  const open  = parseFloat(document.getElementById('inOpen').value);
+  const click = parseFloat(document.getElementById('inClick').value);
+  const sales = parseInt(document.getElementById('inSales').value);
+  const rev   = parseFloat(document.getElementById('inRev').value);
+  const ms    = buildMetrics(list, open, click, sales, rev);
+
+  let text = `LAUNCH DEBRIEF\n`;
+  text += `Type: ${ltLabel[state.lt]} · List: ${fmtN(list)} · Revenue: ${fmtM(rev)}\n`;
+  text += `${ltNote[state.lt]}\n\n`;
+  text += `METRIC BREAKDOWN\n${'─'.repeat(36)}\n`;
+  ms.forEach(m => {
+    const sc  = score(m.your, m.lo, m.hi);
+    const lbl = sc >= 1 ? 'STRONG' : sc > 0 ? 'ON TRACK' : 'NEEDS WORK';
+    const rec = recs[m.key][sc >= 1 ? 'strong' : sc > 0 ? 'ok' : 'weak'];
+    text += `${m.name}: ${m.fmt(m.your)} [${lbl}] — Benchmark: ${m.bench}\nNext step: ${rec}\n\n`;
+  });
+  const weakest = ms.reduce((a,b) => score(a.your,a.lo,a.hi) <= score(b.your,b.lo,b.hi) ? a : b);
+  text += `#1 PRIORITY: ${weakest.name}\n${priorityAction[weakest.key]}\n\n`;
+  text += `---\nCreated with Launch Debrief Tool by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Debrief as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

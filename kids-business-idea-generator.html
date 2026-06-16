@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Business Idea Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; text-align: left; min-height: 90px; }
+  .idea h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .idea p { font-size: .92rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Business Idea Generator</h1>
+  <p class="sub">A spark to start a first little business — choose your style and tap.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="idea" id="idea"><h3>Tap below</h3><p>A starter business idea will appear here.</p></div>
+    <button class="btn" onclick="next()">New Idea</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const IDEAS={
+    'Make & sell':[
+      {n:'Friendship bracelet stall',d:'Make colourful bracelets and sell to school friends, family or at a market table.'},
+      {n:'Slime workshop',d:'Mix and bottle a few jars of slime, sell with a recipe card.'},
+      {n:'Hand-painted rocks',d:'Paint kindness rocks, ladybugs or words and sell as little gifts.'},
+      {n:'Bake-and-sell day',d:'Bake biscuits or brownies on a Saturday and sell a few pre-orders to neighbours.'},
+      {n:'Greetings cards',d:'Make handmade birthday or thank-you cards from card and pens.'},
+      {n:'Hair clips and scrunchies',d:'Make fun hair accessories with fabric scraps and sell.'}
+    ],
+    'Helpful jobs':[
+      {n:'Dog walking',d:'Walk a neighbour\'s dog after school (with an adult). Start with people you trust.'},
+      {n:'Plant watering',d:'Water plants and feed pets when neighbours are away.'},
+      {n:'Car wash days',d:'Wash a few cars on a Saturday — bring buckets, sponges and a smile.'},
+      {n:'Leaf raking / tidy garden',d:'Help tidy gardens or sweep paths for a small fee.'},
+      {n:'Tidy a toy box',d:'Help a younger sibling or neighbour\'s kid sort and tidy their toys.'},
+      {n:'Wash bicycles',d:'Specialise in cleaning bikes and scooters back to shiny.'}
+    ],
+    'Creative skills':[
+      {n:'Pet portraits',d:'Draw a pet from a photo and sell as a printed picture.'},
+      {n:'Custom poems',d:'Write little poems for birthdays — five lines, with the person\'s name.'},
+      {n:'Story-on-demand',d:'Take three ingredients from a customer and write a tiny story using them.'},
+      {n:'Family newsletter',d:'Create a monthly family newsletter people sponsor for treats.'},
+      {n:'Music lessons for younger kids',d:'Teach simple songs on the keyboard or recorder.'}
+    ],
+    'Stand or stall':[
+      {n:'Classic lemonade stand',d:'Lemonade and biscuits at the front gate on a sunny day.'},
+      {n:'Plant cutting stall',d:'Sell plant cuttings or seedlings grown from a sunny window.'},
+      {n:'Old toy sale',d:'Sort through outgrown toys and books and run a stall.'},
+      {n:'Craft fair table',d:'Take a table at a school fair or local market with hand-made items.'}
+    ]
+  };
+  let cat='Make & sell';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(IDEAS).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=IDEAS[cat]; const it=list[Math.floor(Math.random()*list.length)]; g('idea').innerHTML='<h3>'+it.n+'</h3><p>'+it.d+'</p>'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

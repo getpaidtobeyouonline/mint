@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Market Research Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 700px; margin: 0 auto; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.6; margin-bottom: 1.75rem; font-size: 0.9rem; }
+
+    .progress-bar-wrap { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1rem 1.3rem; margin-bottom: 1.25rem; }
+    .prog-top { display: flex; justify-content: space-between; margin-bottom: 0.55rem; font-size: 0.82rem; opacity: 0.55; }
+    .bar { background: #3C603C; border-radius: 6px; overflow: hidden; height: 6px; }
+    .bar-fill { height: 100%; border-radius: 6px; background: #5AE57A; transition: width 0.35s; }
+
+    .section-card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.3rem; margin-bottom: 1rem; }
+    .sec-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 0.15rem; }
+    .sec-sub { font-size: 0.75rem; opacity: 0.42; margin-bottom: 1rem; }
+
+    .field { margin-bottom: 0.9rem; }
+    .field:last-of-type { margin-bottom: 0; }
+    label { display: block; font-size: 0.76rem; opacity: 0.5; margin-bottom: 0.32rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    input[type=text], input[type=number], textarea {
+      width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF;
+      padding: 0.6rem 0.9rem; border-radius: 7px; font-family: 'DM Sans', sans-serif;
+      font-size: 0.86rem; outline: none; transition: border-color 0.15s; resize: vertical;
+    }
+    input[type=text]:focus, input[type=number]:focus, textarea:focus { border-color: #5AE57A; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.7rem; }
+    @media (max-width: 500px) { .row-3 { grid-template-columns: 1fr; } }
+
+    .comp-row { display: grid; grid-template-columns: 1.8fr 1.4fr 0.7fr 1.8fr auto; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    @media (max-width: 600px) { .comp-row { grid-template-columns: 1fr 1fr; } .comp-row .del-col { grid-column: span 2; text-align: right; } }
+    .comp-head { display: grid; grid-template-columns: 1.8fr 1.4fr 0.7fr 1.8fr auto; gap: 0.5rem; margin-bottom: 0.4rem; }
+    @media (max-width: 600px) { .comp-head { display: none; } }
+    .col-lbl { font-size: 0.68rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.04em; }
+    .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.9rem; padding: 0.3rem; transition: color 0.15s; }
+    .del-btn:hover { color: #5AE57A; }
+    .add-comp { background: none; border: 1px dashed #4C724C; color: #BFD8BF; width: 100%; padding: 0.5rem; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; margin-top: 0.4rem; transition: all 0.2s; }
+    .add-comp:hover { border-color: #5AE57A; color: #5AE57A; }
+
+    .btn-row { display: flex; gap: 0.65rem; margin: 0.5rem 0 2.5rem; }
+    .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 0.78rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; flex: 2; transition: opacity 0.2s; }
+    .btn-gold:hover { opacity: 0.86; }
+    .btn-outline { background: transparent; border: 1px solid #4C724C; color: #BFD8BF; padding: 0.78rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; transition: all 0.2s; }
+    .btn-outline:hover { border-color: #5AE57A; color: #5AE57A; }
+
+    /* Brief view */
+    #briefView { display: none; }
+    .brief-doc { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.75rem; margin-bottom: 1rem; }
+    .brief-doc h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.4rem; margin-bottom: 0.2rem; }
+    .brief-date { font-size: 0.76rem; opacity: 0.4; margin-bottom: 1.5rem; }
+    .brief-section { margin-bottom: 1.4rem; }
+    .brief-section:last-of-type { margin-bottom: 0; }
+    .brief-section h3 { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #5AE57A; border-bottom: 1px solid #3C603C; padding-bottom: 0.4rem; margin-bottom: 0.75rem; }
+    .brief-row { display: flex; gap: 0.5rem; margin-bottom: 0.45rem; font-size: 0.86rem; line-height: 1.5; }
+    .brief-key { opacity: 0.45; min-width: 140px; flex-shrink: 0; font-size: 0.8rem; padding-top: 0.05rem; }
+    .brief-val { flex: 1; }
+    .comp-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .comp-table th { text-align: left; opacity: 0.4; font-size: 0.72rem; text-transform: uppercase; padding: 0 0.5rem 0.5rem 0; letter-spacing: 0.03em; }
+    .comp-table td { padding: 0.4rem 0.5rem 0.4rem 0; border-top: 1px solid #3C603C; vertical-align: top; }
+    .price-pills { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .price-pill { background: #3C603C; border: 1px solid #4C724C; border-radius: 6px; padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+    .price-pill.target { border-color: #5AE57A; color: #5AE57A; }
+
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; padding-bottom: 1rem; }
+
+    @media print {
+      body { background: #FFFFFF; color: #325132; padding: 1rem; }
+      .brief-doc { border: none; padding: 0; }
+      .brief-doc h2, .brief-section h3 { color: #325132; }
+      .btn-row, .progress-bar-wrap, #formView { display: none !important; }
+      #briefView { display: block !important; }
+      footer { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Market Research Tool</h1>
+  <p class="subtitle">Know your market before you build your offer.</p>
+
+  <div class="progress-bar-wrap">
+    <div class="prog-top"><span>Research Completeness</span><span id="progPct">0%</span></div>
+    <div class="bar"><div class="bar-fill" id="progBar" style="width:0%"></div></div>
+  </div>
+
+  <div id="formView">
+    <div class="section-card">
+      <div class="sec-title">Your Market</div>
+      <div class="sec-sub">Define the niche and the person you're selling to</div>
+      <div class="field"><label>Niche or Industry</label><input type="text" id="f_niche" placeholder="e.g. freelance graphic design, online fitness coaching" oninput="prog()"></div>
+      <div class="field"><label>Target Customer</label><input type="text" id="f_customer" placeholder="e.g. new freelancers with 0–2 years experience" oninput="prog()"></div>
+      <div class="field"><label>Their Biggest Pain Point</label><textarea id="f_pain" rows="2" placeholder="What frustrates them most? What are they stuck on?" oninput="prog()"></textarea></div>
+      <div class="field"><label>Their Desired Outcome</label><textarea id="f_desire" rows="2" placeholder="What do they really want to achieve or feel?" oninput="prog()"></textarea></div>
+    </div>
+
+    <div class="section-card">
+      <div class="sec-title">Competitor Research</div>
+      <div class="sec-sub">Who else is serving this market and what are they selling?</div>
+      <div class="comp-head">
+        <span class="col-lbl">Competitor</span><span class="col-lbl">Product / Offer</span><span class="col-lbl">Price</span><span class="col-lbl">Their Weakness</span><span></span>
+      </div>
+      <div id="compRows"></div>
+      <button class="add-comp" onclick="addComp()">+ Add Competitor</button>
+    </div>
+
+    <div class="section-card">
+      <div class="sec-title">Market Gaps & Positioning</div>
+      <div class="sec-sub">Where is the opportunity and how will you stand out?</div>
+      <div class="field"><label>What's Missing in This Market?</label><textarea id="f_gaps" rows="2" placeholder="What problem isn't being solved well? What's overlooked?" oninput="prog()"></textarea></div>
+      <div class="field"><label>Your Unique Advantage</label><textarea id="f_advantage" rows="2" placeholder="Why are YOU the right person to solve this? What do you offer that others don't?" oninput="prog()"></textarea></div>
+      <div class="field"><label>Keywords / Search Terms Customers Use</label><input type="text" id="f_keywords" placeholder="e.g. how to get freelance clients, freelance pricing guide" oninput="prog()"></div>
+    </div>
+
+    <div class="section-card">
+      <div class="sec-title">Pricing Landscape</div>
+      <div class="sec-sub">What is the market charging and where will you position?</div>
+      <div class="row-3">
+        <div class="field"><label>Low End ($)</label><input type="number" id="f_pLow" placeholder="e.g. 17" min="0" oninput="prog()"></div>
+        <div class="field"><label>Mid Range ($)</label><input type="number" id="f_pMid" placeholder="e.g. 97" min="0" oninput="prog()"></div>
+        <div class="field"><label>High End ($)</label><input type="number" id="f_pHigh" placeholder="e.g. 497" min="0" oninput="prog()"></div>
+      </div>
+      <div class="field"><label>Your Target Price Point ($)</label><input type="number" id="f_pTarget" placeholder="Where will you price your offer?" min="0" oninput="prog()"></div>
+      <div class="field"><label>Your Product Idea</label><textarea id="f_idea" rows="2" placeholder="Describe the offer you'll create to fill the gap" oninput="prog()"></textarea></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-gold" onclick="generateBrief()">Generate Research Brief</button>
+      <button class="btn-outline" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+
+  <div id="briefView">
+    <div class="brief-doc" id="briefDoc"></div>
+    <div class="btn-row">
+      <button class="btn-gold" onclick="switchView('form')">← Edit Research</button>
+      <button class="btn-outline" onclick="copyBrief()">Copy Brief</button>
+      <button class="btn-outline" onclick="window.print()">Print / PDF</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const KEY = 'gpbyo_mkt_v1';
+  let comps = [];
+
+  function g(id) { return document.getElementById(id); }
+  function val(id) { return g(id)?.value.trim()||''; }
+  const fmt$ = n => n ? '$'+Number(n).toLocaleString() : '—';
+  const today = () => new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+
+  function addComp(c={name:'',product:'',price:'',weakness:''}) {
+    const id = 'c'+Date.now()+Math.random().toString(36).slice(2,5);
+    comps.push({id,...c});
+    renderComps();
+  }
+
+  function renderComps() {
+    g('compRows').innerHTML = comps.map(c => `
+      <div class="comp-row">
+        <input type="text" value="${esc(c.name)}" placeholder="Competitor name" oninput="updComp('${c.id}','name',this.value)" style="font-size:0.83rem">
+        <input type="text" value="${esc(c.product)}" placeholder="Product / offer" oninput="updComp('${c.id}','product',this.value)" style="font-size:0.83rem">
+        <input type="text" value="${esc(c.price)}" placeholder="$" oninput="updComp('${c.id}','price',this.value)" style="font-size:0.83rem">
+        <input type="text" value="${esc(c.weakness)}" placeholder="Their weakness" oninput="updComp('${c.id}','weakness',this.value)" style="font-size:0.83rem">
+        <button class="del-btn" onclick="removeComp('${c.id}')">✕</button>
+      </div>`).join('');
+  }
+
+  function updComp(id,field,v) { const c=comps.find(x=>x.id===id); if(c) c[field]=v; saveState(); }
+  function removeComp(id) { comps=comps.filter(c=>c.id!==id); renderComps(); saveState(); }
+  function esc(s) { return (s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+  const FIELDS = ['f_niche','f_customer','f_pain','f_desire','f_gaps','f_advantage','f_keywords','f_pLow','f_pMid','f_pHigh','f_pTarget','f_idea'];
+
+  function prog() {
+    const filled = FIELDS.filter(id => val(id)).length + (comps.length ? 1 : 0);
+    const total  = FIELDS.length + 1;
+    const pct    = Math.round(filled/total*100);
+    g('progBar').style.width = pct+'%';
+    g('progPct').textContent = pct+'%';
+    g('progBar').style.background = pct===100 ? '#5AE57A' : '#5AE57A';
+    saveState();
+  }
+
+  function saveState() {
+    const data = {};
+    FIELDS.forEach(id => data[id] = g(id)?.value||'');
+    data.comps = comps;
+    localStorage.setItem(KEY, JSON.stringify(data));
+  }
+
+  function loadState() {
+    const s = localStorage.getItem(KEY);
+    if (!s) { addComp(); addComp(); return; }
+    const data = JSON.parse(s);
+    FIELDS.forEach(id => { if(g(id)) g(id).value = data[id]||''; });
+    comps = data.comps||[];
+    if (!comps.length) { addComp(); addComp(); }
+    else renderComps();
+    prog();
+  }
+
+  function generateBrief() {
+    const niche    = val('f_niche')    || 'Not specified';
+    const customer = val('f_customer') || 'Not specified';
+    const pain     = val('f_pain')     || '—';
+    const desire   = val('f_desire')   || '—';
+    const gaps     = val('f_gaps')     || '—';
+    const advantage= val('f_advantage')|| '—';
+    const keywords = val('f_keywords') || '—';
+    const pLow     = val('f_pLow');
+    const pMid     = val('f_pMid');
+    const pHigh    = val('f_pHigh');
+    const pTarget  = val('f_pTarget');
+    const idea     = val('f_idea')     || '—';
+
+    const compRows = comps.filter(c=>c.name||c.product).map(c=>`
+      <tr>
+        <td>${esc(c.name)||'—'}</td>
+        <td>${esc(c.product)||'—'}</td>
+        <td>${c.price ? '$'+esc(c.price) : '—'}</td>
+        <td>${esc(c.weakness)||'—'}</td>
+      </tr>`).join('') || '<tr><td colspan="4" style="opacity:0.4">No competitors added</td></tr>';
+
+    g('briefDoc').innerHTML = `
+      <h2>${esc(niche)} — Market Research Brief</h2>
+      <div class="brief-date">Generated ${today()}</div>
+
+      <div class="brief-section">
+        <h3>Your Market</h3>
+        <div class="brief-row"><span class="brief-key">Niche</span><span class="brief-val">${esc(niche)}</span></div>
+        <div class="brief-row"><span class="brief-key">Target Customer</span><span class="brief-val">${esc(customer)}</span></div>
+        <div class="brief-row"><span class="brief-key">Pain Point</span><span class="brief-val">${esc(pain)}</span></div>
+        <div class="brief-row"><span class="brief-key">Desired Outcome</span><span class="brief-val">${esc(desire)}</span></div>
+      </div>
+
+      <div class="brief-section">
+        <h3>Competitor Landscape</h3>
+        <table class="comp-table">
+          <thead><tr><th>Competitor</th><th>Product</th><th>Price</th><th>Weakness</th></tr></thead>
+          <tbody>${compRows}</tbody>
+        </table>
+      </div>
+
+      <div class="brief-section">
+        <h3>Market Gaps & Positioning</h3>
+        <div class="brief-row"><span class="brief-key">What's Missing</span><span class="brief-val">${esc(gaps)}</span></div>
+        <div class="brief-row"><span class="brief-key">Your Advantage</span><span class="brief-val">${esc(advantage)}</span></div>
+        <div class="brief-row"><span class="brief-key">Keywords</span><span class="brief-val">${esc(keywords)}</span></div>
+      </div>
+
+      <div class="brief-section">
+        <h3>Pricing Landscape</h3>
+        <div class="price-pills">
+          ${pLow    ? `<span class="price-pill">Low — ${fmt$(pLow)}</span>`   : ''}
+          ${pMid    ? `<span class="price-pill">Mid — ${fmt$(pMid)}</span>`   : ''}
+          ${pHigh   ? `<span class="price-pill">High — ${fmt$(pHigh)}</span>` : ''}
+          ${pTarget ? `<span class="price-pill target">Your Price — ${fmt$(pTarget)}</span>` : ''}
+        </div>
+      </div>
+
+      <div class="brief-section">
+        <h3>Your Product Opportunity</h3>
+        <div style="font-size:0.88rem;line-height:1.6">${esc(idea)}</div>
+      </div>`;
+
+    switchView('brief');
+  }
+
+  function switchView(v) {
+    g('formView').style.display  = v==='form'  ? 'block' : 'none';
+    g('briefView').style.display = v==='brief' ? 'block' : 'none';
+  }
+
+  function copyBrief() {
+    const el = g('briefDoc');
+    const text = el.innerText;
+    navigator.clipboard.writeText(text).then(()=>{
+      const btns = document.querySelectorAll('#briefView .btn-outline');
+      btns[0].textContent='Copied!';
+      setTimeout(()=>btns[0].textContent='Copy Brief',1600);
+    });
+  }
+
+  function clearAll() {
+    if (confirm('Clear all research? This cannot be undone.')) {
+      localStorage.removeItem(KEY);
+      FIELDS.forEach(id=>{ if(g(id)) g(id).value=''; });
+      comps=[]; addComp(); addComp();
+      prog(); switchView('form');
+    }
+  }
+
+  loadState();
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Making Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 10px 16px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stat { text-align: center; font-size: .85rem; opacity: .8; margin-bottom: 12px; }
+  .stat b { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; }
+  .card.done { border-left: 3px solid #5AE57A; }
+  .card .t { font-size: .9rem; }
+  .card .m { font-size: .78rem; opacity: .65; }
+  .card .act { display: flex; gap: 8px; flex: none; align-items: flex-start; }
+  .card .ic { cursor: pointer; opacity: .6; } .card .ic:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Memory Making Planner</h1>
+  <p class="sub">The best memories are planned on purpose. Build a list of moments to make happen.</p>
+
+  <div class="panel">
+    <label>The memory or experience</label>
+    <input id="what" placeholder="e.g. Camping trip / teach the kids to bake bread">
+    <div class="row">
+      <div><label>Type</label><select id="type"><option>Big adventure</option><option>Simple moment</option><option>Milestone</option><option>Seasonal</option><option>Just because</option></select></div>
+      <div><label>Target timeframe</label><input id="when" placeholder="e.g. This summer"></div>
+    </div>
+    <button class="btn" onclick="add()">+ Add to Plan</button>
+  </div>
+
+  <div class="panel">
+    <div class="stat"><b id="made">0</b> memories made · <b id="planned">0</b> still planned</div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('mmp')||'[]');
+  const save=()=>localStorage.setItem('mmp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('what')){ alert('What memory do you want to make?'); return; }
+    R.push({w:v('what'),t:g('type').value,when:v('when'),done:false}); g('what').value=''; g('when').value=''; save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function render(){
+    g('made').textContent=R.filter(x=>x.done).length;
+    g('planned').textContent=R.filter(x=>!x.done).length;
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No memories planned yet — add the first.</div>'; return; }
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.done-b.x.done).map(({x,i})=>
+      '<div class="card'+(x.done?' done':'')+'"><div><div class="t"'+(x.done?' style="text-decoration:line-through;opacity:.6"':'')+'>'+esc(x.w)+'</div><div class="m">'+x.t+(x.when?' · '+esc(x.when):'')+'</div></div><div class="act"><span class="ic" onclick="toggle('+i+')">'+(x.done?'↩':'✓')+'</span><span class="ic" onclick="del('+i+')">✕</span></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

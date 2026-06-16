@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Routine Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .input-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .input-row input[type="text"] {
+    flex: 1; min-width: 140px; background: #325132; border: 1px solid #4C724C;
+    color: #FFFFFF; padding: 10px 14px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none;
+  }
+  .input-row input[type="text"]:focus { border-color: #5AE57A; }
+  .input-row input[type="number"] {
+    width: 72px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF;
+    padding: 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; outline: none; text-align: center;
+  }
+  .input-row input[type="number"]:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+  .btn-gold:disabled { opacity: 0.4; cursor: default; }
+  .step-item { display: flex; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid #3C603C; }
+  .step-item:last-child { border-bottom: none; }
+  .step-num { color: #5AE57A; font-size: 0.8rem; font-weight: 500; width: 20px; flex-shrink: 0; }
+  .step-name { flex: 1; font-size: 0.95rem; }
+  .step-dur { font-size: 0.82rem; color: #F0EBE0aa; white-space: nowrap; }
+  .icon-btn { background: none; border: none; color: #5A845A; cursor: pointer; font-size: 0.9rem; padding: 4px 5px; border-radius: 4px; }
+  .icon-btn:hover { color: #FFFFFF; }
+  .icon-btn.del:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 16px 0; }
+  .footer-row { max-width: 580px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+  .total-time { font-size: 0.85rem; color: #F0EBE0aa; }
+  .total-time span { color: #5AE57A; font-weight: 500; }
+
+  /* Run mode */
+  #runView { display: none; position: fixed; inset: 0; background: #325132; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; z-index: 10; }
+  #runView.active { display: flex; }
+  .run-progress { display: flex; gap: 6px; margin-bottom: 36px; }
+  .run-dot { width: 8px; height: 8px; border-radius: 50%; background: #4C724C; transition: background 0.3s; }
+  .run-dot.done { background: #5AE57A; }
+  .run-dot.current { background: #FFFFFF; }
+  .run-step-label { font-size: 0.8rem; color: #F0EBE0aa; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+  .run-step-name { font-family: 'Playfair Display', serif; font-size: 2rem; color: #FFFFFF; margin-bottom: 32px; max-width: 480px; line-height: 1.3; }
+  .run-timer { font-family: 'Playfair Display', serif; font-size: 4rem; color: #5AE57A; margin-bottom: 12px; line-height: 1; }
+  .run-bar { width: 260px; height: 5px; background: #3C603C; border-radius: 3px; margin-bottom: 40px; overflow: hidden; }
+  .run-fill { height: 100%; background: #5AE57A; border-radius: 3px; transition: width 1s linear; }
+  .run-btns { display: flex; gap: 12px; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 11px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<!-- Build view -->
+<div id="buildView">
+  <h1>Morning Routine Builder</h1>
+  <p class="subtitle">Design your ideal morning, step by step. Then run it on autopilot.</p>
+
+  <div class="card">
+    <div class="card-title">Add a Step</div>
+    <div class="input-row">
+      <input type="text" id="stepName" placeholder="e.g. Meditate, Journal, Stretch…" maxlength="60" />
+      <input type="number" id="stepMins" value="5" min="1" max="120" title="Minutes" />
+      <button class="btn-gold" onclick="addStep()">Add</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your Routine</div>
+    <div id="stepList"><p class="empty">No steps yet — add one above.</p></div>
+  </div>
+
+  <div class="footer-row">
+    <div class="total-time" id="totalTime"></div>
+    <button class="btn-gold" id="startBtn" onclick="startRun()" disabled>Start Routine ▶</button>
+  </div>
+</div>
+
+<!-- Run view -->
+<div id="runView">
+  <div class="run-progress" id="runDots"></div>
+  <div class="run-step-label" id="runLabel"></div>
+  <div class="run-step-name" id="runName"></div>
+  <div class="run-timer" id="runTimer"></div>
+  <div class="run-bar"><div class="run-fill" id="runFill"></div></div>
+  <div class="run-btns">
+    <button class="btn-ghost" onclick="endRun()">End</button>
+    <button class="btn-gold" id="nextBtn" onclick="nextStep()">Next Step →</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let steps = JSON.parse(localStorage.getItem('mrb_steps') || '[]');
+  let runIdx = 0, runRemaining = 0, runTotal = 0, runTicker = null;
+
+  function save() { localStorage.setItem('mrb_steps', JSON.stringify(steps)); }
+
+  function addStep() {
+    const name = document.getElementById('stepName').value.trim();
+    const mins = parseInt(document.getElementById('stepMins').value) || 1;
+    if (!name) return;
+    steps.push({ id: Date.now(), name, mins });
+    save(); render();
+    document.getElementById('stepName').value = '';
+    document.getElementById('stepName').focus();
+  }
+
+  function move(id, dir) {
+    const i = steps.findIndex(s => s.id === id);
+    const j = i + dir;
+    if (j < 0 || j >= steps.length) return;
+    [steps[i], steps[j]] = [steps[j], steps[i]];
+    save(); render();
+  }
+
+  function remove(id) { steps = steps.filter(s => s.id !== id); save(); render(); }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  function fmtMins(m) { return m === 1 ? '1 min' : `${m} mins`; }
+
+  function render() {
+    const list = document.getElementById('stepList');
+    const total = steps.reduce((s, x) => s + x.mins, 0);
+    document.getElementById('startBtn').disabled = steps.length === 0;
+    document.getElementById('totalTime').innerHTML = steps.length
+      ? `Total: <span>${fmtMins(total)}</span>` : '';
+
+    if (!steps.length) { list.innerHTML = '<p class="empty">No steps yet — add one above.</p>'; return; }
+    list.innerHTML = steps.map((s, i) => `
+      <div class="step-item">
+        <span class="step-num">${i + 1}</span>
+        <span class="step-name">${esc(s.name)}</span>
+        <span class="step-dur">${fmtMins(s.mins)}</span>
+        <button class="icon-btn" onclick="move(${s.id},-1)" ${i===0?'disabled':''}>↑</button>
+        <button class="icon-btn" onclick="move(${s.id},1)"  ${i===steps.length-1?'disabled':''}>↓</button>
+        <button class="icon-btn del" onclick="remove(${s.id})">✕</button>
+      </div>`).join('');
+  }
+
+  function startRun() {
+    runIdx = 0;
+    document.getElementById('buildView').style.display = 'none';
+    document.getElementById('runView').classList.add('active');
+    loadStep();
+  }
+
+  function loadStep() {
+    clearInterval(runTicker);
+    const s = steps[runIdx];
+    runTotal = runRemaining = s.mins * 60;
+
+    document.getElementById('runLabel').textContent = `Step ${runIdx + 1} of ${steps.length}`;
+    document.getElementById('runName').textContent = s.name;
+    document.getElementById('nextBtn').textContent = runIdx < steps.length - 1 ? 'Next Step →' : 'Finish ✓';
+
+    const dots = document.getElementById('runDots');
+    dots.innerHTML = steps.map((_, i) =>
+      `<div class="run-dot ${i < runIdx ? 'done' : i === runIdx ? 'current' : ''}"></div>`).join('');
+
+    updateRunDisplay();
+    runTicker = setInterval(tick, 1000);
+  }
+
+  function tick() {
+    if (runRemaining <= 0) { clearInterval(runTicker); if (runIdx < steps.length - 1) { runIdx++; loadStep(); } else { endRun(true); } return; }
+    runRemaining--;
+    updateRunDisplay();
+  }
+
+  function updateRunDisplay() {
+    const m = Math.floor(runRemaining / 60).toString().padStart(2, '0');
+    const s = (runRemaining % 60).toString().padStart(2, '0');
+    document.getElementById('runTimer').textContent = `${m}:${s}`;
+    document.getElementById('runFill').style.width = `${(runRemaining / runTotal) * 100}%`;
+  }
+
+  function nextStep() {
+    clearInterval(runTicker);
+    if (runIdx < steps.length - 1) { runIdx++; loadStep(); } else { endRun(true); }
+  }
+
+  function endRun(finished) {
+    clearInterval(runTicker);
+    document.getElementById('runView').classList.remove('active');
+    document.getElementById('buildView').style.display = '';
+    if (finished) alert('Great work! Your morning routine is complete.');
+  }
+
+  document.getElementById('stepName').addEventListener('keydown', e => { if (e.key === 'Enter') addStep(); });
+  render();
+</script>
+</body>
+</html>

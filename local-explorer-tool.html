@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Explorer Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .challenge { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 18px; text-align: center; }
+  .challenge .big { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; width: 100%; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .done { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .done .x { cursor: pointer; opacity: .5; } .done .x:hover { opacity: 1; color: #5AE57A; }
+  .stat { text-align: center; font-size: .85rem; opacity: .8; margin-bottom: 8px; }
+  .stat b { color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Local Explorer Tool</h1>
+  <p class="sub">You do not need a plane ticket to explore. Get a challenge to discover your own area.</p>
+
+  <div class="panel">
+    <div class="challenge" id="challenge"><div class="big">Tap below for a local adventure</div></div>
+    <button class="btn" onclick="gen()">Give Me a Challenge</button>
+    <button class="btn ghost" onclick="done()" style="width:100%;margin-top:8px">✓ Mark current as done</button>
+  </div>
+
+  <div class="panel">
+    <div class="stat">Local adventures completed: <b id="count">0</b></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="width:100%;margin-top:8px">Clear History</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const C=["Visit a cafe or shop you have walked past but never entered","Take a different route home and notice three new things","Find the oldest building in your area and learn its story","Visit a local park or green space you have never been to","Eat a cuisine you have never tried, from a local spot","Go to a free local event, market or exhibition","Walk a neighbourhood you do not usually visit","Find the best view in your town or city","Visit your local library and borrow something unexpected","Photograph 10 beautiful details on one street","Talk to a local shopkeeper and ask for their favourite spot","Find a viewpoint, bench or quiet corner you did not know existed","Try a class or activity offered locally","Visit a museum or gallery in your own town"];
+  let done_list=JSON.parse(localStorage.getItem('let_done')||'[]');
+  let current=localStorage.getItem('let_cur')||'';
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function gen(){ current=C[Math.floor(Math.random()*C.length)]; localStorage.setItem('let_cur',current);
+    g('challenge').innerHTML='<div class="big">'+current+'</div>'; }
+  function done(){ if(!current){ alert('Generate a challenge first.'); return; }
+    done_list.push({t:current,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+    localStorage.setItem('let_done',JSON.stringify(done_list)); render(); gen(); }
+  function del(i){ done_list.splice(i,1); localStorage.setItem('let_done',JSON.stringify(done_list)); render(); }
+  function clearAll(){ if(confirm('Clear history?')){ done_list=[]; localStorage.setItem('let_done','[]'); render(); } }
+  function render(){
+    g('count').textContent=done_list.length;
+    const L=g('list');
+    if(!done_list.length){ L.innerHTML='<div class="empty">No adventures completed yet.</div>'; return; }
+    L.innerHTML=[...done_list].reverse().map(x=>{ const i=done_list.indexOf(x);
+      return '<div class="done"><span>✓ '+esc(x.t)+' <span style="opacity:.5">· '+x.d+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  if(current)g('challenge').innerHTML='<div class="big">'+esc(current)+'</div>';
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lead Pipeline Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 28px; }
+    .wrap { width: 100%; max-width: 560px; }
+    .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .sum-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 16px; }
+    .sum-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; margin-bottom: 5px; }
+    .sum-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 14px; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .field { flex: 1; }
+    label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; }
+    input, select, textarea { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus, select:focus, textarea:focus { border-color: #5AE57A; }
+    select option { background: #3C603C; }
+    textarea { resize: none; height: 58px; font-size: 0.85rem; margin-bottom: 10px; }
+    .btn-add { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; padding: 12px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; }
+    .btn-add:hover { opacity: 0.85; }
+    .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab { background: #3C603C; border: 1px solid #4C724C; border-radius: 20px; padding: 5px 12px; font-size: 0.78rem; cursor: pointer; transition: all 0.18s; white-space: nowrap; user-select: none; }
+    .tab:hover { border-color: #5A845A; }
+    .tab.active { background: #5AE57A; border-color: #5AE57A; color: #325132; font-weight: 600; }
+    .tab-n { opacity: 0.55; font-size: 0.72rem; margin-left: 3px; }
+    .tab.active .tab-n { opacity: 0.65; }
+    .lead-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+    .lead-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .lead-name { font-weight: 600; font-size: 0.95rem; }
+    .lead-src { font-size: 0.74rem; opacity: 0.38; margin-top: 2px; }
+    .lead-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-left: 8px; }
+    .lead-val { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; }
+    .btn-del-lead { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0; transition: color 0.2s; }
+    .btn-del-lead:hover { color: #5AE57A; }
+    .lead-notes { font-size: 0.8rem; opacity: 0.42; margin-bottom: 10px; line-height: 1.4; }
+    .lead-bottom { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+    .stage-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stage-name { font-size: 0.76rem; opacity: 0.5; flex: 1; }
+    .stage-sel { width: auto !important; background: #325132; border: 1px solid #4C724C; border-radius: 6px; color: #5AE57A; font-family: 'DM Sans', sans-serif; font-size: 0.76rem; padding: 4px 8px; cursor: pointer; }
+    .stage-sel:focus { border-color: #5AE57A; }
+    .empty { text-align: center; opacity: 0.28; font-size: 0.88rem; padding: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Lead Pipeline Manager</h1>
+  <p class="subtitle">Track every prospect from first contact to closed deal.</p>
+
+  <div class="wrap">
+    <div class="summary">
+      <div class="sum-card"><div class="sum-lbl">Total Leads</div><div class="sum-val" id="s-leads">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Pipeline Value</div><div class="sum-val" id="s-pipe">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Revenue Won</div><div class="sum-val" id="s-won">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Close Rate</div><div class="sum-val" id="s-cr">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add Lead</div>
+      <div class="row">
+        <div class="field">
+          <label>Name</label>
+          <input type="text" id="l-name" placeholder="Name or handle" />
+        </div>
+        <div class="field" style="flex:0 0 130px">
+          <label>Stage</label>
+          <select id="l-stage">
+            <option>New</option><option>Warm</option><option>Hot</option><option>Proposal</option><option>Won</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Source</label>
+          <input type="text" id="l-src" placeholder="e.g. Instagram DM, Email list" />
+        </div>
+        <div class="field" style="flex:0 0 110px">
+          <label>Value ($)</label>
+          <input type="number" id="l-val" placeholder="e.g. 297" min="0" />
+        </div>
+      </div>
+      <label>Notes <span style="opacity:0.38;font-weight:400;text-transform:none;font-size:0.7rem">(optional)</span></label>
+      <textarea id="l-notes" placeholder="e.g. Interested in templates, follow up Friday"></textarea>
+      <button class="btn-add" onclick="addLead()">+ Add Lead</button>
+    </div>
+
+    <div class="tabs" id="tabs"></div>
+    <div id="leads-list"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const STAGES = ['New','Warm','Hot','Proposal','Won'];
+    const DOTS   = { New:'#BFD8BF', Warm:'#5AE57A', Hot:'#5AE57A', Proposal:'#5AE57A', Won:'#5AE57A' };
+    let leads = [], activeFilter = 'All';
+
+    const load = () => { try { leads = JSON.parse(localStorage.getItem('pipeline_v1') || '[]'); } catch(e) { leads = []; } };
+    const save = () => localStorage.setItem('pipeline_v1', JSON.stringify(leads));
+
+    function addLead() {
+      const name  = document.getElementById('l-name').value.trim();
+      const stage = document.getElementById('l-stage').value;
+      const src   = document.getElementById('l-src').value.trim();
+      const val   = parseFloat(document.getElementById('l-val').value) || 0;
+      const notes = document.getElementById('l-notes').value.trim();
+      if (!name) { alert('Please enter a lead name.'); return; }
+      leads.unshift({ id: Date.now(), name, stage, src, val, notes });
+      save(); render();
+      ['l-name','l-src','l-notes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('l-val').value = '';
+    }
+
+    function moveStage(id, stage) {
+      const l = leads.find(l => l.id === id);
+      if (l) { l.stage = stage; save(); render(); }
+    }
+
+    function deleteLead(id) { leads = leads.filter(l => l.id !== id); save(); render(); }
+
+    function setFilter(s) { activeFilter = s; render(); }
+
+    function render() {
+      const won    = leads.filter(l => l.stage === 'Won');
+      const active = leads.filter(l => l.stage !== 'Won');
+      const pipeV  = active.reduce((s, l) => s + l.val, 0);
+      const wonV   = won.reduce((s, l) => s + l.val, 0);
+      const cr     = leads.length ? Math.round((won.length / leads.length) * 100) : null;
+
+      document.getElementById('s-leads').textContent = leads.length || '—';
+      document.getElementById('s-pipe').textContent  = pipeV ? '$' + Math.round(pipeV).toLocaleString() : '—';
+      document.getElementById('s-won').textContent   = wonV  ? '$' + Math.round(wonV).toLocaleString()  : '—';
+      document.getElementById('s-cr').textContent    = cr !== null ? cr + '%' : '—';
+
+      const counts = { All: leads.length };
+      STAGES.forEach(s => counts[s] = leads.filter(l => l.stage === s).length);
+      document.getElementById('tabs').innerHTML = ['All', ...STAGES].map(s =>
+        `<div class="tab${activeFilter === s ? ' active' : ''}" onclick="setFilter('${s}')">${s}<span class="tab-n">${counts[s]}</span></div>`
+      ).join('');
+
+      const visible = activeFilter === 'All' ? leads : leads.filter(l => l.stage === activeFilter);
+      const el = document.getElementById('leads-list');
+      if (!visible.length) {
+        el.innerHTML = `<div class="empty">No leads${activeFilter !== 'All' ? ' in ' + activeFilter : ' yet — add your first one above'}.</div>`;
+        return;
+      }
+
+      el.innerHTML = visible.map(l => `
+        <div class="lead-card">
+          <div class="lead-top">
+            <div>
+              <div class="lead-name">${l.name}</div>
+              ${l.src ? `<div class="lead-src">${l.src}</div>` : ''}
+            </div>
+            <div class="lead-right">
+              ${l.val ? `<span class="lead-val">$${Math.round(l.val).toLocaleString()}</span>` : ''}
+              <button class="btn-del-lead" onclick="deleteLead(${l.id})" title="Remove">×</button>
+            </div>
+          </div>
+          ${l.notes ? `<div class="lead-notes">${l.notes}</div>` : ''}
+          <div class="lead-bottom">
+            <span class="stage-dot" style="background:${DOTS[l.stage]}"></span>
+            <span class="stage-name">${l.stage}</span>
+            <select class="stage-sel" onchange="moveStage(${l.id},this.value)">
+              ${STAGES.map(s => `<option value="${s}"${s === l.stage ? ' selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </div>
+        </div>`).join('');
+    }
+
+    load(); render();
+  </script>
+</body>
+</html>

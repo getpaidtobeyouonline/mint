@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Effectiveness Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .bar { height: 9px; background: #2A442A; border-radius: 6px; overflow: hidden; margin: 8px 0 4px; }
+  .bar i { display: block; height: 100%; background: #5AE57A; width: 0; transition: width .3s; }
+  .count { text-align: center; font-size: .85rem; color: #5AE57A; margin-bottom: 4px; }
+  .grp { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 16px 0 7px; }
+  .item { display: flex; gap: 10px; align-items: flex-start; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; }
+  .item.done { border-color: #5AE57A; opacity: .55; }
+  .box { width: 20px; height: 20px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .8rem; color: #5AE57A; }
+  .item.done .box::after { content: '\2713'; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-size: .85rem; padding: 8px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Meeting Effectiveness Checker</h1>
+  <p class="sub">Run meetings people actually thank you for — tick these off each time.</p>
+
+  <div class="panel">
+    <div class="count" id="count">0 / 0 done</div>
+    <div class="bar"><i id="fill"></i></div>
+    <div id="list"></div>
+    <button class="btn" onclick="reset()">Reset Checklist</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const ITEMS={
+    'Before — should it even happen?': ['The meeting has a clear, single purpose','It genuinely needs a meeting (not an email or message)','Only the people who must be there are invited','An agenda was shared in advance','Any pre-reading or prep was sent ahead of time'],
+    'During the meeting': ['It starts on time','Someone keeps it on track and on time','Every voice gets a chance to contribute','Decisions are made, not just discussed','Phones and side-tasks are parked'],
+    'Closing & follow-up': ['Clear action items with named owners','Deadlines agreed for each action','A short summary is shared afterwards','The meeting ends on or before time']
+  };
+  const KEY='mec'; let done=JSON.parse(localStorage.getItem(KEY)||'{}');
+  const g=id=>document.getElementById(id);
+  function render(){
+    const L=g('list'); L.innerHTML=''; let total=0,ch=0;
+    Object.keys(ITEMS).forEach(grp=>{
+      const h=document.createElement('div'); h.className='grp'; h.textContent=grp; L.appendChild(h);
+      ITEMS[grp].forEach(txt=>{
+        total++; const id=grp+'|'+txt; if(done[id])ch++;
+        const d=document.createElement('div'); d.className='item'+(done[id]?' done':'');
+        d.innerHTML='<div class="box"></div><div>'+txt+'</div>';
+        d.onclick=()=>{ done[id]=!done[id]; localStorage.setItem(KEY,JSON.stringify(done)); render(); };
+        L.appendChild(d);
+      });
+    });
+    g('fill').style.width=total?Math.round(ch/total*100)+'%':'0%';
+    g('count').textContent=ch+' / '+total+' done';
+  }
+  function reset(){ if(confirm('Reset the checklist?')){ done={}; localStorage.setItem(KEY,'{}'); render(); } }
+  render();
+</script>
+</body>
+</html>

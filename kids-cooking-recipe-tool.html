@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Cooking Recipe Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .recipe { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; }
+  .recipe h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.2rem; }
+  .recipe p { font-size: .92rem; white-space: pre-wrap; margin-top: 6px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Cooking Recipe Tool</h1>
+  <p class="sub">Pick a category and get a kid-friendly recipe to make together.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="recipe" id="recipe"></div>
+    <div style="text-align:center"><button class="btn" onclick="next()">Another Recipe</button></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const R={
+    'Breakfast':[
+      {n:'Banana Pancakes',i:['1 ripe banana','1 egg','A pinch of cinnamon'],s:['Mash the banana with a fork.','Crack and beat the egg in.','Stir in the cinnamon.','Cook small pancakes in a lightly oiled pan, 2 min each side.']},
+      {n:'Fruit & Yogurt Pots',i:['Greek yogurt','Berries or chopped fruit','A drizzle of honey','A spoon of granola'],s:['Spoon yogurt into a glass.','Layer with fruit and granola.','Repeat until the glass is full.','Top with a drizzle of honey.']},
+      {n:'Cinnamon Toast Stars',i:['Bread','Butter','Sugar + cinnamon','A star cookie cutter'],s:['Toast the bread lightly.','Butter the warm toast.','Sprinkle with cinnamon sugar.','Press out stars with the cutter.']}
+    ],
+    'Lunch':[
+      {n:'Pinwheel Sandwiches',i:['Wraps','Cream cheese','Ham or cheese slices','A few cucumber strips'],s:['Spread cream cheese to the edges.','Layer ham/cheese and cucumber strips.','Roll up tightly.','Slice into pinwheels.']},
+      {n:'Rainbow Veggie Skewers',i:['Cherry tomatoes','Cucumber chunks','Yellow pepper','Cubes of cheese','Wooden sticks'],s:['Thread veggies and cheese onto sticks in rainbow order.','Serve with a dip you love.']}
+    ],
+    'Snacks':[
+      {n:'Frozen Banana Bites',i:['Banana','Yogurt','Sprinkles or crushed cereal'],s:['Slice the banana into coins.','Dip each in yogurt.','Sprinkle with toppings.','Freeze on a tray for 1 hour.']},
+      {n:'Apple Smiley Faces',i:['Apple slices','Peanut butter (or sunflower butter)','Mini chocolate chips or raisins'],s:['Spread one apple slice with nut butter.','Stick raisins or chips on like teeth.','Top with another apple slice.']}
+    ],
+    'Dinner':[
+      {n:'Mini Pizzas',i:['English muffins or pitta','Tomato passata','Mozzarella','Veggie toppings'],s:['Heat oven to 200C.','Spread passata on each muffin.','Top with cheese and veggies.','Bake for 8-10 min until bubbly.']},
+      {n:'Build-Your-Own Quesadillas',i:['Wraps','Cheese','Cooked chicken or beans','Sweetcorn'],s:['Lay a wrap flat.','Sprinkle cheese and toppings on half.','Fold over and cook in a dry pan 2 min each side.','Slice into wedges.']}
+    ],
+    'Treats':[
+      {n:'No-Bake Chocolate Bites',i:['Oats','Peanut butter','Honey','Cocoa powder'],s:['Mix everything in a bowl until sticky.','Roll into small balls.','Chill for 30 min.']},
+      {n:'Strawberry Shortcake Cups',i:['Plain biscuits','Whipped cream','Chopped strawberries'],s:['Layer crushed biscuits in a glass.','Add a spoon of cream.','Top with strawberries.','Repeat to the top.']}
+    ]
+  };
+  let cat='Breakfast';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(R).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){
+    const list=R[cat], r=list[Math.floor(Math.random()*list.length)];
+    g('recipe').innerHTML='<h3>'+r.n+'</h3><p><b>You will need:</b>\n'+r.i.map(x=>'  • '+x).join('\n')+'\n\n<b>How:</b>\n'+r.s.map((x,i)=>'  '+(i+1)+'. '+x).join('\n')+'\n\n(Adults: keep the hob/oven jobs for grown-ups.)</p>';
+  }
+  drawPresets(); next();
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learning Style Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { font-size: .92rem; margin-bottom: 8px; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; font-size: .87rem; cursor: pointer; margin-bottom: 6px; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt.on { background: #325132; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 6px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .bar { display: flex; align-items: center; gap: 8px; margin: 5px 0; font-size: .82rem; }
+  .bar .lb { width: 100px; flex: none; }
+  .bar .tr { flex: 1; background: #3C603C; border-radius: 4px; height: 11px; overflow: hidden; }
+  .bar .tr>i { display: block; height: 100%; background: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Learning Style Identifier</h1>
+  <p class="sub">Discover which study methods tend to work best for you — then use them on purpose.</p>
+
+  <div class="panel" id="quiz"></div>
+  <div class="result" id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const L={V:"Visual",A:"Auditory",R:"Reading/Writing",K:"Hands-on"};
+  const Q=[
+    {q:"You learn a new process best by...",a:[["seeing a diagram or video","V"],["hearing it explained","A"],["reading the instructions","R"],["just trying it yourself","K"]]},
+    {q:"To remember information, you...",a:[["picture it in your mind","V"],["say it aloud or discuss it","A"],["write it out in notes","R"],["link it to a real activity","K"]]},
+    {q:"In a lecture you most want...",a:[["slides, charts and visuals","V"],["a clear, engaging speaker","A"],["a detailed handout to read","R"],["a chance to do an exercise","K"]]},
+    {q:"When assembling something, you...",a:[["look at the picture guide","V"],["ask someone to talk you through it","A"],["read every step carefully","R"],["start and figure it out by feel","K"]]},
+    {q:"You explain an idea to others by...",a:[["drawing or showing it","V"],["talking it through","A"],["writing it down for them","R"],["demonstrating it","K"]]}
+  ];
+  let ans=Array(Q.length).fill(-1);
+  function draw(){
+    g('quiz').innerHTML=Q.map((o,i)=>'<div class="q">'+(i+1)+'. '+o.q+'</div>'+
+      o.a.map((a,j)=>'<div class="opt'+(ans[i]===j?' on':'')+'" onclick="pick('+i+','+j+')">'+a[0]+'</div>').join('')).join('')+
+      '<button class="btn" onclick="score()">See My Learning Style</button>'+
+      '<div class="note">"Learning styles" are a useful nudge, not a rule. The best learning mixes all four — this just shows your lean.</div>';
+  }
+  function pick(i,j){ ans[i]=j; draw(); }
+  function score(){
+    if(ans.includes(-1)){ alert('Answer all five questions.'); return; }
+    const c={V:0,A:0,R:0,K:0};
+    ans.forEach((a,i)=>c[Q[i].a[a][1]]++);
+    const sorted=Object.entries(c).sort((a,b)=>b[1]-a[1]);
+    const top=sorted[0][0];
+    const TIPS={
+      V:["Use diagrams, mind maps, colour-coding and charts.","Watch videos and turn notes into visuals.","Sit where you can see clearly."],
+      A:["Read notes aloud, or record and replay them.","Discuss topics and explain them to others.","Try lectures, podcasts and study groups."],
+      R:["Rewrite notes in your own words.","Make lists, summaries and written flashcards.","Learn from books and detailed articles."],
+      K:["Learn by doing — practise, build, experiment.","Use real examples and case studies.","Take movement breaks and study actively."]
+    }[top];
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>Your lean: '+L[top]+'</h3>'+
+      sorted.map(([k,v])=>'<div class="bar"><span class="lb">'+L[k]+'</span><div class="tr"><i style="width:'+(v/Q.length*100)+'%"></i></div></div>').join('')+
+      '<p style="color:#5AE57A;font-size:.88rem;margin-top:10px">Study tips for you:</p><ul>'+TIPS.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mood Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .moods { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .mood { background: #2A442A; border: 1px solid #5A845A; cursor: pointer; padding: 10px 14px; border-radius: 10px; font-size: 1.6rem; text-align: center; }
+  .mood.on { border-color: #5AE57A; background: #2E4D2E; }
+  .mood small { display: block; font-size: .68rem; opacity: .7; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; margin-top: 10px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 12px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .day { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: .85rem; }
+  .day .dt { width: 90px; flex: none; opacity: .8; }
+  .day .em { font-size: 1.3rem; }
+  .day .nt { flex: 1; opacity: .85; }
+  .day .x { cursor: pointer; opacity: .5; } .day .x:hover { opacity: 1; color: #5AE57A; }
+  .stat { text-align: center; font-size: .88rem; opacity: .85; margin-bottom: 10px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mood Tracker</h1>
+  <p class="sub">One tap a day. Over weeks, the pattern tells you more than any single day.</p>
+
+  <div class="panel">
+    <div class="moods" id="moods"></div>
+    <input id="note" placeholder="Optional note — what shaped today?">
+    <button class="btn" onclick="log()">Log Today</button>
+  </div>
+
+  <div class="panel">
+    <div class="stat" id="stat"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const M=[['😖','Awful',1],['😕','Low',2],['😐','Okay',3],['🙂','Good',4],['😄','Great',5]];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const today=new Date().toISOString().slice(0,10);
+  let R=JSON.parse(localStorage.getItem('mdt')||'[]');
+  let sel=null;
+  g('moods').innerHTML=M.map((m,i)=>`<div class="mood" data-i="${i}">${m[0]}<small>${m[1]}</small></div>`).join('');
+  g('moods').querySelectorAll('.mood').forEach(el=>el.onclick=()=>{ sel=+el.dataset.i; g('moods').querySelectorAll('.mood').forEach(x=>x.classList.remove('on')); el.classList.add('on'); });
+  const save=()=>localStorage.setItem('mdt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function log(){ if(sel===null){alert('Pick a mood.');return;}
+    const ex=R.find(x=>x.d===today); const o={d:today,m:sel,note:v('note')};
+    if(ex)Object.assign(ex,o); else R.push(o);
+    g('note').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function render(){
+    if(R.length){ const avg=R.reduce((s,x)=>s+M[x.m][2],0)/R.length;
+      g('stat').innerHTML=`<b style="color:#5AE57A">${R.length}</b> days logged · average mood <b style="color:#5AE57A">${avg.toFixed(1)}/5</b>`; }
+    else g('stat').textContent='';
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No moods logged yet.</div>'; return; }
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.d<b.x.d?1:-1).map(({x,i})=>`<div class="day"><span class="dt">${x.d}</span><span class="em">${M[x.m][0]}</span><span class="nt">${esc(x.note||'')}</span><span class="x" onclick="del(${i})">✕</span></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

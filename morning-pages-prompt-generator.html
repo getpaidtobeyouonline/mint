@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Pages Prompt Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; max-width: 600px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .cat-chips { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cchip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 6px 14px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+  .cchip.sel { border-color: #5AE57A; color: #5AE57A; background: #1a150820; }
+  .prompt-wrap { border-left: 3px solid #5AE57A; padding: 14px 18px; background: #325132; border-radius: 0 10px 10px 0; margin-bottom: 16px; min-height: 90px; display: flex; align-items: center; }
+  .prompt-text { font-family: 'Playfair Display', serif; font-size: 1.18rem; color: #FFFFFF; line-height: 1.7; }
+  .btn-row { display: flex; align-items: center; gap: 10px; }
+  .btn-refresh { background: none; border: 1px solid #4C724C; color: #BFD8BF; padding: 7px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; }
+  .btn-refresh:hover { border-color: #5AE57A; color: #5AE57A; }
+  .cat-tag { font-size: 0.72rem; color: #BFD8BF; }
+  .word-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.78rem; }
+  .word-count { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1rem; }
+  .word-target { color: #BFD8BF; }
+  .bar-track { background: #325132; border-radius: 4px; height: 5px; overflow: hidden; margin-bottom: 12px; }
+  .bar-fill { height: 100%; border-radius: 4px; background: #5AE57A; transition: width 0.3s ease; }
+  textarea { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; line-height: 1.75; outline: none; resize: vertical; min-height: 220px; }
+  textarea:focus { border-color: #4C724C; }
+  textarea::placeholder { color: #4C724C; }
+  .timer-row { display: flex; align-items: center; gap: 14px; margin-top: 14px; }
+  .timer-display { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; min-width: 58px; }
+  .timer-prog { flex: 1; background: #325132; height: 5px; border-radius: 4px; overflow: hidden; }
+  .timer-fill { height: 100%; background: #C9A84C33; border-radius: 4px; transition: width 1s linear; }
+  .btn-timer { background: #5AE57A; color: #325132; border: none; padding: 8px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+  .btn-timer:hover { background: #5AE57A; }
+  .btn-timer.running { background: none; border: 1px solid #5AE57A; color: #5AE57A; }
+  .btn-timer.running:hover { background: #1a150820; }
+  .timer-lbl { font-size: 0.72rem; color: #BFD8BF; }
+  .done-badge { display: inline-flex; align-items: center; gap: 6px; background: #325132; border: 1px solid #5AE57A; color: #5AE57A; padding: 5px 14px; border-radius: 20px; font-size: 0.78rem; }
+  .stats-row { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.82rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-date { color: #BFD8BF; width: 60px; flex-shrink: 0; }
+  .hist-words { font-family: 'Playfair Display', serif; color: #5AE57A; flex-shrink: 0; }
+  .hist-done { color: #5AE57A; font-size: 0.75rem; flex-shrink: 0; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Morning Pages</h1>
+<p class="subtitle">Write without filter. Think without judgment. Begin.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="cat-chips" id="catChips"></div>
+  <div class="prompt-wrap"><div class="prompt-text" id="promptText"></div></div>
+  <div class="btn-row">
+    <button class="btn-refresh" onclick="refreshPrompt()">↻ New Prompt</button>
+    <span class="cat-tag" id="catTag"></span>
+    <div id="doneBadge" style="display:none"><div class="done-badge">✓ 750 words</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="word-row">
+    <span class="word-count"><span id="wordNum">0</span> words</span>
+    <span class="word-target" id="wordTarget">750 words = 3 pages</span>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="wordBar" style="width:0%"></div></div>
+  <textarea id="writer" placeholder="Start anywhere. The first sentence doesn't have to be good." oninput="onWrite()"></textarea>
+  <div class="timer-row">
+    <div class="timer-display" id="timerDisplay">0:00</div>
+    <div class="timer-prog"><div class="timer-fill" id="timerFill" style="width:0%"></div></div>
+    <span class="timer-lbl">/ 20 min</span>
+    <button class="btn-timer" id="timerBtn" onclick="toggleTimer()">Start Timer</button>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statStreak">0</div><div class="stat-l">day streak</div></div>
+  <div class="stat-box"><div class="stat-n" id="statDone">0</div><div class="stat-l">complete sessions</div></div>
+  <div class="stat-box"><div class="stat-n" id="statTotal">0</div><div class="stat-l">total words ever</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Writing History</div>
+  <div id="histList"><p class="empty">No sessions yet. Write something today.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const CATS = [
+  {id:'morning',  icon:'🌅', label:'Morning Check-In'},
+  {id:'release',  icon:'😤', label:'Release'},
+  {id:'vision',   icon:'🎯', label:'Vision'},
+  {id:'inquiry',  icon:'🔍', label:'Self-Inquiry'},
+  {id:'creative', icon:'✨', label:'Creative'},
+  {id:'gratitude',icon:'🙏', label:'Gratitude'},
+];
+const PROMPTS = {
+  morning:  ["What's the first thing on your mind this morning, before you censor it?","How are you, really? Not 'fine' — the honest answer underneath that.","What does your body feel like right now? Where is tension hiding?","What mood did you wake up in, and why do you think that is?","What are you quietly hoping for today?","If today were a color, what would it be — and why?"],
+  release:  ["What are you carrying right now that you need to put down?","What are you angry, resentful, or quietly frustrated about? Let it spill.","What have you been pretending is fine when it isn't?","What thought keeps circling back no matter how often you push it away?","What do you wish someone would say to you right now?","What's the thing you're most afraid to write about today? Write about that."],
+  vision:   ["Describe your perfect ordinary Tuesday, five years from now.","What would you do this week if you knew you couldn't fail?","Who do you want to become? Write them as if they already exist.","What does success look and feel like in your actual life — not a generic one?","If money and fear weren't factors, what would you be building right now?","What are you putting off that future you will desperately wish you'd started today?"],
+  inquiry:  ["What are you avoiding, and what would happen if you stopped?","What story do you keep telling yourself that might not be true anymore?","Where are you playing small — and why?","What do you want that you haven't let yourself admit yet?","What would the wisest version of you say about where you are right now?","What's one belief you hold that might be worth questioning today?"],
+  creative: ["Write the opening paragraph of the story of your life as a novel.","Describe a moment from childhood using all five senses — smell, sound, texture, taste, sight.","If your current season of life were a weather pattern, what would it be?","Write a letter to the person you were exactly ten years ago.","Invent a metaphor for how you feel right now and follow it wherever it leads.","What would you create if you had six months, no obligations, and enough money?"],
+  gratitude:["What small, quiet thing went unappreciated yesterday that deserves a moment now?","Who has shown up for you lately — and have you told them?","Name three things about your current life that past-you would be amazed by.","What difficult experience are you secretly grateful for?","What aspect of your ordinary day is actually extraordinary when you look closely?","What do you have right now that you once desperately wanted?"],
+};
+
+const TODAY = new Date().toISOString().slice(0,10);
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+let sessions = JSON.parse(localStorage.getItem('mpg_sessions')||'[]');
+let selCat = 'morning', promptOffset = 0, timerSecs = 0, timerInt = null, running = false;
+const TARGET_WORDS = 750, TARGET_SECS = 1200;
+
+function save() { localStorage.setItem('mpg_sessions',JSON.stringify(sessions)); }
+
+function wordCount(t) { return t.trim() ? t.trim().split(/\s+/).length : 0; }
+
+document.getElementById('catChips').innerHTML = CATS.map(c=>
+  `<div class="cchip${c.id===selCat?' sel':''}" id="cc-${c.id}" onclick="pickCat('${c.id}')">${c.icon} ${c.label}</div>`).join('');
+
+function pickCat(id) {
+  selCat=id; promptOffset=0;
+  CATS.forEach(c=>document.getElementById('cc-'+c.id).classList.toggle('sel',c.id===id));
+  showPrompt();
+}
+
+function getDayPrompt(cat, offset) {
+  const seed = TODAY.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  return PROMPTS[cat][(seed+offset) % PROMPTS[cat].length];
+}
+
+function showPrompt() {
+  const cat = CATS.find(c=>c.id===selCat);
+  document.getElementById('promptText').textContent = getDayPrompt(selCat, promptOffset);
+  document.getElementById('catTag').textContent = cat.icon+' '+cat.label;
+}
+
+function refreshPrompt() { promptOffset++; showPrompt(); }
+
+function onWrite() {
+  const text = document.getElementById('writer').value;
+  const words = wordCount(text);
+  const pct = Math.min(100, words/TARGET_WORDS*100);
+  document.getElementById('wordNum').textContent = words;
+  document.getElementById('wordBar').style.cssText = `width:${pct}%;background:${pct>=100?'#5AE57A':'#5AE57A'}`;
+  document.getElementById('wordTarget').textContent = words>=TARGET_WORDS ? '✦ 3 pages reached' : `${TARGET_WORDS-words} words to 3 pages`;
+  document.getElementById('doneBadge').style.display = words>=TARGET_WORDS?'block':'none';
+  localStorage.setItem('mpg_text_'+TODAY, text);
+  updateSession(words);
+}
+
+function updateSession(words) {
+  const existing = sessions.find(s=>s.date===TODAY);
+  if(existing) { existing.words=words; existing.done=words>=TARGET_WORDS; }
+  else sessions.push({date:TODAY,words,mins:0,done:words>=TARGET_WORDS});
+  save(); renderStats();
+}
+
+function toggleTimer() {
+  running=!running;
+  const btn=document.getElementById('timerBtn');
+  btn.textContent=running?'Pause':'Resume';
+  btn.className='btn-timer'+(running?' running':'');
+  if(running){
+    timerInt=setInterval(()=>{
+      timerSecs++;
+      const m=Math.floor(timerSecs/60),s=timerSecs%60;
+      document.getElementById('timerDisplay').textContent=m+':'+String(s).padStart(2,'0');
+      document.getElementById('timerFill').style.width=Math.min(100,timerSecs/TARGET_SECS*100)+'%';
+      const sess=sessions.find(s=>s.date===TODAY);
+      if(sess){sess.mins=Math.round(timerSecs/60);save();}
+    },1000);
+  } else { clearInterval(timerInt); }
+}
+
+function getStreak() {
+  const sorted=[...sessions].filter(s=>s.done).sort((a,b)=>b.date.localeCompare(a.date));
+  let streak=0,prev=null;
+  for(const s of sorted){
+    if(!prev){prev=s.date;streak=1;continue;}
+    const diff=(new Date(prev+'T12:00:00')-new Date(s.date+'T12:00:00'))/86400000;
+    if(diff<=1){streak++;prev=s.date;}else break;
+  }
+  return streak;
+}
+
+function renderStats() {
+  const done=sessions.filter(s=>s.done);
+  const total=sessions.reduce((s,e)=>s+e.words,0);
+  document.getElementById('statStreak').textContent=getStreak();
+  document.getElementById('statDone').textContent=done.length;
+  document.getElementById('statTotal').textContent=total>=1000?Math.round(total/100)/10+'k':total;
+  const el=document.getElementById('histList');
+  if(!sessions.length){el.innerHTML='<p class="empty">No sessions yet. Write something today.</p>';return;}
+  el.innerHTML=[...sessions].reverse().map(s=>{
+    const d=new Date(s.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="hist-item">
+      <span class="hist-date">${d}</span>
+      <span class="hist-words">${s.words} words</span>
+      ${s.mins?`<span style="font-size:0.72rem;color:#5A845A">${s.mins}m</span>`:''}
+      ${s.done?'<span class="hist-done">✓ complete</span>':''}
+    </div>`;
+  }).join('');
+}
+
+// Restore today's writing
+const saved=localStorage.getItem('mpg_text_'+TODAY);
+if(saved){document.getElementById('writer').value=saved;onWrite();}
+showPrompt();
+renderStats();
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Limiting Belief Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .step h4 { color: #5AE57A; font-size: .78rem; text-transform: uppercase; margin-bottom: 5px; }
+  .step p { font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Limiting Belief Identifier</h1>
+  <p class="sub">A 4-question walk-through to surface the belief running the show — and replace it with one that serves you.</p>
+
+  <div class="panel">
+    <label for="area">What area is stuck?</label>
+    <input id="area" placeholder="e.g. asking for what I am worth">
+    <label for="thought">The thought you catch yourself thinking</label>
+    <textarea id="thought" placeholder='e.g. "I have to prove I am useful before I can charge more"'></textarea>
+    <label for="evidence">When did you first start believing this?</label>
+    <input id="evidence" placeholder="An event, a person, a season of life">
+    <label for="cost">What is this belief costing you?</label>
+    <textarea id="cost" placeholder="In money, energy, relationships, time"></textarea>
+    <button class="btn" onclick="gen()">Map the Belief</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['area','thought','evidence','cost'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('lbi_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('lbi_'+k,g(k).value)); });
+  function gen(){
+    const a=v('area')||'the stuck area', th=v('thought')||'the belief', ev=v('evidence')||'somewhere in your past', co=v('cost')||'real, measurable cost';
+    g('out').innerHTML='<div class="step"><h4>The belief, named</h4><p>In the area of <b style="color:#5AE57A">'+esc(a)+'</b>, the belief running the show is:<br><i>"'+esc(th)+'"</i></p></div>'+
+      '<div class="step"><h4>Where it came from</h4><p>It started at: <b style="color:#5AE57A">'+esc(ev)+'</b>. That moment taught a younger version of you a survival rule. It served you then. It is not serving you now.</p></div>'+
+      '<div class="step"><h4>What it is costing</h4><p>'+esc(co)+'. Beliefs run silently — until you make them pay rent.</p></div>'+
+      '<div class="step"><h4>The reframe to install</h4><p>Instead of "<i>'+esc(th)+'</i>" — try: <b style="color:#5AE57A">"I am allowed to be valuable before I am perfect."</b> Or write your own: same situation, kinder rule, true enough to repeat.</p></div>'+
+      '<div class="step" style="border-left-color:#BFD8BF"><h4>The work</h4><p>Catch the old thought, breathe, say the new one out loud. Do that 50 times. The belief is not deleted by insight — it is replaced by repetition.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Map it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

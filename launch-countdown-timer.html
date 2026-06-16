@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Launch Countdown Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; padding: 40px 16px 60px;
+    }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.6rem,5vw,2.4rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 36px; }
+
+    /* Setup form */
+    .setup { background: #3C603C; border: 1px solid #4C724C; border-radius: 16px; padding: 32px; width: 100%; max-width: 460px; }
+    .field { margin-bottom: 18px; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #5AE57A; margin-bottom: 7px; }
+    input {
+      width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px;
+      color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem;
+      padding: 11px 14px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus { border-color: #5AE57A; }
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+    .btn {
+      width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700;
+      padding: 13px; cursor: pointer; margin-top: 6px;
+      transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .btn:hover { opacity: 0.85; }
+
+    /* Countdown display */
+    .countdown { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 560px; }
+    .countdown.show { display: flex; }
+    .launch-name { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem,4vw,2rem); color: #FFFFFF; text-align: center; margin-bottom: 10px; }
+    .launch-date-label { opacity: 0.4; font-size: 0.82rem; margin-bottom: 40px; }
+    .digits {
+      display: flex; gap: clamp(12px,3vw,28px); margin-bottom: 40px;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .unit { display: flex; flex-direction: column; align-items: center; }
+    .num {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem,10vw,5.5rem); color: #5AE57A; line-height: 1;
+      background: #3C603C; border: 1px solid #4C724C; border-radius: 14px;
+      padding: 16px 24px; min-width: clamp(80px,18vw,120px); text-align: center;
+    }
+    .unit-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.45; margin-top: 10px; }
+    .progress-wrap { width: 100%; max-width: 440px; margin-bottom: 36px; }
+    .progress-bar { height: 3px; background: #3C603C; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: #5AE57A; border-radius: 2px; transition: width 1s linear; }
+    .progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; opacity: 0.35; margin-top: 8px; }
+    .btn-reset { background: transparent; border: 1px solid #4C724C; color: #FFFFFF; font-size: 0.85rem; font-weight: 500; text-transform: none; letter-spacing: 0; padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-reset:hover { border-color: #5AE57A; }
+
+    /* Launched state */
+    .launched { display: none; flex-direction: column; align-items: center; text-align: center; }
+    .launched.show { display: flex; }
+    .launched-title { font-family: 'Playfair Display', serif; font-size: clamp(2rem,7vw,3.5rem); color: #5AE57A; margin-bottom: 12px; }
+    .launched-sub { opacity: 0.6; font-size: 0.95rem; margin-bottom: 32px; }
+
+    footer { position: fixed; bottom: 16px; font-size: 0.7rem; opacity: 0.3; }
+  </style>
+</head>
+<body>
+
+  <!-- Setup -->
+  <div id="setup-wrap">
+    <h1>Launch Countdown Timer</h1>
+    <p class="subtitle">Set your launch date and build the hype.</p>
+    <div class="setup">
+      <div class="field">
+        <label>Product / Launch Name</label>
+        <input type="text" id="name" placeholder="e.g. The Passive Income Playbook" maxlength="60" />
+      </div>
+      <div class="field">
+        <label>Launch Date &amp; Time</label>
+        <input type="datetime-local" id="launch-dt" />
+      </div>
+      <button class="btn" onclick="startCountdown()">Start Countdown</button>
+    </div>
+  </div>
+
+  <!-- Counting down -->
+  <div class="countdown" id="countdown">
+    <div class="launch-name" id="cd-name"></div>
+    <div class="launch-date-label" id="cd-date"></div>
+    <div class="digits">
+      <div class="unit"><div class="num" id="d-days">00</div><div class="unit-label">Days</div></div>
+      <div class="unit"><div class="num" id="d-hrs">00</div><div class="unit-label">Hours</div></div>
+      <div class="unit"><div class="num" id="d-min">00</div><div class="unit-label">Minutes</div></div>
+      <div class="unit"><div class="num" id="d-sec">00</div><div class="unit-label">Seconds</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <div class="progress-label"><span id="p-start"></span><span id="p-end"></span></div>
+    </div>
+    <button class="btn-reset" onclick="reset()">Change Launch Date</button>
+  </div>
+
+  <!-- Launched -->
+  <div class="launched" id="launched">
+    <div class="launched-title">You're Live!</div>
+    <div class="launch-name" id="l-name" style="margin-bottom:10px"></div>
+    <div class="launched-sub">Your launch is here. Go get those sales.</div>
+    <button class="btn-reset" onclick="reset()">Set a New Launch</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let timer = null;
+    let targetMs = null, startMs = null;
+
+    const pad = n => String(Math.floor(n)).padStart(2, '0');
+    const fmtDT = ms => new Date(ms).toLocaleString([], { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+    function startCountdown() {
+      const name = document.getElementById('name').value.trim();
+      const dt   = document.getElementById('launch-dt').value;
+      if (!name || !dt) { alert('Please enter a product name and launch date.'); return; }
+      const target = new Date(dt).getTime();
+      if (isNaN(target)) { alert('Invalid date.'); return; }
+
+      const data = { name, target, start: Date.now() };
+      localStorage.setItem('launch_cd', JSON.stringify(data));
+      loadAndRun(data);
+    }
+
+    function loadAndRun(data) {
+      targetMs = data.target;
+      startMs  = data.start;
+      document.getElementById('cd-name').textContent = data.name;
+      document.getElementById('l-name').textContent  = data.name;
+      document.getElementById('cd-date').textContent = 'Launching ' + fmtDT(targetMs);
+      document.getElementById('p-start').textContent = fmtDT(startMs);
+      document.getElementById('p-end').textContent   = fmtDT(targetMs);
+      document.getElementById('setup-wrap').style.display = 'none';
+      tick();
+      timer = setInterval(tick, 1000);
+    }
+
+    function tick() {
+      const diff = targetMs - Date.now();
+      if (diff <= 0) {
+        clearInterval(timer);
+        document.getElementById('countdown').classList.remove('show');
+        document.getElementById('launched').classList.add('show');
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hrs  = Math.floor((diff % 86400000) / 3600000);
+      const min  = Math.floor((diff % 3600000) / 60000);
+      const sec  = Math.floor((diff % 60000) / 1000);
+      document.getElementById('d-days').textContent = pad(days);
+      document.getElementById('d-hrs').textContent  = pad(hrs);
+      document.getElementById('d-min').textContent  = pad(min);
+      document.getElementById('d-sec').textContent  = pad(sec);
+
+      const total   = targetMs - startMs;
+      const elapsed = Date.now() - startMs;
+      const pct     = Math.min(100, Math.max(0, (elapsed / total) * 100));
+      document.getElementById('progress-fill').style.width = pct + '%';
+
+      document.getElementById('countdown').classList.add('show');
+    }
+
+    function reset() {
+      clearInterval(timer);
+      localStorage.removeItem('launch_cd');
+      document.getElementById('countdown').classList.remove('show');
+      document.getElementById('launched').classList.remove('show');
+      document.getElementById('setup-wrap').style.display = '';
+    }
+
+    // Restore on reload
+    const saved = localStorage.getItem('launch_cd');
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        if (data.target > Date.now()) loadAndRun(data);
+        else { localStorage.removeItem('launch_cd'); }
+      } catch(e) { localStorage.removeItem('launch_cd'); }
+    }
+
+    // Default datetime to tomorrow
+    const tom = new Date(Date.now() + 86400000);
+    tom.setMinutes(0, 0, 0);
+    document.getElementById('launch-dt').value = tom.toISOString().slice(0,16);
+  </script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mindful Break Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .break-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(156px,1fr)); gap: 10px; }
+  .bcard { background: #325132; border: 1px solid #3C603C; border-radius: 12px; padding: 16px 14px; cursor: pointer; transition: all 0.18s; }
+  .bcard:hover { border-color: var(--bc); background: var(--bb); transform: translateY(-1px); }
+  .bc-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .bc-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #FFFFFF; margin-bottom: 5px; }
+  .bc-dur { display: inline-block; font-size: 0.67rem; color: var(--bc); border: 1px solid var(--bc); border-radius: 10px; padding: 1px 9px; margin-bottom: 8px; }
+  .bc-desc { font-size: 0.73rem; color: #BFD8BF; line-height: 1.55; }
+
+  /* Active view */
+  #activeView { max-width: 460px; margin: 0 auto; text-align: center; }
+  .active-icon { font-size: 2.2rem; margin-bottom: 6px; }
+  .active-name { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #FFFFFF; margin-bottom: 4px; }
+  .active-sub { font-size: 0.75rem; color: #BFD8BF; margin-bottom: 20px; }
+  .ring-wrap { width: 170px; height: 170px; border-radius: 50%; background: conic-gradient(var(--rc,#5AE57A) var(--prog,100%), #3C603C 0%); margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; transition: background 0.5s; }
+  .ring-inner { width: 136px; height: 136px; border-radius: 50%; background: #325132; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .ring-time { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #5AE57A; line-height: 1; }
+  .ring-label { font-size: 0.65rem; color: #BFD8BF; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .step-text { font-size: 0.95rem; color: #F0EBE0cc; line-height: 1.7; min-height: 3em; padding: 0 10px; margin-bottom: 24px; transition: opacity 0.4s; }
+  .btn-end { background: none; border: 1px solid #4C724C; color: #5A845A; padding: 9px 30px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+  .btn-end:hover { border-color: #BFD8BF; color: #F0EBE0aa; }
+
+  /* Stats & log */
+  .stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .log-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.83rem; }
+  .log-item:last-child { border-bottom: none; }
+  .log-icon { font-size: 1rem; flex-shrink: 0; }
+  .log-name { flex: 1; color: #F0EBE0aa; }
+  .log-mins { font-family: 'Playfair Display', serif; color: #5AE57A; flex-shrink: 0; }
+  .log-tag { font-size: 0.7rem; color: #BFD8BF; flex-shrink: 0; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<!-- Idle -->
+<div id="idleView">
+  <h1>Mindful Break Timer</h1>
+  <p class="subtitle">Step away with intention. Return with clarity.</p>
+  <div class="card">
+    <div class="card-title">Choose Your Break</div>
+    <div class="break-grid" id="breakGrid"></div>
+  </div>
+</div>
+
+<!-- Active -->
+<div id="activeView" style="display:none">
+  <h1>Mindful Break Timer</h1>
+  <p class="subtitle" style="margin-bottom:28px">Step away with intention. Return with clarity.</p>
+  <div class="active-icon" id="activeIcon"></div>
+  <div class="active-name" id="activeName"></div>
+  <div class="active-sub" id="activeSub"></div>
+  <div class="ring-wrap" id="ringWrap">
+    <div class="ring-inner">
+      <div class="ring-time" id="ringTime">0:00</div>
+      <div class="ring-label">remaining</div>
+    </div>
+  </div>
+  <div class="step-text" id="stepText"></div>
+  <button class="btn-end" onclick="endEarly()">End Break Early</button>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statBreaks">0</div><div class="stat-l">breaks today</div></div>
+  <div class="stat-box"><div class="stat-n" id="statMins">0m</div><div class="stat-l">minutes recovered</div></div>
+  <div class="stat-box"><div class="stat-n" id="statStreak">—</div><div class="stat-l">last break</div></div>
+</div>
+
+<div class="card" id="logCard">
+  <div class="card-title">Today's Breaks</div>
+  <div id="logList"><p class="empty">No breaks yet — you've earned one.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const BREAKS = [
+  {id:'breathing', icon:'🌬', name:'Box Breathing',    mins:4,  color:'#5AE57A', bg:'#080e1820',
+   steps:['Inhale slowly for 4 counts…','Hold gently for 4 counts…','Exhale fully for 4 counts…','Hold empty for 4 counts…'], stepSecs:4},
+  {id:'eyes',      icon:'👁',  name:'Eye Rest',         mins:3,  color:'#5AE57A', bg:'#08140820',
+   steps:['Shift your gaze to something 20 feet away…','Blink slowly — let your eyes soften…','Notice shapes and colors without focusing hard…']},
+  {id:'body',      icon:'🧘', name:'Body Scan',        mins:5,  color:'#5AE57A', bg:'#10081820',
+   steps:['Relax your jaw, face, and scalp…','Drop your shoulders away from your ears…','Unclench your hands and breathe deeply…','Feel your feet grounded on the floor…']},
+  {id:'walk',      icon:'🚶', name:'Micro Walk',       mins:5,  color:'#5AE57A', bg:'#18100820',
+   steps:['Stand up and shake out your hands…','Walk to a different room or step outside…','Notice 3 things you can see right now…','Return refreshed — not rushed…']},
+  {id:'gratitude', icon:'🙏', name:'Gratitude Pause',  mins:3,  color:'#5AE57A', bg:'#1a150820',
+   steps:['Name one thing going well today…','Think of someone who\'s helped you recently…','Find one small good thing in this moment…']},
+  {id:'hydration', icon:'💧', name:'Hydration Reset',  mins:2,  color:'#5AE57A', bg:'#08101820',
+   steps:['Pour and drink a full glass of water…','Stand and stretch your arms overhead…','Take 5 slow, full breaths before sitting…']},
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+let sessions = JSON.parse(localStorage.getItem('mbt_'+TODAY)||'[]');
+let current=null, totalSecs=0, remaining=0, timerInt=null, stepInt=null, stepIdx=0;
+
+function save() { localStorage.setItem('mbt_'+TODAY, JSON.stringify(sessions)); }
+function fmtTime(ts) { const d=new Date(ts),h=d.getHours(),m=d.getMinutes(); return `${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`; }
+function fmtSecs(s) { return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+
+document.getElementById('breakGrid').innerHTML = BREAKS.map(b=>
+  `<div class="bcard" style="--bc:${b.color};--bb:${b.bg}" onclick="startBreak('${b.id}')">
+    <div class="bc-icon">${b.icon}</div>
+    <div class="bc-name">${b.name}</div>
+    <div class="bc-dur">${b.mins} min</div>
+    <div class="bc-desc">${b.steps[0].replace('…','')}</div>
+  </div>`).join('');
+
+function startBreak(id) {
+  current = BREAKS.find(b=>b.id===id);
+  totalSecs = current.mins * 60;
+  remaining = totalSecs;
+  stepIdx = 0;
+  document.getElementById('activeIcon').textContent = current.icon;
+  document.getElementById('activeName').textContent = current.name;
+  document.getElementById('activeSub').textContent = current.mins + ' minute break';
+  document.getElementById('ringWrap').style.setProperty('--rc', current.color);
+  document.getElementById('stepText').textContent = current.steps[0];
+  updateRing();
+  document.getElementById('idleView').style.display = 'none';
+  document.getElementById('activeView').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  timerInt = setInterval(tick, 1000);
+  const stepEvery = current.stepSecs ? current.stepSecs * 1000 : Math.floor(totalSecs / current.steps.length) * 1000;
+  stepInt = setInterval(nextStep, stepEvery);
+}
+
+function tick() {
+  remaining = Math.max(0, remaining - 1);
+  updateRing();
+  if (remaining === 0) finishBreak(false);
+}
+
+function nextStep() {
+  stepIdx = (stepIdx + 1) % current.steps.length;
+  const el = document.getElementById('stepText');
+  el.style.opacity = '0';
+  setTimeout(() => { el.textContent = current.steps[stepIdx]; el.style.opacity = '1'; }, 200);
+}
+
+function updateRing() {
+  const pct = (remaining / totalSecs * 100).toFixed(2) + '%';
+  document.getElementById('ringWrap').style.setProperty('--prog', pct);
+  document.getElementById('ringTime').textContent = fmtSecs(remaining);
+}
+
+function finishBreak(early) {
+  clearInterval(timerInt); clearInterval(stepInt);
+  sessions.push({id:Date.now(),ts:Date.now(),breakId:current.id,mins:current.mins,early});
+  save();
+  if (!early) {
+    document.getElementById('stepText').textContent = '✦ Break complete. Return when ready.';
+    document.getElementById('ringWrap').style.setProperty('--rc','#5AE57A');
+    setTimeout(returnToIdle, 2800);
+  } else { returnToIdle(); }
+}
+
+function endEarly() { finishBreak(true); }
+
+function returnToIdle() {
+  document.getElementById('activeView').style.display = 'none';
+  document.getElementById('idleView').style.display = 'block';
+  render();
+}
+
+function render() {
+  const count = sessions.length;
+  const totalMins = sessions.reduce((s,e)=>s+e.mins,0);
+  document.getElementById('statBreaks').textContent = count;
+  document.getElementById('statMins').textContent = totalMins ? totalMins+'m' : '0m';
+  const last = sessions[sessions.length-1];
+  document.getElementById('statStreak').textContent = last ? fmtTime(last.ts) : '—';
+  const el = document.getElementById('logList');
+  if(!count){el.innerHTML='<p class="empty">No breaks yet — you\'ve earned one.</p>';return;}
+  el.innerHTML=[...sessions].reverse().map(e=>{
+    const b=BREAKS.find(b=>b.id===e.breakId)||BREAKS[0];
+    return `<div class="log-item">
+      <span class="log-icon">${b.icon}</span>
+      <span class="log-name">${b.name}</span>
+      ${e.early?'<span class="log-tag">early</span>':''}
+      <span class="log-mins">${e.mins}m</span>
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>

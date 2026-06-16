@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson Plan Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lesson Plan Creator</h1>
+  <p class="sub">A clean lesson plan in minutes — objective, structure, timing and assessment.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="title">Lesson title</label><input id="title" placeholder="The lesson topic"></div>
+      <div><label for="length">Length</label><input id="length" placeholder="e.g. 50 minutes"></div>
+    </div>
+    <label for="objective">Learning objective — students will be able to...</label>
+    <textarea id="objective" placeholder="A specific, measurable outcome"></textarea>
+    <label for="materials">Materials needed</label>
+    <input id="materials" placeholder="Resources, handouts, equipment">
+    <label for="starter">Starter / warm-up (5 min)</label>
+    <textarea id="starter" placeholder="How you open and engage them"></textarea>
+    <label for="main">Main activity / teaching</label>
+    <textarea id="main" placeholder="The core of the lesson — content and tasks"></textarea>
+    <label for="practice">Student practice</label>
+    <textarea id="practice" placeholder="How students apply the learning"></textarea>
+    <label for="plenary">Plenary / wrap-up &amp; assessment</label>
+    <textarea id="plenary" placeholder="How you close and check understanding"></textarea>
+    <button class="btn" onclick="gen()">Create Lesson Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['title','length','objective','materials','starter','main','practice','plenary'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('lpc_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('lpc_'+k,g(k).value)); });
+  function gen(){
+    const t=`LESSON PLAN\n\nTITLE: ${v('title')||'[lesson title]'}\nLENGTH: ${v('length')||'[duration]'}\n\nLEARNING OBJECTIVE:\nStudents will be able to ${v('objective')||'[the outcome]'}\n\nMATERIALS:\n${v('materials')||'[what you need]'}\n\n--- LESSON STRUCTURE ---\n\n1. STARTER / WARM-UP\n${v('starter')||'[how you open]'}\n\n2. MAIN TEACHING\n${v('main')||'[core content and tasks]'}\n\n3. STUDENT PRACTICE\n${v('practice')||'[how they apply it]'}\n\n4. PLENARY & ASSESSMENT\n${v('plenary')||'[how you close and check learning]'}\n\n--- Reminder ---\nKeep teacher-talk short. The more the students do, the more they learn.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Create it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

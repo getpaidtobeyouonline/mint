@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meditation Topic Suggester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .topic { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .topic h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .topic p { font-size: .92rem; opacity: .9; margin-top: 4px; }
+  .topic .how { font-size: .85rem; opacity: .75; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Meditation Topic Suggester</h1>
+  <p class="sub">Tell me how you feel — get a meditation focus that actually meets you there.</p>
+
+  <div class="panel">
+    <label for="state">How you are right now</label>
+    <select id="state">
+      <option value="anx">Anxious / racing thoughts</option>
+      <option value="tired">Drained / heavy</option>
+      <option value="angry">Angry / frustrated</option>
+      <option value="stuck">Stuck / cannot focus</option>
+      <option value="sad">Sad / tender</option>
+      <option value="grateful">Light / good</option>
+      <option value="numb">Numb / disconnected</option>
+    </select>
+    <label for="time">Time you have</label>
+    <select id="time"><option>5 min</option><option selected>10 min</option><option>15 min</option><option>20 min</option></select>
+    <button class="btn" onclick="gen()">Suggest a Meditation</button>
+    <button class="btn ghost" onclick="gen()">↻ Different</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const M={
+    anx:[
+      {t:"Box breathing",p:"Bring the nervous system out of fight-or-flight.",how:"Inhale 4 · hold 4 · exhale 4 · hold 4. Repeat. Eyes soft."},
+      {t:"5-4-3-2-1 grounding",p:"Anchor in present sensations, not thoughts.",how:"Name 5 things you see, 4 you can touch, 3 you can hear, 2 you can smell, 1 you can taste."},
+      {t:"Body scan",p:"Notice where anxiety is held in the body.",how:"From feet to head, name the sensation in each part without trying to change it."}
+    ],
+    tired:[
+      {t:"Rest meditation",p:"Permission to do nothing.",how:"Lie down. Place a hand on your chest. Just feel the weight of your body. No goal."},
+      {t:"Gentle gratitude",p:"Soft attention to small comforts.",how:"Name 3 small things that feel kind right now."},
+      {t:"Yoga nidra-style",p:"Conscious rest, deeper than sleep.",how:"Lying still, mentally relax each body part one at a time. Stay drowsy but aware."}
+    ],
+    angry:[
+      {t:"Cooling breath",p:"Lengthen exhales to settle the heat.",how:"Inhale 4 · exhale 8. Do this for the whole session."},
+      {t:"RAIN (recognise, allow, investigate, nurture)",p:"Be with the anger without acting on it.",how:"Name it. Let it be there. Where is it in the body? Place a kind hand on it."},
+      {t:"Walking meditation",p:"Move the energy without escalating it.",how:"Walk slowly indoors. Match breath to steps. Let the anger move through, not at."}
+    ],
+    stuck:[
+      {t:"Open-monitoring",p:"Watch thoughts pass without grabbing any.",how:"Sit. Notice each thought, label it ('planning', 'worry'), let it move on. Do not engage."},
+      {t:"One question sit",p:"Hold a single question without forcing an answer.",how:"Sit with: 'What does this moment actually need?' Listen, do not solve."},
+      {t:"Breath counting to 10",p:"A simple reset for a scattered mind.",how:"Count breaths up to 10. Start over if you lose count. No judgement."}
+    ],
+    sad:[
+      {t:"Loving-kindness for self",p:"Bring warmth to the part of you that is hurting.",how:"Repeat: 'May I be kind to myself. May I be gentle. May I be allowed to feel this.'"},
+      {t:"Heart-hand meditation",p:"Touch as comfort.",how:"Hand on heart. Breathe into the warmth there for the whole session. That is enough."},
+      {t:"Tonglen-lite",p:"Breathe in pain, breathe out spaciousness.",how:"Inhale the heaviness, exhale a sense of room. Slow."}
+    ],
+    grateful:[
+      {t:"Savouring",p:"Strengthen the good when it shows up.",how:"Pick one thing that feels good. Sit with it. Notice it in the body. Stay until it really lands."},
+      {t:"Gratitude expansion",p:"Move from a single point to a wider field.",how:"Start with one specific thing. Then who is connected to it. Then what made it possible. Let it ripple."},
+      {t:"Open-heart breath",p:"Anchor the warmth.",how:"Inhale into the chest, exhale a smile. Repeat."}
+    ],
+    numb:[
+      {t:"Sensory wake-up",p:"Re-enter the body through one sense.",how:"Pick one sense (touch is easiest). Pour attention into it for the whole session."},
+      {t:"Cold water + breath",p:"A nervous-system jumpstart.",how:"Splash cold water on the face. Take 3 deep breaths. Sit and notice what you can feel."},
+      {t:"Slow walking",p:"Reconnect to the body through movement.",how:"Walk indoors very slowly. Feel each foot land. That is the whole practice."}
+    ]
+  };
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const arr=M[g('state').value];
+    const p=arr[Math.floor(Math.random()*arr.length)];
+    g('out').innerHTML='<div class="topic"><h3>'+esc(p.t)+' &middot; '+g('time').value+'</h3><p>'+esc(p.p)+'</p><div class="how"><b style="color:#5AE57A">How:</b> '+esc(p.how)+'</div></div>';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

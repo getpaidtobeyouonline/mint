@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Moon Phase Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 70px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 12px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .moon { text-align: center; }
+  .moon .em { font-size: 4rem; }
+  .moon .nm { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .moon .pr { opacity: .8; font-size: .9rem; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Moon Phase Planner</h1>
+  <p class="sub">See the moon's phase for any date — and set an intention that flows with it.</p>
+
+  <div class="panel">
+    <label for="date">Choose a date</label>
+    <input id="date" type="date">
+    <div class="moon" id="moon" style="margin-top:16px"></div>
+  </div>
+
+  <div class="panel">
+    <label for="intent">Your intention or reflection for this phase</label>
+    <textarea id="intent" placeholder="What you are setting, releasing or noticing"></textarea>
+    <button class="btn" onclick="save()">Save Reflection</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+    <div id="saved" style="font-size:.82rem;opacity:.65;margin-top:10px"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const PHASES=[
+    {n:'New Moon',e:'🌑',p:'A time for planting seeds — set fresh intentions and dream new dreams.'},
+    {n:'Waxing Crescent',e:'🌒',p:'Take the first small steps. Nurture what you are building.'},
+    {n:'First Quarter',e:'🌓',p:'A moment of decision and action. Push through resistance.'},
+    {n:'Waxing Gibbous',e:'🌔',p:'Refine and adjust. Stay patient as things take shape.'},
+    {n:'Full Moon',e:'🌕',p:'A time of fruition and release. Celebrate, then let go of what is done.'},
+    {n:'Waning Gibbous',e:'🌖',p:'Give thanks and share. Reflect on what you have learned.'},
+    {n:'Last Quarter',e:'🌗',p:'Release, forgive and clear space. Let go of what no longer serves.'},
+    {n:'Waning Crescent',e:'🌘',p:'Rest and surrender. Restore before the next cycle begins.'}
+  ];
+  function phaseFor(d){
+    const ref=Date.UTC(2000,0,6,18,14)/86400000;
+    const days=(d.getTime()/86400000)-ref;
+    let pos=(days%29.530588853)/29.530588853; if(pos<0)pos+=1;
+    return PHASES[Math.floor(pos*8+0.5)%8];
+  }
+  function render(){
+    const v=g('date').value; if(!v){ g('moon').innerHTML=''; return; }
+    const d=new Date(v+'T12:00:00'); const ph=phaseFor(d);
+    g('moon').innerHTML='<div class="em">'+ph.e+'</div><div class="nm">'+ph.n+'</div><div class="pr">'+ph.p+'</div>';
+    const s=localStorage.getItem('mpp_'+v); g('intent').value=s||'';
+    g('saved').textContent=s?'A reflection is saved for this date.':'';
+  }
+  function save(){ const v=g('date').value; if(!v){ alert('Pick a date first.'); return; }
+    localStorage.setItem('mpp_'+v,g('intent').value); g('saved').textContent='Reflection saved for '+v+'.'; }
+  function copyOut(){ const v=g('date').value; if(!v){alert('Pick a date.');return;} const ph=phaseFor(new Date(v+'T12:00:00'));
+    navigator.clipboard.writeText(v+' — '+ph.n+'\n'+ph.p+'\n\n'+g('intent').value).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  g('date').addEventListener('change',render);
+  g('date').value=new Date().toISOString().slice(0,10); render();
+</script>
+</body>
+</html>

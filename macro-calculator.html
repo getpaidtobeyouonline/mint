@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macro Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 12px; display: none; }
+  .cal { text-align: center; font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .cal .l { font-size: .8rem; opacity: .7; font-family:'DM Sans',sans-serif; }
+  .macros { display: flex; gap: 8px; margin-top: 12px; }
+  .macros div { flex: 1; text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 11px 6px; }
+  .macros .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .macros .ml { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Macro Calculator</h1>
+  <p class="sub">Estimate your daily calories and a protein / carb / fat split for your goal.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Age</label><input id="age" type="number" min="14" max="100" placeholder="years"></div>
+      <div><label>Sex</label><select id="sex"><option value="f">Female</option><option value="m">Male</option></select></div>
+    </div>
+    <div class="row">
+      <div><label>Weight (kg)</label><input id="wt" type="number" min="30" placeholder="kg"></div>
+      <div><label>Height (cm)</label><input id="ht" type="number" min="120" placeholder="cm"></div>
+    </div>
+    <label>Activity level</label>
+    <select id="act"><option value="1.2">Sedentary — little exercise</option><option value="1.375">Lightly active — 1-3 days/week</option><option value="1.55">Moderately active — 3-5 days/week</option><option value="1.725">Very active — 6-7 days/week</option></select>
+    <label>Goal</label>
+    <select id="goal"><option value="-0.15">Lose weight</option><option value="0">Maintain</option><option value="0.12">Build muscle</option></select>
+    <button class="btn" onclick="calc()">Calculate Macros</button>
+    <div class="result" id="result"></div>
+    <div class="note">An estimate based on standard formulas — not medical or dietary advice. Individual needs vary; consult a dietitian for a personalised plan.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  function calc(){
+    const age=+g('age').value, wt=+g('wt').value, ht=+g('ht').value;
+    if(!age||!wt||!ht){ alert('Fill in age, weight and height.'); return; }
+    const bmr=g('sex').value==='m'?(10*wt+6.25*ht-5*age+5):(10*wt+6.25*ht-5*age-161);
+    let cal=bmr*(+g('act').value);
+    cal=Math.round(cal*(1+(+g('goal').value)));
+    const protein=Math.round(wt*1.8);
+    const fat=Math.round(cal*0.27/9);
+    const carbs=Math.round((cal-protein*4-fat*9)/4);
+    g('result').style.display='block';
+    g('result').innerHTML='<div class="cal">'+cal.toLocaleString()+'<div class="l">calories per day</div></div>'+
+      '<div class="macros"><div><div class="v">'+protein+'g</div><div class="ml">Protein</div></div>'+
+      '<div><div class="v">'+carbs+'g</div><div class="ml">Carbs</div></div>'+
+      '<div><div class="v">'+fat+'g</div><div class="ml">Fat</div></div></div>';
+    g('result').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

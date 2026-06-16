@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Language Learning Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .week { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; margin: 12px 0; }
+  .week div { aspect-ratio: 1; border-radius: 6px; background: #3C603C; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: .6rem; cursor: pointer; opacity: .7; }
+  .week div.on { background: #5AE57A; color: #325132; opacity: 1; font-weight: 600; }
+  .streak { text-align: center; font-size: .9rem; }
+  .streak b { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-top: 12px; }
+  .blk h4 { color: #5AE57A; font-size: .9rem; margin-bottom: 3px; } .blk li { font-size: .87rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Language Learning Planner</h1>
+  <p class="sub">Languages are won by daily habit. Set your routine and keep the streak alive.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Language</label><input id="lang" placeholder="e.g. French"></div>
+      <div><label>Daily commitment</label><select id="mins"><option>10 min</option><option selected>20 min</option><option>30 min</option><option>45 min</option></select></div>
+    </div>
+    <button class="btn" onclick="logToday()">✓ Mark today as practised</button>
+    <div class="week" id="week"></div>
+    <div class="streak">Current streak: <b id="streak">0</b> days</div>
+  </div>
+
+  <div class="panel">
+    <div class="blk"><h4>A balanced daily mix</h4><ul>
+      <li>Vocabulary — a few new words, reviewed often</li>
+      <li>Listening — audio, music or shows in the language</li>
+      <li>Speaking — even talking to yourself out loud</li>
+      <li>Input — reading or a lesson</li>
+    </ul></div>
+    <div class="blk" style="border-left-color:#BFD8BF"><h4>The rule that wins</h4>
+      <p style="font-size:.88rem">Consistency beats intensity. Ten minutes every day beats two hours once a week — every time.</p></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let D=JSON.parse(localStorage.getItem('llp')||'{}');
+  if(localStorage.getItem('llp_lang'))g('lang').value=localStorage.getItem('llp_lang');
+  if(localStorage.getItem('llp_mins'))g('mins').value=localStorage.getItem('llp_mins');
+  g('lang').addEventListener('input',()=>localStorage.setItem('llp_lang',g('lang').value));
+  g('mins').addEventListener('change',()=>localStorage.setItem('llp_mins',g('mins').value));
+  const key=dt=>dt.toISOString().slice(0,10);
+  const save=()=>localStorage.setItem('llp',JSON.stringify(D));
+  function logToday(){ const k=key(new Date()); D[k]=!D[k]; save(); render(); }
+  function toggleDay(k){ D[k]=!D[k]; save(); render(); }
+  function streak(){ let s=0,d=new Date(); if(!D[key(d)])d.setDate(d.getDate()-1);
+    for(;;){ if(D[key(d)]){s++; d.setDate(d.getDate()-1);} else break; } return s; }
+  function render(){
+    let h='';
+    for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const k=key(d);
+      const dn=['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()];
+      h+='<div class="'+(D[k]?'on':'')+'" onclick="toggleDay(\''+k+'\')"><span>'+dn+'</span><span>'+(D[k]?'✓':d.getDate())+'</span></div>';
+    }
+    g('week').innerHTML=h;
+    g('streak').textContent=streak();
+  }
+  render();
+</script>
+</body>
+</html>

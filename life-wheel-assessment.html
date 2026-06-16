@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Life Wheel Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid #3C603C; flex-wrap: wrap; }
+  .row .lbl { flex: 1; min-width: 130px; font-size: .94rem; }
+  .row input[type=range] { flex: 2; min-width: 160px; accent-color: #5AE57A; }
+  .row .val { width: 44px; text-align: right; color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .stat { flex: 1; min-width: 130px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .focus { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:12px 15px;font-size:.92rem;margin-top:12px; }
+  .focus b { color:#5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Life Wheel Assessment</h1>
+  <p class="sub">Score 8 areas of your life 1-10. See which area is dragging the whole wheel.</p>
+
+  <div class="panel" id="wheel"></div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="sAvg">0</div><div class="l">Overall</div></div>
+    <div class="stat"><div class="v" id="sHigh">—</div><div class="l">Strongest</div></div>
+    <div class="stat"><div class="v" id="sLow">—</div><div class="l">Weakest</div></div>
+  </div>
+  <div class="focus" id="focus"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const AREAS=["Health","Career / work","Money","Relationships","Family","Fun & play","Personal growth","Environment / home"];
+  const g=id=>document.getElementById(id);
+  let V=JSON.parse(localStorage.getItem('lwa')||'null')||AREAS.map(()=>5);
+  g('wheel').innerHTML=AREAS.map((a,i)=>`<div class="row"><div class="lbl">${a}</div><input type="range" min="1" max="10" value="${V[i]}" data-i="${i}"><div class="val" id="v${i}">${V[i]}</div></div>`).join('');
+  g('wheel').querySelectorAll('input').forEach(r=>r.oninput=()=>{ const i=+r.dataset.i; V[i]=+r.value; g('v'+i).textContent=V[i]; localStorage.setItem('lwa',JSON.stringify(V)); calc(); });
+  function calc(){
+    const avg=V.reduce((a,b)=>a+b,0)/V.length;
+    const hi=V.indexOf(Math.max(...V)), lo=V.indexOf(Math.min(...V));
+    g('sAvg').textContent=avg.toFixed(1);
+    g('sHigh').textContent=AREAS[hi]+' '+V[hi];
+    g('sLow').textContent=AREAS[lo]+' '+V[lo];
+    g('focus').innerHTML=`Your weakest area is <b>${AREAS[lo]}</b> at <b>${V[lo]}/10</b>. A wheel only rolls as smoothly as its lowest score &mdash; this is your highest-leverage place to invest this quarter. One small habit there will lift the whole experience.`;
+  }
+  calc();
+</script>
+</body>
+</html>

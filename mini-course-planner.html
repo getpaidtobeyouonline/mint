@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Course Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.course-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.mod-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.mod-num{font-size:.68rem;font-weight:600;opacity:.38;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem}
+.mod-title{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.6rem}
+.lesson-list{list-style:none;margin-bottom:.5rem}
+.lesson-list li{font-size:.85rem;padding:.28rem 0 .28rem .9rem;border-bottom:1px solid #3C603C;opacity:.85;position:relative}
+.lesson-list li::before{content:'▸';position:absolute;left:0;opacity:.42;font-size:.7rem;top:.32rem}
+.lesson-list li:last-child{border-bottom:none}
+.win-line{font-size:.74rem;opacity:.4;font-style:italic;padding-top:.25rem}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Mini Course Planner</h1>
+    <p class="subtitle">Plan a complete mini course — modules, lessons, and structure — ready to build, launch, and sell.</p>
+  </header>
+
+  <div class="card">
+    <h2>Course Details</h2>
+    <label>Course Topic</label>
+    <input type="text" id="inTopic" placeholder="e.g. email list building, video editing, mindset for entrepreneurs">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Target Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. new coaches, busy mums">
+      </div>
+      <div>
+        <label style="margin-top:0">Student Transformation</label>
+        <input type="text" id="inGoal" placeholder="e.g. land their first client">
+      </div>
+    </div>
+    <label>Number of Modules</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickMod(3)" id="m3">3 Modules</button>
+      <button class="opt" onclick="pickMod(5)" id="m5">5 Modules</button>
+      <button class="opt" onclick="pickMod(7)" id="m7">7 Modules</button>
+    </div>
+    <label>Delivery Format</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickFmt('video')" id="fvideo">Video</button>
+      <button class="opt" onclick="pickFmt('text')" id="ftext">Written</button>
+      <button class="opt" onclick="pickFmt('audio')" id="faudio">Audio</button>
+      <button class="opt" onclick="pickFmt('mixed')" id="fmixed">Mixed</button>
+    </div>
+    <button class="btn" onclick="generate()">Plan My Mini Course →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="course-title" id="courseTitle"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ New Title</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="modCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyPlan()">Copy Full Course Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const fw = {
+  3:[
+    {mod:'Foundation',      col:'#5AE57A', win:'a clear {T} plan built around {X}',
+     ls:['Why {T} matters for {A}','The {T} framework explained','Common {T} mistakes to avoid','Your {T} quick-start checklist']},
+    {mod:'Core Method',     col:'#5AE57A', win:'a first real {T} result using the core method',
+     ls:['The {T} step-by-step method','Applying {T} to {A} goals','Real {T} examples and breakdowns','Troubleshoot your {T} process']},
+    {mod:'Results & Scale', col:'#5AE57A', win:'a repeatable {T} system to use every week',
+     ls:['Measure and track your {T} results','Build a repeatable {T} system','Your 30-day {T} action plan']},
+  ],
+  5:[
+    {mod:'Orientation',       col:'#5AE57A', win:'a clear vision for your {T} transformation',
+     ls:['The {T} opportunity for {A}','What most {A} get wrong about {T}','Your {T} success roadmap']},
+    {mod:'Foundation',        col:'#5AE57A', win:'core {T} knowledge ready to apply immediately',
+     ls:['The {T} core concepts','Essential {T} tools and resources','The {T} mindset for {A}','Your {T} starter workflow']},
+    {mod:'Core Method',       col:'#5AE57A', win:'a completed first full {T} cycle',
+     ls:['Phase 1: Research and prepare','Phase 2: Execute your {T} plan','Phase 3: Review and refine','{T} done right: full walkthrough']},
+    {mod:'Application',       col:'#5AE57A', win:'{A}-specific {T} strategies in action',
+     ls:['Applying {T} to your niche','Advanced {T} techniques for {A}','Overcoming {T} plateaus','Real-world {T} case studies']},
+    {mod:'Results & Systems', col:'#5AE57A', win:'a self-running {T} system with measurable outcomes',
+     ls:['Tracking your {T} progress','Building a {T} consistency habit','Your {T} 90-day plan','Next-level {T} resources']},
+  ],
+  7:[
+    {mod:'Orientation',     col:'#5AE57A', win:'clarity on your {T} starting point and goal',
+     ls:['The promise: {X} for {A}','Why {T} is the right path','How this course works','Your {T} self-assessment']},
+    {mod:'Mindset & Prep',  col:'#5AE57A', win:'the right mindset and setup for {T} success',
+     ls:['The {T} success mindset','Removing {T} blockers','Your {T} toolkit setup']},
+    {mod:'Core Foundation', col:'#5AE57A', win:'a solid {T} foundation to build on',
+     ls:['Core concept 1: The {T} model','Core concept 2: your {T} framework','Putting the {T} pieces together','Practice exercise: {T} basics']},
+    {mod:'Strategy',        col:'#5AE57A', win:'a custom {T} strategy designed for {A}',
+     ls:['Build your {T} strategy','Choose your {T} approach','Map your {T} milestones','Strategy review and adjustment']},
+    {mod:'Execution',       col:'#5AE57A', win:'a completed {T} cycle with real results',
+     ls:['Step 1: Prepare your {T} plan','Step 2: Execute the {T} method','Step 3: Evaluate your output','{T} execution case study']},
+    {mod:'Optimisation',    col:'#5AE57A', win:'an optimised {T} process running at full speed',
+     ls:['Identify {T} bottlenecks','Refine your {T} workflow','Batch and automate {T} tasks','{T} optimisation checklist']},
+    {mod:'Scale & Systems', col:'#5AE57A', win:'a scalable {T} system with measurable monthly results',
+     ls:['Build your {T} tracking system','Scale {T} without burning out','Your 90-day {T} roadmap','Celebrate and next steps']},
+  ]
+};
+
+const dur = {video:7, text:4, audio:6, mixed:6};
+const fmtLabel = {video:'Video', text:'Written', audio:'Audio', mixed:'Mixed'};
+const titleFns = [
+  (T,A,X) => `The ${cap(T)} Mini Course`,
+  (T,A,X) => `${cap(T)} for ${cap(A)}: From Zero to ${cap(X)}`,
+  (T,A,X) => `The ${cap(X)} Method: A Mini Course for ${cap(A)}`,
+  (T,A,X) => `${cap(T)} Accelerator: Your Step-by-Step Mini Course`,
+  (T,A,X) => `From Stuck to ${cap(X)}: The ${cap(T)} Mini Course`,
+  (T,A,X) => `${cap(A)}'s Complete Guide to ${cap(T)}`,
+];
+
+let state = {mods:3, fmt:'video', T:'', A:'', X:''};
+let titleIdx = 0;
+
+function pickMod(n) {
+  state.mods = n;
+  [3,5,7].forEach(x => document.getElementById(`m${x}`).classList.toggle('sel', x===n));
+}
+function pickFmt(f) {
+  state.fmt = f;
+  ['video','text','audio','mixed'].forEach(x => document.getElementById(`f${x}`).classList.toggle('sel', x===f));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to plan your course.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('courseTitle').textContent = titleFns[titleIdx](state.T, state.A, state.X);
+}
+
+function renderAll() {
+  const {mods, fmt, T, A, X} = state;
+  const modules = fw[mods];
+  const totalLessons = modules.reduce((s,m) => s + m.ls.length, 0);
+  const mins = totalLessons * dur[fmt];
+  const hrs = Math.floor(mins/60), rem = mins % 60;
+  const durStr = hrs ? `${hrs}h ${rem}m` : `${mins}m`;
+
+  document.getElementById('courseTitle').textContent = titleFns[titleIdx](T, A, X);
+  document.getElementById('statsBar').innerHTML =
+    st(mods,'Modules') + st(totalLessons,'Lessons') + st(durStr,'Est. Length') + st(fmtLabel[fmt],'Format');
+
+  document.getElementById('modCards').innerHTML = modules.map((m, i) =>
+    `<div class="mod-card" style="border-left-color:${m.col}">
+      <div class="mod-num">Module ${i+1}</div>
+      <div class="mod-title" style="color:${m.col}">${m.mod}</div>
+      <ul class="lesson-list">${m.ls.map(l => `<li>${cap(fill(l,T,A,X))}</li>`).join('')}</ul>
+      <div class="win-line">✓ By the end: ${fill(m.win,T,A,X)}</div>
+    </div>`
+  ).join('');
+}
+
+function copyPlan() {
+  const {mods, fmt, T, A, X} = state;
+  const title = titleFns[titleIdx](T, A, X);
+  let text = `MINI COURSE PLAN\n${title}\nTopic: ${T}  |  Audience: ${A}  |  Format: ${fmtLabel[fmt]}\n\n`;
+  fw[mods].forEach((m, i) => {
+    text += `MODULE ${i+1}: ${m.mod}\n`;
+    m.ls.forEach(l => { text += `  • ${cap(fill(l,T,A,X))}\n`; });
+    text += `  ✓ By the end: ${fill(m.win,T,A,X)}\n\n`;
+  });
+  text += '---\nCreated with Mini Course Planner by GetPaidToBeYouOnline';
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Full Course Plan as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

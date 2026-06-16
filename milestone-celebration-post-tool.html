@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestone Celebration Post Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .hint { font-size: 0.78rem; opacity: 0.55; margin-top: 4px; font-style: italic; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .output {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .output.show { display: block; }
+  .variant { margin-bottom: 22px; }
+  .variant:last-child { margin-bottom: 0; }
+  .variant-label {
+    color: #5AE57A;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .variant-note {
+    font-size: 0.8rem;
+    opacity: 0.65;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .msg {
+    background: rgba(240, 235, 224, 0.05);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.98rem;
+    white-space: pre-wrap;
+    line-height: 1.65;
+  }
+  .copy-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Milestone Celebration Post Tool</h1>
+  <p class="subtitle">Hit a milestone? Share it without sounding like a LinkedIn humblebrag. Get 4 ways to write the same moment.</p>
+
+  <label for="milestone">The Milestone</label>
+  <input type="text" id="milestone" placeholder="e.g. 1 year as a full-time freelancer / first $10k month / 5,000 newsletter subscribers" />
+
+  <label for="when">When (this week, today, this month, etc.)</label>
+  <input type="text" id="when" placeholder="this week" />
+
+  <label for="before">Where You Were Before</label>
+  <textarea id="before" placeholder="e.g. working a corporate job I dreaded, charging $35/hour, getting laughed at when I quit"></textarea>
+  <div class="hint">Be specific. "Stuck" doesn't connect. "Working until 11pm every night for a salary I couldn't live on" does.</div>
+
+  <label for="hard">The Hardest Part That Almost Stopped You</label>
+  <input type="text" id="hard" placeholder="e.g. the 3 months where no one bought" />
+
+  <label for="lesson">One Unexpected Lesson</label>
+  <input type="text" id="lesson" placeholder="e.g. consistency mattered more than talent" />
+
+  <label for="thanks">Who/What You're Thanking</label>
+  <input type="text" id="thanks" placeholder="e.g. my husband, the first 100 readers, my mentor [name]" />
+
+  <button class="build-btn" id="buildBtn">Generate Posts</button>
+
+  <div class="output" id="output">
+    <div class="variant">
+      <div class="variant-label">Reflection Version</div>
+      <div class="variant-note">Best for: caption, LinkedIn, blog. Long-form story arc.</div>
+      <div class="msg" id="reflectionMsg"></div>
+      <button class="copy-btn" data-target="reflectionMsg">Copy</button>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Gratitude Version</div>
+      <div class="variant-note">Best for: Instagram, Threads. Centers the people who helped, not you.</div>
+      <div class="msg" id="gratitudeMsg"></div>
+      <button class="copy-btn" data-target="gratitudeMsg">Copy</button>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Lessons Version</div>
+      <div class="variant-note">Best for: Twitter/X, LinkedIn, carousel posts. Useful, save-worthy.</div>
+      <div class="msg" id="lessonsMsg"></div>
+      <button class="copy-btn" data-target="lessonsMsg">Copy</button>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Honest Version</div>
+      <div class="variant-note">Best for: trust-building. The "I'm not going to lie" angle.</div>
+      <div class="msg" id="honestMsg"></div>
+      <button class="copy-btn" data-target="honestMsg">Copy</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function build() {
+    const milestone = document.getElementById('milestone').value.trim() || '[the milestone]';
+    const when = document.getElementById('when').value.trim() || 'this week';
+    const before = document.getElementById('before').value.trim() || '[where you started]';
+    const hard = document.getElementById('hard').value.trim() || '[the hardest part]';
+    const lesson = document.getElementById('lesson').value.trim() || '[the unexpected lesson]';
+    const thanks = document.getElementById('thanks').value.trim() || '[who you\'re thanking]';
+
+    const reflection =
+`${milestone}.
+
+${when.charAt(0).toUpperCase()+when.slice(1)}.
+
+If you'd told me a couple of years ago this would be real, I'd have laughed. Back then, ${before}.
+
+The part that almost made me quit: ${hard}. There were weeks where I had no proof this was working — just a quiet belief and a refusal to go back to the version of life I'd just left.
+
+The thing nobody warned me about: ${lesson}.
+
+To ${thanks} — you know what this means. Thank you for staying close while I figured it out.
+
+Onward.`;
+
+    const gratitude =
+`${milestone} — ${when}.
+
+But this post isn't about the number. It's about the people behind it.
+
+${thanks} — you were there when ${hard}. When I had no proof, no audience, no idea what I was doing. You believed before there was anything to believe in.
+
+This milestone has your fingerprints on it.
+
+Thank you. Really.`;
+
+    const lessons =
+`${milestone}.
+
+Three things I didn't expect to learn along the way:
+
+1. ${lesson} (the one nobody told me, and the one I'd put first in any advice I give now).
+
+2. ${hard} is the moment most people quit — and exactly the moment you shouldn't. The dip is the test.
+
+3. ${before} → ${milestone} wasn't a straight line. It was zigzags. If you're in the zigzag, you're not behind. You're in it.
+
+Saving this for the next person at the start. Steal whatever helps.`;
+
+    const honest =
+`I'm not going to pretend ${milestone} feels like a victory lap.
+
+${when.charAt(0).toUpperCase()+when.slice(1)} I hit it. And the honest truth: ${before}, and getting here meant going through ${hard}.
+
+What I'd say to anyone watching this and feeling far away from their own version:
+
+${lesson}.
+
+That's the whole thing. No hack, no shortcut, no five-step framework. Just that one.
+
+And to ${thanks} — thank you. You know what you did.`;
+
+    document.getElementById('reflectionMsg').textContent = reflection;
+    document.getElementById('gratitudeMsg').textContent = gratitude;
+    document.getElementById('lessonsMsg').textContent = lessons;
+    document.getElementById('honestMsg').textContent = honest;
+    document.getElementById('output').classList.add('show');
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.onclick = () => {
+      const text = document.getElementById(btn.dataset.target).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = original, 1500);
+      });
+    };
+  });
+</script>
+</body>
+</html>

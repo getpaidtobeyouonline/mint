@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Media Kit Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .score { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px; margin-bottom: 16px; position: sticky; top: 12px; }
+  .score .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .score .vd { font-size: .88rem; opacity: .8; }
+  .track { background: #3C603C; border-radius: 5px; height: 8px; overflow: hidden; margin-top: 8px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .sec { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .sec h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 6px; }
+  .chk { display: flex; gap: 11px; padding: 8px 0; border-top: 1px solid #3C603C; cursor: pointer; }
+  .chk:first-of-type { border-top: none; }
+  .box { flex: none; width: 21px; height: 21px; border: 1px solid #BFD8BF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-top: 2px; }
+  .chk.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .chk.on .t { opacity: .5; text-decoration: line-through; }
+  .t { font-size: .92rem; } .t small { display: block; opacity: .6; font-size: .8rem; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-size: .9rem; padding: 10px 18px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Media Kit Checklist</h1>
+  <p class="sub">Everything a brand needs to say yes — tick it off and your media kit is genuinely ready.</p>
+
+  <div class="score"><div class="n" id="pct">0%</div><div class="vd" id="vd">Build a media kit brands trust</div><div class="track"><i id="bar" style="width:0%"></i></div></div>
+  <div id="list"></div>
+  <button class="btn" onclick="reset()">Reset</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const DATA=[
+    ["The Essentials",[
+      ["A clear headshot + your name & handle","First impression — keep it professional, not pixelated."],
+      ["One-line positioning (who you are + niche)","Brands skim. Lead with clarity."],
+      ["Your platforms with follower counts","Round honest numbers; don't pad."],
+      ["Engagement rate (not just followers)","This is what brands actually price on."]]],
+    ["Audience",[
+      ["Audience demographics (age, gender, top locations)","Brands buy access to a specific audience."],
+      ["A sentence on what your audience cares about",""],
+      ["Top-performing content example with stats",""]],
+    ],
+    ["Proof",[
+      ["1–3 past brand collaborations (or relevant work)","No deals yet? Show your best organic results instead."],
+      ["A short testimonial or result quote",""],
+      ["A standout metric (best reel, growth spike)",""]],
+    ],
+    ["The Offer",[
+      ["Clear deliverables & packages","Vague = no reply."],
+      ["Rates or 'rates on request' line",""],
+      ["What's NOT included (usage, exclusivity)","Protects you and pre-empts scope creep."]],
+    ],
+    ["Polish & Send",[
+      ["On-brand design, 1–2 pages max","Skimmable beats comprehensive."],
+      ["Saved as a shareable PDF or link",""],
+      ["Contact + best way to reach you","Make saying yes effortless."],
+      ["Updated within the last 60 days","Stale stats kill credibility."]]],
+  ];
+  const flat=[]; DATA.forEach(([s,it])=>it.forEach(([t,h])=>flat.push({s,t,h})));
+  let st=JSON.parse(localStorage.getItem('mkc')||'[]'); if(st.length!==flat.length)st=flat.map(()=>false);
+  const g=id=>document.getElementById(id);
+  function render(){
+    let i=-1;
+    g('list').innerHTML=DATA.map(([s,it])=>`<div class="sec"><h3>${s}</h3>`+it.map(([t,h])=>{
+      i++; const idx=i;
+      return `<div class="chk ${st[idx]?'on':''}" data-i="${idx}"><div class="box">${st[idx]?'✓':''}</div><div class="t">${t}${h?`<small>${h}</small>`:''}</div></div>`;
+    }).join('')+`</div>`).join('');
+    g('list').querySelectorAll('.chk').forEach(e=>e.onclick=()=>{ const k=+e.dataset.i; st[k]=!st[k]; localStorage.setItem('mkc',JSON.stringify(st)); render(); });
+    const d=st.filter(Boolean).length, p=Math.round(d/flat.length*100);
+    g('pct').textContent=p+'%'; g('bar').style.width=p+'%';
+    g('vd').textContent= p>=90?'Send-ready — pitch with confidence 🔥':p>=60?'Almost — close the gaps':p>=35?'Half there — keep building':'Just starting — work top to bottom';
+  }
+  function reset(){ if(confirm('Uncheck everything?')){ st=flat.map(()=>false); localStorage.setItem('mkc',JSON.stringify(st)); render(); } }
+  render();
+</script>
+</body>
+</html>

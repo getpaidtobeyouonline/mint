@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morning Mindset Setter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 60px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; }
+  .res h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; margin-bottom: 6px; }
+  .res p { margin-bottom: 10px; font-size: .95rem; }
+  .res b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Morning Mindset Setter</h1>
+  <p class="sub">A 60-second ritual that decides whether your day runs you, or you run it.</p>
+
+  <div class="panel">
+    <label for="mood">How are you actually feeling right now? (1 word)</label>
+    <input id="mood" placeholder="e.g. anxious / flat / fired up">
+    <label for="focus">One thing — if only this got done today, it counts</label>
+    <input id="focus" placeholder="The one priority">
+    <label for="thanks">One thing you are grateful for (specific)</label>
+    <input id="thanks" placeholder="Specific = stronger effect">
+    <label for="self">Who do you want to be today?</label>
+    <select id="self"><option>Calm and present</option><option>Bold and decisive</option><option>Patient and kind</option><option>Focused and disciplined</option><option>Open and curious</option><option>Light-hearted and playful</option></select>
+    <button class="btn" onclick="gen()">Set My Mindset</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['mood','focus','thanks','self'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('mms_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('mms_'+k,g(k).value)); });
+  function gen(){
+    const m=v('mood')||'whatever you are feeling', f=v('focus')||'your one priority', t=v('thanks')||'something small but real', s=g('self').value;
+    g('out').innerHTML='<div class="res">'+
+      '<h2>Today, in one line</h2><p>I am feeling <b>'+esc(m)+'</b>, and I am still choosing to be <b>'+esc(s.toLowerCase())+'</b>.</p>'+
+      '<h2>The one thing</h2><p>If only <b>'+esc(f)+'</b> happens today, the day counts. Everything else is bonus.</p>'+
+      '<h2>The reset</h2><p>Take 3 slow breaths. Read this once more. Then start the one thing — before email, before social, before anyone else needs you.</p>'+
+      '<h2>Anchor</h2><p>Right now I am grateful for <b>'+esc(t)+'</b>. That is enough to start from.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Set it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

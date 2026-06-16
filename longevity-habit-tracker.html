@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longevity Habit Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .prog { text-align: center; margin-bottom: 14px; }
+  .prog .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 13px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .hab { display: flex; align-items: center; gap: 11px; padding: 10px 0; border-bottom: 1px solid #4C724C; cursor: pointer; }
+  .hab:last-child { border-bottom: none; }
+  .box { width: 24px; height: 24px; border: 2px solid #5AE57A; border-radius: 6px; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .hab .tx { font-size: .92rem; }
+  .hab .tx small { display: block; opacity: .6; font-size: .76rem; }
+  .streak { font-size: .8rem; color: #5AE57A; flex: none; }
+  .msg { text-align: center; font-size: .88rem; opacity: .85; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Longevity Habit Tracker</h1>
+  <p class="sub">The habits linked to long, healthy lives are simple and daily. Check them off today.</p>
+
+  <div class="panel prog">
+    <div><span class="n" id="done">0</span><span style="opacity:.7"> / <span id="tot">0</span> longevity habits today</span></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <div class="panel" id="habs"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const HABITS=[
+    {t:"Moved my body",s:"Walking, training, anything active"},
+    {t:"Ate mostly whole, plant-rich food",s:"Vegetables, legumes, less processed"},
+    {t:"Slept 7-9 hours",s:"The single biggest repair window"},
+    {t:"Connected with someone",s:"Strong relationships predict longevity"},
+    {t:"Managed stress actively",s:"Breathing, nature, downtime"},
+    {t:"Kept alcohol low / none",s:"Less is consistently better"},
+    {t:"Spent time with purpose",s:"A reason to get up matters"},
+    {t:"Got daylight / fresh air",s:"Rhythm, mood, vitamin D"}
+  ];
+  const today=new Date().toISOString().slice(0,10);
+  let store=JSON.parse(localStorage.getItem('lht')||'{}');
+  if(!store[today])store[today]=[];
+  const save=()=>localStorage.setItem('lht',JSON.stringify(store));
+  g('tot').textContent=HABITS.length;
+  function tog(i){ const d=store[today]; d.includes(i)?store[today]=d.filter(x=>x!==i):d.push(i); save(); render(); }
+  function streakFor(i){ let s=0,dt=new Date();
+    for(;;){ const k=dt.toISOString().slice(0,10); if(store[k]&&store[k].includes(i)){s++; dt.setDate(dt.getDate()-1);} else break; }
+    return s; }
+  function render(){
+    const d=store[today];
+    g('habs').innerHTML=HABITS.map((h,i)=>{ const st=streakFor(i);
+      return '<div class="hab" onclick="tog('+i+')"><span class="box'+(d.includes(i)?' on':'')+'">'+(d.includes(i)?'✓':'')+'</span><span class="tx">'+h.t+'<small>'+h.s+'</small></span><span class="streak">'+(st>0?'🔥 '+st:'')+'</span></div>';
+    }).join('');
+    const n=d.length;
+    g('done').textContent=n;
+    g('bar').style.width=Math.round(n/HABITS.length*100)+'%';
+    g('msg').textContent= n===HABITS.length?'Every longevity habit done — this is the work.':n>=5?'Strong day. Longevity is built like this, one ordinary day at a time.':n>=1?'Good — pick off a couple more.':'Tap each habit as you do it today.';
+  }
+  render();
+</script>
+</body>
+</html>

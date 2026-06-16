@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kindness Challenge Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .item { display: flex; gap: 10px; align-items: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 12px; margin-bottom: 5px; cursor: pointer; font-size: .9rem; }
+  .item.done { border-color: #5AE57A; opacity: .55; }
+  .item .day { color: #5AE57A; font-family: 'Playfair Display', serif; flex: none; min-width: 36px; }
+  .item.done::after { content: ' ✓'; color: #5AE57A; }
+  .count { text-align: center; font-size: .85rem; color: #5AE57A; margin-bottom: 4px; }
+  .bar { height: 8px; background: #5A845A; border-radius: 5px; overflow: hidden; margin-bottom: 10px; }
+  .bar i { display: block; height: 100%; background: #5AE57A; width: 0; transition: width .3s; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kindness Challenge Builder</h1>
+  <p class="sub">A multi-day kindness challenge — small acts that warm the world.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label>Length</label><select id="len"><option>7</option><option selected>14</option><option>21</option><option>28</option></select></div>
+      <div><label>Focus</label><select id="focus"><option>Mixed (everyone)</option><option>At home (family)</option><option>At school (friends)</option><option>Neighbourhood</option></select></div>
+    </div>
+    <button class="btn" onclick="gen()">Build Challenge</button>
+  </div>
+
+  <div class="panel">
+    <div class="count" id="count">0 / 0 done</div>
+    <div class="bar"><i id="fill"></i></div>
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const POOLS={
+    'Mixed (everyone)':['Say something kind to a stranger you smile at','Give a real compliment to a family member','Write a thank-you note to someone who helped you','Hold a door for someone','Pick up a piece of litter on a walk','Share something you love','Help carry something heavy','Listen carefully to someone\'s whole story','Draw a picture for someone','Donate a toy you do not use anymore','Smile at five different people today','Call or video call a relative','Read aloud to someone younger','Make a card for no reason','Save the best seat for someone else','Forgive yourself when you make a mistake','Say "I appreciate you" out loud','Cook or bake something to share','Tidy a space that is not yours','Plant something for the bees'],
+    'At home (family)':['Make someone\'s bed for them','Set the table without being asked','Tell a sibling something you love about them','Help clear up after dinner','Bring water to a tired grown-up','Tidy your toy basket','Choose a movie with everyone in mind','Say "good morning" with a smile','Hug each person at home today','Help fold the laundry','Leave a sweet note in someone\'s lunch','Read a story to a younger sibling','Say "thank you" three times today','Share a snack you love','Pick flowers and put them in a vase','Quietly let someone else win','Clean the bathroom mirror'],
+    'At school (friends)':['Sit with someone new at lunch','Compliment a classmate\'s work','Help a classmate with their bag','Tidy the classroom without being asked','Say something kind to the teacher','Cheer for a friend at break time','Invite someone to join your game','Help pick up dropped items','Hold the door open at school','Share your pencil or rubber','Notice a quiet friend and say hi','Pick up litter at lunchtime','Listen without interrupting today'],
+    'Neighbourhood':['Wave to a neighbour you usually pass','Help carry shopping','Pick up litter on your street','Leave a thank-you note for a postie or delivery person','Water a plant for someone','Make a card for a neighbour','Smile at strangers walking past','Hold a door at a shop','Let someone in front in a queue','Say "have a lovely day" sincerely','Refill the bird feeder','Tidy outside your front door','Donate to a local food drive']
+  };
+  function gen(){
+    const n=+g('len').value, pool=[...POOLS[g('focus').value]];
+    if(pool.length<n){ while(pool.length<n) pool.push(...POOLS[g('focus').value]); }
+    // shuffle
+    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    const list=pool.slice(0,n);
+    localStorage.setItem('kc_list',JSON.stringify(list));
+    localStorage.setItem('kc_done','{}');
+    render();
+  }
+  function tog(i){
+    let d=JSON.parse(localStorage.getItem('kc_done')||'{}');
+    d[i]=!d[i]; localStorage.setItem('kc_done',JSON.stringify(d)); render();
+  }
+  function render(){
+    const list=JSON.parse(localStorage.getItem('kc_list')||'[]');
+    const done=JSON.parse(localStorage.getItem('kc_done')||'{}');
+    const L=g('list');
+    if(!list.length){ L.innerHTML='<div style="text-align:center;opacity:.5;font-size:.86rem;padding:12px;font-style:italic">Tap "Build Challenge" to start.</div>'; g('count').textContent='0 / 0 done'; g('fill').style.width='0%'; return; }
+    const ch=list.filter((_,i)=>done[i]).length;
+    g('count').textContent=ch+' / '+list.length+' done';
+    g('fill').style.width=Math.round(ch/list.length*100)+'%';
+    L.innerHTML=list.map((t,i)=>'<div class="item'+(done[i]?' done':'')+'" onclick="tog('+i+')"><span class="day">D'+(i+1)+'</span><span>'+t+'</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>List Monetisation Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 130px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 14px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .72rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .86rem; opacity: .78; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>List Monetisation Calculator</h1>
+  <p class="sub">Stack your email revenue streams and see your true list earnings — broadcasts, launches, evergreen, and affiliate.</p>
+
+  <div class="panel">
+    <label for="size">List size</label>
+    <input id="size" type="number" min="0" value="3000" oninput="calc()">
+    <div class="grid" style="margin-top:8px">
+      <div><label for="brEPS">Broadcasts: $/sub/month</label><input id="brEPS" type="number" min="0" step="0.01" value="0.40" oninput="calc()"></div>
+      <div><label for="launches">Launches: revenue × launches/yr</label><input id="launches" type="number" min="0" value="12000" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="evergreen">Evergreen funnel $/mo</label><input id="evergreen" type="number" min="0" value="400" oninput="calc()"></div>
+      <div><label for="affiliate">Affiliate $/mo</label><input id="affiliate" type="number" min="0" value="150" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="mo">$0</div><div class="l">/month</div></div>
+    <div class="stat"><div class="v" id="yr">$0</div><div class="l">/year</div></div>
+    <div class="stat"><div class="v" id="eps">$0</div><div class="l">$/sub/yr</div></div>
+  </div>
+  <div class="note" id="note"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['size','brEPS','launches','evergreen','affiliate'].forEach(k=>{ const s=localStorage.getItem('lmc7_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['size','brEPS','launches','evergreen','affiliate'].forEach(k=>localStorage.setItem('lmc7_'+k,g(k).value));
+    const br=n('size')*n('brEPS')*12;
+    const yr=br+n('launches')+n('evergreen')*12+n('affiliate')*12;
+    g('mo').textContent='$'+Math.round(yr/12).toLocaleString();
+    g('yr').textContent='$'+Math.round(yr).toLocaleString();
+    g('eps').textContent='$'+(n('size')>0?(yr/n('size')).toFixed(2):'0');
+    g('note').textContent = n('size')>0 && yr/n('size')>=10
+      ? 'Strong: $'+(yr/n('size')).toFixed(2)+'/sub/year is excellent. The lever now is growing the list — every new subscriber roughly maps to this same value.'
+      : 'Your per-subscriber value is on the lower side. Fix this BEFORE adding subscribers — a small lift in $/sub/year multiplies as the list grows.';
+  }
+  calc();
+</script>
+</body>
+</html>

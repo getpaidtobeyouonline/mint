@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Launch Email Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; display: flex; gap: 12px; }
+  .em .d { flex: none; font-family: 'Playfair Display', serif; color: #5AE57A; width: 70px; font-size: .9rem; }
+  .em .b b { color: #5AE57A; } .em .b { font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Launch Email Planner</h1>
+  <p class="sub">A proven cart-open to cart-close email schedule, dated to your real launch.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="prod">What you are launching</label><input id="prod" placeholder="e.g. The Pricing Toolkit"></div>
+      <div><label for="open">Cart opens</label><input id="open" type="date" oninput="gen()"></div>
+      <div><label for="days">Cart open for (days)</label><input id="days" type="number" min="1" value="5" oninput="gen()"></div>
+    </div>
+    <button class="btn" onclick="gen()">Build Launch Schedule</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), n=id=>parseFloat(g(id).value)||0;
+  ['prod','open','days'].forEach(k=>{ const s=localStorage.getItem('lep_'+k); if(s!==null)g(k).value=s; });
+  function fmt(base,off){ if(!base) return "Day "+(off>=0?"+":"")+off; const d=new Date(base); d.setDate(d.getDate()+off); return d.toISOString().slice(0,10); }
+  function gen(){
+    ['prod','open','days'].forEach(k=>localStorage.setItem('lep_'+k,g(k).value));
+    const p=v('prod')||'your offer', o=g('open').value, days=Math.max(1,n('days'));
+    const plan=[
+      [-3,"Pre-launch teaser","Hint at what is coming and the problem it solves. No link yet. Build anticipation and prime opens."],
+      [-1,"Tomorrow","Tell them exactly when it opens, what it is, and who it is for. Set the time."],
+      [0,"Doors open","The full offer: outcome, what is inside, price, the one CTA. Clear and confident."],
+      [Math.max(1,Math.round(days*0.4)),"Objection + proof","Handle the number one reason they hesitate. Add a testimonial or result. Same CTA."],
+      [Math.max(2,Math.round(days*0.7)),"FAQ / story","Answer real questions or tell a transformation story. Re-link the offer."],
+      [days-1,"Last 24 hours","Clear deadline, recap the value, remove the risk. Urgency that is true, not fake."],
+      [days,"Final hours","2-3 short sends today: few hours left, closing tonight, last call. Most sales land here."]
+    ];
+    g('out').innerHTML='<div class="panel" style="font-size:.88rem;opacity:.85">Launching <b>'+esc(p)+'</b>'+(o?' &middot; cart '+o+' &rarr; '+fmt(o,days):'')+'. Around 40-60% of sales come in the last 24h &mdash; do not skip the final-day emails.</div>'+
+      plan.map(x=>'<div class="em"><div class="d">'+(o?fmt(o,x[0]):'Day '+(x[0]>=0?'+':'')+x[0])+'</div><div class="b"><b>'+esc(x[1])+'</b><br>'+esc(x[2])+'</div></div>').join('');
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Schedule copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

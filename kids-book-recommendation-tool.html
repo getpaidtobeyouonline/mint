@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Book Recommendation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .book { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; margin-bottom: 6px; }
+  .book .t { font-weight: 500; color: #FFFFFF; }
+  .book .a { font-size: .82rem; opacity: .65; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Book Recommendation Tool</h1>
+  <p class="sub">Pick an age and a theme and get a shortlist of well-loved children's books.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="age">Age range</label><select id="age"><option>0-3 (board / picture)</option><option>3-5 (early picture)</option><option>5-8 (early reader)</option><option>8-12 (chapter book)</option></select></div>
+      <div><label for="theme">Theme / interest</label><select id="theme"><option>Bedtime &amp; comfort</option><option>Animals &amp; nature</option><option>Friendship &amp; feelings</option><option>Adventure &amp; magic</option><option>Funny &amp; silly</option><option>Curious &amp; learning</option></select></div>
+    </div>
+    <button class="btn" onclick="show()">Show Recommendations</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const B={
+    '0-3 (board / picture)':{
+      'Bedtime & comfort':[['Goodnight Moon','Margaret Wise Brown'],['The Going-to-Bed Book','Sandra Boynton'],['Time for Bed','Mem Fox']],
+      'Animals & nature':[['Where\'s Spot?','Eric Hill'],['Dear Zoo','Rod Campbell'],['Brown Bear, Brown Bear, What Do You See?','Bill Martin Jr.']],
+      'Friendship & feelings':[['The Rabbit Listened','Cori Doerrfeld'],['Hug','Jez Alborough'],['Mommy Hugs','Karen Katz']],
+      'Adventure & magic':[['The Very Hungry Caterpillar','Eric Carle'],['Peek-a Who?','Nina Laden'],['That\'s Not My Puppy','Fiona Watt']],
+      'Funny & silly':[['Don\'t Push the Button!','Bill Cotter'],['Hippopposites','Janik Coat'],['Press Here','Hervé Tullet']],
+      'Curious & learning':[['First 100 Words','Roger Priddy'],['My First Book of Colours','DK'],['Touch and Feel: Farm','DK']]
+    },
+    '3-5 (early picture)':{
+      'Bedtime & comfort':[['Guess How Much I Love You','Sam McBratney'],['The Owl Who Was Afraid of the Dark','Jill Tomlinson'],['Llama Llama Red Pajama','Anna Dewdney']],
+      'Animals & nature':[['The Tiger Who Came to Tea','Judith Kerr'],['We\'re Going on a Bear Hunt','Michael Rosen'],['Click, Clack, Moo','Doreen Cronin']],
+      'Friendship & feelings':[['The Colour Monster','Anna Llenas'],['Have You Filled a Bucket Today?','Carol McCloud'],['The Invisible String','Patrice Karst']],
+      'Adventure & magic':[['Where the Wild Things Are','Maurice Sendak'],['The Gruffalo','Julia Donaldson'],['Room on the Broom','Julia Donaldson']],
+      'Funny & silly':[['The Day the Crayons Quit','Drew Daywalt'],['Dragons Love Tacos','Adam Rubin'],['Oi Frog!','Kes Gray']],
+      'Curious & learning':[['Each Peach Pear Plum','Janet & Allan Ahlberg'],['How Do Dinosaurs Say Goodnight?','Jane Yolen'],['Ada Twist, Scientist','Andrea Beaty']]
+    },
+    '5-8 (early reader)':{
+      'Bedtime & comfort':[['Frog and Toad Are Friends','Arnold Lobel'],['Charlie and Lola: I Will Not Ever Never Eat a Tomato','Lauren Child'],['The Worry Box','Suzanne Chiew']],
+      'Animals & nature':[['Charlotte\'s Web','E.B. White'],['The One and Only Ivan','Katherine Applegate'],['The Mouse and the Motorcycle','Beverly Cleary']],
+      'Friendship & feelings':[['The Smartest Giant in Town','Julia Donaldson'],['The Hueys in The New Jumper','Oliver Jeffers'],['Wonder (read-aloud)','R.J. Palacio']],
+      'Adventure & magic':[['The Magic Faraway Tree','Enid Blyton'],['Mr Stink','David Walliams'],['Fantastic Mr Fox','Roald Dahl']],
+      'Funny & silly':[['The Twits','Roald Dahl'],['Captain Underpants','Dav Pilkey'],['The Bad Guys','Aaron Blabey']],
+      'Curious & learning':[['Look Inside Your Body','Usborne'],['The Magic School Bus','Joanna Cole'],['How to Train Your Dragon','Cressida Cowell']]
+    },
+    '8-12 (chapter book)':{
+      'Bedtime & comfort':[['Charlotte\'s Web','E.B. White'],['Anne of Green Gables','L.M. Montgomery'],['Heidi','Johanna Spyri']],
+      'Animals & nature':[['Pax','Sara Pennypacker'],['The Wild Robot','Peter Brown'],['Black Beauty','Anna Sewell']],
+      'Friendship & feelings':[['Wonder','R.J. Palacio'],['The Boy at the Back of the Class','Onjali Q. Raúf'],['Front Desk','Kelly Yang']],
+      'Adventure & magic':[['Harry Potter and the Philosopher\'s Stone','J.K. Rowling'],['The Lion, the Witch and the Wardrobe','C.S. Lewis'],['Percy Jackson and the Lightning Thief','Rick Riordan']],
+      'Funny & silly':[['Diary of a Wimpy Kid','Jeff Kinney'],['The BFG','Roald Dahl'],['Tom Gates: The Brilliant World of Tom Gates','Liz Pichon']],
+      'Curious & learning':[['A Wrinkle in Time','Madeleine L\'Engle'],['The Phantom Tollbooth','Norton Juster'],['George\'s Secret Key to the Universe','Lucy & Stephen Hawking']]
+    }
+  };
+  function show(){
+    const a=g('age').value, t=g('theme').value;
+    const list=(B[a]||{})[t]||[];
+    g('list').innerHTML=list.length?list.map(b=>'<div class="book"><div class="t">'+b[0]+'</div><div class="a">'+b[1]+'</div></div>').join(''):'<div class="empty">Try another combination.</div>';
+  }
+  show();
+</script>
+</body>
+</html>

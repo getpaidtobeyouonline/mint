@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Stream Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 46px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Live Stream Planner</h1>
+  <p class="sub">A run-of-show that keeps a live tight, engaging, and pointed at one outcome.</p>
+
+  <div class="panel">
+    <label for="topic">Live topic</label>
+    <input id="topic" placeholder="e.g. How to plan a month of content in 1 hour">
+    <div class="grid">
+      <div><label for="len">Length (min)</label><input id="len" type="number" min="10" value="45"></div>
+      <div><label for="goal">Goal</label><select id="goal"><option>Grow & nurture</option><option>Launch / sell</option><option>Teach a skill</option><option>Q&A / community</option></select></div>
+    </div>
+    <label for="cta">The one CTA</label>
+    <input id="cta" placeholder="e.g. join the waitlist">
+    <label for="points">Key points to cover (one per line)</label>
+    <textarea id="points" placeholder="Point 1&#10;Point 2&#10;Point 3"></textarea>
+    <button class="btn" onclick="gen()">Build Run-of-Show</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['topic','len','goal','cta','points'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), n=id=>parseFloat(g(id).value)||0;
+  F.forEach(k=>{ const s=localStorage.getItem('lsp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('lsp_'+k,g(k).value)); });
+  function gen(){
+    if(!v('topic')){ alert('Add a topic.'); return; }
+    const L=Math.max(10,n('len'));
+    const pts=v('points').split('\n').map(s=>s.trim()).filter(Boolean);
+    const body=Math.round(L*0.6);
+    const t=`LIVE RUN-OF-SHOW — ${v('topic')}
+Length: ${L} min · Goal: ${g('goal').value}
+
+0:00  Pre-roll: hold 60–90s while people join. Greet by name, tease the payoff: "Stick around — by the end you'll have ${v('topic').toLowerCase()}."
+~2:00 Hook & promise: exactly what they'll walk away with + the one CTA: ${v('cta')||'[your CTA]'}.
+~4:00 Quick credibility (15s) so new viewers trust you.
+~5:00 MAIN CONTENT (${body} min):
+${pts.length?pts.map((p,i)=>`   • Block ${i+1}: ${p} — teach, then ask a chat question to re-engage.`).join('\n'):'   • Block 1: [point]\n   • Block 2: [point]\n   • Block 3: [point]'}
+   (Every ~7 min: address the chat by name + restate the CTA softly.)
+~${L-8}:00 Recap the 3 things they learned.
+~${L-5}:00 Strong CTA: ${v('cta')||'[your CTA]'} — tell them exactly what to do and why now.
+~${L-2}:00 Q&A / final value, then a clear sign-off + where to find you.
+
+Reminders: name-drop commenters, pin the CTA, repurpose the replay into 3+ clips.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Run-of-show copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

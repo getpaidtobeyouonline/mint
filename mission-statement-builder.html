@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission Statement Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 540px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 14px; }
+    label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; margin-top: 12px; }
+    label:first-of-type { margin-top: 0; }
+    input { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #5AE57A; }
+    .verb-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .verb { background: #325132; border: 2px solid #3C603C; border-radius: 20px; padding: 6px 14px; font-size: 0.83rem; cursor: pointer; transition: all 0.18s; user-select: none; }
+    .verb:hover { border-color: #4C724C; }
+    .verb.sel { border-color: #5AE57A; color: #5AE57A; background: #325132; }
+    .btn-gen { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; padding: 14px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .btn-gen:hover { opacity: 0.85; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .stmt-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+    .stmt-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .stmt-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #5AE57A; }
+    .btn-copy { background: #325132; border: 1px solid #4C724C; color: #5AE57A; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.76rem; font-weight: 600; padding: 5px 13px; cursor: pointer; transition: border-color 0.2s; flex-shrink: 0; }
+    .btn-copy:hover { border-color: #5AE57A; }
+    .stmt-text { font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.7; color: #FFFFFF; }
+    .stmt-note { font-size: 0.73rem; opacity: 0.35; margin-top: 10px; line-height: 1.4; }
+    .divider { height: 1px; background: #3C603C; margin: 4px 0 16px; }
+    .btn-redo { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; margin-top: 2px; }
+    .btn-redo:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Mission Statement Builder</h1>
+  <p class="subtitle">Turn your purpose into words that attract, align, and inspire.</p>
+
+  <div class="wrap" id="form-wrap">
+    <div class="card">
+      <div class="card-title">Your Action Verb</div>
+      <div class="verb-grid" id="verb-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">The Building Blocks</div>
+      <label>Who You Serve</label>
+      <input type="text" id="who" placeholder="e.g. female side-hustlers, creative entrepreneurs" />
+      <label>What You Help Them Do</label>
+      <input type="text" id="what" placeholder="e.g. build and sell digital products online" />
+      <label>The Outcome / Transformation</label>
+      <input type="text" id="outcome" placeholder="e.g. earn income without trading time for money" />
+      <label>Your Deeper Why <span style="opacity:0.4;font-weight:400;text-transform:none;font-size:0.7rem">(optional)</span></label>
+      <input type="text" id="why" placeholder="e.g. because financial freedom should be accessible to everyone" />
+    </div>
+    <button class="btn-gen" onclick="build()">Build My Mission Statement</button>
+  </div>
+
+  <div class="results wrap" id="results"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const VERBS = ['Help','Empower','Teach','Guide','Enable','Show','Equip','Support','Inspire','Transform'];
+    let selVerb = 'Help';
+
+    function renderVerbs() {
+      document.getElementById('verb-grid').innerHTML = VERBS.map(v =>
+        `<div class="verb${v===selVerb?' sel':''}" onclick="pickVerb('${v}')">${v}</div>`
+      ).join('');
+    }
+    function pickVerb(v) { selVerb = v; renderVerbs(); }
+
+    const cap = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+    const h   = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+    function build() {
+      const who     = document.getElementById('who').value.trim();
+      const what    = document.getElementById('what').value.trim();
+      const outcome = document.getElementById('outcome').value.trim();
+      const why     = document.getElementById('why').value.trim().replace(/^because\s+/i,'');
+      if (!who || !what || !outcome) { alert('Please fill in Who, What, and the Outcome.'); return; }
+
+      const v = selVerb.toLowerCase();
+
+      const stmts = [
+        {
+          label: 'The Clear Path',
+          note:  'Simple, specific, and easy for anyone to understand at a glance.',
+          text:  `I ${v} ${who} to ${what}, so they can ${outcome}.`,
+        },
+        {
+          label: 'The Belief Statement',
+          note:  'Lead with your conviction. Ideal for About pages and bios.',
+          text:  why
+            ? `${cap(why)}. That's why I ${v} ${who} to ${what}.`
+            : `My mission is to ${v} ${who} to ${what} — so they can ${outcome}.`,
+        },
+        {
+          label: 'The Bold Promise',
+          note:  'Outcome-first. Strong for headlines and social media profiles.',
+          text:  `To ${outcome} — for every ${who} ready to ${what}.`,
+        },
+      ];
+
+      document.getElementById('form-wrap').style.display = 'none';
+      const res = document.getElementById('results');
+      res.innerHTML = stmts.map((s, i) => `
+        <div class="stmt-card">
+          <div class="stmt-top">
+            <div class="stmt-label">${s.label}</div>
+            <button class="btn-copy" onclick="copy(${i})">Copy</button>
+          </div>
+          <div class="divider"></div>
+          <div class="stmt-text">${h(s.text)}</div>
+          <div class="stmt-note">${s.note}</div>
+        </div>`).join('') +
+        `<button class="btn-redo" onclick="redo()">Build a Different Statement</button>`;
+      res.classList.add('show');
+      res._stmts = stmts;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copy(i) {
+      const stmts = document.getElementById('results')._stmts;
+      navigator.clipboard.writeText(stmts[i].text).then(() => {
+        const btns = document.querySelectorAll('.btn-copy');
+        btns[i].textContent = 'Copied!';
+        setTimeout(() => btns[i].textContent = 'Copy', 2000);
+      });
+    }
+
+    function redo() {
+      document.getElementById('form-wrap').style.display = '';
+      document.getElementById('results').classList.remove('show');
+      document.getElementById('results').innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    renderVerbs();
+  </script>
+</body>
+</html>

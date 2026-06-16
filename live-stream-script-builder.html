@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Stream Script Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 70px; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+  .checkbox-row input { width: auto; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 22px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 8px;
+  }
+  .time-tag {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #325132;
+    background: #5AE57A;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+  .section-body { font-size: 0.98rem; white-space: pre-wrap; }
+  .section-body ul { padding-left: 20px; margin-top: 4px; }
+  .section-body li { margin-bottom: 5px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Live Stream Script Builder</h1>
+  <p class="subtitle">Stop freezing the moment you go live. Get a minute-by-minute script with hooks, engagement prompts, and a closing CTA.</p>
+
+  <div class="grid">
+    <div>
+      <label for="platform">Platform</label>
+      <select id="platform">
+        <option>Instagram Live</option>
+        <option>YouTube Live</option>
+        <option>LinkedIn Live</option>
+        <option>TikTok Live</option>
+      </select>
+    </div>
+    <div>
+      <label for="length">Target Length</label>
+      <select id="length">
+        <option value="15">15 minutes</option>
+        <option value="30" selected>30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60">60 minutes</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="topic">Topic / Working Title</label>
+  <input type="text" id="topic" placeholder="e.g. 3 mistakes new freelancers make in their first $5k project" />
+
+  <label for="audience">Who Is Showing Up?</label>
+  <input type="text" id="audience" placeholder="e.g. designers about to take on their first big freelance gig" />
+
+  <div class="grid">
+    <div>
+      <label for="goal">Goal Of The Live</label>
+      <select id="goal">
+        <option value="sell">Sell a product / open cart</option>
+        <option value="list">Grow my email list</option>
+        <option value="engage">Build relationship + engagement</option>
+        <option value="authority">Establish authority on a topic</option>
+      </select>
+    </div>
+    <div>
+      <label for="cohost">Co-host?</label>
+      <select id="cohost">
+        <option value="no">Solo</option>
+        <option value="yes">With a co-host / guest</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="points">3 Key Points You'll Cover (one per line)</label>
+  <textarea id="points" placeholder="Why scope creep starts on the discovery call&#10;The 'silent contract' technique&#10;The exact email I send when a client misses a payment"></textarea>
+
+  <label for="cta">Final CTA (one specific action)</label>
+  <input type="text" id="cta" placeholder="e.g. comment WORKBOOK and I'll DM you the free 12-page pricing workbook" />
+
+  <button class="build-btn" id="buildBtn">Build My Script</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Pre-Live Checklist (run 5 min before)</div>
+      <div class="section-body" id="prelive"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Opening Hook <span class="time-tag" id="t1"></span></div>
+      <div class="section-body" id="hook"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Welcome & Wait Loop <span class="time-tag" id="t2"></span></div>
+      <div class="section-body" id="welcome"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Main Content <span class="time-tag" id="t3"></span></div>
+      <div class="section-body" id="main"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Engagement Prompts (sprinkle throughout)</div>
+      <div class="section-body" id="engage"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Closing & CTA <span class="time-tag" id="t4"></span></div>
+      <div class="section-body" id="closing"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Post-Live Followup (within 24 hours)</div>
+      <div class="section-body" id="post"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Script</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function build() {
+    const platform = document.getElementById('platform').value;
+    const length = parseInt(document.getElementById('length').value);
+    const topic = document.getElementById('topic').value.trim() || '[topic]';
+    const audience = document.getElementById('audience').value.trim() || '[your audience]';
+    const goal = document.getElementById('goal').value;
+    const cohost = document.getElementById('cohost').value === 'yes';
+    const cta = document.getElementById('cta').value.trim() || '[your CTA]';
+    const pointsRaw = document.getElementById('points').value.trim();
+    const points = pointsRaw ? pointsRaw.split('\n').filter(p=>p.trim()).slice(0,3) : ['[point 1]','[point 2]','[point 3]'];
+
+    const t1 = Math.max(1, Math.round(length * 0.05));
+    const t2 = Math.max(2, Math.round(length * 0.12));
+    const t4 = Math.max(2, Math.round(length * 0.1));
+    const t3 = length - t1 - t2 - t4;
+    document.getElementById('t1').textContent = `~${t1} min`;
+    document.getElementById('t2').textContent = `~${t2} min`;
+    document.getElementById('t3').textContent = `~${t3} min`;
+    document.getElementById('t4').textContent = `~${t4} min`;
+
+    document.getElementById('prelive').innerHTML = '<ul>' + [
+      'Drop a "going live in 5" story or post — pin the topic.',
+      'Lighting check: face well-lit, not backlit. Phone propped, not hand-held.',
+      'Open the comments/chat in a second device so you can read it without squinting.',
+      'Glass of water. Notes off-camera, not on a screen behind you.',
+      'Test audio with one sentence out loud before hitting Go Live.'
+    ].map(x=>`<li>${x}</li>`).join('') + '</ul>';
+
+    document.getElementById('hook').textContent =
+`The first 60 seconds decides who stays. Do NOT spend it on small talk.
+
+Open with: "If you've ever ${audience.toLowerCase().includes('who')?audience:'felt like '+audience}, this is the live for you. In the next ${length} minutes I'm going to walk you through ${points.length} things that will change how you think about ${topic}."
+
+Then immediately tease the most surprising one. Don't explain it — tease it. People stay for the unresolved.`;
+
+    document.getElementById('welcome').textContent =
+`Now you can welcome people coming in. Wave at names as they pop up — first names only, fast.
+
+Bridge line every 30 seconds: "While more of you are joining, here's where we're going..." then recap the 3 points.
+
+${cohost?`Introduce your co-host with one sentence of credibility + one personal detail.`:`Don't apologize for being early or worry about the count. The replay matters more than the live count.`}
+
+After ${t2} minutes, hard transition: "Okay — let's actually get into it."`;
+
+    document.getElementById('main').innerHTML = '<ul>' + points.map((p,i)=>
+      `<li>Block ${i+1} (~${Math.round(t3/3)} min) — <strong>${p}</strong>. Open with the wrong way most ${audience} do it. Then the reframe. ${cohost?`Hand to co-host for their take.`:`Drop one specific example from your own work.`} Ask a comment-prompting question before moving on.</li>`
+    ).join('') + '</ul>';
+
+    document.getElementById('engage').innerHTML = '<ul>' + [
+      `Every 5-7 minutes, ask a low-stakes question: "Drop a 1 if [thing], 2 if [other thing]" — it spikes the algorithm.`,
+      `Read 2-3 comments out loud by name. Comments + name = shares.`,
+      `Mid-live tease: "Stick around — the last point is the one most people get wrong."`,
+      `Don't answer Q&A as it comes in. Batch it for the final ${t4} minutes or you'll lose your structure.`
+    ].map(x=>`<li>${x}</li>`).join('') + '</ul>';
+
+    const ctaMap = {
+      sell: `This is where you sell. Don't rush it. Walk through one transformation a real customer had. Then: "${cta}". Mention the offer twice — once in the body of the close, once as the last line before you sign off.`,
+      list: `Soft CTA. Frame the lead magnet as "the next step" of what you just taught. "${cta}". Make it stupid simple — one keyword, not a link.`,
+      engage: `Don't pitch. Ask the audience the deepest question of the live — the one that earns DMs. Then: "${cta}".`,
+      authority: `Land the plane. Recap the 3 points in 30 seconds. State your point of view sharply. "${cta}". Sign off without lingering.`
+    };
+    document.getElementById('closing').textContent = ctaMap[goal];
+
+    document.getElementById('post').innerHTML = '<ul>' + [
+      `Save the replay. Don't watch it for 24 hours — distance makes the edit better.`,
+      `Pull the 3 best clips (60-90 sec each). Post one tomorrow, one in 3 days, one next week.`,
+      `Send a "if you missed it" email to your list with the replay link and one specific takeaway.`,
+      `Reply to every comment from the live within 24 hours. That's where the relationships compound.`,
+      `Write down: what worked, what flopped, what you'd cut next time. Future-you will thank you.`
+    ].map(x=>`<li>${x}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const grab = id => document.getElementById(id).innerText;
+    const text = ['LIVE STREAM SCRIPT','','PRE-LIVE CHECKLIST',grab('prelive'),'','OPENING HOOK',grab('hook'),'','WELCOME & WAIT LOOP',grab('welcome'),'','MAIN CONTENT',grab('main'),'','ENGAGEMENT PROMPTS',grab('engage'),'','CLOSING & CTA',grab('closing'),'','POST-LIVE FOLLOWUP',grab('post')].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Script', 1500);
+    });
+  });
+</script>
+</body>
+</html>

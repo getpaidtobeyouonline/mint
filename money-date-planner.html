@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Money Date Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 16px; margin-bottom: 9px; }
+  .step h4 { color: #5AE57A; font-size: .78rem; text-transform: uppercase; margin-bottom: 4px; }
+  .step p { font-size: .93rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Money Date Planner</h1>
+  <p class="sub">A 30-minute monthly ritual to look at the money. Treat it well — it shows up better.</p>
+
+  <div class="panel">
+    <label for="when">Schedule your money date</label>
+    <input id="when" type="datetime-local">
+    <label for="drink">A treat to make it nice</label>
+    <input id="drink" placeholder="e.g. good coffee, favourite playlist">
+    <label for="wins">One thing you want to celebrate this month</label>
+    <textarea id="wins" placeholder="A win — saved more, paid off, earned, learned"></textarea>
+    <label for="worry">One thing that has been bothering you about money</label>
+    <textarea id="worry" placeholder="Name it before you avoid it"></textarea>
+    <button class="btn" onclick="gen()">Build My Money Date</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['when','drink','wins','worry'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('mdp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('mdp_'+k,g(k).value)); });
+  function gen(){
+    g('out').innerHTML='<div class="step"><h4>1 · Set the scene</h4><p>'+esc(v('when')||'(time)')+' &middot; with '+esc(v('drink')||'(your treat)')+'. No phone. Calm room.</p></div>'+
+      '<div class="step"><h4>2 · Celebrate first (3 min)</h4><p>'+esc(v('wins')||'(your win)')+' &mdash; say it out loud. The brain needs the reward before the reckoning.</p></div>'+
+      '<div class="step"><h4>3 · Look (10 min)</h4><p>Open every account once. Note balances. No judgement, just numbers. Income, expenses, savings, debts &mdash; the truth without a story.</p></div>'+
+      '<div class="step"><h4>4 · Face one thing (10 min)</h4><p>The thing nagging you: '+esc(v('worry')||'(the worry)')+'. Take one concrete action on it today &mdash; even if it is just opening a tab to fix it next week.</p></div>'+
+      '<div class="step"><h4>5 · Next month (5 min)</h4><p>One small change for next month. Just one. Write it on a sticky note where you will see it.</p></div>'+
+      '<div class="step" style="border-left-color:#BFD8BF"><h4>The point</h4><p>Money rewards attention. 30 minutes a month is not a chore &mdash; it is the highest-ROI half-hour you will spend.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

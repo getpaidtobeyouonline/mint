@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Knowledge Gap Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .grp { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 12px 0 5px; }
+  .topic { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 9px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; font-size: .87rem; gap: 10px; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; }
+  .topic .x { cursor: pointer; opacity: .5; } .topic .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Knowledge Gap Finder</h1>
+  <p class="sub">Rate your confidence across a subject's topics — and see exactly where to focus.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Topic</label><input id="topic" placeholder="e.g. Cell division"></div>
+      <div style="flex:2"><label>Confidence: <span id="cv" style="color:#5AE57A">5</span>/10</label><input id="conf" type="range" min="1" max="10" value="5" oninput="document.getElementById('cv').textContent=this.value"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('kgf')||'[]');
+  const save=()=>localStorage.setItem('kgf',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('topic')){ alert('Enter a topic.'); return; }
+    R.push({t:v('topic'),c:+g('conf').value}); g('topic').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all topics?')){ R=[]; save(); render(); } }
+  function colour(c){ return c<=4?'#5AE57A':c<=7?'#5AE57A':'#5AE57A'; }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No topics rated yet — add some.</div>'; return; }
+    const gaps=R.map((x,i)=>({x,i})).filter(o=>o.x.c<=4);
+    const ok=R.map((x,i)=>({x,i})).filter(o=>o.x.c>4&&o.x.c<=7);
+    const strong=R.map((x,i)=>({x,i})).filter(o=>o.x.c>7);
+    function rows(arr){ return arr.sort((a,b)=>a.x.c-b.x.c).map(({x,i})=>
+      '<div class="topic"><span><span class="dot" style="background:'+colour(x.c)+'"></span>'+esc(x.t)+'</span><span><b style="color:'+colour(x.c)+'">'+x.c+'/10</b> <span class="x" onclick="del('+i+')">✕</span></span></div>').join(''); }
+    let h='';
+    if(gaps.length)h+='<div class="grp">🎯 Focus here — biggest gaps</div>'+rows(gaps);
+    if(ok.length)h+='<div class="grp">Needs review</div>'+rows(ok);
+    if(strong.length)h+='<div class="grp">Solid — keep warm</div>'+rows(strong);
+    L.innerHTML=h;
+  }
+  render();
+</script>
+</body>
+</html>

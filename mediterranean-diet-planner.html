@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mediterranean Diet Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.02rem; margin-bottom: 8px; }
+  .pill { display: inline-block; background: #2A442A; border: 1px solid #5A845A; border-radius: 16px; padding: 5px 11px; font-size: .8rem; margin: 3px; }
+  .pill.eat { border-color: #5A845A; }
+  .pill.some { border-color: #5AE57A; }
+  .pill.rare { border-color: #5A845A; }
+  label { display: block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family:'DM Sans',sans-serif; font-size: .9rem; padding: 7px 10px; border-radius: 7px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .meal { display: flex; gap: 8px; align-items: center; margin-bottom: 5px; }
+  .meal span { width: 64px; flex: none; font-size: .8rem; opacity: .7; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mediterranean Diet Planner</h1>
+  <p class="sub">One of the most studied ways of eating. See the principles and plan three days.</p>
+
+  <div class="panel">
+    <h3>The Mediterranean way</h3>
+    <div style="margin-bottom:6px"><b style="color:#5AE57A;font-size:.8rem">EAT PLENTY</b><br>
+      <span class="pill eat">Vegetables</span><span class="pill eat">Fruit</span><span class="pill eat">Whole grains</span><span class="pill eat">Legumes</span><span class="pill eat">Nuts &amp; seeds</span><span class="pill eat">Olive oil</span><span class="pill eat">Fish &amp; seafood</span>
+    </div>
+    <div style="margin-bottom:6px"><b style="color:#5AE57A;font-size:.8rem">IN MODERATION</b><br>
+      <span class="pill some">Poultry</span><span class="pill some">Eggs</span><span class="pill some">Dairy &amp; cheese</span>
+    </div>
+    <div><b style="color:#5AE57A;font-size:.8rem">RARELY</b><br>
+      <span class="pill rare">Red meat</span><span class="pill rare">Processed food</span><span class="pill rare">Added sugar</span>
+    </div>
+  </div>
+
+  <div class="panel" id="days"></div>
+
+  <div class="panel" style="text-align:center">
+    <button class="btn" onclick="copyAll()">Copy Plan</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const DAYS=["Day 1","Day 2","Day 3"];
+  const MEALS=["Breakfast","Lunch","Dinner"];
+  let D=JSON.parse(localStorage.getItem('mdp2')||'{}');
+  const save=()=>localStorage.setItem('mdp2',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function build(){
+    g('days').innerHTML='<h3>My 3-day plan</h3>'+DAYS.map(d=>'<div style="font-size:.8rem;color:#5AE57A;text-transform:uppercase;letter-spacing:.04em;margin:8px 0 4px">'+d+'</div>'+
+      MEALS.map(m=>{ const k=d+'|'+m;
+        return '<div class="meal"><span>'+m+'</span><input id="'+k.replace(/\|/g,'_')+'" value="'+esc(D[k]||'')+'" oninput="upd(\''+k+'\',this.value)" placeholder="..."></div>';
+      }).join('')).join('');
+  }
+  function upd(k,v){ D[k]=v; save(); }
+  function copyAll(){
+    let t='MEDITERRANEAN DIET PLAN\n';
+    DAYS.forEach(d=>{ t+='\n'+d.toUpperCase()+'\n'+MEALS.map(m=>'  '+m+': '+(D[d+'|'+m]||'-')).join('\n')+'\n'; });
+    navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.'));
+  }
+  function clearAll(){ if(confirm('Clear the plan?')){ D={}; save(); build(); } }
+  build();
+</script>
+</body>
+</html>

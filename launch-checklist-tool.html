@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Launch Checklist Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.65; margin-bottom: 1.75rem; font-size: 0.9rem; }
+    .container { max-width: 680px; margin: 0 auto; }
+    .overview { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.4rem; margin-bottom: 1.25rem; }
+    .ov-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.75rem; }
+    .ov-label { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+    .ov-pct { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.6rem; }
+    .bar { background: #3C603C; border-radius: 6px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 6px; transition: width 0.35s, background 0.35s; }
+    .ov-bar { height: 10px; margin-bottom: 0.55rem; }
+    .ov-sub { font-size: 0.82rem; opacity: 0.5; }
+    .phase-card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.3rem; margin-bottom: 1rem; }
+    .phase-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.65rem; }
+    .phase-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.15rem; }
+    .phase-sub { font-size: 0.73rem; opacity: 0.42; }
+    .phase-count { font-size: 0.82rem; opacity: 0.5; }
+    .phase-bar { height: 5px; margin-bottom: 1rem; }
+    .check-item { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.55rem 0; border-bottom: 1px solid #3C603C; cursor: pointer; }
+    .check-item:last-of-type { border-bottom: none; }
+    .check-item:hover .cb { border-color: #5AE57A; }
+    .cb { width: 18px; height: 18px; border: 1.5px solid #4C724C; border-radius: 4px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: #325132; transition: all 0.15s; }
+    .cb.on { background: #5AE57A; border-color: #5AE57A; }
+    .item-text { flex: 1; font-size: 0.88rem; line-height: 1.45; }
+    .item-text.done { text-decoration: line-through; opacity: 0.32; }
+    .item-del { background: transparent; border: none; color: transparent; cursor: pointer; font-size: 0.75rem; padding: 0 0.15rem; flex-shrink: 0; transition: color 0.15s; }
+    .check-item:hover .item-del.show { color: #4C724C; }
+    .item-del.show:hover { color: #5AE57A !important; }
+    .add-row { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+    .add-inp { flex: 1; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.5rem 0.8rem; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; }
+    .add-inp:focus { border-color: #5AE57A; }
+    .add-go { background: transparent; border: 1px solid #4C724C; color: #BFD8BF; padding: 0.5rem 0.85rem; border-radius: 7px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; white-space: nowrap; transition: all 0.2s; }
+    .add-go:hover { border-color: #5AE57A; color: #5AE57A; }
+    .btn-row { display: flex; gap: 0.65rem; margin: 0.5rem 0 2.5rem; }
+    .btn-outline { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.7rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; transition: all 0.2s; }
+    .btn-outline:hover { background: #5AE57A; color: #325132; }
+    .btn-muted { border-color: #4C724C !important; color: #BFD8BF !important; }
+    .btn-muted:hover { background: #5AE57A !important; border-color: #5AE57A !important; color: #FFFFFF !important; }
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Launch Checklist Tool</h1>
+  <p class="subtitle">Every step to launch your digital product — from idea to sold.</p>
+
+  <div class="overview">
+    <div class="ov-top">
+      <span class="ov-label">Overall Launch Progress</span>
+      <span class="ov-pct" id="ovPct">0%</span>
+    </div>
+    <div class="bar ov-bar"><div class="bar-fill" id="ovBar" style="width:0%;background:#5AE57A"></div></div>
+    <div class="ov-sub" id="ovSub">0 of 0 tasks complete</div>
+  </div>
+
+  <div id="phaseList"></div>
+
+  <div class="btn-row">
+    <button class="btn-outline" id="copyBtn" onclick="copyList()">Copy Checklist</button>
+    <button class="btn-outline" onclick="resetChecks()">Reset Checks</button>
+    <button class="btn-outline btn-muted" onclick="newLaunch()">New Launch</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const KEY = 'gpbyo_launch_v1';
+
+  const DEFAULTS = [
+    { id:'pre', title:'Pre-Launch', sub:'2–4 weeks before', color:'#5AE57A', items:[
+      'Define your offer, format, and price point',
+      'Finalize your product (course, PDF, template, etc.)',
+      'Set up your payment platform (Gumroad, Stripe, Kajabi)',
+      'Write your sales page copy',
+      'Design and publish your sales page',
+      'Create a waitlist or early-access opt-in',
+      'Write your launch email sequence (3–5 emails)',
+      'Design product mockups and launch graphics',
+      'Plan your social content for launch week',
+      'Set your official launch date',
+      'Reach out to affiliates or collaboration partners',
+      'Test your checkout and delivery end-to-end'
+    ]},
+    { id:'launch', title:'Launch Day', sub:'The big day', color:'#5AE57A', items:[
+      'Send your launch announcement email',
+      'Post launch content across all platforms',
+      'Open the cart / go live',
+      'Pin your launch post on social media',
+      'Engage with every comment and DM',
+      'Monitor checkout and delivery for issues',
+      'Send a "doors closing soon" reminder email',
+      'Send your final "last chance" email'
+    ]},
+    { id:'post', title:'Post-Launch', sub:'After the cart closes', color:'#5AE57A', items:[
+      'Send welcome and delivery email to all buyers',
+      'Personally thank your first customers',
+      'Request testimonials from buyers',
+      'Calculate launch revenue and conversion rate',
+      'Document what worked and what to improve',
+      'Plan your next offer or launch'
+    ]}
+  ];
+
+  function fresh() {
+    return DEFAULTS.map(p => ({
+      ...p,
+      items: p.items.map((text, i) => ({ id: p.id+'_'+i, text, checked: false, custom: false }))
+    }));
+  }
+
+  let phases = (() => {
+    const s = localStorage.getItem(KEY);
+    return s ? JSON.parse(s) : fresh();
+  })();
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(phases)); }
+
+  function toggle(pid, iid) {
+    const item = phases.find(p=>p.id===pid)?.items.find(i=>i.id===iid);
+    if (item) { item.checked=!item.checked; save(); render(); }
+  }
+
+  function addItem(pid) {
+    const inp = document.getElementById('add_'+pid);
+    const txt = inp.value.trim();
+    if (!txt) return;
+    phases.find(p=>p.id===pid).items.push({ id:pid+'_c'+Date.now(), text:txt, checked:false, custom:true });
+    save(); inp.value=''; render();
+  }
+
+  function delItem(pid, iid) {
+    const ph = phases.find(p=>p.id===pid);
+    ph.items = ph.items.filter(i=>i.id!==iid);
+    save(); render();
+  }
+
+  function render() {
+    const all     = phases.flatMap(p=>p.items);
+    const checked = all.filter(i=>i.checked).length;
+    const pct     = all.length ? Math.round(checked/all.length*100) : 0;
+
+    document.getElementById('ovPct').textContent         = pct+'%';
+    document.getElementById('ovBar').style.width         = pct+'%';
+    document.getElementById('ovBar').style.background    = pct===100?'#5AE57A':'#5AE57A';
+    document.getElementById('ovSub').textContent         = `${checked} of ${all.length} tasks complete`;
+
+    document.getElementById('phaseList').innerHTML = phases.map(p => {
+      const done  = p.items.filter(i=>i.checked).length;
+      const ppct  = p.items.length ? Math.round(done/p.items.length*100) : 0;
+      const items = p.items.map(i=>`
+        <div class="check-item" onclick="toggle('${p.id}','${i.id}')">
+          <div class="cb${i.checked?' on':''}">${i.checked?'✓':''}</div>
+          <span class="item-text${i.checked?' done':''}">${i.text}</span>
+          <button class="item-del${i.custom?' show':''}" onclick="event.stopPropagation();delItem('${p.id}','${i.id}')">✕</button>
+        </div>`).join('');
+
+      return `
+        <div class="phase-card">
+          <div class="phase-head">
+            <div>
+              <div class="phase-title" style="color:${p.color}">${p.title}</div>
+              <div class="phase-sub">${p.sub}</div>
+            </div>
+            <div class="phase-count">${done} / ${p.items.length}</div>
+          </div>
+          <div class="bar phase-bar"><div class="bar-fill" style="width:${ppct}%;background:${p.color}"></div></div>
+          ${items}
+          <div class="add-row">
+            <input type="text" class="add-inp" id="add_${p.id}" placeholder="Add custom item…"
+              onkeydown="if(event.key==='Enter')addItem('${p.id}')">
+            <button class="add-go" onclick="addItem('${p.id}')">+ Add</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function resetChecks() {
+    phases.forEach(p=>p.items.forEach(i=>i.checked=false));
+    save(); render();
+  }
+
+  function newLaunch() {
+    if (confirm('Start fresh? This clears all checks and custom items.')) {
+      phases=fresh(); save(); render();
+    }
+  }
+
+  function copyList() {
+    let text = 'LAUNCH CHECKLIST\n'+'─'.repeat(28)+'\n\n';
+    phases.forEach(p => {
+      const done = p.items.filter(i=>i.checked).length;
+      text += `${p.title.toUpperCase()} (${done}/${p.items.length})\n`;
+      p.items.forEach(i => text += `${i.checked?'[✓]':'[ ]'} ${i.text}\n`);
+      text += '\n';
+    });
+    navigator.clipboard.writeText(text).then(()=>{
+      const b=document.getElementById('copyBtn'); b.textContent='Copied!';
+      setTimeout(()=>b.textContent='Copy Checklist',1600);
+    });
+  }
+
+  render();
+</script>
+</body>
+</html>

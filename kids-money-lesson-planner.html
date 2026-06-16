@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Money Lesson Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kids Money Lesson Planner</h1>
+  <p class="sub">Build a kid-friendly money lesson — earn, save, spend, share.</p>
+
+  <div class="panel">
+    <label for="age">Child's age</label>
+    <input id="age" placeholder="e.g. 7">
+    <label for="lesson">The money idea you want to teach</label>
+    <select id="lesson"><option>What money is and where it comes from</option><option>Earning money through chores</option><option>Saving for a goal</option><option>Wants vs needs</option><option>Comparing prices</option><option>Giving and sharing money</option><option>Avoiding impulse spending</option></select>
+    <label for="example">A real-life example you can use</label>
+    <textarea id="example" placeholder="A choice they actually face this week"></textarea>
+    <label for="activity">A hands-on activity</label>
+    <textarea id="activity" placeholder="A small game, sort or role-play"></textarea>
+    <button class="btn" onclick="gen()">Build Lesson</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['age','lesson','example','activity'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('kmlp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('kmlp_'+k,g(k).value)); g(k).addEventListener('change',()=>localStorage.setItem('kmlp_'+k,g(k).value)); });
+  function gen(){
+    const t='MONEY LESSON FOR KIDS'+(v('age')?'  (age '+v('age')+')':'')+'\nTopic: '+g('lesson').value+
+    '\n\n1. EXPLAIN IT SIMPLY (2 min)\n  Use child-level words. Tie it to something they already understand.\n\n2. SHOW A REAL EXAMPLE\n  '+(v('example')||'[a real choice in their life this week]')+
+    '\n\n3. HANDS-ON ACTIVITY\n  '+(v('activity')||'[a coin sort, role play, mini shop]')+
+    '\n\n4. ASK QUESTIONS\n  "What would you do?"\n  "Why might you choose one over the other?"\n  "What happens if we run out?"\n\n5. WRAP UP\n  One sentence they take away. Praise their thinking, not just the answer.\n\n--- Money lesson tips ---\nGive them real money to handle when you can — it lands deeper than apps.\nLet them make small mistakes — that is where the lesson sinks in.\nKeep it short. A few minutes of focused chat beats a long lecture.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

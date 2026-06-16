@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Progress Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Month header */
+  .month-hero { text-align: center; margin-bottom: 16px; }
+  .month-name { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #FFFFFF; margin-bottom: 4px; }
+  .month-sub { font-size: 0.82rem; color: #F0EBE0aa; margin-bottom: 12px; }
+  .month-bar-track { background: #325132; border-radius: 6px; height: 6px; margin-bottom: 6px; }
+  .month-bar-fill { height: 100%; background: #4C724C; border-radius: 6px; }
+  .stats-row { display: flex; justify-content: center; gap: 24px; }
+  .stat { text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.72rem; color: #BFD8BF; margin-top: 2px; }
+
+  /* Add form */
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input { flex: 1; min-width: 140px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .add-row input:focus { border-color: #5AE57A; }
+  .add-row select { background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Goal cards */
+  .goal-item { padding: 14px 0; border-bottom: 1px solid #3C603C; }
+  .goal-item:last-child { border-bottom: none; }
+  .goal-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .goal-name { flex: 1; font-size: 0.95rem; font-weight: 500; }
+  .cat-badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .status-badge { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .status-done    { background: #2E4D2E; color: #5AE57A; }
+  .status-track   { background: #325132; color: #5AE57A; }
+  .status-behind  { background: #2E4D2E; color: #5AE57A; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .prog-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .bar-track { flex: 1; background: #325132; border-radius: 4px; height: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+  .prog-pct { font-size: 0.82rem; color: #5AE57A; width: 36px; text-align: right; flex-shrink: 0; }
+  .update-toggle { background: none; border: 1px solid #4C724C; color: #BFD8BF; padding: 4px 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; }
+  .update-toggle:hover { border-color: #5AE57A; color: #5AE57A; }
+  .update-panel { display: none; background: #325132; border-radius: 8px; padding: 12px; margin-top: 8px; }
+  .update-panel.open { display: block; }
+  .slider { width: 100%; accent-color: #5AE57A; margin-bottom: 8px; }
+  .slider-val { font-size: 0.82rem; color: #5AE57A; text-align: center; margin-bottom: 8px; }
+  .note-in { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 7px 10px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none; margin-bottom: 8px; }
+  .note-in:focus { border-color: #5AE57A; }
+  .panel-btns { display: flex; gap: 8px; }
+  .btn-sm { background: #5AE57A; color: #325132; border: none; padding: 6px 16px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
+  .btn-sm:hover { background: #5AE57A; }
+  .btn-sm-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 6px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
+  .last-update { font-size: 0.72rem; color: #5A845A; margin-top: 4px; }
+
+  /* Calendar */
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 4px; }
+  .cal-day-label { text-align: center; font-size: 0.68rem; color: #5A845A; padding-bottom: 4px; }
+  .cal-day { aspect-ratio: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #4C724C; position: relative; }
+  .cal-day.has-log { background: #C9A84C22; color: #5AE57A; font-weight: 500; }
+  .cal-day.today { border: 1px solid #5AE57A; color: #FFFFFF; }
+  .cal-day.today.has-log { background: #C9A84C44; }
+  .cal-day.past { color: #4C724C; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 16px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Monthly Progress Tracker</h1>
+<p class="subtitle">Set goals for the month. Update as you go. See the full picture.</p>
+
+<div class="card">
+  <div class="month-hero">
+    <div class="month-name" id="monthName"></div>
+    <div class="month-sub" id="monthSub"></div>
+    <div class="month-bar-track"><div class="month-bar-fill" id="monthBar"></div></div>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-n" id="statDone">0</div><div class="stat-l">Complete</div></div>
+    <div class="stat"><div class="stat-n" id="statTrack">0</div><div class="stat-l">On Track</div></div>
+    <div class="stat"><div class="stat-n" id="statBehind">0</div><div class="stat-l">Behind</div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add a Goal</div>
+  <div class="add-row">
+    <input type="text" id="goalName" placeholder="What do you want to achieve this month?" maxlength="70" />
+    <select id="goalCat">
+      <option value="Work">Work</option>
+      <option value="Health">Health</option>
+      <option value="Personal">Personal</option>
+      <option value="Finance">Finance</option>
+      <option value="Learning">Learning</option>
+    </select>
+    <button class="btn-gold" onclick="addGoal()">Add</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Month's Goals</div>
+  <div id="goalList"><p class="empty">No goals yet — add one above.</p></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Activity Calendar</div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = { Work:'#5AE57A', Health:'#5AE57A', Personal:'#5AE57A', Finance:'#5AE57A', Learning:'#5AE57A' };
+  const now = new Date();
+  const MONTH_KEY = now.toISOString().slice(0,7);
+  const TODAY_KEY = now.toISOString().slice(0,10);
+  const DAY_OF_MONTH = now.getDate();
+  const DAYS_IN_MONTH = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const MONTH_PCT = DAY_OF_MONTH / DAYS_IN_MONTH * 100;
+
+  let goals = JSON.parse(localStorage.getItem('mpt_goals') || '[]');
+  const savedMonth = localStorage.getItem('mpt_month');
+  if (savedMonth !== MONTH_KEY) { goals = []; save(); }
+
+  function save() {
+    localStorage.setItem('mpt_goals', JSON.stringify(goals));
+    localStorage.setItem('mpt_month', MONTH_KEY);
+  }
+
+  function addGoal() {
+    const name = document.getElementById('goalName').value.trim();
+    if (!name) return;
+    const cat = document.getElementById('goalCat').value;
+    goals.push({ id: Date.now(), name, cat, progress: 0, updates: [] });
+    save(); render();
+    document.getElementById('goalName').value = '';
+    document.getElementById('goalName').focus();
+  }
+
+  function remove(id) { goals = goals.filter(g => g.id !== id); save(); render(); }
+
+  function togglePanel(id) {
+    const panel = document.getElementById('panel-' + id);
+    panel.classList.toggle('open');
+    const sl = document.getElementById('sl-' + id);
+    document.getElementById('slval-' + id).textContent = sl.value + '%';
+  }
+
+  function updateProgress(id) {
+    const g = goals.find(g => g.id === id);
+    if (!g) return;
+    const pct = parseInt(document.getElementById('sl-' + id).value);
+    const note = document.getElementById('note-' + id).value.trim();
+    g.progress = pct;
+    g.updates.push({ date: TODAY_KEY, pct, note });
+    save(); render();
+  }
+
+  function getStatus(progress) {
+    if (progress >= 100) return 'done';
+    if (progress >= MONTH_PCT - 12) return 'track';
+    return 'behind';
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    // Month header
+    document.getElementById('monthName').textContent =
+      now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    document.getElementById('monthSub').textContent =
+      `Day ${DAY_OF_MONTH} of ${DAYS_IN_MONTH} — ${Math.round(MONTH_PCT)}% through the month`;
+    document.getElementById('monthBar').style.width = MONTH_PCT + '%';
+
+    // Stats
+    const done = goals.filter(g => g.progress >= 100).length;
+    const track = goals.filter(g => g.progress < 100 && getStatus(g.progress) === 'track').length;
+    const behind = goals.filter(g => getStatus(g.progress) === 'behind').length;
+    document.getElementById('statDone').textContent   = done;
+    document.getElementById('statTrack').textContent  = track;
+    document.getElementById('statBehind').textContent = behind;
+
+    // Goals
+    const list = document.getElementById('goalList');
+    if (!goals.length) { list.innerHTML = '<p class="empty">No goals yet — add one above.</p>'; }
+    else list.innerHTML = goals.map(g => {
+      const status = getStatus(g.progress);
+      const color = CATS[g.cat] || '#5AE57A';
+      const lastUp = g.updates.length ? g.updates[g.updates.length-1] : null;
+      const statusLabel = status === 'done' ? 'Complete' : status === 'track' ? 'On Track' : 'Behind';
+      return `
+        <div class="goal-item">
+          <div class="goal-top">
+            <div class="goal-name">${esc(g.name)}</div>
+            <span class="cat-badge" style="background:${color}22;color:${color}">${g.cat}</span>
+            <span class="status-badge status-${status}">${statusLabel}</span>
+            <button class="del-btn" onclick="remove(${g.id})">✕</button>
+          </div>
+          <div class="prog-row">
+            <div class="bar-track"><div class="bar-fill" style="width:${g.progress}%;background:${color}"></div></div>
+            <div class="prog-pct">${g.progress}%</div>
+            <button class="update-toggle" onclick="togglePanel(${g.id})">Update</button>
+          </div>
+          ${lastUp ? `<div class="last-update">Last updated ${lastUp.date}${lastUp.note ? ' · ' + esc(lastUp.note) : ''}</div>` : ''}
+          <div class="update-panel" id="panel-${g.id}">
+            <div class="slider-val" id="slval-${g.id}">${g.progress}%</div>
+            <input class="slider" type="range" id="sl-${g.id}" min="0" max="100" value="${g.progress}"
+              oninput="document.getElementById('slval-${g.id}').textContent=this.value+'%'" />
+            <input class="note-in" type="text" id="note-${g.id}" placeholder="Optional note…" maxlength="80" />
+            <div class="panel-btns">
+              <button class="btn-sm" onclick="updateProgress(${g.id})">Save</button>
+              <button class="btn-sm-ghost" onclick="togglePanel(${g.id})">Cancel</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Calendar
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).getDay();
+    const activeDays = new Set(goals.flatMap(g => g.updates.map(u => parseInt(u.date.slice(8)))));
+    const DAY_LABELS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+    let cal = DAY_LABELS.map(d => `<div class="cal-day-label">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) cal += '<div></div>';
+    for (let d = 1; d <= DAYS_IN_MONTH; d++) {
+      const hasLog = activeDays.has(d);
+      const isToday = d === DAY_OF_MONTH;
+      const isPast = d < DAY_OF_MONTH;
+      cal += `<div class="cal-day ${hasLog?'has-log':''} ${isToday?'today':''} ${!isToday&&isPast?'past':''}">${d}</div>`;
+    }
+    document.getElementById('calGrid').innerHTML = cal;
+  }
+
+  document.getElementById('goalName').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+  render();
+</script>
+</body>
+</html>
