@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scarcity Pattern Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .q { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q span { flex: 1; min-width: 220px; font-size: .92rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; margin-top: 5px; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Scarcity Pattern Identifier</h1>
+  <p class="sub">Scarcity thinking hides as 'realism'. Spot the patterns keeping you small.</p>
+
+  <div id="form"></div>
+  <button class="btn" onclick="run()">Spot Patterns</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    ["I think 'there is not enough to go around' (clients, money, attention)","Reframe: there is more demand than supply in any specialised niche."],
+    ["Someone else's win subtly makes me feel worse","Their lane is not yours. Their proof: you are next."],
+    ["I hold back on giving because I am afraid I will run out","Generosity from full > generosity from fear. Refill first; then give from overflow."],
+    ["I delay decisions until I feel 'safe enough'","Safety follows action, not the other way around."],
+    ["I default to thinking the cheapest option is the right one","Sometimes. Often it is just the scared option in disguise."],
+    ["I struggle to ask for help, money, or rest","All three are abundant if you let them be."],
+    ["I keep one eye on what could go wrong","Wise. But not 24/7. Designate a 'worry window' once a week."],
+    ["I think I have to choose between things I want","Often the answer is 'and', not 'or'. Test it before you accept the trade-off."]
+  ];
+  const g=id=>document.getElementById(id);
+  g('form').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q[0]}</span>
+    <select id="q${i}"><option value="0">Rarely</option><option value="1">Sometimes</option><option value="2">Often</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('spi')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('spi',JSON.stringify(o)); }); });
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0);
+    const pct=Math.round(sc/(Q.length*2)*100);
+    const vd= pct<=20?['Mostly abundant','Keep modelling this. Catch the slips early.']:pct<=45?['Mixed','Real abundance with scarcity flares. Address the top patterns.']:pct<=70?['Mostly scarcity','You are operating from "not enough" most days. Costs more than you see.']:['Deep scarcity','Almost every decision is fear-flavoured. The reframes below help &mdash; one at a time.'];
+    const top=Q.map((q,i)=>({q,v:+g('q'+i).value})).filter(o=>o.v>=1).sort((a,b)=>b.v-a.v).slice(0,3);
+    g('res').innerHTML='<div class="res"><div class="n">'+pct+'%</div><div class="vd">'+vd[0]+'</div><div style="opacity:.8;font-size:.92rem;margin-top:4px">'+vd[1]+'</div></div>'+
+      (top.length?'<h3 style="font-family:\'Playfair Display\',serif;color:#5AE57A;margin:0 0 10px">Catch and reframe</h3>'+
+       top.map(o=>'<div class="fix"><b style="color:#5AE57A">'+esc(o.q[0])+'</b><br>'+esc(o.q[1])+'</div>').join('')
+       :'<div class="fix" style="border-left-color:#5AE57A">No strong patterns &mdash; healthy default to abundance.</div>');
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function reset(){ if(confirm('Reset?')){ localStorage.removeItem('spi'); Q.forEach((_,i)=>g('q'+i).value='0'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

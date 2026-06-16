@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Pack Pricing Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .chk { display: flex; align-items: center; gap: 9px; margin-top: 12px; font-size: .92rem; cursor: pointer; }
+  .chk input { width: auto; accent-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 140px; }
+  .reco { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .reco .big { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .reco .why { font-size: .85rem; opacity: .75; margin-top: 6px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: .9rem; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #4C724C; }
+  th { color: #5AE57A; font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+  tr.hl td { background: #2E4D2E; color: #FFFFFF; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 11px 20px; border-radius: 8px; margin: 16px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Pack Pricing Calculator</h1>
+  <p class="sub">Stop guessing your price. Get a defensible number based on value, size, and your platform's cut.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="count"># of prompts in the pack</label><input id="count" type="number" min="1" value="20" oninput="calc()"></div>
+      <div><label for="hours">Hours to build it</label><input id="hours" type="number" min="0" value="8" oninput="calc()"></div>
+    </div>
+    <label for="value">What it does for the buyer</label>
+    <select id="value" onchange="calc()">
+      <option value="0">Nice-to-have curiosity</option>
+      <option value="8">Genuinely useful</option>
+      <option value="20" selected>Solves a real, recurring pain</option>
+      <option value="40">Mission-critical to their work/income</option>
+    </select>
+    <label for="niche">Specificity</label>
+    <select id="niche" onchange="calc()">
+      <option value="0">Generic / broad</option>
+      <option value="8" selected>Niche-targeted</option>
+      <option value="18">Hyper-specific to one role</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="guide" onchange="calc()"> Includes a usage guide / instructions</label>
+    <label class="chk"><input type="checkbox" id="bonus" onchange="calc()"> Includes a bonus tool / template</label>
+    <div class="grid" style="margin-top:12px">
+      <div><label for="fee">Platform fee (%)</label><input id="fee" type="number" min="0" max="50" value="10" oninput="calc()"></div>
+      <div><label for="sales">Expected sales / month</label><input id="sales" type="number" min="0" value="20" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="reco">
+    <div class="big" id="price">$0</div>
+    <div class="why" id="why">Recommended price</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="net">$0</div><div class="l">Net / sale</div></div>
+    <div class="stat"><div class="n" id="mo">$0</div><div class="l">Net / month</div></div>
+    <div class="stat"><div class="n" id="yr">$0</div><div class="l">Net / year</div></div>
+    <div class="stat"><div class="n" id="hr">—</div><div class="l">Yr-1 $/build-hr</div></div>
+  </div>
+
+  <div class="panel">
+    <table>
+      <tr><th>Tier</th><th>Price</th><th>Net / sale</th><th>Net / mo</th></tr>
+      <tbody id="scen"></tbody>
+    </table>
+    <div style="font-size:.8rem;opacity:.6;margin-top:8px" id="goal"></div>
+  </div>
+
+  <button class="btn" onclick="copyOut()">Copy Pricing</button>
+  <button class="btn ghost" onclick="resetAll()">Reset</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['count','hours','value','niche','guide','bonus','fee','sales'];
+  F.forEach(id => { const s = localStorage.getItem('pppc_'+id); if (s!==null) { const el=document.getElementById(id); if(el.type==='checkbox') el.checked = s==='1'; else el.value = s; } });
+  const g = id => document.getElementById(id);
+  const num = id => parseFloat(g(id).value)||0;
+
+  const ladder = [7,9,12,17,24,27,37,47,67,97,127,197,247];
+  const snap = x => ladder.reduce((b,p)=> Math.abs(p-x)<Math.abs(b-x)?p:b, ladder[0]);
+  const stepUp = p => ladder[Math.min(ladder.length-1, ladder.indexOf(p)+2)] || Math.round(p*1.7);
+  const stepDn = p => ladder[Math.max(0, ladder.indexOf(p)-2)] || Math.round(p*0.6);
+
+  function rawPrice() {
+    let v = 5;
+    v += Math.min(num('count')*0.4, 15);
+    v += num('value');
+    v += num('niche');
+    if (g('guide').checked) v += 7;
+    if (g('bonus').checked) v += 12;
+    return v;
+  }
+
+  function calc() {
+    F.forEach(id => { const el=g(id); localStorage.setItem('pppc_'+id, el.type==='checkbox'?(el.checked?'1':'0'):el.value); });
+    const reco = snap(rawPrice());
+    const low = stepDn(reco), prem = stepUp(reco);
+    const fee = num('fee')/100, sales = num('sales'), hours = num('hours');
+    const net = p => p*(1-fee);
+    g('price').textContent = '$'+reco;
+    g('why').textContent = `Fair range: $${low} – $${prem}. Recommended for this value & size.`;
+    g('net').textContent = '$'+net(reco).toFixed(2);
+    g('mo').textContent = '$'+Math.round(net(reco)*sales).toLocaleString();
+    g('yr').textContent = '$'+Math.round(net(reco)*sales*12).toLocaleString();
+    g('hr').textContent = hours>0 ? '$'+Math.round(net(reco)*sales*12/hours).toLocaleString() : '—';
+    const rows = [['Conservative',low],['Recommended',reco],['Premium',prem]];
+    g('scen').innerHTML = rows.map(([t,p])=>`<tr class="${t==='Recommended'?'hl':''}"><td>${t}</td><td>$${p}</td><td>$${net(p).toFixed(2)}</td><td>$${Math.round(net(p)*sales).toLocaleString()}</td></tr>`).join('');
+    const toK = net(reco)>0 ? Math.ceil(1000/net(reco)) : 0;
+    g('goal').textContent = `≈ ${toK} sales to net your first $1,000 at the recommended price.`;
+  }
+
+  function copyOut() {
+    const t = `PROMPT PACK PRICING\nRecommended: ${g('price').textContent} (${g('why').textContent})\nNet/sale: ${g('net').textContent} after ${num('fee')}% fee\nAt ${num('sales')} sales/mo: ${g('mo').textContent}/mo, ${g('yr').textContent}/yr\n${g('goal').textContent}`;
+    navigator.clipboard.writeText(t).then(()=>alert('Pricing copied!'),()=>alert('Copy failed.'));
+  }
+  function resetAll() {
+    if (!confirm('Reset all inputs?')) return;
+    F.forEach(id => localStorage.removeItem('pppc_'+id));
+    g('count').value=20; g('hours').value=8; g('value').value='20'; g('niche').value='8';
+    g('guide').checked=false; g('bonus').checked=false; g('fee').value=10; g('sales').value=20;
+    calc();
+  }
+
+  calc();
+</script>
+</body>
+</html>

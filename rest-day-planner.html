@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rest Day Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select, input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus, input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .9rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rest Day Planner</h1>
+  <p class="sub">Rest is part of training, not a break from it. Plan a real recovery day.</p>
+
+  <div class="panel">
+    <label for="feel">How is your body feeling?</label>
+    <select id="feel" onchange="gen()">
+      <option value="sore">Sore / heavy</option>
+      <option value="tired">Tired but not sore</option>
+      <option value="wired">Wired / can't switch off</option>
+      <option value="fine">Fine — just scheduled rest</option>
+    </select>
+    <label for="time">Time available</label>
+    <select id="time" onchange="gen()"><option>Light (under 30 min)</option><option>Moderate (1-2 hrs)</option><option>Full day</option></select>
+    <button class="btn" onclick="gen()">Plan My Rest Day</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  ['feel','time'].forEach(k=>{ const s=localStorage.getItem('rdp_'+k); if(s!==null)g(k).value=s; });
+  function gen(){
+    ['feel','time'].forEach(k=>localStorage.setItem('rdp_'+k,g(k).value));
+    const feel=g('feel').value;
+    const body={
+      sore:["Gentle 10-15 min walk to move blood without loading muscles","Light stretching or mobility flow for tight areas","Warm bath / heat on the sorest spots","Extra protein and water today"],
+      tired:["Prioritise sleep — nap if you can, earlier bedtime tonight","Light walk in daylight to reset rhythm","Skip intense exercise; gentle movement only","Eat properly — under-fuelling reads as fatigue"],
+      wired:["Down-regulate: slow breathing, 4-7-8 for a few minutes","Get outside — nature lowers the stress signal","Limit caffeine and screens, especially later in the day","Do something with your hands, not your head"],
+      fine:["Active recovery: easy walk, swim, or gentle yoga","Mobility work on whatever feels stiff","Meal-prep or admin so the week runs smoother","Genuinely relax — a rest day can include doing nothing"]
+    }[feel];
+    const mind=["Lower the bar today on purpose — recovery is the goal","Notice the urge to 'be productive' and let it pass","One restorative thing that has nothing to do with training"];
+    g('out').innerHTML='<div class="blk"><h4>For your body</h4><ul>'+body.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>For your mind</h4><ul>'+mind.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>The reminder</h4><p style="font-size:.9rem">Muscle is built during rest, not during the workout. A real rest day makes you stronger — skipping it makes you slower.</p></div>';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

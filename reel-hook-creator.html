@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reel Hook Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .hook {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .hook:hover { border-color: #5AE57A; }
+  .hook:active { transform: scale(0.99); }
+  .hook-tag {
+    font-size: 11px;
+    background: #5AE57A;
+    color: #325132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .hook-text { font-size: 15.5px; flex: 1; }
+  .copy-hint {
+    font-size: 11px;
+    color: #5AE57A;
+    opacity: 0;
+    transition: opacity 0.2s;
+    align-self: center;
+  }
+  .hook:hover .copy-hint { opacity: 0.7; }
+  .copied { color: #5AE57A; opacity: 1 !important; font-weight: 700; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Reel Hook Creator</h1>
+  <p class="subtitle">Generate 10 scroll-stopping hooks in seconds. Tap any hook to copy it.</p>
+
+  <div class="card">
+    <label>Your topic or niche</label>
+    <input type="text" id="topic" placeholder="e.g. fitness for busy moms, freelance writing, sleep coaching">
+    <div class="row">
+      <div>
+        <label>Audience</label>
+        <input type="text" id="audience" placeholder="e.g. women in their 30s">
+      </div>
+      <div>
+        <label>Outcome they want</label>
+        <input type="text" id="outcome" placeholder="e.g. lose weight without dieting">
+      </div>
+    </div>
+    <button onclick="generate()">Generate 10 Hooks</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Your Hooks — tap to copy</label>
+      <div id="hooks"></div>
+      <button onclick="generate()" style="margin-top:6px;">Generate 10 More</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const TEMPLATES = [
+  {tag: 'Question', t: "What if {outcome} was actually simpler than you think?"},
+  {tag: 'Question', t: "Why is nobody telling {audience} the truth about {topic}?"},
+  {tag: 'Contrarian', t: "Stop trying to {outcome}. Here's what actually works."},
+  {tag: 'Contrarian', t: "Everything you've heard about {topic} is wrong."},
+  {tag: 'Number', t: "3 things {audience} get wrong about {topic} every single time."},
+  {tag: 'Number', t: "The 1 shift that helped me {outcome} in 30 days."},
+  {tag: 'Story', t: "I tried {topic} for 90 days. Here's what nobody warned me about."},
+  {tag: 'Story', t: "Last year I couldn't {outcome}. Today I teach it. Here's the gap."},
+  {tag: 'Curiosity', t: "Most {audience} will never figure this out about {topic}."},
+  {tag: 'Curiosity', t: "If you're {audience}, this 7-second clip changes everything."},
+  {tag: 'Mistake', t: "The biggest mistake {audience} make when trying to {outcome}."},
+  {tag: 'Mistake', t: "Stop doing this if you actually want to {outcome}."},
+  {tag: 'POV', t: "POV: you finally cracked the code on {topic}."},
+  {tag: 'POV', t: "POV: someone just told you {outcome} doesn't have to take years."},
+  {tag: 'Reveal', t: "Here's the exact framework I use to {outcome}."},
+  {tag: 'Reveal', t: "What {audience} actually need to hear about {topic}."},
+  {tag: 'Direct', t: "Save this if you're tired of trying to {outcome}."},
+  {tag: 'Direct', t: "Read this if you're {audience} and feel stuck."},
+  {tag: 'Confession', t: "I'm not supposed to share this, but here goes."},
+  {tag: 'Confession', t: "I almost gave up on {topic}. Then this happened."},
+  {tag: 'Bold', t: "{outcome} in 60 seconds. No fluff."},
+  {tag: 'Bold', t: "This is the {topic} advice I wish I had at 25."},
+  {tag: 'Negative', t: "5 signs you're doing {topic} wrong."},
+  {tag: 'Negative', t: "If you can't {outcome} yet, it's probably this."}
+];
+
+function pickN(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  const audience = document.getElementById('audience').value.trim() || 'people';
+  const outcome = document.getElementById('outcome').value.trim() || ('master ' + (topic || 'this'));
+  if (!topic) { alert('Add a topic first.'); return; }
+
+  const picks = pickN(TEMPLATES, 10);
+  const hooksHtml = picks.map((p, i) => {
+    const text = p.t
+      .replace(/{topic}/g, topic)
+      .replace(/{audience}/g, audience)
+      .replace(/{outcome}/g, outcome);
+    return `<div class="hook" onclick="copyHook(this, ${i})">
+      <div class="hook-tag">${p.tag}</div>
+      <div class="hook-text" id="text-${i}">${text}</div>
+      <div class="copy-hint">tap to copy</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('hooks').innerHTML = hooksHtml;
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyHook(el, i) {
+  const text = document.getElementById('text-' + i).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const hint = el.querySelector('.copy-hint');
+    hint.textContent = 'copied!';
+    hint.classList.add('copied');
+    setTimeout(() => {
+      hint.textContent = 'tap to copy';
+      hint.classList.remove('copied');
+    }, 1400);
+  });
+}
+</script>
+</body>
+</html>

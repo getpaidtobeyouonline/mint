@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reach Multiplier Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; margin-top: 5px; }
+  .res .d { font-size: .9rem; opacity: .78; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reach Multiplier Calculator</h1>
+  <p class="sub">How far past your own followers is a post traveling? That's your reach multiplier.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="fol">Your followers</label><input id="fol" type="number" min="1" value="5000" oninput="calc()"></div>
+      <div><label for="reach">This post's reach / views</label><input id="reach" type="number" min="0" value="9000" oninput="calc()"></div>
+    </div>
+    <label for="nonf">% of reach from non-followers (if known)</label>
+    <input id="nonf" type="number" min="0" max="100" placeholder="optional" oninput="calc()">
+  </div>
+
+  <div class="res">
+    <div class="n" id="x">0×</div>
+    <div class="vd" id="vd">reach multiplier</div>
+    <div class="d" id="d"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['fol','reach','nonf'].forEach(k=>{ const s=localStorage.getItem('rmc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['fol','reach','nonf'].forEach(k=>localStorage.setItem('rmc_'+k,g(k).value));
+    const f=Math.max(1,n('fol')), r=n('reach');
+    const mult=r/f;
+    g('x').textContent=mult.toFixed(2)+'×';
+    let vd,d;
+    if(mult>=3){ vd='Breaking out 🔥'; d='The algorithm is pushing this well beyond your audience. Study it and make 3 more like it now.'; }
+    else if(mult>=1.5){ vd='Spreading nicely'; d='It\'s reaching new people. Strong hook + save-worthy = keep this format.'; }
+    else if(mult>=0.8){ vd='Staying in-house'; d='Mostly your existing followers. The hook isn\'t earning the algorithm\'s push — sharpen the first 2 seconds.'; }
+    else { vd='Suppressed reach'; d='Reaching fewer than your followers. Check for weak hooks, slow pacing, external links, or low early engagement.'; }
+    const nf=n('nonf');
+    if(nf>0) d+=` With ${nf}% from non-followers, ${nf>=40?'discovery is working — lean into reach formats.':'you\'re relying on existing audience — prioritise shareable, hook-led content.'}`;
+    g('vd').textContent=vd; g('d').textContent=d;
+  }
+  calc();
+</script>
+</body>
+</html>

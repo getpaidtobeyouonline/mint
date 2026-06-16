@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repurposing Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.fmt-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.fmt-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem;gap:.5rem}
+.fmt-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.fmt-time{font-size:.72rem;opacity:.38;white-space:nowrap}
+.fmt-angle{font-size:.82rem;opacity:.72;margin-bottom:.6rem;line-height:1.4;font-style:italic}
+.fmt-items{list-style:none;margin-bottom:.65rem}
+.fmt-items li{font-size:.82rem;opacity:.72;padding:.2rem 0 .2rem 1.1rem;position:relative;line-height:1.4}
+.fmt-items li::before{content:'→';position:absolute;left:0;color:#5AE57A;font-size:.75rem;top:.22rem}
+.fmt-tip{background:#325132;border-radius:6px;padding:.55rem .75rem;font-size:.75rem;opacity:.55;line-height:1.4}
+.fmt-tip strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Repurposing Planner</h1>
+    <p class="subtitle">Turn one piece of content into a multi-platform repurposing plan — with formats, angles, and time estimates.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Content</h2>
+    <label>Source Content Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickCT(0)" id="ct0">Blog Post</button>
+      <button class="opt"     onclick="pickCT(1)" id="ct1">Podcast</button>
+      <button class="opt"     onclick="pickCT(2)" id="ct2">Video</button>
+      <button class="opt"     onclick="pickCT(3)" id="ct3">Email</button>
+      <button class="opt"     onclick="pickCT(4)" id="ct4">Social</button>
+    </div>
+    <label>Content Topic</label>
+    <input type="text" id="inT" placeholder="e.g. email marketing, mindset, productivity">
+    <label>Target Audience</label>
+    <input type="text" id="inA" placeholder="e.g. freelancers, coaches, online business owners">
+    <label>Core Message / Outcome</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, land clients">
+    <label>Formats to Plan</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickN(5)"  id="n5">Quick (5)</button>
+      <button class="opt sel" onclick="pickN(8)"  id="n8">Full (8)</button>
+      <button class="opt"     onclick="pickN(10)" id="n10">Complete (10)</button>
+    </div>
+    <button class="btn" onclick="generate()">Build My Repurposing Plan →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="fmtCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Repurposing Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const fmtTime = m => m < 60 ? `${m}m` : `${Math.floor(m/60)}h` + (m%60 ? ` ${m%60}m` : '');
+
+const ctLabel = ['Blog Post','Podcast Episode','Video','Newsletter','Social Post'];
+const ctShort = ['Blog','Podcast','Video','Email','Social'];
+
+const formats = [
+  {name:'Email Newsletter',  col:'#5AE57A', mins:35,
+   items:['3–5 key {T} insights with personal context for {A}','Clear CTA moving {A} toward {X}','Scannable — short paragraphs, bold phrases, one big idea'],
+   tip:'Send within 48 hrs of publishing to catch your traffic spike',
+   angle:['Summarise the post + add 2–3 personal thoughts not in the article','Write a "behind the episode" email with extra context and resources','Share your top video takeaway + a link for {A} to watch the full thing','Repackage into a new angle — add a story or stat you originally cut','Turn your best caption or thread into a longer, more personal email']},
+  {name:'Instagram Carousel', col:'#5AE57A', mins:45,
+   items:['Slide 1: bold hook stat or question for {A}','Slides 2–8: one {T} insight or step per slide','Final slide: CTA — follow, save, or DM for more on {X}'],
+   tip:'Use the same visual style on every slide — consistency drives saves',
+   angle:['Turn each post section into one carousel slide','Key episode takeaway per slide — keep each under 15 words','Screenshot best video moments + add a text overlay per slide','Repurpose each email section as a single-concept slide','Best-performing post or thread → one insight per slide']},
+  {name:'Short Video Script',  col:'#5AE57A', mins:40,
+   items:['Hook: open with a bold {T} claim or problem {A} relate to','Teach 3 fast points that move {A} toward {X}','Close with a clear next step — follow, comment, or click link in bio'],
+   tip:'Film your hook 3 ways — the winning version is rarely the first take',
+   angle:['Read the post intro as your hook, then teach the top 3 points','Pull your best 60-sec audio clip and record a video to match','Trim or summarise the original video for Reels, TikTok, or Shorts','Turn your email story into a talking-head script with one clear CTA','Film yourself explaining your most-saved post or thread']},
+  {name:'Twitter / X Thread',  col:'#5AE57A', mins:25,
+   items:['Tweet 1: hook — bold take or surprising {T} stat for {A}','Tweets 2–8: one {T} tip or step per tweet','Final tweet: CTA + link to the full piece for more on {X}'],
+   tip:'Number each tweet (1/, 2/) — threads with numbers get more retention',
+   angle:['Each post heading or subpoint becomes one tweet','Pull 7–8 episode insights — one punchy tweet each','Tweet a "behind the video" thread with bonus context','Pull your best email points — strip the prose, keep the punchlines','Expand your top caption into a 7-tweet story thread']},
+  {name:'LinkedIn Post',       col:'#5AE57A', mins:50,
+   items:['Open with a bold {T} story or contrarian take for {A}','Share 3–5 lessons with professional framing around {X}','Close with a question that sparks conversation in the comments'],
+   tip:'Posts with line breaks and white space outperform wall-of-text every time',
+   angle:['Rewrite the post from a "what I learned" professional angle','Share a personal story the episode reminded you of','Write a "behind the video" story with the lesson that surprised you most','Repurpose email into a LinkedIn story — add stakes and a clear lesson','Turn best thread into a LinkedIn narrative with a professional takeaway']},
+  {name:'YouTube Long-Form',   col:'#5AE57A', mins:90,
+   items:['Intro: hook, credibility, and promise of {X} for {A}','Expand each main {T} point into a teach + example segment','Outro: recap, CTA to subscribe, link to related {T} content'],
+   tip:'Say what you\'ll teach, teach it, then say what you taught — repetition = retention',
+   angle:['Film yourself expanding the post into a full in-depth tutorial','Turn the episode into a face-cam "react and expand" video','Re-edit existing footage for YouTube with an optimised intro and chapter marks','Turn the email sequence into a video series — one video per email','Film a "story time" video expanding on your most-viral post or thread']},
+  {name:'Podcast / Audio',     col:'#5AE57A', mins:60,
+   items:['Intro: what {A} will learn and why {T} matters for {X}','Teach each main point conversationally — think "explaining to a friend"','Outro: recap key {T} takeaways + where {A} can go deeper'],
+   tip:'Record standing up — it adds natural energy that listeners can hear',
+   angle:['Record yourself riffing on the blog post with added commentary','Repurpose a top post into a solo episode — read it, then expand it','Record an audio commentary layer for the video','Read the email out loud — add opening and closing thoughts','Do a "story behind the post" solo episode on why you originally shared it']},
+  {name:'Pinterest Pins',      col:'#5AE57A', mins:30,
+   items:['Create 3–5 pins per piece with different visual styles','Each pin headline = a different {T} angle for {A}','Link every pin back to the original content or an opt-in for {X}'],
+   tip:'Vertical images (2:3 ratio) get 3× more reach than square pins',
+   angle:['Turn each post section into a separate pinnable graphic','Create "X takeaways from this episode" quote pin series','Pin your video thumbnail + create 3 alternate graphic versions','Turn each email section into a standalone quote-style pin','Create "one tip" pins from your best-performing posts or captions']},
+  {name:'Blog Post',           col:'#5AE57A', mins:60,
+   items:['Expand the core {T} idea into 800–1500 words for {A}','Add depth: examples, stats, and a how-to section for {X}','SEO: include the main {T} keyword in title, intro, and subheadings'],
+   tip:'Older posts updated with new data often outrank freshly written ones',
+   angle:['Expand into a longer, more detailed evergreen version','Write the "full article" of the episode — transcribe + expand','Turn the video script into a written companion post with screenshots','Use the email as an outline — write a full blog post around the core idea','Expand your best thread into a complete step-by-step blog post']},
+  {name:'Lead Magnet',         col:'#5AE57A', mins:50,
+   items:['Extract the most actionable {T} insight and build a quick resource','Format as a checklist, template, or one-page guide for {A}','Gate it behind an opt-in — delivers value and grows your list toward {X}'],
+   tip:'One specific promise converts better than a broad "ultimate guide"',
+   angle:['Pull the post\'s best framework and turn it into a 1-page PDF','Turn episode key points into a companion resource listeners can download','Create a worksheet version {A} can fill in while watching the video','Turn the email\'s core idea into a downloadable checklist or swipe file','Package your top tips into a PDF guide with a clean design']},
+];
+
+let state = {ct:0, n:8};
+
+function pickCT(i) {
+  state.ct = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`ct${x}`).classList.toggle('sel', x===i));
+}
+function pickN(n) {
+  state.n = n;
+  [5,8,10].forEach(x => document.getElementById(`n${x}`).classList.toggle('sel', x===n));
+}
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const slice = formats.slice(0, state.n);
+  const totalMins = slice.reduce((s,f) => s + f.mins, 0);
+  const avgMins   = Math.round(totalMins / state.n);
+
+  document.getElementById('statsBar').innerHTML =
+    st(state.n,'Formats') + st(ctShort[state.ct],'Source') +
+    st(fmtTime(totalMins),'Total Time') + st(avgMins+'m','Avg/Format');
+
+  document.getElementById('fmtCards').innerHTML = slice.map((f,i) => {
+    return `<div class="fmt-card" style="border-left-color:${f.col}">
+      <div class="fmt-head">
+        <span class="fmt-name" style="color:${f.col}">${f.name}</span>
+        <span class="fmt-time">~${f.mins} min</span>
+      </div>
+      <div class="fmt-angle">"${f.angle[state.ct]}"</div>
+      <ul class="fmt-items">${f.items.map(it=>`<li>${fill(it,T,A,X)}</li>`).join('')}</ul>
+      <div class="fmt-tip"><strong>Pro tip:</strong> ${f.tip}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  const slice = formats.slice(0, state.n);
+  const totalMins = slice.reduce((s,f) => s + f.mins, 0);
+  let text = `REPURPOSING PLANNER\n`;
+  text += `Source: ${ctLabel[state.ct]} · Topic: ${T} · Audience: ${A}\n`;
+  text += `Total estimated time: ${fmtTime(totalMins)}\n\n`;
+  slice.forEach((f,i) => {
+    text += `${i+1}. ${f.name.toUpperCase()} (~${f.mins} min)\n`;
+    text += `   Angle: ${f.angle[state.ct]}\n`;
+    f.items.forEach(it => text += `   → ${fill(it,T,A,X)}\n`);
+    text += `   Tip: ${f.tip}\n\n`;
+  });
+  text += `---\nCreated with Repurposing Planner by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Repurposing Plan as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Pricing Sweet Spot Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+.hint{font-size:.72rem;color:#BFD8BF;margin-top:-13px;margin-bottom:14px;line-height:1.4}
+.inp-wrap{position:relative;margin-bottom:18px}
+.inp-wrap .prefix{position:absolute;top:50%;left:12px;transform:translateY(-50%);color:#BFD8BF;font-size:.85rem;pointer-events:none}
+.inp-wrap .suffix{position:absolute;top:50%;right:12px;transform:translateY(-50%);color:#BFD8BF;font-size:.82rem;pointer-events:none}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.92rem;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.has-pre input{padding-left:26px}
+.has-suf input{padding-right:36px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.slider-row{margin-bottom:18px}
+.slider-top{display:flex;justify-content:space-between;margin-bottom:6px;align-items:center}
+.slider-val{color:#FFFFFF;font-size:.88rem}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#4C724C;border:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#5AE57A;cursor:pointer}
+.slider-labels{display:flex;justify-content:space-between;font-size:.68rem;color:#BFD8BF;margin-top:4px}
+.hero-card{background:#3C603C;border:2px solid #C9A84C44;border-radius:14px;padding:28px;max-width:660px;margin:0 auto 14px;text-align:center}
+.hero-pre{font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:#BFD8BF;margin-bottom:6px}
+.hero-price{font-family:'Playfair Display',serif;font-size:4.5rem;color:#5AE57A;line-height:1}
+.hero-psych{font-size:.82rem;color:#BFD8BF;margin-top:6px;margin-bottom:14px}
+.hero-desc{font-size:.88rem;line-height:1.7;opacity:.8;max-width:420px;margin:0 auto}
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:660px;margin:0 auto 14px}
+.scenario{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:16px;text-align:center;position:relative}
+.scenario.recommended{border-color:#C9A84C44}
+.rec-tag{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#5AE57A;color:#325132;font-size:.62rem;font-weight:800;padding:3px 10px;border-radius:10px;white-space:nowrap;letter-spacing:.05em}
+.sc-label{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.sc-price{font-family:'Playfair Display',serif;font-size:1.6rem;color:#5AE57A;margin-bottom:4px}
+.sc-revenue{font-size:.82rem;color:#5AE57A;font-weight:600;margin-bottom:3px}
+.sc-sales{font-size:.72rem;color:#BFD8BF}
+.sc-bar{background:#325132;border-radius:10px;height:5px;overflow:hidden;margin-top:10px}
+.sc-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#5AE57A,#5AE57A)}
+.floor-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:660px;margin:0 auto 14px}
+.floor-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #3C603C;font-size:.85rem}
+.floor-row:last-child{border-bottom:none}
+.floor-label{opacity:.8}
+.floor-val{font-weight:700}
+.green{color:#5AE57A}.red{color:#5AE57A}.gold{color:#5AE57A}
+.psych-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:660px;margin:0 auto 14px}
+.psych-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.psych-pill{background:#325132;border:1px solid #4C724C;border-radius:20px;padding:6px 14px;font-size:.82rem;font-family:'Playfair Display',serif;cursor:pointer;transition:all .2s}
+.psych-pill:hover{border-color:#5AE57A;color:#5AE57A}
+.psych-pill.closest{border-color:#5AE57A;color:#5AE57A;background:#C9A84C10;font-weight:700}
+.insight-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:660px;margin:0 auto 14px}
+.insight{display:flex;gap:10px;margin-bottom:10px;font-size:.85rem;line-height:1.6}
+.insight:last-child{margin-bottom:0}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:520px){.scenarios{grid-template-columns:1fr}.row,.row3{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Pricing Sweet Spot Calculator</h1>
+<p class="sub">Find the price that maximises revenue without underselling your value or pricing out your buyers</p>
+
+<div class="card">
+  <div class="card-title">Your Product & Costs</div>
+  <div class="row">
+    <div>
+      <label>Product type</label>
+      <select id="pType" onchange="calc()">
+        <option value="template">Template / Swipe File</option>
+        <option value="ebook">Ebook / Guide</option>
+        <option value="course">Mini Course</option>
+        <option value="workshop">Workshop / Training</option>
+        <option value="toolkit">Toolkit / Bundle</option>
+        <option value="membership">Membership (monthly)</option>
+        <option value="coaching">Coaching / Service</option>
+      </select>
+    </div>
+    <div>
+      <label>Hours to create</label>
+      <div class="inp-wrap has-suf"><span class="suffix">hrs</span><input id="hours" type="number" placeholder="20" oninput="calc()"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label>Your desired hourly rate</label>
+      <div class="inp-wrap has-pre"><span class="prefix">$</span><input id="rate" type="number" placeholder="75" oninput="calc()"></div>
+    </div>
+    <div>
+      <label>Tool / software costs</label>
+      <div class="inp-wrap has-pre"><span class="prefix">$</span><input id="toolCost" type="number" placeholder="50" oninput="calc()"></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Your Revenue Goal</div>
+  <div class="row">
+    <div>
+      <label>Monthly revenue goal</label>
+      <div class="inp-wrap has-pre"><span class="prefix">$</span><input id="revGoal" type="number" placeholder="5000" oninput="calc()"></div>
+    </div>
+    <div>
+      <label>Estimated monthly sales</label>
+      <div class="inp-wrap has-suf"><span class="suffix">sales</span><input id="estSales" type="number" placeholder="30" oninput="calc()"></div>
+    </div>
+  </div>
+  <label>Transformation value for your buyer</label>
+  <select id="transValue" onchange="calc()">
+    <option value="200">Small win — saves 1–5 hours or $100–500</option>
+    <option value="1000">Medium win — saves days or $500–2,000</option>
+    <option value="5000" selected>Big win — significant result worth $2,000–10,000</option>
+    <option value="20000">Life-changing — business or income transformation worth $10,000+</option>
+  </select>
+  <div class="slider-row">
+    <div class="slider-top"><label style="margin:0">Market Positioning</label><span class="slider-val" id="posLabel">Mid-market</span></div>
+    <input type="range" id="positioning" min="1" max="5" value="3" oninput="updatePos();calc()">
+    <div class="slider-labels"><span>Budget</span><span>Value</span><span>Premium</span><span>Luxury</span><span>Elite</span></div>
+  </div>
+</div>
+
+<div class="hero-card" id="heroCard">
+  <div class="hero-pre">Your Pricing Sweet Spot</div>
+  <div class="hero-price" id="heroPrice">$—</div>
+  <div class="hero-psych" id="heroPsych"></div>
+  <div class="hero-desc" id="heroDesc">Fill in your details above to calculate your optimal price point.</div>
+</div>
+
+<div class="scenarios" id="scenarios"></div>
+
+<div class="floor-card" id="floorCard">
+  <div class="card-title">Price Breakdown</div>
+  <div class="floor-row"><span class="floor-label">Cost floor (minimum to break even)</span><span class="floor-val gold" id="floorVal">—</span></div>
+  <div class="floor-row"><span class="floor-label">Goal-based price (to hit revenue target)</span><span class="floor-val" id="goalPrice">—</span></div>
+  <div class="floor-row"><span class="floor-label">Value ceiling (15% of transformation value)</span><span class="floor-val" id="valueCeil">—</span></div>
+  <div class="floor-row"><span class="floor-label">Your sweet spot range</span><span class="floor-val green" id="sweetRange">—</span></div>
+</div>
+
+<div class="psych-card">
+  <div class="card-title">Psychological Pricing Options</div>
+  <p style="font-size:.82rem;opacity:.65;margin-bottom:10px">Prices ending in 7 or 9 outperform round numbers. Here are the closest smart price points.</p>
+  <div class="psych-grid" id="psychGrid"></div>
+</div>
+
+<div class="insight-card">
+  <div class="card-title">Pricing Insights</div>
+  <div id="insightsList"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const posLabels=['','Budget','Value','Mid-market','Premium','Luxury'];
+const posMultipliers=[0,0.7,0.9,1.0,1.25,1.6];
+const psychPrices=[7,17,27,37,47,67,97,127,147,197,247,297,397,497,597,697,797,997,1297,1497,1997];
+const typeNorms={template:[17,97],ebook:[17,197],course:[47,497],workshop:[97,697],toolkit:[47,297],membership:[27,197],coaching:[297,2997]};
+
+function updatePos(){const v=document.getElementById('positioning').value;document.getElementById('posLabel').textContent=posLabels[v];}
+function fmt(n){return'$'+Math.round(n).toLocaleString();}
+function fmtRev(n){return'$'+Math.round(n).toLocaleString()+'/mo';}
+
+function nearestPsych(price){return psychPrices.reduce((a,b)=>Math.abs(b-price)<Math.abs(a-price)?b:a);}
+
+function calc(){
+  const hours=parseFloat(document.getElementById('hours').value)||0;
+  const rate=parseFloat(document.getElementById('rate').value)||0;
+  const toolCost=parseFloat(document.getElementById('toolCost').value)||0;
+  const revGoal=parseFloat(document.getElementById('revGoal').value)||0;
+  const estSales=parseFloat(document.getElementById('estSales').value)||1;
+  const transValue=parseFloat(document.getElementById('transValue').value)||5000;
+  const pos=parseInt(document.getElementById('positioning').value)||3;
+  const pType=document.getElementById('pType').value;
+  const posMult=posMultipliers[pos];
+  const norm=typeNorms[pType]||[47,497];
+
+  const totalCost=hours*rate+toolCost;
+  const costFloor=estSales>0?totalCost/estSales:0;
+  const goalPrice=revGoal/estSales;
+  const valueCeiling=transValue*0.15;
+  const marketMin=norm[0]*posMult;const marketMax=norm[1]*posMult;
+
+  // Sweet spot: weighted blend between goal price and value ceiling, bounded by market norms
+  const base=goalPrice>0?(goalPrice*0.6+valueCeiling*0.4):valueCeiling*0.5;
+  const clamped=Math.max(Math.max(costFloor,marketMin),Math.min(base,Math.max(valueCeiling,marketMax)));
+  const sweet=Math.max(clamped,costFloor);
+  const psychSweet=nearestPsych(sweet);
+
+  document.getElementById('heroPrice').textContent=fmt(psychSweet);
+  document.getElementById('heroPsych').textContent=`Psychological price point — rounds naturally from ${fmt(Math.round(sweet))}`;
+  document.getElementById('heroDesc').textContent=`At ${fmt(psychSweet)}, you need ${Math.ceil(revGoal/psychSweet)} sales/month to hit your ${fmt(revGoal)} goal. That's ${estSales?Math.round(psychSweet/Math.max(revGoal/estSales,1)*100)+'%':'—'} of your current estimated conversion volume.`;
+
+  document.getElementById('floorVal').textContent=totalCost?fmt(Math.max(costFloor,1)):'Not entered';
+  document.getElementById('goalPrice').textContent=revGoal&&estSales?fmt(goalPrice):'Not entered';
+  document.getElementById('valueCeil').textContent=fmt(valueCeiling);
+  document.getElementById('sweetRange').textContent=fmt(psychSweet*0.85)+' – '+fmt(psychSweet*1.2);
+
+  // Scenarios
+  const sc=[
+    {label:'Conservative',price:nearestPsych(psychSweet*0.65),tag:null},
+    {label:'Recommended',price:psychSweet,tag:'Sweet Spot'},
+    {label:'Premium',price:nearestPsych(psychSweet*1.45),tag:null},
+  ];
+  const maxRev=Math.max(...sc.map(s=>s.price*estSales));
+  document.getElementById('scenarios').innerHTML=sc.map(s=>{
+    const rev=s.price*estSales;
+    const salesNeeded=revGoal>0?Math.ceil(revGoal/s.price):0;
+    return`<div class="scenario ${s.tag?'recommended':''}">
+      ${s.tag?`<div class="rec-tag">${s.tag}</div>`:''}
+      <div class="sc-label">${s.label}</div>
+      <div class="sc-price">${fmt(s.price)}</div>
+      <div class="sc-revenue">${fmtRev(rev)}</div>
+      <div class="sc-sales">${salesNeeded} sales to hit goal</div>
+      <div class="sc-bar"><div class="sc-fill" style="width:${Math.round(rev/maxRev*100)}%"></div></div>
+    </div>`;}).join('');
+
+  // Psych prices nearby
+  const nearby=psychPrices.filter(p=>p>=sweet*0.5&&p<=sweet*1.8).slice(0,8);
+  document.getElementById('psychGrid').innerHTML=nearby.map(p=>`<div class="psych-pill ${p===psychSweet?'closest':''}" onclick="this.closest('.psych-card').querySelector('.closest')?.classList.remove('closest');this.classList.add('closest')">${fmt(p)}</div>`).join('');
+
+  // Insights
+  const insights=[];
+  if(totalCost&&costFloor>psychSweet*0.5)insights.push({i:'⚠️',t:`Your cost floor of ${fmt(costFloor)} per sale is high relative to your sweet spot. Consider reducing creation costs or spreading them across more sales before pricing lower.`});
+  if(goalPrice>valueCeiling)insights.push({i:'⚠️',t:`Your goal requires ${fmt(goalPrice)} per sale, but that exceeds your value ceiling of ${fmt(valueCeiling)}. Either increase your sales volume, raise perceived value, or adjust your revenue goal.`});
+  if(pos<=2)insights.push({i:'💡',t:`You're positioned as a budget option. Budget pricing attracts more buyers but requires more volume. Make sure your ${Math.ceil(revGoal/psychSweet)} monthly sales target is realistic.`});
+  if(pos>=4)insights.push({i:'💎',t:`Premium positioning commands higher prices but requires strong social proof, a refined brand, and a compelling outcome. Make sure your offer clearly justifies the investment.`});
+  insights.push({i:'📊',t:`At ${fmt(sc[0].price)} you need ${Math.ceil(revGoal/sc[0].price)} sales/month. At ${fmt(sc[2].price)} you only need ${Math.ceil(revGoal/sc[2].price)} — but conversion rates will be lower. Test with a smaller batch before committing to a price.`});
+  if(transValue>=5000)insights.push({i:'🏆',t:`Your buyer's transformation is worth ${fmt(transValue)}. At ${fmt(psychSweet)}, you're only charging ${Math.round(psychSweet/transValue*100)}% of the value delivered — a strong case for positioning this as a premium or high-ticket offer.`});
+
+  document.getElementById('insightsList').innerHTML=insights.map(ins=>`<div class="insight"><span>${ins.i}</span><span>${ins.t}</span></div>`).join('');
+}
+
+updatePos();calc();
+</script>
+</body>
+</html>

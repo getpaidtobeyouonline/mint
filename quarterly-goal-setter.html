@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarterly Goal Setter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Quarter header */
+  .q-header { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 680px; margin: 0 auto 20px; }
+  .q-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  .q-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; }
+  .q-dates { font-size: 0.78rem; color: #BFD8BF; margin-top: 2px; }
+  .q-stats { display: flex; gap: 20px; }
+  .q-stat { text-align: center; }
+  .q-stat-n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFFFFF; line-height: 1; }
+  .q-stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .bar-section { margin-bottom: 8px; }
+  .bar-label { display: flex; justify-content: space-between; font-size: 0.72rem; color: #BFD8BF; margin-bottom: 4px; }
+  .bar-track { background: #325132; border-radius: 4px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+  .bar-q { background: #4C724C; }
+  .bar-goals { background: #5AE57A; }
+  .bar-goals.great { background: #5AE57A; }
+
+  /* Add goal */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 20px; max-width: 680px; margin: 0 auto 20px; display: flex; gap: 8px; }
+  .add-input { flex: 1; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none; }
+  .add-input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Goal cards */
+  .goals { max-width: 680px; margin: 0 auto; }
+  .goal-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .goal-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .goal-name { flex: 1; font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.3; }
+  .status-badge { font-size: 0.68rem; padding: 3px 9px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .s-complete { background: #2E4D2E; color: #5AE57A; }
+  .s-track    { background: #325132; color: #5AE57A; }
+  .s-behind   { background: #2E4D2E; color: #5AE57A; }
+  .s-start    { background: #3C603C;    color: #BFD8BF; }
+  .goal-pct { font-size: 0.82rem; color: #5AE57A; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .goal-bar-track { background: #325132; border-radius: 4px; height: 5px; margin-bottom: 14px; overflow: hidden; }
+  .goal-bar-fill { height: 100%; border-radius: 4px; background: #5AE57A; transition: width 0.4s; }
+  .goal-bar-fill.complete { background: #5AE57A; }
+
+  /* Key results */
+  .kr-label { font-size: 0.68rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .kr-item { margin-bottom: 10px; }
+  .kr-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .kr-text { flex: 1; font-size: 0.85rem; color: #F0EBE0aa; }
+  .kr-pct { font-size: 0.78rem; color: #5AE57A; width: 36px; text-align: right; flex-shrink: 0; }
+  .kr-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.78rem; padding: 2px 4px; flex-shrink: 0; }
+  .kr-del:hover { color: #5AE57A; }
+  input[type="range"] { width: 100%; accent-color: #5AE57A; height: 4px; }
+  .kr-add-row { display: flex; gap: 7px; margin-top: 10px; }
+  .kr-add-row input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 7px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.83rem; outline: none; }
+  .kr-add-row input:focus { border-color: #5AE57A; }
+  .btn-xs { background: #5AE57A; color: #325132; border: none; padding: 7px 14px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; white-space: nowrap; }
+  .btn-xs:hover { background: #5AE57A; }
+  .kr-empty { font-size: 0.78rem; color: #5A845A; font-style: italic; margin-bottom: 8px; }
+
+  .page-empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; max-width: 680px; margin: 0 auto; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Quarterly Goal Setter</h1>
+<p class="subtitle">Set the objectives. Define the results. Win the quarter.</p>
+
+<div class="q-header" id="qHeader"></div>
+
+<div class="add-card">
+  <input class="add-input" id="goalInput" placeholder="Add an objective for this quarter…" maxlength="100" />
+  <button class="btn-gold" onclick="addGoal()">Add Goal</button>
+</div>
+
+<div class="goals" id="goalList">
+  <p class="page-empty">No goals yet — add your first quarterly objective above.</p>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const now  = new Date();
+  const YEAR = now.getFullYear();
+  const MO   = now.getMonth(); // 0-11
+  const QN   = Math.floor(MO / 3) + 1;
+  const Q_KEY = `${YEAR}-Q${QN}`;
+
+  const Q_START = new Date(YEAR, (QN - 1) * 3, 1);
+  const Q_END   = new Date(YEAR, QN * 3, 0);
+  const Q_DAYS  = Math.round((Q_END - Q_START) / 86400000) + 1;
+  const Q_ELAPSED = Math.round((now - Q_START) / 86400000);
+  const Q_LEFT  = Math.max(0, Math.round((Q_END - now) / 86400000));
+  const Q_PCT   = Math.min(100, Math.round(Q_ELAPSED / Q_DAYS * 100));
+
+  const FMT = d => d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+
+  let data = JSON.parse(localStorage.getItem('qgs_data') || '{}');
+  if (data.quarter !== Q_KEY) data = { quarter: Q_KEY, goals: [] };
+
+  function save() { localStorage.setItem('qgs_data', JSON.stringify(data)); }
+
+  function goalProgress(g) {
+    if (!g.keyResults.length) return 0;
+    return Math.round(g.keyResults.reduce((s, kr) => s + kr.progress, 0) / g.keyResults.length);
+  }
+
+  function getStatus(g) {
+    const p = goalProgress(g);
+    if (p >= 100) return 'complete';
+    if (!g.keyResults.length) return 'start';
+    if (p >= Q_PCT - 10) return 'track';
+    return 'behind';
+  }
+
+  function overallProgress() {
+    if (!data.goals.length) return 0;
+    return Math.round(data.goals.reduce((s, g) => s + goalProgress(g), 0) / data.goals.length);
+  }
+
+  function addGoal() {
+    const name = document.getElementById('goalInput').value.trim(); if (!name) return;
+    data.goals.push({ id: Date.now(), name, keyResults: [] });
+    save(); render();
+    document.getElementById('goalInput').value = '';
+    document.getElementById('goalInput').focus();
+  }
+
+  function removeGoal(id) {
+    if (!confirm('Delete this goal and its key results?')) return;
+    data.goals = data.goals.filter(g => g.id !== id); save(); render();
+  }
+
+  function addKR(goalId) {
+    const input = document.getElementById('kr-in-' + goalId);
+    const text  = input.value.trim(); if (!text) return;
+    const g = data.goals.find(g => g.id === goalId); if (!g) return;
+    g.keyResults.push({ id: Date.now(), text, progress: 0 });
+    save(); render();
+  }
+
+  function updateKR(goalId, krId, val) {
+    const g  = data.goals.find(g => g.id === goalId); if (!g) return;
+    const kr = g.keyResults.find(k => k.id === krId); if (!kr) return;
+    kr.progress = parseInt(val);
+    save(); renderHeader(); updateGoalBar(goalId);
+  }
+
+  function removeKR(goalId, krId) {
+    const g = data.goals.find(g => g.id === goalId); if (!g) return;
+    g.keyResults = g.keyResults.filter(k => k.id !== krId);
+    save(); render();
+  }
+
+  function updateGoalBar(goalId) {
+    const g   = data.goals.find(g => g.id === goalId); if (!g) return;
+    const pct = goalProgress(g);
+    const fill = document.getElementById('gbar-' + goalId);
+    const pctEl = document.getElementById('gpct-' + goalId);
+    const badge = document.getElementById('gbadge-' + goalId);
+    if (fill) { fill.style.width = pct + '%'; fill.className = 'goal-bar-fill' + (pct >= 100 ? ' complete' : ''); }
+    if (pctEl) pctEl.textContent = pct + '%';
+    const status = getStatus(g);
+    if (badge) { badge.className = 'status-badge s-' + status; badge.textContent = {complete:'Complete',track:'On Track',behind:'Behind',start:'Not Started'}[status]; }
+    renderHeader();
+  }
+
+  function renderHeader() {
+    const overall = overallProgress();
+    const complete = data.goals.filter(g => goalProgress(g) >= 100).length;
+    document.getElementById('qHeader').innerHTML = `
+      <div class="q-top">
+        <div><div class="q-title">Q${QN} ${YEAR}</div><div class="q-dates">${FMT(Q_START)} – ${FMT(Q_END)}</div></div>
+        <div class="q-stats">
+          <div class="q-stat"><div class="q-stat-n">${Q_LEFT}</div><div class="q-stat-l">days left</div></div>
+          <div class="q-stat"><div class="q-stat-n">${complete}/${data.goals.length}</div><div class="q-stat-l">goals done</div></div>
+          <div class="q-stat"><div class="q-stat-n">${overall}%</div><div class="q-stat-l">overall</div></div>
+        </div>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label"><span>Quarter progress</span><span>${Q_PCT}%</span></div>
+        <div class="bar-track"><div class="bar-fill bar-q" style="width:${Q_PCT}%"></div></div>
+      </div>
+      <div class="bar-section">
+        <div class="bar-label"><span>Goal completion</span><span>${overall}%</span></div>
+        <div class="bar-track"><div class="bar-fill bar-goals ${overall>=100?'great':''}" style="width:${overall}%"></div></div>
+      </div>`;
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    renderHeader();
+    const el = document.getElementById('goalList');
+    if (!data.goals.length) { el.innerHTML = '<p class="page-empty">No goals yet — add your first quarterly objective above.</p>'; return; }
+
+    const STATUS_LABELS = { complete:'Complete', track:'On Track', behind:'Behind', start:'Not Started' };
+    el.innerHTML = data.goals.map(g => {
+      const pct    = goalProgress(g);
+      const status = getStatus(g);
+      const krHtml = g.keyResults.map(kr => `
+        <div class="kr-item">
+          <div class="kr-row">
+            <span class="kr-text">${esc(kr.text)}</span>
+            <span class="kr-pct" id="krpct-${kr.id}">${kr.progress}%</span>
+            <button class="kr-del" onclick="removeKR(${g.id},${kr.id})">✕</button>
+          </div>
+          <input type="range" min="0" max="100" value="${kr.progress}"
+            oninput="document.getElementById('krpct-${kr.id}').textContent=this.value+'%'"
+            onchange="updateKR(${g.id},${kr.id},this.value)" />
+        </div>`).join('');
+
+      return `
+        <div class="goal-card">
+          <div class="goal-top">
+            <div class="goal-name">${esc(g.name)}</div>
+            <span class="status-badge s-${status}" id="gbadge-${g.id}">${STATUS_LABELS[status]}</span>
+            <span class="goal-pct" id="gpct-${g.id}">${pct}%</span>
+            <button class="del-btn" onclick="removeGoal(${g.id})">✕</button>
+          </div>
+          <div class="goal-bar-track">
+            <div class="goal-bar-fill ${pct>=100?'complete':''}" id="gbar-${g.id}" style="width:${pct}%"></div>
+          </div>
+          <div class="kr-label">Key Results</div>
+          ${!g.keyResults.length ? '<p class="kr-empty">No key results yet — add measurable outcomes below.</p>' : krHtml}
+          <div class="kr-add-row">
+            <input id="kr-in-${g.id}" placeholder="Add a key result — e.g. Reach 1,000 subscribers…" maxlength="100"
+              onkeydown="if(event.key==='Enter')addKR(${g.id})" />
+            <button class="btn-xs" onclick="addKR(${g.id})">Add KR</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('goalInput').addEventListener('keydown', e => { if (e.key === 'Enter') addGoal(); });
+  render();
+</script>
+</body>
+</html>

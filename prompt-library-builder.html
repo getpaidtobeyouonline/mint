@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Library Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 80px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 4px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .row { display: flex; gap: 8px; }
+  .row input { flex: 1; }
+  .stat { font-size: .85rem; opacity: .7; margin-bottom: 12px; }
+  .coll { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 14px 16px; margin-bottom: 12px; }
+  .coll .ch { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; cursor: pointer; }
+  .coll .cn { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .coll .cd { font-size: .82rem; opacity: .65; }
+  .coll .mini { font-size: .78rem; opacity: .6; }
+  .prompt { background: #325132; border: 1px solid #3C603C; border-radius: 7px; padding: 10px 12px; margin-top: 8px; }
+  .prompt .pt { font-weight: 500; }
+  .prompt .tip { font-size: .8rem; opacity: .6; font-style: italic; }
+  .prompt .ptx { white-space: pre-wrap; font-size: .86rem; opacity: .85; margin-top: 4px; max-height: 90px; overflow: auto; }
+  .acts { display: flex; gap: 13px; margin-top: 6px; font-size: .78rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 18px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Library Builder</h1>
+  <p class="sub">Organize prompts into a structured, sellable library — collections, intro, and a polished export.</p>
+
+  <div class="panel">
+    <h2>Library details</h2>
+    <label for="ltitle">Library title</label>
+    <input id="ltitle" placeholder="e.g. The Solopreneur Prompt Vault">
+    <div class="row">
+      <div style="flex:1"><label for="lauthor">By</label><input id="lauthor" placeholder="Your name / brand"></div>
+    </div>
+    <label for="lintro">Intro / how to use it</label>
+    <textarea id="lintro" placeholder="A short welcome and usage note for buyers"></textarea>
+  </div>
+
+  <div class="panel">
+    <h2>Add a collection</h2>
+    <div class="row">
+      <input id="cName" placeholder="Collection name (e.g. Marketing)">
+      <button class="btn" onclick="addColl()" style="margin-top:0">+ Add</button>
+    </div>
+    <input id="cDesc" placeholder="One-line description (optional)" style="margin-top:8px">
+  </div>
+
+  <div class="panel">
+    <h2>Add a prompt</h2>
+    <label for="pColl">Into collection</label>
+    <select id="pColl"></select>
+    <label for="pTitle">Prompt title</label>
+    <input id="pTitle" placeholder="e.g. Launch email sequence">
+    <label for="pText">Prompt</label>
+    <textarea id="pText" placeholder="The full prompt…"></textarea>
+    <label for="pTip">Usage tip (optional)</label>
+    <input id="pTip" placeholder="When / how to use it">
+    <button class="btn" onclick="addPrompt()" id="pBtn">+ Add Prompt</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="pCancel" style="display:none">Cancel</button>
+  </div>
+
+  <div class="stat" id="stat"></div>
+  <div id="lib"></div>
+
+  <button class="btn" onclick="exportMd()">Export Library (.md)</button>
+  <button class="btn ghost" onclick="backup()">Backup JSON</button>
+  <button class="btn ghost" onclick="document.getElementById('imp').click()">Restore</button>
+  <input type="file" id="imp" accept="application/json" style="display:none" onchange="restore(event)">
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let meta = JSON.parse(localStorage.getItem('plb_meta') || '{}');
+  let colls = JSON.parse(localStorage.getItem('plb_colls') || '[]');
+  let collapsed = {}, editing = null;
+  ['ltitle','lauthor','lintro'].forEach(k => { if (meta[k]) g(k).value = meta[k]; g(k).addEventListener('input', saveMeta); });
+  function saveMeta() { meta = { ltitle:v('ltitle'), lauthor:v('lauthor'), lintro:v('lintro') }; localStorage.setItem('plb_meta', JSON.stringify(meta)); }
+  function save() { localStorage.setItem('plb_colls', JSON.stringify(colls)); }
+
+  function addColl() {
+    const n = v('cName'); if (!n) { alert('Name the collection.'); return; }
+    colls.push({ name:n, desc:v('cDesc'), prompts:[] });
+    g('cName').value=''; g('cDesc').value='';
+    save(); render();
+  }
+  function delColl(i) { if (confirm(`Delete "${colls[i].name}" and its prompts?`)) { colls.splice(i,1); save(); render(); } }
+  function renameColl(i) {
+    const n = prompt('Collection name:', colls[i].name); if (n===null) return;
+    const d = prompt('Description:', colls[i].desc||'');
+    colls[i].name = n.trim()||colls[i].name; if (d!==null) colls[i].desc = d.trim();
+    save(); render();
+  }
+  function moveColl(i,dir){ const j=i+dir; if(j<0||j>=colls.length)return; [colls[i],colls[j]]=[colls[j],colls[i]]; save(); render(); }
+
+  function addPrompt() {
+    if (!colls.length) { alert('Add a collection first.'); return; }
+    const ci = +g('pColl').value, t = v('pTitle'), x = v('pText');
+    if (!t || !x) { alert('Prompt title and text are required.'); return; }
+    const obj = { title:t, text:x, tip:v('pTip') };
+    if (editing) { colls[editing.c].prompts[editing.p] = obj; }
+    else colls[ci].prompts.push(obj);
+    cancelEdit(); save(); render();
+  }
+  function editPrompt(c,p) {
+    const x = colls[c].prompts[p];
+    g('pColl').value=c; g('pTitle').value=x.title; g('pText').value=x.text; g('pTip').value=x.tip||'';
+    editing = { c, p }; g('pBtn').textContent='✓ Update Prompt'; g('pCancel').style.display='inline-block';
+    g('pTitle').scrollIntoView({ behavior:'smooth', block:'center' });
+  }
+  function cancelEdit() {
+    editing=null; g('pBtn').textContent='+ Add Prompt'; g('pCancel').style.display='none';
+    g('pTitle').value=''; g('pText').value=''; g('pTip').value='';
+  }
+  function delPrompt(c,p) { if (confirm('Delete this prompt?')) { colls[c].prompts.splice(p,1); save(); render(); } }
+  function clearAll() { if (confirm('Clear the whole library?')) { colls=[]; save(); render(); } }
+
+  function render() {
+    g('pColl').innerHTML = colls.map((c,i)=>`<option value="${i}">${esc(c.name)}</option>`).join('') || '<option>— add a collection —</option>';
+    const total = colls.reduce((s,c)=>s+c.prompts.length,0);
+    g('stat').textContent = colls.length ? `${colls.length} collection${colls.length>1?'s':''} · ${total} prompt${total!==1?'s':''}` : '';
+    const L = g('lib');
+    if (!colls.length) { L.innerHTML = '<div class="empty">No collections yet — add one above to start your library.</div>'; return; }
+    L.innerHTML = colls.map((c,ci)=>`
+      <div class="coll">
+        <div class="ch" onclick="toggle(${ci})">
+          <div><span class="cn">${esc(c.name)}</span> <span class="mini">(${c.prompts.length})</span>
+            ${c.desc?`<div class="cd">${esc(c.desc)}</div>`:''}</div>
+          <div class="mini">${collapsed[ci]?'▸ show':'▾ hide'}</div>
+        </div>
+        <div class="acts">
+          <span onclick="moveColl(${ci},-1)">↑</span><span onclick="moveColl(${ci},1)">↓</span>
+          <span onclick="renameColl(${ci})">✎ Edit</span><span onclick="delColl(${ci})">✕ Delete</span>
+        </div>
+        ${collapsed[ci] ? '' : (c.prompts.length ? c.prompts.map((p,pi)=>`
+          <div class="prompt">
+            <div class="pt">${esc(p.title)}</div>
+            ${p.tip?`<div class="tip">${esc(p.tip)}</div>`:''}
+            <div class="ptx">${esc(p.text)}</div>
+            <div class="acts"><span onclick="editPrompt(${ci},${pi})">✎ Edit</span><span onclick="delPrompt(${ci},${pi})">✕ Delete</span></div>
+          </div>`).join('') : '<div class="empty">No prompts in this collection yet.</div>')}
+      </div>`).join('');
+  }
+  function toggle(i) { collapsed[i] = !collapsed[i]; render(); }
+
+  function libMd() {
+    const total = colls.reduce((s,c)=>s+c.prompts.length,0);
+    let t = `# ${v('ltitle')||'Untitled Prompt Library'}\n`;
+    if (v('lauthor')) t += `*by ${v('lauthor')}*\n`;
+    t += `\n${total} prompts across ${colls.length} collections.\n\n`;
+    if (v('lintro')) t += `${v('lintro')}\n\n`;
+    t += `## Contents\n` + colls.map((c,i)=>`${i+1}. ${c.name} (${c.prompts.length})`).join('\n') + `\n`;
+    colls.forEach(c => {
+      t += `\n---\n\n# ${c.name}\n`;
+      if (c.desc) t += `${c.desc}\n`;
+      c.prompts.forEach(p => {
+        t += `\n### ${p.title}\n`;
+        if (p.tip) t += `> ${p.tip}\n`;
+        t += `\n\`\`\`\n${p.text}\n\`\`\`\n`;
+      });
+    });
+    return t.trim();
+  }
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+  function exportMd() {
+    if (!colls.length) { alert('Add some prompts first.'); return; }
+    dl(new Blob([libMd()],{type:'text/markdown'}), (v('ltitle')||'prompt-library').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.md');
+  }
+  function backup() {
+    dl(new Blob([JSON.stringify({meta:{ltitle:v('ltitle'),lauthor:v('lauthor'),lintro:v('lintro')},colls},null,2)],{type:'application/json'}), 'prompt-library-backup.json');
+  }
+  function restore(e) {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const d = JSON.parse(r.result);
+        if (!d.colls || !Array.isArray(d.colls)) throw 0;
+        if (!confirm('Replace your current library with this backup?')) return;
+        colls = d.colls;
+        if (d.meta) { ['ltitle','lauthor','lintro'].forEach(k=>{ g(k).value = d.meta[k]||''; }); saveMeta(); }
+        save(); render();
+      } catch { alert('That file isn\'t a valid library backup.'); }
+      e.target.value='';
+    };
+    r.readAsText(f);
+  }
+
+  render();
+</script>
+</body>
+</html>

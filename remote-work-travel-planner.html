@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Remote Work Travel Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Remote Work Travel Planner</h1>
+  <p class="sub">Plan a "workation" that actually works — so you get the trip AND keep the job happy.</p>
+
+  <div class="panel">
+    <label for="dest">Destination &amp; dates</label>
+    <input id="dest" placeholder="Where and when?">
+    <label for="hours">My core working hours (and time-zone overlap)</label>
+    <input id="hours" placeholder="e.g. 9am-1pm local to overlap with the team">
+    <label for="workspace">Where I will actually work</label>
+    <textarea id="workspace" placeholder="Co-working, cafe, accommodation desk — and a backup"></textarea>
+    <label for="connectivity">My connectivity plan</label>
+    <input id="connectivity" placeholder="Wi-Fi checked, eSIM/SIM, hotspot backup">
+    <label for="split">How I will split work and exploring</label>
+    <textarea id="split" placeholder="e.g. Work mornings, explore afternoons, full days off at weekends"></textarea>
+    <label for="boundaries">Boundaries to protect both work and the trip</label>
+    <textarea id="boundaries" placeholder="e.g. No emails after 6pm, no sightseeing during meetings"></textarea>
+    <button class="btn" onclick="gen()">Build Workation Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['dest','hours','workspace','connectivity','split','boundaries'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('rwtp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('rwtp_'+k,g(k).value)); });
+  function gen(){
+    const t=`REMOTE WORK TRAVEL PLAN\n\nDESTINATION & DATES:\n${v('dest')||'[where and when]'}\n\nCORE WORKING HOURS:\n${v('hours')||'[hours + time-zone overlap]'}\n\nWHERE I WILL WORK:\n${v('workspace')||'[primary + backup workspace]'}\n\nCONNECTIVITY PLAN:\n${v('connectivity')||'[wifi, sim, hotspot]'}\n\nWORK / EXPLORE SPLIT:\n${v('split')||'[how you balance the two]'}\n\nMY BOUNDARIES:\n${v('boundaries')||'[protect both sides]'}\n\n--- Make it work ---\nTest the Wi-Fi before any important calls.\nDo not over-pack the schedule — jet lag and travel days are real.\nProtect your working hours so the trip never threatens the income that funds it.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

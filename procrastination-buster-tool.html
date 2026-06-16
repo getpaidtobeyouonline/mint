@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procrastination Buster Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 28px; }
+
+  /* Phase wrapper */
+  .phase { display: none; max-width: 580px; margin: 0 auto; }
+  .phase.active { display: block; }
+
+  /* Cards */
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 24px; margin-bottom: 18px; }
+  .phase-label { font-size: 0.7rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .phase-q { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #FFFFFF; margin-bottom: 16px; line-height: 1.3; }
+  .task-display { font-family: 'Playfair Display', serif; font-style: italic; color: #5AE57A; font-size: 1rem; margin-bottom: 16px; padding: 10px 14px; background: #325132; border-radius: 8px; border-left: 3px solid #5AE57A; }
+
+  /* Task input */
+  .big-input { width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; outline: none; margin-bottom: 14px; }
+  .big-input:focus { border-color: #5AE57A; }
+  .commit-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; margin-bottom: 12px; }
+  .commit-input:focus { border-color: #5AE57A; }
+
+  /* Buttons */
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 12px 36px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; width: 100%; }
+  .btn-gold:hover { background: #5AE57A; }
+  .btn-gold:disabled { opacity: 0.4; cursor: default; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 10px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; width: 100%; margin-top: 8px; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+
+  /* Reason cards */
+  .reasons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .reason-card { background: #325132; border: 2px solid #3C603C; border-radius: 10px; padding: 12px 10px; cursor: pointer; transition: all 0.15s; text-align: center; }
+  .reason-card .r-icon { font-size: 1.4rem; display: block; margin-bottom: 5px; }
+  .reason-card .r-label { font-size: 0.82rem; font-weight: 500; color: #F0EBE0aa; display: block; margin-bottom: 2px; }
+  .reason-card .r-desc { font-size: 0.7rem; color: #5A845A; display: block; }
+  .reason-card.selected { border-color: #5AE57A; background: #C9A84C0d; }
+  .reason-card.selected .r-label { color: #5AE57A; }
+
+  /* Strategy */
+  .strategy-box { background: #325132; border: 1px solid #2E4D2E; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .strategy-tag { font-size: 0.68rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .strategy-text { font-size: 0.92rem; color: #FFFFFF; line-height: 1.6; }
+
+  /* Timer */
+  .timer-display { font-family: 'Playfair Display', serif; font-size: 5rem; color: #5AE57A; text-align: center; line-height: 1; margin: 24px 0 8px; }
+  .timer-sub { text-align: center; font-size: 0.8rem; color: #BFD8BF; margin-bottom: 24px; }
+  .commit-display { font-size: 0.88rem; color: #F0EBE0aa; font-style: italic; text-align: center; padding: 10px 14px; background: #325132; border-radius: 8px; margin-bottom: 16px; }
+
+  /* Victory */
+  .victory-icon { text-align: center; font-size: 3rem; margin-bottom: 12px; }
+  .victory-title { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; text-align: center; margin-bottom: 8px; }
+  .victory-sub { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5; }
+
+  /* Log */
+  .log-item { padding: 10px 0; border-bottom: 1px solid #3C603C; display: flex; gap: 10px; align-items: flex-start; }
+  .log-item:last-child { border-bottom: none; }
+  .log-cause { font-size: 0.72rem; padding: 2px 8px; border-radius: 10px; background: #C9A84C22; color: #5AE57A; white-space: nowrap; flex-shrink: 0; margin-top: 2px; }
+  .log-task { flex: 1; font-size: 0.88rem; }
+  .log-date { font-size: 0.72rem; color: #5A845A; white-space: nowrap; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 14px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Procrastination Buster</h1>
+<p class="subtitle">Name what you're avoiding. Find out why. Break through it.</p>
+
+<!-- Phase 1: Input -->
+<div class="phase active" id="ph-input">
+  <div class="card">
+    <div class="phase-label">Step 1 of 4</div>
+    <div class="phase-q">What are you procrastinating on?</div>
+    <input class="big-input" id="taskInput" placeholder="Be specific — e.g. 'Write the intro for my sales page'…" maxlength="120" />
+    <button class="btn-gold" onclick="goToDiagnose()">Diagnose It →</button>
+  </div>
+</div>
+
+<!-- Phase 2: Diagnose -->
+<div class="phase" id="ph-diagnose">
+  <div class="card">
+    <div class="phase-label">Step 2 of 4</div>
+    <div class="phase-q">Why are you really avoiding it?</div>
+    <div class="task-display" id="taskDisplay1"></div>
+    <div class="reasons" id="reasonGrid"></div>
+    <button class="btn-gold" id="diagnoseBtn" onclick="goToStrategy()" disabled>Get My Strategy →</button>
+  </div>
+</div>
+
+<!-- Phase 3: Strategy -->
+<div class="phase" id="ph-strategy">
+  <div class="card">
+    <div class="phase-label">Step 3 of 4</div>
+    <div class="phase-q">Here's your move.</div>
+    <div class="task-display" id="taskDisplay2"></div>
+    <div class="strategy-box">
+      <div class="strategy-tag">Your Strategy</div>
+      <div class="strategy-text" id="strategyText"></div>
+    </div>
+    <div class="phase-label" style="margin-bottom:6px">Your first 5-minute action</div>
+    <input class="commit-input" id="commitInput" placeholder="I will…" maxlength="100" />
+    <button class="btn-gold" onclick="goToTimer()">Start 5-Minute Sprint →</button>
+    <button class="btn-ghost" onclick="goTo('ph-input')">← Start Over</button>
+  </div>
+</div>
+
+<!-- Phase 4: Timer -->
+<div class="phase" id="ph-timer">
+  <div class="card" style="text-align:center">
+    <div class="phase-label">Step 4 of 4 — Just Start</div>
+    <div class="phase-q" style="text-align:center">You're doing it. Keep going.</div>
+    <div class="commit-display" id="commitDisplay"></div>
+    <div class="timer-display" id="timerDisplay">5:00</div>
+    <div class="timer-sub" id="timerSub">minutes of focused starting</div>
+    <button class="btn-gold" id="timerBtn" onclick="toggleTimer()">Start Timer</button>
+    <button class="btn-ghost" onclick="goToVictory()" style="margin-top:8px">I Did It — Mark Done ✓</button>
+  </div>
+</div>
+
+<!-- Phase 5: Victory -->
+<div class="phase" id="ph-victory">
+  <div class="card">
+    <div class="victory-icon">🏆</div>
+    <div class="victory-title">Procrastination Busted.</div>
+    <div class="victory-sub" id="victorySub"></div>
+    <button class="btn-gold" onclick="logVictory()">Log This Win & Go Again</button>
+    <button class="btn-ghost" onclick="goTo('ph-input')">Start a New Task</button>
+  </div>
+  <div class="card" id="logCard">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:14px">Victories Log</div>
+    <div id="logList"><p class="empty">No victories yet — bust your first one above.</p></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const REASONS = [
+    { id:'big',    icon:'🏔', label:'Too big',        desc:'Feels overwhelming',   strategy:`Shrink it to atoms. Your only job right now is the smallest possible first action — not finishing, not even starting well. Just touching it. Open the document. Write one sentence. Make one call. Momentum follows motion.` },
+    { id:'unclear',icon:'🌫', label:'Unclear how',    desc:"Don't know where to start", strategy:`Clarify before you act. Spend 5 minutes answering one question: what do I need to know to take the first step? Research that — only that. Confusion isn't laziness. It's a signal to slow down and define.` },
+    { id:'boring', icon:'😴', label:'Boring or dull', desc:"It's tedious",         strategy:`Temptation bundle it. Pair this task with something you genuinely enjoy — your favourite playlist, a great coffee, a window seat. Your brain responds to rewards. Give it one before the task is done.` },
+    { id:'fear',   icon:'😨', label:'Fear of failure',desc:'What if I get it wrong', strategy:`Name the fear, then name the recovery. What's the worst realistic outcome? Write it down. Then write how you'd survive it. You'll discover it's survivable — and that the doing is less risky than the avoiding.` },
+    { id:'perfect',icon:'✨', label:'Perfectionism',  desc:"It's not ready yet",   strategy:`Done beats perfect, every time. Set a 15-minute timer and produce a 'good enough' version with zero editing. You can improve anything — but you can't improve nothing. Ship the draft.` },
+    { id:'energy', icon:'🪫', label:'Low energy',     desc:"Wrong time, no mood",  strategy:`Shrink the time, not the standard. Five minutes, right now. You don't need to finish. You just need to touch it so your brain stops treating it as untouched. That's the whole goal.` },
+  ];
+
+  const TODAY = new Date().toISOString().slice(0, 10);
+  let selectedReason = null, currentTask = '', commitText = '';
+  let timerInterval = null, timerRunning = false, timerSecs = 300;
+  let victories = JSON.parse(localStorage.getItem('pbt_victories') || '[]');
+
+  // Build reason grid
+  document.getElementById('reasonGrid').innerHTML = REASONS.map(r => `
+    <div class="reason-card" id="rc-${r.id}" onclick="selectReason('${r.id}')">
+      <span class="r-icon">${r.icon}</span>
+      <span class="r-label">${r.label}</span>
+      <span class="r-desc">${r.desc}</span>
+    </div>`).join('');
+
+  function goTo(phaseId) {
+    document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+    document.getElementById(phaseId).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function goToDiagnose() {
+    currentTask = document.getElementById('taskInput').value.trim();
+    if (!currentTask) return;
+    selectedReason = null;
+    document.querySelectorAll('.reason-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('diagnoseBtn').disabled = true;
+    document.getElementById('taskDisplay1').textContent = currentTask;
+    goTo('ph-diagnose');
+  }
+
+  function selectReason(id) {
+    selectedReason = id;
+    document.querySelectorAll('.reason-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('rc-' + id).classList.add('selected');
+    document.getElementById('diagnoseBtn').disabled = false;
+  }
+
+  function goToStrategy() {
+    if (!selectedReason) return;
+    const r = REASONS.find(r => r.id === selectedReason);
+    document.getElementById('taskDisplay2').textContent = currentTask;
+    document.getElementById('strategyText').textContent = r.strategy;
+    document.getElementById('commitInput').value = '';
+    goTo('ph-strategy');
+  }
+
+  function goToTimer() {
+    commitText = document.getElementById('commitInput').value.trim() || 'Just start — five minutes.';
+    timerSecs = 300; timerRunning = false;
+    clearInterval(timerInterval);
+    document.getElementById('commitDisplay').textContent = `"${commitText}"`;
+    document.getElementById('timerDisplay').textContent = '5:00';
+    document.getElementById('timerBtn').textContent = 'Start Timer';
+    document.getElementById('timerSub').textContent = 'minutes of focused starting';
+    goTo('ph-timer');
+  }
+
+  function toggleTimer() {
+    if (timerRunning) {
+      clearInterval(timerInterval); timerRunning = false;
+      document.getElementById('timerBtn').textContent = 'Resume';
+    } else {
+      timerRunning = true;
+      document.getElementById('timerBtn').textContent = 'Pause';
+      timerInterval = setInterval(() => {
+        timerSecs--;
+        const m = Math.floor(timerSecs / 60), s = timerSecs % 60;
+        document.getElementById('timerDisplay').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+        if (timerSecs <= 0) { clearInterval(timerInterval); timerRunning = false; goToVictory(); }
+      }, 1000);
+    }
+  }
+
+  function goToVictory() {
+    clearInterval(timerInterval); timerRunning = false;
+    const r = REASONS.find(r => r.id === selectedReason);
+    document.getElementById('victorySub').innerHTML =
+      `You started <strong style="color:#5AE57A">"${currentTask}"</strong> — which is the hardest part.<br>The task isn't finished. But you're no longer stuck.`;
+    renderLog(); goTo('ph-victory');
+  }
+
+  function logVictory() {
+    const r = REASONS.find(r => r.id === selectedReason);
+    victories.unshift({ id: Date.now(), task: currentTask, cause: r?.label || '—', date: TODAY });
+    localStorage.setItem('pbt_victories', JSON.stringify(victories));
+    document.getElementById('taskInput').value = '';
+    renderLog(); goTo('ph-input');
+  }
+
+  function renderLog() {
+    const el = document.getElementById('logList');
+    if (!victories.length) { el.innerHTML = '<p class="empty">No victories yet — bust your first one above.</p>'; return; }
+    el.innerHTML = victories.slice(0, 12).map(v => `
+      <div class="log-item">
+        <span class="log-cause">${v.cause}</span>
+        <span class="log-task">${esc(v.task)}</span>
+        <span class="log-date">${v.date}</span>
+      </div>`).join('');
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  document.getElementById('taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') goToDiagnose(); });
+  renderLog();
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savings Jar Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .res { display: none; }
+  .jar { text-align: center; margin-bottom: 12px; }
+  .jar .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .bar { height: 14px; background: #5A845A; border-radius: 8px; overflow: hidden; margin: 10px 0; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg,#5AE57A,#5AE57A); width: 0; transition: width .6s; }
+  .line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #4C724C; font-size: .92rem; }
+  .line:last-child { border-bottom: none; }
+  .line .v { color: #5AE57A; font-weight: 500; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Savings Jar Calculator</h1>
+  <p class="sub">See how long it takes to fill the jar — and celebrate every step closer.</p>
+
+  <div class="panel">
+    <label for="goal">What I am saving for</label>
+    <input id="goal" placeholder="e.g. new bike, LEGO set">
+    <div class="grid">
+      <div><label for="price">Cost</label><input id="price" type="number" min="0" step="0.01" placeholder="50.00"></div>
+      <div><label for="have">Already saved</label><input id="have" type="number" min="0" step="0.01" placeholder="0"></div>
+      <div><label for="week">Saved per week</label><input id="week" type="number" min="0" step="0.01" placeholder="5"></div>
+    </div>
+    <button class="btn" onclick="calc()">Calculate</button>
+  </div>
+
+  <div class="panel res" id="res">
+    <div class="jar"><div class="n" id="left">—</div><div style="opacity:.7;font-size:.85rem">still to save</div></div>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="line"><span>Goal</span><span class="v" id="goalShow">—</span></div>
+    <div class="line"><span>You have</span><span class="v" id="haveShow">—</span></div>
+    <div class="line"><span>Per week</span><span class="v" id="weekShow">—</span></div>
+    <div class="line"><span>Weeks to go</span><span class="v" id="weeks">—</span></div>
+    <div class="line"><span>That is roughly</span><span class="v" id="date">—</span></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const fmt=v=>v.toFixed(2);
+  function calc(){
+    const price=n('price'), have=n('have'), week=n('week');
+    if(!price){ alert('Enter the cost.'); return; }
+    const left=Math.max(0,price-have);
+    const weeks=week>0?Math.ceil(left/week):'—';
+    g('left').textContent=fmt(left); g('goalShow').textContent=fmt(price); g('haveShow').textContent=fmt(have); g('weekShow').textContent=fmt(week);
+    g('weeks').textContent=(typeof weeks==='number'?weeks+' week'+(weeks===1?'':'s'):'add a weekly amount');
+    if(typeof weeks==='number'){ const d=new Date(); d.setDate(d.getDate()+weeks*7); g('date').textContent='around '+d.toLocaleDateString(); }
+    else g('date').textContent='—';
+    const pct=price?Math.min(100,Math.round(have/price*100)):0;
+    g('fill').style.width=pct+'%';
+    g('res').style.display='block'; g('res').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

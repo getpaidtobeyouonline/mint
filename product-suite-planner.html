@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Suite Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.setup{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:16px 18px;max-width:700px;margin:0 auto 14px;display:flex;align-items:flex-end;gap:16px}
+.setup-field{flex:1}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.35rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.tier-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:16px 18px;max-width:700px;margin:0 auto 10px;transition:border-color .3s,box-shadow .3s}
+.tier-card.live{border-color:#C9A84C55;box-shadow:0 0 20px #C9A84C08}
+.tier-card.building{border-color:#6699ff44}
+.tier-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.tier-emoji{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.tier-meta{flex:1}
+.tier-label{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A}
+.tier-hint{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.tier-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.status-badge{font-size:.67rem;font-weight:700;padding:3px 10px;border-radius:20px}
+.s-idea{background:#4C724C;color:#BFD8BF}
+.s-building{background:#6699ff22;color:#5AE57A}
+.s-live{background:#C9A84C22;color:#5AE57A}
+.s-skip{background:#ff666622;color:#5AE57A}
+.tier-rev{font-size:.78rem;color:#5AE57A}
+.tier-grid{display:grid;grid-template-columns:2fr 1.2fr 0.9fr 1fr;gap:8px}
+.next-card{background:#C9A84C0D;border:1px solid #C9A84C22;border-radius:12px;padding:14px 18px;max-width:700px;margin:0 auto 14px}
+.next-title{font-size:.72rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.next-text{font-size:.87rem;line-height:1.7;opacity:.9}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.stats{grid-template-columns:1fr 1fr}.setup{flex-direction:column}.tier-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<h1>Product Suite Planner</h1>
+<p class="sub">Map your full product ecosystem — from freebie to VIP. Build with purpose, not guesswork.</p>
+
+<div class="setup">
+  <div class="setup-field"><label>Monthly Audience Size</label><input id="audience" type="number" placeholder="1,000" min="0" oninput="render()"></div>
+  <div style="font-size:.78rem;opacity:.45;padding-bottom:10px;line-height:1.5">Enter your monthly followers,<br>subscribers, or visitors to see<br>estimated revenue per tier.</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val green" id="sLive">0</div><div class="stat-lbl">Live Products</div></div>
+  <div class="stat"><div class="stat-val gold" id="sComplete">0%</div><div class="stat-lbl">Suite Complete</div></div>
+  <div class="stat"><div class="stat-val gold" id="sValue">—</div><div class="stat-lbl">Total Suite Value</div></div>
+  <div class="stat"><div class="stat-val blue" id="sRevenue">—</div><div class="stat-lbl">Est. Monthly Revenue</div></div>
+</div>
+
+<div id="tiers"></div>
+
+<div class="next-card">
+  <div class="next-title">✦ What to Build Next</div>
+  <div class="next-text" id="nextText">Fill in your tiers above to get a personalised recommendation on what to build next.</div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const T=[
+  {id:'freebie',e:'🎁',lbl:'Lead Magnet',range:'Free',hint:'Builds your email list',ph:'5-Day Email Challenge',dprice:'0'},
+  {id:'entry',  e:'🌱',lbl:'Entry Offer', range:'$7–$47',  hint:'First paid product, low risk to buy',ph:'Swipe File Bundle',dprice:'27'},
+  {id:'core',   e:'⭐',lbl:'Core Offer',  range:'$97–$297',hint:'Your main solution — highest volume',ph:'The Signature Course',dprice:'197'},
+  {id:'premium',e:'💎',lbl:'Premium',     range:'$497–$997',hint:'Comprehensive transformation',ph:'VIP Intensive Program',dprice:'497'},
+  {id:'vip',    e:'👑',lbl:'VIP / Retainer',range:'$1,000+',hint:'High-touch, done-with-you',ph:'Private Coaching Retainer',dprice:'1500'},
+];
+const FMTS=['Template / Checklist','Ebook / Guide','Mini-Course','Full Course','Workshop','Membership','Coaching','Done-For-You'];
+const STS=['Idea','Building','Live','Skipping'];
+const KEY='pSuitePlanner';
+let D=JSON.parse(localStorage.getItem(KEY)||'{}');
+
+function save(){localStorage.setItem(KEY,JSON.stringify(D));}
+
+function upd(id,field,val){
+  if(!D[id])D[id]={name:'',price:'',format:'Template / Checklist',status:'Idea'};
+  D[id][field]=val;save();render();
+}
+
+function calcRevs(audience){
+  const entry=audience*.02;
+  const core=entry*.28;
+  const premium=core*.20;
+  const vip=premium*.20;
+  const b={freebie:0,entry,core,premium,vip};
+  const r={};
+  T.forEach(t=>{r[t.id]=(parseFloat(D[t.id]?.price)||0)*b[t.id];});
+  return r;
+}
+
+function render(){
+  const audience=parseFloat(document.getElementById('audience').value)||0;
+  const revs=audience>0?calcRevs(audience):{};
+  const live=T.filter(t=>D[t.id]?.status==='Live').length;
+  const filled=T.filter(t=>D[t.id]?.name&&D[t.id]?.price).length;
+  const pct=Math.round(filled/T.length*100);
+  const suiteVal=T.reduce((a,t)=>a+(parseFloat(D[t.id]?.price)||0),0);
+  const monthlyRev=Object.values(revs).reduce((a,v)=>a+v,0);
+
+  document.getElementById('sLive').textContent=live;
+  document.getElementById('sComplete').textContent=pct+'%';
+  document.getElementById('sValue').textContent=suiteVal>0?'$'+Math.round(suiteVal).toLocaleString():'—';
+  document.getElementById('sRevenue').textContent=audience>0&&monthlyRev>0?'$'+Math.round(monthlyRev).toLocaleString():'—';
+
+  document.getElementById('tiers').innerHTML=T.map(tier=>{
+    const d=D[tier.id]||{};
+    const status=d.status||'Idea';
+    const badgeCls=status==='Live'?'s-live':status==='Building'?'s-building':status==='Skipping'?'s-skip':'s-idea';
+    const cardCls=status==='Live'?'live':status==='Building'?'building':'';
+    const rev=revs[tier.id];
+    const revStr=rev>1?'~$'+Math.round(rev)+'/mo':'';
+    const fmtOpts=FMTS.map(f=>`<option${(d.format||FMTS[0])===f?' selected':''}>${f}</option>`).join('');
+    const stOpts=STS.map(s=>`<option${(d.status||'Idea')===s?' selected':''}>${s}</option>`).join('');
+    return`<div class="tier-card ${cardCls}">
+      <div class="tier-head">
+        <div class="tier-emoji">${tier.e}</div>
+        <div class="tier-meta"><div class="tier-label">${tier.lbl} <span style="font-family:'DM Sans';font-size:.72rem;color:#BFD8BF;font-weight:400">${tier.range}</span></div><div class="tier-hint">${tier.hint}</div></div>
+        <div class="tier-right"><div class="status-badge ${badgeCls}">${status}</div>${revStr?`<div class="tier-rev">${revStr}</div>`:''}</div>
+      </div>
+      <div class="tier-grid">
+        <div><label>Product Name</label><input type="text" placeholder="${tier.ph}" value="${d.name||''}" oninput="upd('${tier.id}','name',this.value)"></div>
+        <div><label>Format</label><select onchange="upd('${tier.id}','format',this.value)">${fmtOpts}</select></div>
+        <div><label>Price ($)</label><input type="number" placeholder="${tier.dprice}" min="0" value="${d.price||''}" oninput="upd('${tier.id}','price',this.value)"></div>
+        <div><label>Status</label><select onchange="upd('${tier.id}','status',this.value)">${stOpts}</select></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  let advice='';
+  if(!D.freebie?.name)advice='You have no lead magnet — without one you\'re not growing a list. Start with a quick checklist, challenge, or guide you can create in a few hours.';
+  else if(!D.entry?.name)advice='You have a freebie but no entry offer. New subscribers need a low-risk way to become buyers. Build something under $47 to convert your warm leads.';
+  else if(!D.core?.name)advice='Your core offer is missing — this is where the majority of your revenue will come from. Make it your priority. Think course, programme, or signature framework.';
+  else if(!D.premium?.name)advice='No premium offer yet. Once buyers trust you, a significant percentage will pay $500+ for a deeper, more hands-on solution. Start planning your premium tier.';
+  else if(!D.vip?.name)advice='Your VIP tier is the final piece. Done-with-you offers, private coaching, or retainers can generate outsized revenue from a small number of committed clients.';
+  else if(live===T.length)advice='🏆 Your entire suite is live. Now focus on driving traffic, improving conversions at each tier, and collecting testimonials to strengthen every offer.';
+  else advice=`You have ${live} live product${live!==1?'s':''} and ${T.length-live} still to launch. Pick the one closest to done and get it over the finish line — done beats perfect.`;
+  document.getElementById('nextText').textContent=advice;
+}
+
+render();
+</script>
+</body>
+</html>

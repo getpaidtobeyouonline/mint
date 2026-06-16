@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Progress vs Goals Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 620px; margin: 0 auto 16px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; color-scheme: dark; }
+  .f-input:focus { border-color: #5AE57A; }
+  .form-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .color-dots { display: flex; gap: 7px; margin-bottom: 14px; }
+  .cdot { width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: border-color 0.15s; }
+  .cdot.sel { border-color: #FFFFFF; }
+  .btn-create { background: #5AE57A; color: #325132; border: none; padding: 10px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-create:hover { background: #5AE57A; }
+  .err { font-size: 0.76rem; color: #5AE57A; min-height: 14px; margin-top: 4px; }
+  .gc { background: #3C603C; border: 1px solid #4C724C; border-left: 4px solid; border-radius: 0 12px 12px 0; max-width: 620px; margin: 0 auto 12px; overflow: hidden; }
+  .gc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 14px 16px 10px; }
+  .gc-name { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 3px; }
+  .gc-meta { font-size: 0.74rem; color: #BFD8BF; }
+  .st-badge { font-size: 0.68rem; border: 1px solid; border-radius: 10px; padding: 2px 10px; flex-shrink: 0; white-space: nowrap; }
+  .btn-ghost { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 3px; transition: color 0.15s; }
+  .btn-ghost:hover { color: #5AE57A; }
+  .prog-wrap { position: relative; padding: 0 16px; margin-bottom: 6px; }
+  .prog-track { background: #325132; border-radius: 5px; height: 9px; overflow: visible; position: relative; }
+  .prog-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+  .exp-line { position: absolute; top: -4px; bottom: -4px; width: 2px; background: #BFD8BF; border-radius: 1px; transform: translateX(-50%); pointer-events: none; }
+  .gc-nums { display: flex; justify-content: space-between; align-items: center; padding: 0 16px; margin-bottom: 4px; font-size: 0.82rem; }
+  .gc-pace { padding: 0 16px; font-size: 0.72rem; color: #5A845A; margin-bottom: 8px; }
+  .gc-foot { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-top: 1px solid #3C603C; background: #2A442A; }
+  .btn-log { background: none; border: 1px solid #C9A84C44; color: #5AE57A; padding: 6px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .btn-log:hover { background: #1a150820; border-color: #5AE57A; }
+  .log-form { background: #325132; border-top: 1px solid #3C603C; padding: 14px 16px; }
+  .btn-submit { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+  .btn-submit:hover { background: #5AE57A; }
+  .exp-legend { display: flex; align-items: center; gap: 5px; font-size: 0.7rem; color: #BFD8BF; }
+  .exp-dash { width: 12px; height: 2px; background: #BFD8BF; border-radius: 1px; flex-shrink: 0; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 24px; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; max-width: 620px; margin: 0 auto; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Progress vs Goals</h1>
+<p class="subtitle">Set a target. Log your progress. See if you're keeping pace.</p>
+
+<div class="card">
+  <div class="card-title">Add a Goal</div>
+  <div class="form-row">
+    <div style="flex:2;min-width:160px"><div class="field-label">Goal name</div>
+      <input class="f-input" id="gName" placeholder="e.g. Write my book" maxlength="60" /></div>
+    <div style="flex:0 0 100px"><div class="field-label">Target</div>
+      <input class="f-input" id="gTarget" type="number" min="1" placeholder="50000" /></div>
+    <div style="flex:0 0 100px"><div class="field-label">Unit</div>
+      <input class="f-input" id="gUnit" placeholder="words" maxlength="20" /></div>
+  </div>
+  <div class="form-row" style="margin-bottom:12px">
+    <div style="flex:1"><div class="field-label">Start date</div>
+      <input class="f-input" id="gStart" type="date" /></div>
+    <div style="flex:1"><div class="field-label">End date</div>
+      <input class="f-input" id="gEnd" type="date" /></div>
+    <div style="padding-top:22px"><button class="btn-create" onclick="addGoal()">Add Goal</button></div>
+  </div>
+  <div class="field-label" style="margin-bottom:8px">Goal color</div>
+  <div class="color-dots" id="colorDots"></div>
+  <div class="err" id="gErr"></div>
+</div>
+
+<div style="max-width:620px;margin:0 auto 10px;display:flex;align-items:center;justify-content:flex-end;gap:12px;padding:0 4px">
+  <div class="exp-legend"><div class="exp-dash"></div>Expected pace marker</div>
+</div>
+
+<div id="goalList"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const COLORS = ['#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A'];
+const STATUS  = {
+  complete:  {label:'Complete',  color:'#5AE57A'},
+  ahead:     {label:'Ahead',     color:'#5AE57A'},
+  'on-track':{label:'On Track',  color:'#5AE57A'},
+  behind:    {label:'Behind',    color:'#5AE57A'},
+  overdue:   {label:'Overdue',   color:'#5AE57A'},
+  pending:   {label:'Not Started',color:'#BFD8BF'},
+};
+
+const TODAY = new Date().toISOString().slice(0,10);
+let goals = JSON.parse(localStorage.getItem('pvg_goals')||'[]');
+let expandedId = null, selColor = COLORS[0];
+
+function saveGoals() { localStorage.setItem('pvg_goals', JSON.stringify(goals)); }
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmt(n){if(n===Math.floor(n))return n.toLocaleString();return parseFloat(n.toFixed(1)).toLocaleString();}
+function getTotal(g){return g.entries.reduce((s,e)=>s+e.amount,0);}
+
+function getExpected(g){
+  const s=new Date(g.startDate+'T00:00:00'),e=new Date(g.endDate+'T23:59:59'),n=new Date();
+  if(n<=s) return 0; if(n>=e) return g.target;
+  return g.target*(n-s)/(e-s);
+}
+
+function getStatus(g){
+  const t=getTotal(g);
+  if(t>=g.target) return 'complete';
+  if(new Date()>new Date(g.endDate+'T23:59:59')) return 'overdue';
+  if(new Date()<new Date(g.startDate+'T00:00:00')) return 'pending';
+  const d=t-getExpected(g);
+  if(d>=0) return 'ahead';
+  if(Math.abs(d)/g.target<0.08) return 'on-track';
+  return 'behind';
+}
+
+function daysLeftStr(g){
+  const diff=Math.round((new Date(g.endDate+'T23:59:59')-Date.now())/86400000);
+  if(diff>1) return diff+' days left'; if(diff===1) return 'Due tomorrow';
+  if(diff===0) return 'Due today'; return Math.abs(diff)+' day'+(Math.abs(diff)===1?'':'s')+' overdue';
+}
+
+document.getElementById('gStart').value = TODAY;
+document.getElementById('colorDots').innerHTML = COLORS.map(c=>
+  `<div class="cdot${c===selColor?' sel':''}" style="background:${c}" id="cd-${c.slice(1)}" onclick="pickColor('${c}')"></div>`).join('');
+
+function pickColor(c){
+  selColor=c;
+  COLORS.forEach(x=>document.getElementById('cd-'+x.slice(1)).classList.toggle('sel',x===c));
+}
+
+function addGoal(){
+  const name=document.getElementById('gName').value.trim();
+  const target=parseFloat(document.getElementById('gTarget').value);
+  const unit=(document.getElementById('gUnit').value.trim()||'units');
+  const start=document.getElementById('gStart').value||TODAY;
+  const end=document.getElementById('gEnd').value;
+  if(!name||isNaN(target)||target<=0||!end){document.getElementById('gErr').textContent='Fill in name, target, and end date.';return;}
+  if(end<=start){document.getElementById('gErr').textContent='End date must be after start date.';return;}
+  document.getElementById('gErr').textContent='';
+  goals.push({id:Date.now(),name,unit,target,startDate:start,endDate:end,color:selColor,entries:[]});
+  saveGoals();
+  document.getElementById('gName').value='';document.getElementById('gTarget').value='';
+  document.getElementById('gUnit').value='';document.getElementById('gEnd').value='';
+  render();
+}
+
+function logProgress(id){
+  const g=goals.find(g=>g.id===id);
+  const amt=parseFloat(document.getElementById('la-'+id).value);
+  if(isNaN(amt)){document.getElementById('le-'+id).textContent='Enter a number (use negative to correct).';return;}
+  const note=document.getElementById('ln-'+id).value.trim();
+  g.entries.push({date:TODAY,ts:Date.now(),amount:amt,note});
+  saveGoals(); expandedId=null; render();
+}
+
+function deleteGoal(id){goals=goals.filter(g=>g.id!==id);saveGoals();render();}
+function toggleLog(id){expandedId=expandedId===id?null:id;render();}
+
+function render(){
+  const el=document.getElementById('goalList');
+  if(!goals.length){el.innerHTML='<p class="empty">No goals yet — add your first one above.</p>';return;}
+  el.innerHTML=goals.map(g=>{
+    const total=getTotal(g);
+    const expected=getExpected(g);
+    const actualPct=Math.min(100,total/g.target*100);
+    const expPct=Math.min(100,expected/g.target*100);
+    const st=getStatus(g);
+    const sc=STATUS[st];
+    const delta=total-expected;
+    const expanded=expandedId===g.id;
+    const start=new Date(g.startDate+'T00:00:00');
+    const daysElapsed=Math.max(1,(Date.now()-start)/86400000);
+    const rate=total/daysElapsed;
+    let paceStr='';
+    if(total>0&&st!=='complete'&&st!=='overdue'&&st!=='pending'&&rate>0){
+      const rem=g.target-total;
+      const fin=new Date(Date.now()+(rem/rate)*86400000);
+      paceStr='At this pace: finish '+fin.toLocaleDateString('en-US',{month:'short',day:'numeric',year:fin.getFullYear()!==new Date().getFullYear()?'numeric':undefined});
+    }
+    const canLog=st!=='complete'&&st!=='overdue';
+    return `<div class="gc" style="border-left-color:${g.color}">
+      <div class="gc-head">
+        <div>
+          <div class="gc-name">${esc(g.name)}</div>
+          <div class="gc-meta">Target: ${fmt(g.target)} ${esc(g.unit)} · ${daysLeftStr(g)}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+          <span class="st-badge" style="color:${sc.color};border-color:${sc.color+'44'}">${sc.label}</span>
+          <button class="btn-ghost" onclick="deleteGoal(${g.id})">✕</button>
+        </div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-track">
+          <div class="prog-fill" style="width:${actualPct}%;background:${g.color}${st==='behind'?'bb':''}"></div>
+          ${expPct>0&&st!=='complete'?`<div class="exp-line" style="left:${expPct}%"></div>`:''}
+        </div>
+      </div>
+      <div class="gc-nums">
+        <span style="color:${g.color};font-family:'Playfair Display',serif">${fmt(total)} <span style="font-size:0.8rem;font-family:'DM Sans',sans-serif">/ ${fmt(g.target)} ${esc(g.unit)}</span></span>
+        ${st!=='complete'&&st!=='pending'?`<span style="font-size:0.76rem;color:${delta>=0?'#5AE57A':'#5AE57A'}">${delta>=0?'▲':'▼'} ${fmt(Math.abs(delta))} ${delta>=0?'ahead':'behind'} pace</span>`:''}
+      </div>
+      ${paceStr?`<div class="gc-pace">${paceStr}</div>`:''}
+      <div class="gc-foot">
+        ${canLog?`<button class="btn-log" onclick="toggleLog(${g.id})">${expanded?'↑ Cancel':'+ Log Progress'}</button>`:'<span style="font-size:0.78rem;color:#BFD8BF">${st==='complete'?'✦ Goal reached':'Deadline passed'}</span>'}
+        <span style="font-size:0.72rem;color:#4C724C">${g.entries.length?g.entries.length+' log'+(g.entries.length===1?'':'s'):''}</span>
+      </div>
+      ${expanded?`<div class="log-form">
+        <div class="form-row" style="align-items:flex-end;margin-bottom:8px">
+          <div style="flex:0 0 130px"><div class="field-label">${esc(g.unit)} to add</div>
+            <input class="f-input" id="la-${g.id}" type="number" placeholder="e.g. 500" /></div>
+          <div style="flex:1"><div class="field-label">Note (optional)</div>
+            <input class="f-input" id="ln-${g.id}" placeholder="What did you do?" maxlength="60" /></div>
+          <div style="padding-top:22px"><button class="btn-submit" onclick="logProgress(${g.id})">Log</button></div>
+        </div>
+        <div class="err" id="le-${g.id}"></div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>

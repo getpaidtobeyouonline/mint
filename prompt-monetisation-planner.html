@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Monetisation Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 26px; font-size: .95rem; }
+  label { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 14px 0 6px; }
+  input, textarea, select {
+    width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 60px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin-top: 18px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+  .calc { display: flex; gap: 14px; flex-wrap: wrap; }
+  .calc .stat { flex: 1; min-width: 150px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 16px; text-align: center; }
+  .calc .n { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .calc .l { font-size: .76rem; opacity: .65; text-transform: uppercase; letter-spacing: .05em; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .blk h4 { font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 6px; }
+  .blk p, .blk li { font-size: .95rem; }
+  .blk ol { padding-left: 18px; } .blk li { margin-bottom: 4px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Monetisation Planner</h1>
+  <p class="sub">Turn a prompt you already use into a packaged product with pricing, positioning, and a launch plan.</p>
+
+  <div class="panel">
+    <label for="pname">Prompt / Pack Name</label>
+    <input id="pname" placeholder="e.g. The Cold Email Closer">
+
+    <label for="outcome">What outcome does it deliver?</label>
+    <textarea id="outcome" placeholder="The specific result the buyer gets"></textarea>
+
+    <label for="buyer">Who is it for?</label>
+    <input id="buyer" placeholder="e.g. B2B founders doing their own outreach">
+
+    <label for="format">Package format</label>
+    <select id="format" onchange="suggestPrice()">
+      <option value="single">Single power prompt</option>
+      <option value="pack">Prompt pack (10–50 prompts)</option>
+      <option value="guide">Prompt + usage playbook</option>
+      <option value="tool">Prompt-powered web tool</option>
+      <option value="course">Mini-course built around prompts</option>
+    </select>
+
+    <label for="channel">Sales channel</label>
+    <select id="channel">
+      <option value="gumroad">Gumroad / Lemon Squeezy</option>
+      <option value="etsy">Etsy / digital marketplace</option>
+      <option value="own">Your own site + email list</option>
+    </select>
+
+    <label for="price">Price (USD) <span id="hint" style="opacity:.6;text-transform:none;letter-spacing:0"></span></label>
+    <input id="price" type="number" min="1" value="17">
+  </div>
+
+  <div class="panel">
+    <label for="sales">Expected sales / month: <span id="sval" class="gold">25</span></label>
+    <input id="sales" type="range" min="1" max="500" value="25" oninput="calc()">
+    <div class="calc" style="margin-top:14px">
+      <div class="stat"><div class="n" id="mrev">$425</div><div class="l">Monthly</div></div>
+      <div class="stat"><div class="n" id="yrev">$5,100</div><div class="l">Yearly</div></div>
+      <div class="stat"><div class="n" id="goal">59</div><div class="l">Sales for $1k/mo</div></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Build Monetisation Plan</button>
+
+  <div id="plan"></div>
+
+  <div class="row" id="actions" style="display:none">
+    <button class="btn" onclick="copyPlan()">Copy Plan</button>
+    <button class="btn ghost" onclick="downloadMd()">Download .md</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['pname','outcome','buyer','format','channel','price','sales'];
+  F.forEach(id => { const s = localStorage.getItem('pmp_'+id); if (s!==null) document.getElementById(id).value = s; });
+  F.forEach(id => document.getElementById(id).addEventListener('input', () => { save(); }));
+  const save = () => F.forEach(id => localStorage.setItem('pmp_'+id, document.getElementById(id).value));
+  const v = id => document.getElementById(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  const fmt = {
+    single: { range: "$7–$27", note: "Price low for impulse buys; it's a tripwire into bigger offers.",
+      build: ["Write the prompt with clear [bracketed] inputs","Add a 3-line 'how to use it' note","Show one real before/after example"] },
+    pack: { range: "$27–$97", note: "Bundle value justifies a mid-tier price; lead with the quantity and breadth.",
+      build: ["Group prompts by use-case into sections","Number and label each with its outcome","Add a quick-start index page"] },
+    guide: { range: "$37–$97", note: "The playbook is the value; the prompt is the proof it works.",
+      build: ["Document the workflow step by step","Embed the prompt at the right step","Include troubleshooting + variations"] },
+    tool: { range: "$17–$47", note: "A working tool feels premium vs. a text file — charge accordingly.",
+      build: ["Wrap the prompt in a simple input form","Make output one-click copyable","Add clear instructions on the page"] },
+    course: { range: "$97–$297", note: "Outcome-based pricing — buyers pay for the transformation, not minutes.",
+      build: ["Outline modules around one end result","Attach the prompts as done-for-you assets","Add a fast-win lesson in module one"] }
+  };
+  const chan = {
+    gumroad: ["Set up the product with 3+ benefit-led images","Add an upsell or 'pay what you want' floor","Share a launch post to your network with a 48h discount"],
+    etsy: ["Use keyword-rich title and tags buyers search","Make the thumbnail readable on mobile","Deliver as an instant PDF/link download"],
+    own: ["Create a focused sales page (one CTA)","Connect checkout + automated delivery email","Drive traffic with 3 content pieces + an email sequence"]
+  };
+
+  function suggestPrice() { document.getElementById('hint').textContent = '· suggested ' + fmt[v('format')].range; save(); }
+
+  function calc() {
+    const p = +v('price') || 0, s = +document.getElementById('sales').value;
+    document.getElementById('sval').textContent = s;
+    document.getElementById('mrev').textContent = '$' + (p*s).toLocaleString();
+    document.getElementById('yrev').textContent = '$' + (p*s*12).toLocaleString();
+    document.getElementById('goal').textContent = p>0 ? Math.ceil(1000/p) : '—';
+    save();
+  }
+
+  function planText() {
+    const f = fmt[v('format')], c = chan[v('channel')], p = +v('price')||0, s = +document.getElementById('sales').value;
+    return `MONETISATION PLAN: ${v('pname')||'Untitled'}\n\n`+
+      `Outcome: ${v('outcome')||'(not set)'}\nBuyer: ${v('buyer')||'(not set)'}\n`+
+      `Format: ${document.getElementById('format').selectedOptions[0].text}\nPrice: $${p} (suggested ${f.range})\n`+
+      `Pricing logic: ${f.note}\n\nProjection: ${s} sales/mo = $${(p*s).toLocaleString()}/mo, $${(p*s*12).toLocaleString()}/yr.\n`+
+      `Need ~${p>0?Math.ceil(1000/p):'—'} sales/mo to hit $1,000.\n\n`+
+      `BUILD CHECKLIST\n${f.build.map((x,i)=>`${i+1}. ${x}`).join('\n')}\n\n`+
+      `LAUNCH CHECKLIST (${document.getElementById('channel').selectedOptions[0].text})\n${c.map((x,i)=>`${i+1}. ${x}`).join('\n')}`;
+  }
+
+  function build() {
+    if (!v('pname')) { alert('Give your prompt product a name first.'); return; }
+    const f = fmt[v('format')], c = chan[v('channel')], p = +v('price')||0, s = +document.getElementById('sales').value;
+    document.getElementById('plan').innerHTML =
+      `<div class="blk"><h4>Positioning</h4><p><b>${esc(v('pname'))}</b> helps <b>${esc(v('buyer')||'your buyer')}</b> ${esc(v('outcome')||'get a clear result')} — packaged as a ${esc(document.getElementById('format').selectedOptions[0].text.toLowerCase())}.</p></div>`+
+      `<div class="blk"><h4>Pricing logic</h4><p>At $${p} (suggested ${f.range}): ${f.note}</p></div>`+
+      `<div class="blk"><h4>Build checklist</h4><ol>${f.build.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`+
+      `<div class="blk"><h4>Launch checklist — ${esc(document.getElementById('channel').selectedOptions[0].text)}</h4><ol>${c.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>`;
+    document.getElementById('actions').style.display = 'flex';
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyPlan() { navigator.clipboard.writeText(planText()).then(()=>alert('Plan copied!'),()=>alert('Copy failed.')); }
+  function downloadMd() {
+    const name = (v('pname')||'monetisation-plan').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const b = new Blob([planText()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  suggestPrice(); calc();
+</script>
+</body>
+</html>

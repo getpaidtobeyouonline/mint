@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Procrastination Root Cause Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px 18px; }
+  .res h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; margin-bottom: 8px; }
+  .res p { font-size: .95rem; }
+  .res b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Procrastination Root Cause Tool</h1>
+  <p class="sub">Procrastination is not laziness — it is a signal. Identify yours so you can solve the right problem.</p>
+
+  <div class="panel">
+    <label for="task">The task you keep avoiding</label>
+    <input id="task" placeholder="Be specific">
+    <label for="why">When you imagine doing it, what comes up?</label>
+    <select id="why" onchange="gen()">
+      <option value="fear">Fear of failing or looking bad</option>
+      <option value="perfect">Wanting it perfect</option>
+      <option value="unclear">It feels too vague / I don't know how to start</option>
+      <option value="big">It feels too big</option>
+      <option value="boring">It is genuinely boring</option>
+      <option value="meaning">I don't believe it matters</option>
+      <option value="resent">I resent that I 'should' do it</option>
+      <option value="tired">I am exhausted</option>
+    </select>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['task','why'].forEach(k=>{ const s=localStorage.getItem('prc_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('prc_'+k,g(k).value)); });
+  const SOL={
+    fear:{n:'Fear-driven procrastination',f:'You are protecting yourself from possible failure. The cure is NOT to feel less afraid — it is to make the worst case smaller.',m:'Define the smallest possible version of the task. Make a 20-minute timed attempt. The bar: do something terrible on purpose. Fear shrinks behind action.'},
+    perfect:{n:'Perfectionism in disguise',f:'You are waiting to feel ready or for the work to be flawless. It will not happen.',m:'Set a "good enough" bar before you start. Finish the ugly version. Improve later — or do not.'},
+    unclear:{n:'Unclear task',f:'You do not procrastinate hard things — you procrastinate vague things. Your brain cannot start what it cannot see.',m:'Write the exact first physical action (e.g. "open the doc and write one sentence"). Procrastination dies the second the task becomes specific.'},
+    big:{n:'Task too big',f:'Your brain freezes against the whole mountain.',m:'Break it into the next 20 minutes only. Do not look further. The first chunk is the entire job.'},
+    boring:{n:'Genuine boredom',f:'It is boring AND you have not added any payoff to making it bearable.',m:'Pair it with something pleasant (music, location, a treat after). Time-box it: 25 min then stop, no matter what.'},
+    meaning:{n:'No real meaning',f:'You do not believe it actually matters. That is worth listening to.',m:'Ask: who needs this done, and why? If the honest answer is "no one important", delete it. Procrastination on the wrong task is wisdom.'},
+    resent:{n:'Resentment',f:'You are not avoiding the task — you are protesting the obligation.',m:'Reclaim choice. Either choose to do it because it serves YOU, or renegotiate the obligation. Doing it from resentment will be slow and painful.'},
+    tired:{n:'Exhaustion',f:'No mindset hack beats sleep, food and rest. You cannot will-power your way out of depletion.',m:'Rest first. Genuinely. Then revisit the task with capacity. Pushing through here costs double.'}
+  };
+  function gen(){
+    const s=SOL[g('why').value];
+    g('out').innerHTML='<div class="res"><h3>Root cause: '+s.n+'</h3>'+
+      '<p><b>What is really happening:</b> '+esc(s.f)+'</p>'+
+      '<p style="margin-top:8px"><b>What to do next for "'+esc(v('task')||'(your task)')+'":</b> '+esc(s.m)+'</p></div>';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

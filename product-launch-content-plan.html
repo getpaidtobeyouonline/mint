@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Launch Content Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .phase {
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(240, 235, 224, 0.08);
+  }
+  .phase:last-of-type { border-bottom: none; }
+  .phase-head {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .phase-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #5AE57A;
+  }
+  .phase-dates { font-size: 0.85rem; opacity: 0.75; }
+  .phase-goal {
+    font-style: italic;
+    opacity: 0.85;
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+  }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 5px; font-size: 0.95rem; }
+  .countdown {
+    background: rgba(201, 168, 76, 0.15);
+    border: 1px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    text-align: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+  }
+  .countdown strong { color: #5AE57A; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Product Launch Content Plan</h1>
+  <p class="subtitle">Stop posting "it's live!" once and wondering why no one bought. Get a 6-phase launch plan with dated content for every day that matters.</p>
+
+  <div class="grid">
+    <div>
+      <label for="product">Product Name</label>
+      <input type="text" id="product" placeholder="The Pricing Reset" />
+    </div>
+    <div>
+      <label for="price">Price</label>
+      <input type="text" id="price" placeholder="$197" />
+    </div>
+  </div>
+
+  <label for="audience">Who Is It For?</label>
+  <input type="text" id="audience" placeholder="e.g. freelance designers stuck under $5k/month" />
+
+  <label for="promise">The Transformation / Promise</label>
+  <textarea id="promise" placeholder="e.g. raise rates by 40% without losing clients — in 14 days"></textarea>
+
+  <label for="objection">The #1 Objection You Need To Address</label>
+  <input type="text" id="objection" placeholder="e.g. 'my market won't pay more'" />
+
+  <div class="grid">
+    <div>
+      <label for="cartopen">Cart Open Date</label>
+      <input type="date" id="cartopen" />
+    </div>
+    <div>
+      <label for="cartclose">Cart Close Date</label>
+      <input type="date" id="cartclose" />
+    </div>
+  </div>
+
+  <label for="primary">Primary Platform</label>
+  <select id="primary">
+    <option>Instagram</option>
+    <option>Email</option>
+    <option>LinkedIn</option>
+    <option>YouTube</option>
+    <option>Threads</option>
+    <option>TikTok</option>
+  </select>
+
+  <button class="build-btn" id="buildBtn">Build My Launch Plan</button>
+
+  <div class="plan" id="plan">
+    <div class="countdown" id="countdown"></div>
+    <div id="phases"></div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Launch Plan</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function fmt(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+  function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+
+  function build() {
+    const product = document.getElementById('product').value.trim() || '[Product]';
+    const price = document.getElementById('price').value.trim() || '[$ price]';
+    const audience = document.getElementById('audience').value.trim() || '[your audience]';
+    const promise = document.getElementById('promise').value.trim() || '[the transformation]';
+    const objection = document.getElementById('objection').value.trim() || '[main objection]';
+    const openStr = document.getElementById('cartopen').value;
+    const closeStr = document.getElementById('cartclose').value;
+    const platform = document.getElementById('primary').value;
+
+    if (!openStr || !closeStr) {
+      document.getElementById('countdown').innerHTML = '<strong>Set both cart open and close dates to generate the plan.</strong>';
+      document.getElementById('plan').classList.add('show');
+      document.getElementById('phases').innerHTML = '';
+      return;
+    }
+
+    const cartOpen = new Date(openStr + 'T12:00:00');
+    const cartClose = new Date(closeStr + 'T23:59:59');
+    const today = new Date();
+    const daysToOpen = Math.ceil((cartOpen - today) / (1000*60*60*24));
+    document.getElementById('countdown').innerHTML = daysToOpen > 0
+      ? `<strong>${daysToOpen}</strong> day${daysToOpen===1?'':'s'} until cart opens (${fmt(cartOpen)})`
+      : daysToOpen === 0 ? `<strong>Cart opens today.</strong> Pin the launch post.`
+      : `<strong>Cart is live.</strong> ${Math.ceil((cartClose-today)/(1000*60*60*24))} day${Math.ceil((cartClose-today)/(1000*60*60*24))===1?'':'s'} until close.`;
+
+    const phases = [
+      {
+        title: 'Phase 1 — Quiet seeding',
+        start: addDays(cartOpen, -28),
+        end: addDays(cartOpen, -15),
+        goal: `Plant the problem. No product mention yet. Just deep, useful content on the symptoms ${audience} feel.`,
+        items: [
+          `Post a personal story about when YOU lived the problem (${objection} version of yourself).`,
+          `Share a "free taste" — one tactic from the product, ungated, on ${platform}.`,
+          `Run a poll: "What's the biggest thing holding you back from ${promise}?"`,
+          `Reply to every comment on those posts. DMs are where the launch list grows.`,
+          `Start a waitlist with a single sentence: "Something I've been building for ${audience} is almost ready. Drop your email if you want first dibs."`
+        ]
+      },
+      {
+        title: 'Phase 2 — Building belief',
+        start: addDays(cartOpen, -14),
+        end: addDays(cartOpen, -8),
+        goal: `Make it impossible to keep ignoring the problem. Tease that a solution exists.`,
+        items: [
+          `Post the contrarian belief that powers ${product}. (e.g. "Most advice on ${promise} is wrong — here's why.")`,
+          `Share 2-3 wins from people who've already done what ${product} teaches (case studies, screenshots, DMs).`,
+          `Email the waitlist a free PDF / video — one mini-transformation taste.`,
+          `Address ${objection} head-on with a story, not a sales pitch.`,
+          `Drop the product name without selling: "I'm launching ${product} next week. More soon."`
+        ]
+      },
+      {
+        title: 'Phase 3 — Pre-launch hype',
+        start: addDays(cartOpen, -7),
+        end: addDays(cartOpen, -1),
+        goal: `Anticipation. Make people set a reminder for cart open.`,
+        items: [
+          `Day -7: Announce. Show the cover, the name, the price, the date. Pin it.`,
+          `Day -5: BTS post — how you built ${product}, who it's for, who it's NOT for.`,
+          `Day -3: Live Q&A on ${platform} — answer ${objection} in public.`,
+          `Day -2: Testimonial / beta tester quote.`,
+          `Day -1: 24-hour countdown post. Email the list: "Tomorrow at [time]."`
+        ]
+      },
+      {
+        title: 'Phase 4 — Cart open',
+        start: cartOpen,
+        end: cartOpen,
+        goal: `Convert your warmest audience. Most launches earn 40%+ of revenue in the first 48 hours.`,
+        items: [
+          `${fmt(cartOpen)} morning: Pinned launch post + story stack walking through ${product}, ${price}, and the promise: ${promise}.`,
+          `Email #1 to the list: clear, specific, no fluff. Link to the sales page. CTA above the fold.`,
+          `2-hour social check-in: "Just sold #1. Here's who it was and why she joined." (with permission)`,
+          `Evening: Address ${objection} again. New angle.`,
+          `End of day: "Day 1 in numbers" — transparent or scarcity-focused depending on results.`
+        ]
+      },
+      {
+        title: 'Phase 5 — Mid-launch',
+        start: addDays(cartOpen, 1),
+        end: addDays(cartClose, -1),
+        goal: `Re-engage fence-sitters with proof, objection handling, and urgency.`,
+        items: [
+          `Daily customer spotlight: one new buyer's story or DM.`,
+          `Email #2 — the FAQ email. Tackle ${objection} + 4 other common objections.`,
+          `Live or recorded walkthrough INSIDE the product. Show what they're buying.`,
+          `Comparison post: ${product} vs. doing nothing / vs. the alternative.`,
+          `${Math.floor((cartClose-cartOpen)/(1000*60*60*24)) >= 5 ? 'Email #3 (halfway point): a contrarian essay tied to the promise. No hard sell.' : 'Skip extra emails for short carts — focus on social.'}`
+        ]
+      },
+      {
+        title: 'Phase 6 — Cart close',
+        start: addDays(cartClose, -1),
+        end: cartClose,
+        goal: `The last 48 hours often = 30-40% of total revenue. Don't go quiet.`,
+        items: [
+          `Day -1: "24 hours left" email + post. Re-anchor the promise + price.`,
+          `Day of close, morning: "12 hours" reminder. Address the final objection.`,
+          `Day of close, 6 hours before: customer testimonial + clear next-step CTA.`,
+          `Day of close, 1 hour before: "Last call" email. Short. Direct. One link.`,
+          `Cart closes (${fmt(cartClose)}): "Cart is officially closed. Thank you" post.`,
+          `Day +1: thank-you note to buyers + an honest debrief post for the audience that didn't buy (planting seeds for next round).`
+        ]
+      }
+    ];
+
+    const el = document.getElementById('phases');
+    el.innerHTML = '';
+    phases.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'phase';
+      const dates = p.start.getTime() === p.end.getTime() ? fmt(p.start) : `${fmt(p.start)} → ${fmt(p.end)}`;
+      div.innerHTML = `
+        <div class="phase-head">
+          <div class="phase-title">${p.title}</div>
+          <div class="phase-dates">${dates}</div>
+        </div>
+        <div class="phase-goal">${p.goal}</div>
+        <ul>${p.items.map(i => `<li>${i}</li>`).join('')}</ul>
+      `;
+      el.appendChild(div);
+    });
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const text = document.getElementById('plan').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Launch Plan', 1500);
+    });
+  });
+
+  const t = new Date();
+  document.getElementById('cartopen').valueAsDate = addDays(t, 28);
+  document.getElementById('cartclose').valueAsDate = addDays(t, 33);
+</script>
+</body>
+</html>

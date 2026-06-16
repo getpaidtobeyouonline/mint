@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Validation Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:640px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.progress-wrap{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1rem}
+.bar-bg{flex:1;background:#325132;border-radius:99px;height:8px;overflow:hidden}
+.bar{height:100%;background:#5AE57A;border-radius:99px;width:0%;transition:width .3s}
+.count{font-weight:700;color:#5AE57A;white-space:nowrap;font-size:.875rem;min-width:52px;text-align:right}
+.category{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.cat-title{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.875rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.item{display:flex;align-items:flex-start;gap:.75rem;padding:.55rem 0;cursor:pointer}
+.item:not(:last-child){border-bottom:1px solid #3C603C}
+.box{width:20px;height:20px;min-width:20px;border:2px solid #5A845A;border-radius:5px;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px}
+.item.checked .box{background:#5AE57A;border-color:#5AE57A}
+.chk{display:none}
+.item.checked .chk{display:block}
+.item-text{font-size:.9rem;line-height:1.5;opacity:.85;transition:opacity .2s}
+.item.checked .item-text{opacity:.4;text-decoration:line-through}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin:1rem 0 1.25rem}
+.btn:hover{opacity:.88}
+.result{display:none;background:#3C603C;border-radius:12px;padding:2rem 1.5rem;text-align:center;margin-bottom:1.5rem;border:2px solid #4C724C}
+.result.show{display:block}
+.score-num{font-family:'Playfair Display',serif;font-size:4rem;color:#5AE57A;line-height:1}
+.score-denom{font-size:.9rem;opacity:.45;margin-bottom:1rem}
+.verdict{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:.5rem}
+.verdict-msg{font-size:.9rem;opacity:.65;max-width:400px;margin:0 auto;line-height:1.55}
+.result.green{border-color:#5AE57A}.result.green .verdict{color:#5AE57A}
+.result.yellow{border-color:#5AE57A}.result.yellow .verdict{color:#5AE57A}
+.result.red{border-color:#5AE57A}.result.red .verdict{color:#5AE57A}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Product Validation Checklist</h1>
+    <p class="subtitle">Check every box before you build. Most launches fail because sellers skip this step.</p>
+  </header>
+
+  <div class="progress-wrap">
+    <div class="bar-bg"><div class="bar" id="bar"></div></div>
+    <div class="count" id="count">0 / 18</div>
+  </div>
+
+  <div id="checklist"></div>
+
+  <button class="btn" onclick="showScore()">See My Validation Score →</button>
+
+  <div class="result" id="result">
+    <div class="score-num" id="scoreNum">0</div>
+    <div class="score-denom">out of 18</div>
+    <div class="verdict" id="verdict"></div>
+    <div class="verdict-msg" id="verdictMsg"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const data = [
+  { title: "Market Demand", items: [
+    "I can describe the exact problem this solves in one clear sentence.",
+    "People are actively searching for or asking about this problem online.",
+    "I've found at least 3 posts, threads, or comments from people with this pain."
+  ]},
+  { title: "Target Audience", items: [
+    "I know exactly who this is for — a specific niche, not 'everyone'.",
+    "I know where my audience hangs out and can reach them directly.",
+    "I've had at least one real conversation with a potential buyer about this."
+  ]},
+  { title: "Proof of Demand", items: [
+    "Similar products already exist — proof that people pay for this.",
+    "I've seen people ask 'does anything exist for this?' online.",
+    "At least one person has told me they'd pay for something like this."
+  ]},
+  { title: "Your Offer", items: [
+    "I can explain what this does and who it's for in under 10 seconds.",
+    "The result or transformation buyers get is crystal clear.",
+    "The format fits how my audience prefers to consume content."
+  ]},
+  { title: "Pricing & Positioning", items: [
+    "My price aligns with what similar products charge in this space.",
+    "The value is obvious — the outcome is clearly worth more than the price.",
+    "I'm pricing based on value, not fear of what people will think."
+  ]},
+  { title: "Deliverability", items: [
+    "I can ship a first version in under 2 weeks.",
+    "I don't need anyone's permission or extra resources to build this.",
+    "I'd be proud to put my name on this product."
+  ]}
+];
+
+const TOTAL = 18;
+const checked = new Set();
+
+function render() {
+  let html = '', id = 0;
+  data.forEach(cat => {
+    html += `<div class="category"><div class="cat-title">${cat.title}</div>`;
+    cat.items.forEach(text => {
+      html += `<div class="item" id="i${id}" onclick="toggle(${id})">
+        <div class="box"><svg class="chk" width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path d="M2 6l3 3 5-5" stroke="#325132" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg></div>
+        <span class="item-text">${text}</span>
+      </div>`;
+      id++;
+    });
+    html += '</div>';
+  });
+  document.getElementById('checklist').innerHTML = html;
+}
+
+function toggle(id) {
+  checked.has(id) ? checked.delete(id) : checked.add(id);
+  document.getElementById('i' + id).classList.toggle('checked', checked.has(id));
+  const n = checked.size;
+  document.getElementById('bar').style.width = (n / TOTAL * 100) + '%';
+  document.getElementById('count').textContent = n + ' / ' + TOTAL;
+}
+
+function showScore() {
+  const n = checked.size;
+  let cls, verdict, msg;
+  if (n >= 15) {
+    cls = 'green'; verdict = 'Launch Ready';
+    msg = "You've done the work. Stop overthinking — go build this and get it in front of real buyers.";
+  } else if (n >= 10) {
+    cls = 'yellow'; verdict = 'Almost There';
+    msg = "You're close, but a few gaps could hurt your launch. Address the unchecked items before you build.";
+  } else {
+    cls = 'red'; verdict = 'Keep Validating';
+    msg = "Don't build yet. More validation now saves weeks of wasted effort. Work through the unchecked items first.";
+  }
+  const el = document.getElementById('result');
+  document.getElementById('scoreNum').textContent = n;
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('verdictMsg').textContent = msg;
+  el.className = 'result show ' + cls;
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Audit Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .score { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px; margin-bottom: 16px; position: sticky; top: 12px; z-index: 5; }
+  .score .n { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; line-height: 1; }
+  .score .vd { font-size: .9rem; opacity: .8; }
+  .track { background: #3C603C; border-radius: 5px; height: 8px; overflow: hidden; margin-top: 10px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .sec { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .sec h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 6px; }
+  .chk { display: flex; gap: 11px; padding: 8px 0; border-top: 1px solid #3C603C; cursor: pointer; }
+  .chk:first-of-type { border-top: none; }
+  .box { flex: none; width: 21px; height: 21px; border: 1px solid #BFD8BF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-top: 2px; }
+  .chk.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .chk.on .t { opacity: .5; text-decoration: line-through; }
+  .t { font-size: .93rem; } .t small { display: block; opacity: .6; font-size: .8rem; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: .9rem; padding: 10px 18px; border-radius: 8px; margin-top: 14px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Profile Audit Checklist</h1>
+  <p class="sub">Audit your social profile against 20 conversion essentials and see what's costing you followers.</p>
+
+  <div class="score">
+    <div class="n" id="pct">0%</div>
+    <div class="vd" id="vd">Tick what's true for your profile</div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn" onclick="reset()">Reset</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const DATA = [
+    ["Photo & Identity", [
+      ["Clear, high-quality profile photo (face or crisp logo)","Blurry or default photos kill trust instantly."],
+      ["Name field includes a searchable keyword","People search what you do, not just your handle."],
+      ["Handle is simple, consistent across platforms","Hard-to-spell handles lose tag-backs and referrals."]],
+    ],
+    ["The Bio", [
+      ["First line states who you help + the outcome","The hook is read before the 'more' cut-off."],
+      ["Specific proof or credibility marker","Numbers and results beat vague adjectives."],
+      ["One clear call-to-action","Confused visitors don't click anything."],
+      ["No wasted lines on filler emojis or quotes","Every line should earn its place."]],
+    ],
+    ["The Link", [
+      ["Link points somewhere relevant and current","Dead or generic links waste your only clickable spot."],
+      ["Landing destination matches the bio promise","Mismatch = bounce."],
+      ["Link text/label tells people what they'll get",""]],
+    ],
+    ["Content Signals", [
+      ["Top 3 posts clearly show what you're about","New visitors decide in seconds from the grid."],
+      ["A pinned post that converts or introduces you",""],
+      ["Consistent visual style / recognisable look",""],
+      ["Highlights/playlists organised by topic",""]],
+    ],
+    ["Discoverability", [
+      ["Keywords in name and bio for search","Algorithms read these for recommendations."],
+      ["Location/category set where available",""],
+      ["Contact or DM option enabled for your goal",""]],
+    ],
+    ["Trust & Proof", [
+      ["Visible social proof (testimonials, features, numbers)",""],
+      ["Recent activity — not abandoned-looking","Stale profiles signal low value."],
+      ["Tone and promise are consistent everywhere",""]],
+    ]
+  ];
+  const flat=[]; DATA.forEach(([s,items])=>items.forEach(([t,h])=>flat.push({s,t,h})));
+  let st = JSON.parse(localStorage.getItem('pac')||'[]');
+  if (st.length!==flat.length) st = flat.map(()=>false);
+  const g=id=>document.getElementById(id);
+
+  function render() {
+    let i=-1;
+    g('list').innerHTML = DATA.map(([s,items])=>`<div class="sec"><h3>${s}</h3>`+items.map(([t,h])=>{
+      i++; const idx=i;
+      return `<div class="chk ${st[idx]?'on':''}" data-i="${idx}"><div class="box">${st[idx]?'✓':''}</div><div class="t">${t}${h?`<small>${h}</small>`:''}</div></div>`;
+    }).join('')+`</div>`).join('');
+    g('list').querySelectorAll('.chk').forEach(el=>el.onclick=()=>{ const k=+el.dataset.i; st[k]=!st[k]; localStorage.setItem('pac',JSON.stringify(st)); render(); });
+    const done=st.filter(Boolean).length, pct=Math.round(done/flat.length*100);
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+    g('vd').textContent = pct>=90?'Conversion-ready profile 🔥':pct>=65?'Strong — close the last gaps':pct>=40?'Leaking followers — fix the basics':'Major leaks — start at the top';
+  }
+  function reset(){ if(confirm('Uncheck everything?')){ st=flat.map(()=>false); localStorage.setItem('pac',JSON.stringify(st)); render(); } }
+  render();
+</script>
+</body>
+</html>

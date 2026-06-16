@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proposal Value Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      padding: 40px 16px 70px;
+    }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 540px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 16px; }
+    label { display: block; font-size: 0.74rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 6px; }
+    input, select {
+      width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px;
+      color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      padding: 10px 14px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: #5AE57A; }
+    select option { background: #3C603C; }
+    .field { margin-bottom: 14px; flex: 1; }
+    .row { display: flex; gap: 10px; }
+    .line-item { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+    .line-item input:first-child { flex: 2; }
+    .line-item .price-input { flex: 1; min-width: 90px; }
+    .btn-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 1rem; padding: 0 4px; transition: color 0.2s; flex-shrink: 0; }
+    .btn-del:hover { color: #5AE57A; }
+    .btn-add-line {
+      background: transparent; border: 1px dashed #4C724C; border-radius: 8px;
+      color: #5AE57A; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+      padding: 9px; width: 100%; cursor: pointer; margin-top: 4px; transition: border-color 0.2s;
+    }
+    .btn-add-line:hover { border-color: #5AE57A; }
+    .line-total { text-align: right; font-size: 0.82rem; opacity: 0.4; margin-top: 8px; }
+    .btn-calc {
+      width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700;
+      padding: 13px; cursor: pointer; transition: opacity 0.2s;
+      text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px;
+    }
+    .btn-calc:hover { opacity: 0.85; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid #3C603C; }
+    .result-row:last-of-type { border-bottom: none; }
+    .result-label { opacity: 0.6; font-size: 0.87rem; }
+    .result-val { font-weight: 600; font-size: 1rem; }
+    .result-val.gold { color: #5AE57A; }
+    .result-val.big { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+    .insight { background: #325132; border-left: 3px solid #5AE57A; border-radius: 4px; padding: 13px 16px; margin-top: 16px; font-size: 0.87rem; line-height: 1.65; opacity: 0.85; }
+    .btn-reset { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; padding: 10px; cursor: pointer; margin-top: 12px; transition: border-color 0.2s; }
+    .btn-reset:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Proposal Value Calculator</h1>
+  <p class="subtitle">Show clients exactly what their investment is worth.</p>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="card-title">Your Deliverables</div>
+      <div id="line-items"></div>
+      <button class="btn-add-line" onclick="addLine()">+ Add Deliverable</button>
+      <div class="line-total">Total Investment: <strong id="line-total-val">$0</strong></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Client Value</div>
+      <div class="row">
+        <div class="field">
+          <label>Monthly Revenue Lift ($)</label>
+          <input type="number" id="rev-lift" placeholder="e.g. 2000" min="0" />
+        </div>
+        <div class="field">
+          <label>Hours Saved / Month</label>
+          <input type="number" id="hrs-saved" placeholder="e.g. 10" min="0" />
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Client's Hourly Rate ($)</label>
+          <input type="number" id="hourly-rate" placeholder="e.g. 100" min="0" />
+        </div>
+        <div class="field">
+          <label>Time Period</label>
+          <select id="period">
+            <option value="1">1 month</option>
+            <option value="3">3 months</option>
+            <option value="6" selected>6 months</option>
+            <option value="12">12 months</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-calc" onclick="calculate()">Calculate Value</button>
+    </div>
+
+    <div class="results card" id="results">
+      <div class="card-title">Value Summary</div>
+      <div class="result-row"><span class="result-label">Total Investment</span><span class="result-val" id="r-investment">—</span></div>
+      <div class="result-row"><span class="result-label">Projected Revenue Lift</span><span class="result-val gold" id="r-rev">—</span></div>
+      <div class="result-row"><span class="result-label">Time Value Recovered</span><span class="result-val gold" id="r-time">—</span></div>
+      <div class="result-row"><span class="result-label">Total Value Delivered</span><span class="result-val big" id="r-total">—</span></div>
+      <div class="result-row"><span class="result-label">Return on Investment</span><span class="result-val gold" id="r-roi">—</span></div>
+      <div class="result-row"><span class="result-label">Value Multiple</span><span class="result-val" id="r-multiple">—</span></div>
+      <div class="result-row"><span class="result-label">Estimated Payback Period</span><span class="result-val" id="r-payback">—</span></div>
+      <div class="insight" id="r-insight"></div>
+      <button class="btn-reset" onclick="document.getElementById('results').classList.remove('show')">Recalculate</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let lines = [
+      { id: 1, name: 'Strategy Session', price: 500 },
+      { id: 2, name: 'Content Package',  price: 1500 },
+    ];
+    let nextId = 3;
+
+    const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+
+    function renderLines() {
+      document.getElementById('line-items').innerHTML = lines.map(l => `
+        <div class="line-item">
+          <input type="text" value="${l.name}" placeholder="Deliverable name"
+            oninput="updateLine(${l.id},'name',this.value)" />
+          <input type="number" value="${l.price || ''}" placeholder="$" min="0" class="price-input"
+            oninput="updateLine(${l.id},'price',parseFloat(this.value)||0)" />
+          <button class="btn-del" onclick="removeLine(${l.id})">&#10005;</button>
+        </div>`).join('');
+      updateTotal();
+    }
+
+    function addLine() {
+      lines.push({ id: nextId++, name: '', price: 0 });
+      renderLines();
+      const inputs = document.querySelectorAll('.line-item input');
+      if (inputs.length) inputs[inputs.length - 2].focus();
+    }
+
+    function removeLine(id) {
+      if (lines.length <= 1) return;
+      lines = lines.filter(l => l.id !== id);
+      renderLines();
+    }
+
+    function updateLine(id, field, val) {
+      const l = lines.find(l => l.id === id);
+      if (l) l[field] = val;
+      updateTotal();
+    }
+
+    function updateTotal() {
+      const t = lines.reduce((s, l) => s + (l.price || 0), 0);
+      document.getElementById('line-total-val').textContent = fmt(t);
+    }
+
+    function calculate() {
+      const investment = lines.reduce((s, l) => s + (l.price || 0), 0);
+      const revLift    = parseFloat(document.getElementById('rev-lift').value)    || 0;
+      const hrsSaved   = parseFloat(document.getElementById('hrs-saved').value)   || 0;
+      const rate       = parseFloat(document.getElementById('hourly-rate').value) || 0;
+      const months     = parseInt(document.getElementById('period').value);
+
+      if (investment <= 0) { alert('Please add at least one deliverable with a price.'); return; }
+
+      const revTotal  = revLift * months;
+      const timeVal   = hrsSaved * rate * months;
+      const totalVal  = revTotal + timeVal;
+      const roi       = totalVal > 0 ? ((totalVal - investment) / investment * 100) : 0;
+      const multiple  = totalVal > 0 ? (totalVal / investment) : 0;
+      const monthly   = revLift + (hrsSaved * rate);
+      const payback   = monthly > 0 ? Math.ceil(investment / monthly) : null;
+
+      document.getElementById('r-investment').textContent = fmt(investment);
+      document.getElementById('r-rev').textContent        = revTotal > 0 ? fmt(revTotal) : '—';
+      document.getElementById('r-time').textContent       = timeVal  > 0 ? fmt(timeVal)  : '—';
+      document.getElementById('r-total').textContent      = totalVal > 0 ? fmt(totalVal) : '—';
+      document.getElementById('r-roi').textContent        = roi > 0 ? Math.round(roi) + '%' : '—';
+      document.getElementById('r-multiple').textContent   = multiple >= 1 ? multiple.toFixed(1) + 'x their investment' : '—';
+      document.getElementById('r-payback').textContent    = payback ? payback + (payback === 1 ? ' month' : ' months') : '—';
+
+      let insight;
+      if (totalVal <= 0) {
+        insight = 'Add a revenue lift or hours saved to reveal the full value picture. Even conservative numbers make a compelling case for your price.';
+      } else if (multiple >= 5) {
+        insight = `At ${multiple.toFixed(1)}x their investment, this proposal sells itself. Open your pitch with the ROI — let the numbers do the convincing before they even ask about price.`;
+      } else if (multiple >= 2) {
+        insight = `A ${multiple.toFixed(1)}x return is a strong value case. Consider adding a bonus or guarantee to make saying yes feel like a no-brainer.`;
+      } else {
+        insight = `The value ratio is tight. Revisit the revenue impact estimate or emphasize intangibles — peace of mind, time freedom, and avoided costs often tip the scale.`;
+      }
+      document.getElementById('r-insight').textContent = insight;
+      document.getElementById('results').classList.add('show');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    renderLines();
+  </script>
+</body>
+</html>

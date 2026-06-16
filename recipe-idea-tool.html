@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recipe Idea Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 20px; margin-top: 16px; display: none; text-align: left; }
+  .idea .big { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .idea .meta { font-size: .82rem; opacity: .65; margin-top: 6px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Recipe Idea Tool</h1>
+  <p class="sub">Beat the "what shall I make?" rut. Set the filters and get a meal idea.</p>
+
+  <div class="panel">
+    <label for="meal">Meal</label>
+    <select id="meal"><option value="any">Any meal</option><option value="breakfast">Breakfast</option><option value="lunch">Lunch</option><option value="dinner">Dinner</option></select>
+    <label for="time">Time you have</label>
+    <select id="time"><option value="any">Any</option><option value="quick">Quick (under 20 min)</option><option value="medium">Medium (30-45 min)</option></select>
+    <label for="diet">Preference</label>
+    <select id="diet"><option value="any">No preference</option><option value="veg">Vegetarian</option><option value="light">Light &amp; healthy</option><option value="hearty">Hearty &amp; filling</option></select>
+    <button class="btn" onclick="gen()">Get a Recipe Idea</button>
+  </div>
+
+  <div class="idea" id="idea"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const R=[
+    {t:"Overnight oats with fruit &amp; nuts",m:"breakfast",time:"quick",d:["veg","light"]},
+    {t:"Veggie-loaded scrambled eggs on toast",m:"breakfast",time:"quick",d:["veg","hearty"]},
+    {t:"Greek yogurt bowl with honey &amp; granola",m:"breakfast",time:"quick",d:["veg","light"]},
+    {t:"Shakshuka — eggs poached in spiced tomato",m:"breakfast",time:"medium",d:["veg","hearty"]},
+    {t:"Big rainbow salad with chickpeas",m:"lunch",time:"quick",d:["veg","light"]},
+    {t:"Loaded baked potato with beans &amp; cheese",m:"lunch",time:"medium",d:["veg","hearty"]},
+    {t:"Wrap with hummus, roast veg &amp; greens",m:"lunch",time:"quick",d:["veg","light"]},
+    {t:"Hearty lentil &amp; vegetable soup",m:"lunch",time:"medium",d:["veg","hearty","light"]},
+    {t:"Stir-fry with whatever veg you have + rice",m:"dinner",time:"quick",d:["veg","light"]},
+    {t:"One-pan roast chicken &amp; vegetables",m:"dinner",time:"medium",d:["hearty"]},
+    {t:"Pasta with garlic, greens &amp; parmesan",m:"dinner",time:"quick",d:["veg","hearty"]},
+    {t:"Veggie chilli with rice or a baked potato",m:"dinner",time:"medium",d:["veg","hearty"]},
+    {t:"Sheet-pan salmon with roasted veg",m:"dinner",time:"medium",d:["light"]},
+    {t:"Tacos — beans or meat, all the toppings",m:"dinner",time:"quick",d:["veg","hearty"]},
+    {t:"Curry with chickpeas or chicken + rice",m:"dinner",time:"medium",d:["veg","hearty"]},
+    {t:"Big grain bowl — grain, protein, veg, sauce",m:"lunch",time:"medium",d:["veg","light","hearty"]},
+    {t:"Omelette with cheese &amp; herbs",m:"any",time:"quick",d:["veg","light"]},
+    {t:"Frittata loaded with leftover vegetables",m:"any",time:"medium",d:["veg","hearty"]},
+    {t:"Soup &amp; toasted cheese sandwich",m:"lunch",time:"quick",d:["veg","hearty"]},
+    {t:"Quick fried rice with egg &amp; veg",m:"dinner",time:"quick",d:["veg","hearty"]}
+  ];
+  function gen(){
+    const m=g('meal').value, time=g('time').value, diet=g('diet').value;
+    let pool=R.filter(x=>(m==='any'||x.m===m||x.m==='any')&&(time==='any'||x.time===time)&&(diet==='any'||x.d.includes(diet)));
+    if(!pool.length)pool=R.filter(x=>(m==='any'||x.m===m||x.m==='any'));
+    if(!pool.length)pool=R;
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    const map={breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',any:'Any meal',quick:'Quick',medium:'Medium time'};
+    g('idea').style.display='block';
+    g('idea').innerHTML='<div class="big">'+p.t+'</div><div class="meta">'+(map[p.m]||'Any')+' · '+map[p.time]+'</div>';
+  }
+</script>
+</body>
+</html>

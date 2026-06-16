@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 24px; font-size: .95rem; }
+  label { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; resize: vertical; min-height: 80px; }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  .count { text-align: right; font-size: .8rem; opacity: .55; margin-top: 4px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px 22px; margin-bottom: 20px; }
+  .scorebox { text-align: center; }
+  .scorebox .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 10px; overflow: hidden; margin: 12px 0 6px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .sec h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin: 18px 0 8px; }
+  .chk { display: flex; gap: 12px; padding: 9px 0; border-top: 1px solid #3C603C; cursor: pointer; }
+  .chk:first-child { border-top: none; }
+  .box { flex: none; width: 22px; height: 22px; border: 1px solid #5A845A; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .9rem; margin-top: 2px; }
+  .chk.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .chk .t { font-size: .95rem; }
+  .chk .t small { display: block; opacity: .6; font-size: .82rem; }
+  .chk.on .t { opacity: .55; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 16px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Engineering Checklist</h1>
+  <p class="sub">Run any prompt through 12 proven checks, get a quality score, and see exactly what to fix.</p>
+
+  <div class="panel">
+    <label for="draft">Your draft prompt (optional — for reference)</label>
+    <textarea id="draft" placeholder="Paste the prompt you're working on…"></textarea>
+    <div class="count" id="count">0 words</div>
+  </div>
+
+  <div class="panel scorebox">
+    <div class="v" id="verdict">Strong prompt?</div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div style="font-size:.85rem;opacity:.7"><span id="num">0</span> / 12 checks passed</div>
+  </div>
+
+  <div class="panel" id="list"></div>
+
+  <button class="btn" onclick="showFixes()">What Should I Fix?</button>
+  <button class="btn ghost" onclick="copyReport()">Copy Report</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+
+  <div id="fixes" style="margin-top:18px"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const data = [
+    ["Role & Goal", [
+      ["Defines who the AI should act as","e.g. \"Act as a senior copywriter.\""],
+      ["States one clear goal or outcome","One job per prompt beats a vague catch-all."],
+      ["Names the intended audience","Output changes a lot when the reader is specified."]]],
+    ["Context", [
+      ["Gives relevant background","The AI can't read your mind — supply the situation."],
+      ["Includes an example of 'good'","One sample steers quality more than ten adjectives."],
+      ["States what to avoid / out of scope","Negative constraints prevent the usual wrong turns."]]],
+    ["Constraints & Format", [
+      ["Specifies output format or structure","Bullets? Table? JSON? Say it explicitly."],
+      ["Sets a length or scope limit","Prevents rambling or thin answers."],
+      ["Defines tone or voice","Otherwise you get generic, on-the-fence writing."]]],
+    ["Reasoning & Quality", [
+      ["Asks it to plan/think before answering","For complex tasks this sharply improves results."],
+      ["Tells it to ask if anything's unclear","Stops confident answers built on wrong assumptions."],
+      ["Defines the quality bar / acceptance test","State what 'done and good' actually means."]]]
+  ];
+
+  const flat = [];
+  data.forEach(([sec, items]) => items.forEach(([t, h]) => flat.push({ sec, t, h })));
+  let state = JSON.parse(localStorage.getItem('pec') || '[]');
+  if (state.length !== flat.length) state = flat.map(() => false);
+
+  const draft = document.getElementById('draft');
+  draft.value = localStorage.getItem('pec_draft') || '';
+  function wc() {
+    const w = draft.value.trim() ? draft.value.trim().split(/\s+/).length : 0;
+    document.getElementById('count').textContent = w + (w === 1 ? ' word' : ' words');
+    localStorage.setItem('pec_draft', draft.value);
+  }
+  draft.addEventListener('input', wc);
+
+  function render() {
+    let i = -1;
+    document.getElementById('list').innerHTML = data.map(([sec, items]) =>
+      `<div class="sec"><h3>${sec}</h3>` + items.map(([t, h]) => {
+        i++; const idx = i;
+        return `<div class="chk ${state[idx]?'on':''}" data-i="${idx}">
+          <div class="box">${state[idx]?'✓':''}</div>
+          <div class="t">${t}<small>${h}</small></div></div>`;
+      }).join('') + `</div>`).join('');
+    document.querySelectorAll('.chk').forEach(el => el.onclick = () => {
+      const k = +el.dataset.i; state[k] = !state[k];
+      localStorage.setItem('pec', JSON.stringify(state));
+      render();
+    });
+    update();
+  }
+
+  function update() {
+    const n = state.filter(Boolean).length, pct = Math.round(n/flat.length*100);
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('num').textContent = n;
+    const v = pct >= 90 ? "Excellent — this prompt is ready"
+            : pct >= 65 ? "Strong — minor gaps left"
+            : pct >= 40 ? "Decent — tighten the gaps"
+            : "Weak — needs real work";
+    document.getElementById('verdict').textContent = v + ` (${pct}%)`;
+  }
+
+  function showFixes() {
+    const missing = flat.filter((_, i) => !state[i]);
+    const box = document.getElementById('fixes');
+    if (!missing.length) { box.innerHTML = `<div class="fix">Nothing to fix — every check passed. Ship it. ✅</div>`; return; }
+    box.innerHTML = `<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:10px">Fix these ${missing.length}:</h3>` +
+      missing.map(m => `<div class="fix"><b>${m.t}</b> — ${m.h}</div>`).join('');
+    box.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyReport() {
+    const n = state.filter(Boolean).length, pct = Math.round(n/flat.length*100);
+    let t = `PROMPT ENGINEERING CHECKLIST — ${pct}% (${n}/${flat.length})\n\n`;
+    flat.forEach((f,i) => t += `[${state[i]?'x':' '}] ${f.t}\n`);
+    const miss = flat.filter((_,i)=>!state[i]);
+    if (miss.length) t += `\nTO FIX:\n` + miss.map(m=>`- ${m.t}: ${m.h}`).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Report copied!'),()=>alert('Copy failed.'));
+  }
+
+  function reset() {
+    if (!confirm('Uncheck everything?')) return;
+    state = flat.map(()=>false);
+    localStorage.setItem('pec', JSON.stringify(state));
+    document.getElementById('fixes').innerHTML = '';
+    render();
+  }
+
+  wc(); render();
+</script>
+</body>
+</html>

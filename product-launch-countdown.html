@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Launch Countdown</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.setup{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 14px}
+.setup-row{display:grid;grid-template-columns:2fr 1.5fr auto;gap:10px;align-items:flex-end}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus{outline:none;border-color:#5AE57A}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{filter:invert(.4)}
+.set-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.set-btn:hover{opacity:.85}
+.cd-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:26px 20px;max-width:700px;margin:0 auto 14px;text-align:center;transition:border-color .6s,box-shadow .6s}
+.cd-card.live{border-color:#5AE57A;box-shadow:0 0 40px #C9A84C18}
+.cd-product{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;margin-bottom:20px;min-height:1.4em;opacity:.9}
+.cd-blocks{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:14px}
+.cd-block{background:#325132;border:1px solid #3C603C;border-radius:10px;padding:14px 16px;min-width:76px}
+.cd-num{font-family:'Playfair Display',serif;font-size:2.4rem;color:#5AE57A;line-height:1}
+.cd-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.06em;margin-top:5px}
+.cd-sep{font-family:'Playfair Display',serif;font-size:2rem;color:#4C724C;margin-bottom:20px}
+.cd-status{font-size:.85rem;opacity:.45}
+.live-banner{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:none}
+.prog-wrap{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px 18px;max-width:700px;margin:0 auto 14px}
+.prog-row{display:flex;justify-content:space-between;font-size:.75rem;color:#BFD8BF;margin-bottom:8px}
+.prog-row .gold{color:#5AE57A;font-weight:600}
+.prog-track{background:#325132;border-radius:20px;height:7px;overflow:hidden}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .4s}
+.section{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:16px 18px;max-width:700px;margin:0 auto 10px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-title{font-family:'Playfair Display',serif;font-size:.9rem;color:#5AE57A}
+.sec-count{font-size:.72rem;color:#BFD8BF}
+.item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #325132;cursor:pointer}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.cb{width:17px;height:17px;border:2px solid #4C724C;border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cb.chk{background:#5AE57A;border-color:#5AE57A}
+.cb.chk::after{content:'✓';font-size:.65rem;color:#325132;font-weight:700}
+.item-text{font-size:.87rem;line-height:1.5;flex:1}
+.item-text.chk{opacity:.4;text-decoration:line-through}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.setup-row{grid-template-columns:1fr}.set-btn{width:100%}.cd-blocks{gap:3px}.cd-block{min-width:58px;padding:10px 8px}.cd-num{font-size:1.8rem}.cd-sep{font-size:1.4rem;margin-bottom:14px}}
+</style>
+</head>
+<body>
+<h1>Product Launch Countdown</h1>
+<p class="sub">Set your date. Work the checklist. Launch with confidence.</p>
+
+<div class="setup">
+  <div class="setup-row">
+    <div><label>Product Name</label><input id="pName" type="text" placeholder="e.g. The Content Vault"></div>
+    <div><label>Launch Date & Time</label><input id="lDate" type="datetime-local"></div>
+    <button class="set-btn" onclick="setLaunch()">Set Launch →</button>
+  </div>
+</div>
+
+<div class="cd-card" id="cdCard">
+  <div class="cd-product" id="cdProduct">Enter your product name and launch date above</div>
+  <div class="cd-blocks">
+    <div class="cd-block"><div class="cd-num" id="cdD">—</div><div class="cd-lbl">Days</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdH">—</div><div class="cd-lbl">Hours</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdM">—</div><div class="cd-lbl">Minutes</div></div>
+    <div class="cd-sep">:</div>
+    <div class="cd-block"><div class="cd-num" id="cdS">—</div><div class="cd-lbl">Seconds</div></div>
+  </div>
+  <div class="cd-status" id="cdStatus">until launch</div>
+  <div class="live-banner" id="liveBanner">🚀 You're live — go make your launch sales!</div>
+</div>
+
+<div class="prog-wrap">
+  <div class="prog-row"><span id="prgLeft">0 of 20 tasks done</span><span class="gold" id="prgRight">0% launch ready</span></div>
+  <div class="prog-track"><div class="prog-fill" id="prgFill" style="width:0%"></div></div>
+</div>
+
+<div id="secs"></div>
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const T=[
+  {p:'1 Week Before',i:[
+    'Write and schedule your full launch email sequence — teaser, open cart, close cart',
+    'Finalise your sales page or store listing and run a full test purchase yourself',
+    'Design all launch assets: product mockup, social graphics, and Stories slides',
+    'Confirm your pricing, bonuses, and any early-bird offer with a clear deadline',
+    'Announce the launch date publicly and start building audience anticipation',
+  ]},
+  {p:'3 Days Before',i:[
+    'Send a "something big is coming" teaser email to your list',
+    'Post a countdown or sneak-peek on your main social platforms',
+    'Schedule all launch-day social posts in advance using your scheduler',
+    'Brief any affiliates or collaborators with swipe copy and tracking links',
+    'Re-test your checkout flow, delivery email, and any discount codes',
+  ]},
+  {p:'Launch Eve',i:[
+    'Send your "doors open tomorrow" email to build overnight excitement',
+    'Post a final countdown Story or Reel to warm up your audience',
+    'Double-check all links, payment settings, and the product delivery flow',
+    'Prepare a FAQ and objection-handling script for comments and DMs',
+    'Get a good night\'s sleep — tomorrow is a big day',
+  ]},
+  {p:'Launch Day',i:[
+    'Send your launch email — check the subject line and confirm every link',
+    'Post your launch announcement across all active platforms',
+    'Pin your launch post and update every bio link to the sales page',
+    'Go live or post a video walkthrough of the product if applicable',
+    'Engage every comment, DM, and reply — momentum is everything today',
+  ]},
+];
+
+const KEY='plcData';
+let state=JSON.parse(localStorage.getItem(KEY)||'{}');
+let ck=state.ck||{};
+let tmr=null;
+const total=T.reduce((a,s)=>a+s.i.length,0);
+
+function save(){localStorage.setItem(KEY,JSON.stringify({name:state.name,date:state.date,ck}));}
+function pad(n){return String(n).padStart(2,'0');}
+
+function tick(){
+  if(!state.date)return;
+  const diff=new Date(state.date).getTime()-Date.now();
+  if(diff<=0){
+    ['cdD','cdH','cdM','cdS'].forEach(id=>document.getElementById(id).textContent='00');
+    document.getElementById('cdStatus').style.display='none';
+    document.getElementById('liveBanner').style.display='block';
+    document.getElementById('cdCard').classList.add('live');
+    return;
+  }
+  document.getElementById('cdD').textContent=pad(Math.floor(diff/86400000));
+  document.getElementById('cdH').textContent=pad(Math.floor(diff%86400000/3600000));
+  document.getElementById('cdM').textContent=pad(Math.floor(diff%3600000/60000));
+  document.getElementById('cdS').textContent=pad(Math.floor(diff%60000/1000));
+}
+
+function setLaunch(){
+  const name=document.getElementById('pName').value.trim();
+  const date=document.getElementById('lDate').value;
+  if(!name||!date){alert('Please enter a product name and launch date.');return;}
+  state={name,date,ck};save();
+  document.getElementById('cdProduct').textContent=name;
+  document.getElementById('cdStatus').style.display='block';
+  document.getElementById('liveBanner').style.display='none';
+  document.getElementById('cdCard').classList.remove('live');
+  if(tmr)clearInterval(tmr);
+  tick();tmr=setInterval(tick,1000);
+  render();
+}
+
+function tog(id){ck[id]=!ck[id];save();render();}
+
+function render(){
+  const done=Object.values(ck).filter(Boolean).length;
+  const pct=Math.round(done/total*100);
+  document.getElementById('prgFill').style.width=pct+'%';
+  document.getElementById('prgLeft').textContent=done+' of '+total+' tasks done';
+  document.getElementById('prgRight').textContent=pct+'% launch ready';
+  document.getElementById('secs').innerHTML=T.map((sec,si)=>{
+    const sd=sec.i.filter((_,ii)=>ck[si+'-'+ii]).length;
+    return`<div class="section">
+      <div class="sec-head"><div class="sec-title">${sec.p}</div><div class="sec-count">${sd}/${sec.i.length}</div></div>
+      ${sec.i.map((t,ii)=>{
+        const id=si+'-'+ii,chk=!!ck[id];
+        return`<div class="item" onclick="tog('${id}')">
+          <div class="cb ${chk?'chk':''}"></div>
+          <div class="item-text ${chk?'chk':''}">${t}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+if(state.name){
+  document.getElementById('pName').value=state.name;
+  document.getElementById('lDate').value=state.date;
+  document.getElementById('cdProduct').textContent=state.name;
+  tick();tmr=setInterval(tick,1000);
+}
+render();
+</script>
+</body>
+</html>

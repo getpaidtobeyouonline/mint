@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Priority Score Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 640px; margin: 0 auto 20px; display: flex; gap: 8px; }
+  .add-input { flex: 1; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; }
+  .add-input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Legend */
+  .legend { display: flex; gap: 6px; flex-wrap: wrap; max-width: 640px; margin: 0 auto 20px; }
+  .leg { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 8px 12px; }
+  .leg-icon { font-size: 0.85rem; margin-bottom: 2px; }
+  .leg-name { font-size: 0.78rem; font-weight: 500; color: #5AE57A; }
+  .leg-desc { font-size: 0.7rem; color: #BFD8BF; }
+
+  /* Task cards */
+  .tasks { max-width: 640px; margin: 0 auto; }
+  .task-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; margin-bottom: 12px; transition: border-color 0.3s; }
+  .task-card.top { border-color: #C9A84C55; }
+  .task-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .rank { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; width: 24px; flex-shrink: 0; }
+  .task-name { flex: 1; font-size: 0.95rem; font-weight: 500; }
+  .score-pill { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; white-space: nowrap; flex-shrink: 0; }
+  .top-badge { font-size: 0.65rem; background: #C9A84C22; border: 1px solid #5AE57A; color: #5AE57A; padding: 2px 7px; border-radius: 8px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+
+  /* Score bar */
+  .score-bar { background: #325132; border-radius: 4px; height: 5px; margin-bottom: 12px; overflow: hidden; }
+  .score-fill { height: 100%; background: #5AE57A; border-radius: 4px; transition: width 0.4s ease; }
+
+  /* Factor rows */
+  .factors { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .factor { display: flex; align-items: center; gap: 8px; }
+  .factor-icon { font-size: 0.82rem; width: 18px; flex-shrink: 0; }
+  .factor-label { font-size: 0.75rem; color: #BFD8BF; width: 68px; flex-shrink: 0; }
+  .dots { display: flex; gap: 4px; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #4C724C; cursor: pointer; transition: all 0.12s; background: transparent; flex-shrink: 0; }
+  .dot.filled { background: #5AE57A; border-color: #5AE57A; }
+  .dot:hover { border-color: #C9A84C88; }
+
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Priority Score Calculator</h1>
+<p class="subtitle">Rate every task on four factors. Let the score tell you what to do first.</p>
+
+<div class="add-card">
+  <input class="add-input" id="taskInput" placeholder="Add a task or project to score…" maxlength="80" autofocus />
+  <button class="btn-gold" onclick="addTask()">Add</button>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-icon">🎯</div><div class="leg-name">Impact</div><div class="leg-desc">How much does this move the needle?</div></div>
+  <div class="leg"><div class="leg-icon">⚡</div><div class="leg-name">Urgency</div><div class="leg-desc">How time-sensitive is this?</div></div>
+  <div class="leg"><div class="leg-icon">🪶</div><div class="leg-name">Ease</div><div class="leg-desc">How straightforward to complete?</div></div>
+  <div class="leg"><div class="leg-icon">⭐</div><div class="leg-name">Alignment</div><div class="leg-desc">How well does it fit your goals?</div></div>
+</div>
+
+<div class="tasks" id="taskList">
+  <p class="empty" id="emptyMsg">No tasks yet — add one above to start scoring.</p>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const FACTORS = [
+    { key: 'impact',    icon: '🎯', label: 'Impact' },
+    { key: 'urgency',   icon: '⚡', label: 'Urgency' },
+    { key: 'ease',      icon: '🪶', label: 'Ease' },
+    { key: 'alignment', icon: '⭐', label: 'Align' },
+  ];
+
+  let tasks = JSON.parse(localStorage.getItem('psc_tasks') || '[]');
+
+  function save() { localStorage.setItem('psc_tasks', JSON.stringify(tasks)); }
+
+  function calcScore(t) {
+    const sum = FACTORS.reduce((s, f) => s + (t[f.key] || 0), 0);
+    return Math.round(sum / (FACTORS.length * 5) * 100);
+  }
+
+  function addTask() {
+    const input = document.getElementById('taskInput');
+    const name = input.value.trim(); if (!name) return;
+    const task = { id: Date.now(), name };
+    FACTORS.forEach(f => task[f.key] = 0);
+    tasks.push(task);
+    save(); render(); input.value = ''; input.focus();
+  }
+
+  function setFactor(id, key, val) {
+    const t = tasks.find(t => t.id === id); if (!t) return;
+    t[key] = val; save(); render();
+  }
+
+  function removeTask(id) { tasks = tasks.filter(t => t.id !== id); save(); render(); }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function renderDots(taskId, key, current) {
+    return Array.from({length: 5}, (_, i) => {
+      const v = i + 1;
+      return `<div class="dot ${current >= v ? 'filled' : ''}" onclick="setFactor(${taskId},'${key}',${v})" title="${v}/5"></div>`;
+    }).join('');
+  }
+
+  function getScoreColor(pct) {
+    if (pct >= 75) return '#5AE57A';
+    if (pct >= 50) return '#5AE57A';
+    if (pct >= 25) return '#5AE57A';
+    return '#BFD8BF';
+  }
+
+  function render() {
+    const list = document.getElementById('taskList');
+    if (!tasks.length) {
+      list.innerHTML = '<p class="empty" id="emptyMsg">No tasks yet — add one above to start scoring.</p>';
+      return;
+    }
+
+    const sorted = [...tasks]
+      .map(t => ({ ...t, score: calcScore(t) }))
+      .sort((a, b) => b.score - a.score);
+
+    list.innerHTML = sorted.map((t, i) => {
+      const color = getScoreColor(t.score);
+      const isTop = i === 0 && t.score > 0;
+      const factorHtml = FACTORS.map(f => `
+        <div class="factor">
+          <span class="factor-icon">${f.icon}</span>
+          <span class="factor-label">${f.label}</span>
+          <div class="dots">${renderDots(t.id, f.key, t[f.key])}</div>
+        </div>`).join('');
+
+      return `
+        <div class="task-card ${isTop ? 'top' : ''}">
+          <div class="task-header">
+            <div class="rank">#${i+1}</div>
+            <div class="task-name">${esc(t.name)}</div>
+            ${isTop ? '<span class="top-badge">Do First</span>' : ''}
+            <div class="score-pill" style="color:${color}">${t.score}%</div>
+            <button class="del-btn" onclick="removeTask(${t.id})">✕</button>
+          </div>
+          <div class="score-bar">
+            <div class="score-fill" style="width:${t.score}%;background:${color}"></div>
+          </div>
+          <div class="factors">${factorHtml}</div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('taskInput').addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
+  render();
+</script>
+</body>
+</html>

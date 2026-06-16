@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Feedback Collector</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.pt-note{font-size:.75rem;opacity:.4;text-align:center;margin-bottom:1rem;font-style:italic}
+.sec-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.sec-name{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.3rem}
+.sec-why{font-size:.8rem;opacity:.55;margin-bottom:.65rem;line-height:1.4}
+.q-list{list-style:none;counter-reset:qc;margin-bottom:.65rem}
+.q-list li{font-size:.85rem;line-height:1.55;padding:.32rem 0 .32rem 1.65rem;position:relative;counter-increment:qc;border-bottom:1px solid #3C603C}
+.q-list li:last-child{border-bottom:none}
+.q-list li::before{content:counter(qc)'.';position:absolute;left:0;color:#5AE57A;font-size:.78rem;font-weight:600;top:.42rem}
+.sec-tip{background:#325132;border-radius:6px;padding:.55rem .75rem;font-size:.75rem;opacity:.55;line-height:1.4}
+.sec-tip strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Product Feedback Collector</h1>
+    <p class="subtitle">Generate a tailored feedback questionnaire for your digital product — so you collect the right insights from the right customers.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Product</h2>
+    <label>Product Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPT(0)" id="pt0">Course</button>
+      <button class="opt"     onclick="pickPT(1)" id="pt1">Ebook</button>
+      <button class="opt"     onclick="pickPT(2)" id="pt2">Template Kit</button>
+      <button class="opt"     onclick="pickPT(3)" id="pt3">Membership</button>
+      <button class="opt"     onclick="pickPT(4)" id="pt4">Coaching</button>
+    </div>
+    <label>Product Name</label>
+    <input type="text" id="inT" placeholder="e.g. Email Marketing Bootcamp, The Freelancer Kit">
+    <label>Customer Description</label>
+    <input type="text" id="inA" placeholder="e.g. coaches, freelancers, online sellers">
+    <label>Core Transformation</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, sign 3 clients">
+    <label>Questions Per Section</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickQ(2)" id="q2">Quick (2)</button>
+      <button class="opt sel" onclick="pickQ(3)" id="q3">Standard (3)</button>
+      <button class="opt"     onclick="pickQ(4)" id="q4">Full (4)</button>
+    </div>
+    <button class="btn" onclick="generate()">Generate My Feedback Form →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div class="pt-note" id="ptNote"></div>
+    <div id="secCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Feedback Questionnaire as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const ptLabel = ['Course','Ebook','Template Kit','Membership','Coaching'];
+const ptTip   = [
+  'Deliver via your course platform or a follow-up email with a Typeform or Google Form link',
+  'Send via automated email 7–14 days post-purchase with a short survey link',
+  'Embed on your thank-you page or send as a follow-up email 7 days after purchase',
+  'Pin inside your community or send as a monthly member check-in survey',
+  'Share between sessions via your coaching portal or a simple Google Form link',
+];
+const completionTime = {2:'~4 min', 3:'~6 min', 4:'~10 min'};
+
+const sections = [
+  {name:'Results & Outcomes',  col:'#5AE57A',
+   why:'Captures whether {A} achieved {X} — turns answers directly into sales page proof',
+   tip:'Send 14–30 days after purchase, once {A} have had time to see real results',
+   qs:['What specific result have you achieved since getting {T}?',
+       'On a scale of 1–10, how close are you to {X} — and what has moved the needle most?',
+       'What did you know or do before {T} compared to what you know or do now?',
+       'In one sentence, what would you say {T} helped you accomplish?']},
+  {name:'Customer Experience',  col:'#5AE57A',
+   why:'Reveals friction points that stop {A} from completing and getting full value from {T}',
+   tip:'Ask within 48–72 hrs of purchase while the onboarding experience is still fresh',
+   qs:['Was anything unclear or hard to follow inside {T}?',
+       'What almost stopped you from completing {T} — and what helped you push through?',
+       'What was the best part of your overall experience with {T}?',
+       'How would you describe the level of clarity and support you found inside {T}?']},
+  {name:'Testimonial Prompts',  col:'#5AE57A',
+   why:'Generates pull-ready quotes you can use on your {T} sales page immediately',
+   tip:'Request 3–4 weeks in, once {A} can speak to real and specific outcomes from {T}',
+   qs:['In 2–3 sentences, what would you say to a {A} thinking about getting {T}?',
+       'What was your biggest hesitation before purchasing {T} — and was it justified?',
+       'Before {T} you were struggling with ___. Now you are ___.',
+       'If you described {T} to a {A} friend in one sentence, what would you say?']},
+  {name:'Improvement Ideas',    col:'#5AE57A',
+   why:'Shows what to build or fix next — fills your {T} product roadmap for free',
+   tip:'Include in every feedback round — answers directly shape your next version or bonus',
+   qs:['What\'s one thing missing from {T} that would have made it even more valuable?',
+       'Was there a step toward {X} where you got stuck and wished there was more support?',
+       'If you could add one resource or lesson to {T}, what would it be?',
+       'What would make you confidently refer {T} to every {A} you know?']},
+  {name:'Referral & Advocacy',  col:'#5AE57A',
+   why:'Identifies your warmest advocates and activates word-of-mouth growth for {T}',
+   tip:'Pair with a referral incentive for maximum response and follow-through',
+   qs:['How likely are you to recommend {T} to another {A}, and why?',
+       'Do you know any {A} who would benefit from {T}? What would you tell them?',
+       'Would you be open to sharing a short testimonial we could feature on our website?',
+       'Is there a community or group where {A} like you hang out that we should know about?']},
+];
+
+let state = {pt:0, qc:3};
+
+function pickPT(i) {
+  state.pt = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`pt${x}`).classList.toggle('sel', x===i));
+}
+function pickQ(n) {
+  state.qc = n;
+  [2,3,4].forEach(x => document.getElementById(`q${x}`).classList.toggle('sel', x===n));
+}
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const totalQ = sections.length * state.qc;
+  document.getElementById('statsBar').innerHTML =
+    st(sections.length,'Sections') + st(ptLabel[state.pt],'Product') +
+    st(totalQ,'Questions') + st(completionTime[state.qc],'To Complete');
+  document.getElementById('ptNote').textContent = ptTip[state.pt];
+
+  document.getElementById('secCards').innerHTML = sections.map(s => {
+    const qs = s.qs.slice(0, state.qc);
+    return `<div class="sec-card" style="border-left-color:${s.col}">
+      <div class="sec-name" style="color:${s.col}">${s.name}</div>
+      <div class="sec-why">${fill(s.why,T,A,X)}</div>
+      <ul class="q-list">${qs.map(q=>`<li>${fill(q,T,A,X)}</li>`).join('')}</ul>
+      <div class="sec-tip"><strong>When to send:</strong> ${fill(s.tip,T,A,X)}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  const totalQ = sections.length * state.qc;
+  let text = `PRODUCT FEEDBACK QUESTIONNAIRE\n`;
+  text += `Product: ${T} (${ptLabel[state.pt]}) · Customer: ${A}\n`;
+  text += `${totalQ} questions · ${completionTime[state.qc]} to complete\n\n`;
+  sections.forEach(s => {
+    text += `${s.name.toUpperCase()}\n${'─'.repeat(36)}\n`;
+    s.qs.slice(0, state.qc).forEach((q,i) => text += `${i+1}. ${fill(q,T,A,X)}\n`);
+    text += `\nWhen to send: ${fill(s.tip,T,A,X)}\n\n`;
+  });
+  text += `---\nCreated with Product Feedback Collector by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Feedback Questionnaire as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

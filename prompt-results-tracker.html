@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Results Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; letter-spacing: .03em; }
+  .topbox { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 12px 15px; margin-bottom: 16px; font-size: .9rem; }
+  .topbox b { color: #5AE57A; }
+  .row2 { display: flex; gap: 10px; margin-bottom: 14px; }
+  .row2 input { flex: 1; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 14px; margin-bottom: 9px; }
+  .entry .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .entry .name { font-weight: 500; color: #5AE57A; }
+  .entry .meta { font-size: .82rem; opacity: .72; }
+  .pill { font-size: .7rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .pill.bad { border-color: #5AE57A; color: #5AE57A; }
+  .acts { margin-top: 7px; display: flex; gap: 15px; font-size: .8rem; }
+  .acts span { cursor: pointer; opacity: .68; }
+  .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 24px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Results Tracker</h1>
+  <p class="sub">Log every prompt result and watch the data reveal which prompts actually earn their keep.</p>
+
+  <div class="panel">
+    <label for="pname">Prompt</label>
+    <input id="pname" list="names" placeholder="Which prompt did you run?">
+    <datalist id="names"></datalist>
+    <label for="use">Used it for</label>
+    <input id="use" placeholder="e.g. drafting a client proposal">
+    <div class="grid">
+      <div><label for="rating">Result quality</label>
+        <select id="rating"><option value="5">★★★★★</option><option value="4">★★★★</option><option value="3">★★★</option><option value="2">★★</option><option value="1">★</option></select></div>
+      <div><label for="outcome">Outcome</label>
+        <select id="outcome"><option>Used as-is</option><option>Edited & used</option><option>Discarded</option></select></div>
+      <div><label for="mins">Mins saved</label><input id="mins" type="number" min="0" value="10"></div>
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+    </div>
+    <button class="btn" onclick="saveEntry()" id="saveBtn">+ Log Result</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="sN">0</div><div class="l">Results</div></div>
+    <div class="stat"><div class="n" id="sH">0</div><div class="l">Hours saved</div></div>
+    <div class="stat"><div class="n" id="sR">—</div><div class="l">Avg quality</div></div>
+    <div class="stat"><div class="n" id="sS">—</div><div class="l">Success rate</div></div>
+  </div>
+  <div class="topbox" id="topbox" style="display:none"></div>
+
+  <div class="row2"><input id="search" placeholder="🔍 Filter by prompt or use case…" oninput="render()"></div>
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportCsv()">Export CSV</button>
+  <button class="btn ghost" onclick="copySummary()">Copy Summary</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  let log = JSON.parse(localStorage.getItem('prt') || '[]');
+  let editing = -1;
+  const save = () => localStorage.setItem('prt', JSON.stringify(log));
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  g('date').value = new Date().toISOString().slice(0,10);
+
+  function saveEntry() {
+    const name = v('pname');
+    if (!name) { alert('Which prompt did you run?'); return; }
+    const obj = { name, use: v('use'), rating: +v('rating'), outcome: g('outcome').value, mins: +v('mins')||0, date: v('date')||new Date().toISOString().slice(0,10) };
+    if (editing >= 0) { log[editing] = obj; editing = -1; g('saveBtn').textContent='+ Log Result'; g('cancelBtn').style.display='none'; }
+    else log.unshift(obj);
+    g('pname').value=''; g('use').value=''; g('mins').value='10';
+    save(); render();
+  }
+  function edit(i) {
+    const x = log[i];
+    g('pname').value=x.name; g('use').value=x.use; g('rating').value=x.rating; g('outcome').value=x.outcome; g('mins').value=x.mins; g('date').value=x.date;
+    editing=i; g('saveBtn').textContent='✓ Update'; g('cancelBtn').style.display='inline-block';
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+  function cancelEdit() { editing=-1; g('saveBtn').textContent='+ Log Result'; g('cancelBtn').style.display='none'; g('pname').value=''; g('use').value=''; }
+  function del(i) { if (confirm('Delete this entry?')) { log.splice(i,1); if(editing===i)cancelEdit(); save(); render(); } }
+  function clearAll() { if (confirm('Clear the whole log?')) { log=[]; save(); render(); } }
+
+  function topPrompt() {
+    const by = {};
+    log.forEach(e => { (by[e.name] = by[e.name] || []).push(e); });
+    let best = null;
+    Object.entries(by).forEach(([n, arr]) => {
+      if (arr.length < 2) return;
+      const avg = arr.reduce((s,e)=>s+e.rating,0)/arr.length;
+      if (!best || avg > best.avg) best = { n, avg, uses: arr.length };
+    });
+    return best;
+  }
+
+  function render() {
+    g('names').innerHTML = [...new Set(log.map(e=>e.name))].map(n=>`<option>${esc(n)}</option>`).join('');
+    const n = log.length;
+    const hrs = log.reduce((s,e)=>s+e.mins,0)/60;
+    const avg = n ? (log.reduce((s,e)=>s+e.rating,0)/n) : 0;
+    const kept = log.filter(e=>e.outcome!=='Discarded').length;
+    g('sN').textContent = n;
+    g('sH').textContent = hrs.toFixed(1);
+    g('sR').textContent = n ? avg.toFixed(2)+'★' : '—';
+    g('sS').textContent = n ? Math.round(kept/n*100)+'%' : '—';
+    const tp = topPrompt(), tb = g('topbox');
+    if (tp) { tb.style.display='block'; tb.innerHTML = `🏆 Most reliable: <b>${esc(tp.n)}</b> — ${tp.avg.toFixed(2)}★ avg over ${tp.uses} uses.`; }
+    else tb.style.display='none';
+
+    const q = v('search').toLowerCase();
+    const shown = log.map((e,i)=>({e,i})).filter(({e}) => !q || (e.name+' '+e.use).toLowerCase().includes(q));
+    const l = g('list');
+    if (!n) { l.innerHTML = '<div class="empty">No results logged yet — log your first one above.</div>'; return; }
+    if (!shown.length) { l.innerHTML = '<div class="empty">Nothing matches that filter.</div>'; return; }
+    l.innerHTML = shown.map(({e,i}) => `
+      <div class="entry">
+        <div class="top"><span class="name">${esc(e.name)}</span>
+          <span class="pill ${e.outcome==='Discarded'?'bad':''}">${esc(e.outcome)}</span></div>
+        <div class="meta">${'★'.repeat(e.rating)}${'☆'.repeat(5-e.rating)} · ${e.mins} min saved · ${e.date}${e.use?` · ${esc(e.use)}`:''}</div>
+        <div class="acts"><span onclick="edit(${i})">✎ Edit</span><span onclick="del(${i})">✕ Delete</span></div>
+      </div>`).join('');
+  }
+
+  function exportCsv() {
+    if (!log.length) { alert('Log something first.'); return; }
+    const rows = [['Date','Prompt','Used for','Rating','Outcome','Mins saved']]
+      .concat(log.map(e=>[e.date,e.name,e.use,e.rating,e.outcome,e.mins]));
+    const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const b = new Blob([csv], { type:'text/csv' });
+    const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='prompt-results.csv'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  function copySummary() {
+    if (!log.length) { alert('Log something first.'); return; }
+    const hrs=(log.reduce((s,e)=>s+e.mins,0)/60).toFixed(1);
+    const avg=(log.reduce((s,e)=>s+e.rating,0)/log.length).toFixed(2);
+    const kept=Math.round(log.filter(e=>e.outcome!=='Discarded').length/log.length*100);
+    const tp=topPrompt();
+    const t=`PROMPT RESULTS SUMMARY\nResults logged: ${log.length}\nHours saved: ${hrs}\nAvg quality: ${avg}★\nSuccess rate: ${kept}%\n${tp?`Most reliable: ${tp.n} (${tp.avg.toFixed(2)}★, ${tp.uses} uses)`:''}`;
+    navigator.clipboard.writeText(t).then(()=>alert('Summary copied!'),()=>alert('Copy failed.'));
+  }
+
+  render();
+</script>
+</body>
+</html>

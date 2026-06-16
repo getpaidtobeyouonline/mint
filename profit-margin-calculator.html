@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profit Margin Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.65; margin-bottom: 2rem; font-size: 0.9rem; }
+    .container { max-width: 620px; margin: 0 auto; }
+    .tabs { display: flex; background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 0.3rem; margin-bottom: 1.5rem; gap: 0.3rem; }
+    .tab { flex: 1; padding: 0.6rem; text-align: center; cursor: pointer; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; transition: all 0.2s; color: #BFD8BF; border: none; background: transparent; }
+    .tab.active { background: #5AE57A; color: #325132; font-weight: 700; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+    .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 1.1rem; }
+    .field { margin-bottom: 1rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.8rem; opacity: 0.6; margin-bottom: 0.35rem; }
+    .input-wrap { position: relative; }
+    .sym { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); color: #5AE57A; font-size: 0.88rem; pointer-events: none; }
+    .sym-r { left: auto; right: 0.9rem; }
+    input[type="number"] { width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.65rem 0.9rem 0.65rem 2rem; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="number"]:focus { border-color: #5AE57A; }
+    input.pct { padding-left: 0.9rem; padding-right: 2rem; }
+    .results { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.4rem; margin-bottom: 1.1rem; }
+    .results-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 1rem; }
+    .result-row { display: flex; justify-content: space-between; align-items: center; padding: 0.55rem 0; border-bottom: 1px solid #3C603C; font-size: 0.92rem; }
+    .result-row:last-child { border-bottom: none; }
+    .result-label { opacity: 0.65; }
+    .val-gold { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.2rem; }
+    .val-green { color: #5AE57A; font-weight: 500; }
+    .val-red { color: #5AE57A; font-weight: 500; }
+    .val-muted { opacity: 0.5; }
+    .meter-wrap { margin: 0.75rem 0 1rem; }
+    .meter-labels { display: flex; justify-content: space-between; font-size: 0.72rem; opacity: 0.4; margin-bottom: 0.4rem; }
+    .meter-bar { background: #3C603C; border-radius: 6px; height: 9px; overflow: hidden; }
+    .meter-fill { height: 100%; border-radius: 6px; transition: width 0.35s, background 0.35s; }
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 500; }
+    .bg-green { background: rgba(111,207,142,.15); color: #5AE57A; }
+    .bg-gold  { background: rgba(201,168,76,.15);  color: #5AE57A; }
+    .bg-red   { background: rgba(224,112,112,.15); color: #5AE57A; }
+    .btn-row { display: flex; gap: 0.65rem; margin-bottom: 2.5rem; }
+    .btn-outline { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.7rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; transition: all 0.2s; }
+    .btn-outline:hover { background: #5AE57A; color: #325132; }
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Profit Margin Calculator</h1>
+  <p class="subtitle">Know your numbers. Price with confidence. Keep more of what you earn.</p>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)">Check My Margin</button>
+    <button class="tab" onclick="switchTab(1)">Find My Price</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="panel active" id="tab0">
+    <div class="card">
+      <div class="card-title">Your Numbers</div>
+      <div class="field">
+        <label>Selling Price</label>
+        <div class="input-wrap"><span class="sym">$</span><input type="number" id="price" placeholder="0.00" min="0" step="0.01" oninput="calcMargin()"></div>
+      </div>
+      <div class="field">
+        <label>Total Cost (materials, time, etc.)</label>
+        <div class="input-wrap"><span class="sym">$</span><input type="number" id="cost" placeholder="0.00" min="0" step="0.01" oninput="calcMargin()"></div>
+      </div>
+      <div class="field">
+        <label>Platform Fee % — Etsy, Gumroad, etc. (optional)</label>
+        <div class="input-wrap"><input type="number" class="pct" id="fee" placeholder="0" min="0" max="99" step="0.1" oninput="calcMargin()"><span class="sym sym-r">%</span></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="results-title">Your Margin Breakdown</div>
+      <div class="meter-wrap">
+        <div class="meter-labels"><span>0%</span><span>50%</span><span>100%</span></div>
+        <div class="meter-bar"><div class="meter-fill" id="mFill" style="width:0%;background:#5AE57A"></div></div>
+      </div>
+      <div class="result-row"><span class="result-label">Profit Margin</span><span id="rMargin" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Gross Profit</span><span id="rProfit" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Markup on Cost</span><span id="rMarkup" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Platform Fee Amount</span><span id="rFeeAmt" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Health</span><span id="rHealth">—</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-outline" id="copyM" onclick="copyMargin()">Copy Results</button>
+      <button class="btn-outline" onclick="clearM()">Clear</button>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="panel" id="tab1">
+    <div class="card">
+      <div class="card-title">Set Your Target</div>
+      <div class="field">
+        <label>Your Total Cost</label>
+        <div class="input-wrap"><span class="sym">$</span><input type="number" id="cost2" placeholder="0.00" min="0" step="0.01" oninput="calcPrice()"></div>
+      </div>
+      <div class="field">
+        <label>Target Profit Margin</label>
+        <div class="input-wrap"><input type="number" class="pct" id="target" placeholder="50" min="1" max="99" step="1" oninput="calcPrice()"><span class="sym sym-r">%</span></div>
+      </div>
+      <div class="field">
+        <label>Platform Fee % (optional)</label>
+        <div class="input-wrap"><input type="number" class="pct" id="fee2" placeholder="0" min="0" max="99" step="0.1" oninput="calcPrice()"><span class="sym sym-r">%</span></div>
+      </div>
+    </div>
+    <div class="results">
+      <div class="results-title">Recommended Price</div>
+      <div class="result-row"><span class="result-label">Sell at</span><span id="rPrice" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Your Net Profit</span><span id="rNet" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Platform Fee Amount</span><span id="rFee2" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Profit × 10 sales</span><span id="r10" class="val-muted">—</span></div>
+      <div class="result-row"><span class="result-label">Profit × 100 sales</span><span id="r100" class="val-muted">—</span></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-outline" id="copyP" onclick="copyPrice()">Copy Results</button>
+      <button class="btn-outline" onclick="clearP()">Clear</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  function switchTab(i) {
+    document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+    document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+  }
+
+  function fmt(n) { return '$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function healthBadge(m) {
+    if (m >= 60) return ['Excellent','bg-green'];
+    if (m >= 40) return ['Healthy','bg-green'];
+    if (m >= 20) return ['Moderate','bg-gold'];
+    if (m >  0)  return ['Thin margin','bg-red'];
+    return ['Loss','bg-red'];
+  }
+
+  function calcMargin() {
+    const price  = parseFloat(document.getElementById('price').value) || 0;
+    const cost   = parseFloat(document.getElementById('cost').value)  || 0;
+    const feePct = parseFloat(document.getElementById('fee').value)   || 0;
+    if (!price) return;
+
+    const feeAmt    = price * feePct / 100;
+    const profit    = price - cost - feeAmt;
+    const margin    = profit / price * 100;
+    const markup    = cost > 0 ? (profit / cost * 100) : 0;
+    const pct       = Math.min(100, Math.max(0, margin));
+    const [lbl,cls] = healthBadge(margin);
+
+    set('rMargin',  margin.toFixed(1)+'%',  margin>=0?'val-gold':'val-gold val-red');
+    set('rProfit',  fmt(profit),            profit>=0?'val-green':'val-red');
+    set('rMarkup',  markup.toFixed(1)+'%',  '');
+    set('rFeeAmt',  feePct>0?fmt(feeAmt):'—', feePct>0?'val-red':'val-muted');
+    document.getElementById('rHealth').innerHTML = `<span class="badge ${cls}">${lbl}</span>`;
+
+    const f = document.getElementById('mFill');
+    f.style.width = pct+'%';
+    f.style.background = margin>=40?'#5AE57A':margin>=20?'#5AE57A':'#5AE57A';
+  }
+
+  function calcPrice() {
+    const cost   = parseFloat(document.getElementById('cost2').value)  || 0;
+    const target = parseFloat(document.getElementById('target').value) || 50;
+    const feePct = parseFloat(document.getElementById('fee2').value)   || 0;
+    if (!cost || target >= 100) return;
+
+    const divisor = 1 - target/100 - feePct/100;
+    if (divisor <= 0) { document.getElementById('rPrice').textContent = 'Adjust inputs'; return; }
+
+    const price  = cost / divisor;
+    const feeAmt = price * feePct / 100;
+    const profit = price - cost - feeAmt;
+
+    set('rPrice', fmt(price),      'val-gold');
+    set('rNet',   fmt(profit),     'val-green');
+    set('rFee2',  feePct>0?fmt(feeAmt):'—', feePct>0?'val-red':'val-muted');
+    set('r10',    fmt(profit*10),  '');
+    set('r100',   fmt(profit*100), '');
+  }
+
+  function set(id, txt, cls) {
+    const el = document.getElementById(id);
+    el.textContent = txt;
+    if (cls !== undefined) el.className = cls || '';
+  }
+
+  function copyMargin() {
+    const t = ['PROFIT MARGIN RESULTS','─'.repeat(26),
+      `Margin:  ${document.getElementById('rMargin').textContent}`,
+      `Profit:  ${document.getElementById('rProfit').textContent}`,
+      `Markup:  ${document.getElementById('rMarkup').textContent}`,
+      `Fee:     ${document.getElementById('rFeeAmt').textContent}`].join('\n');
+    navigator.clipboard.writeText(t).then(()=>flash('copyM','Copy Results'));
+  }
+
+  function copyPrice() {
+    const t = ['PRICE RECOMMENDATION','─'.repeat(26),
+      `Sell at:       ${document.getElementById('rPrice').textContent}`,
+      `Net Profit:    ${document.getElementById('rNet').textContent}`,
+      `× 10 sales:    ${document.getElementById('r10').textContent}`,
+      `× 100 sales:   ${document.getElementById('r100').textContent}`].join('\n');
+    navigator.clipboard.writeText(t).then(()=>flash('copyP','Copy Results'));
+  }
+
+  function flash(id, orig) {
+    const b=document.getElementById(id); b.textContent='Copied!';
+    setTimeout(()=>b.textContent=orig,1600);
+  }
+
+  function clearM() {
+    ['price','cost','fee'].forEach(id=>document.getElementById(id).value='');
+    ['rMargin','rProfit','rMarkup','rFeeAmt'].forEach(id=>set(id,'—','val-muted'));
+    document.getElementById('rHealth').textContent='—';
+    document.getElementById('mFill').style.width='0%';
+  }
+
+  function clearP() {
+    ['cost2','target','fee2'].forEach(id=>document.getElementById(id).value='');
+    ['rPrice','rNet','rFee2','r10','r100'].forEach(id=>set(id,'—','val-muted'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposal Win Rate Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 16px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:3px}
+.stat-lbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.gold{color:#5AE57A}.green{color:#5AE57A}.red{color:#5AE57A}.grey{color:#BFD8BF}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.form-grid{display:grid;grid-template-columns:2fr 1.2fr 1fr 1fr auto;gap:8px;align-items:flex-end}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;height:38px;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.filter-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filter-btn{background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:20px;padding:5px 14px;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s}
+.filter-btn:hover,.filter-btn.active{border-color:#5AE57A;color:#5AE57A;background:#C9A84C12}
+.proposals{max-width:700px;margin:0 auto}
+.prop-row{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:13px 16px;margin-bottom:8px;display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:12px}
+.prop-main{min-width:0}
+.prop-client{font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prop-meta{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.prop-val{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;white-space:nowrap}
+.status-sel{background:#325132;border:1px solid #4C724C;border-radius:6px;padding:5px 8px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;width:auto}
+.status-sel.won{border-color:#44cc6660;color:#5AE57A}
+.status-sel.lost{border-color:#ff444460;color:#5AE57A}
+.status-sel.ghosted{border-color:#55555560;color:#BFD8BF}
+.status-sel.pending{border-color:#C9A84C60;color:#5AE57A}
+.del{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.85rem;padding:4px 6px;border-radius:4px;transition:color .2s}
+.del:hover{color:#5AE57A}
+.empty{text-align:center;opacity:.35;padding:28px;font-size:.88rem}
+.insights-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 16px}
+.insight{display:flex;gap:10px;margin-bottom:10px;font-size:.86rem;line-height:1.6;align-items:flex-start}
+.insight:last-child{margin-bottom:0}
+.insight-icon{flex-shrink:0}
+.prog-row{margin-top:10px}
+.prog-labels{display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:4px}
+.prog-track{background:#325132;border-radius:20px;height:8px;overflow:hidden;display:flex}
+.prog-seg{height:100%;transition:width .5s}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr 1fr}.form-grid .add-btn{grid-column:1/-1;width:100%}.prop-row{grid-template-columns:1fr auto auto}}
+</style>
+</head>
+<body>
+
+<h1>Proposal Win Rate Tracker</h1>
+<p class="sub">Track every proposal — know your numbers, sharpen your close rate</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sWinRate">—</div><div class="stat-lbl">Win Rate</div></div>
+  <div class="stat"><div class="stat-val green" id="sRevWon">$0</div><div class="stat-lbl">Revenue Won</div></div>
+  <div class="stat"><div class="stat-val gold" id="sPipeline">$0</div><div class="stat-lbl">In Pipeline</div></div>
+  <div class="stat"><div class="stat-val" id="sAvgDeal">$0</div><div class="stat-lbl">Avg Deal Won</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log a Proposal</div>
+  <div class="form-grid">
+    <div><label>Client</label><input id="fClient" type="text" placeholder="e.g. Bloom Boutique"></div>
+    <div><label>Service</label>
+      <select id="fService">
+        <option>Branding</option><option>Web Design</option><option>Copywriting</option>
+        <option>Coaching</option><option>Social Media</option><option>Consulting</option>
+        <option>Photography</option><option>VA / OBM</option><option>Marketing</option><option>Other</option>
+      </select>
+    </div>
+    <div><label>Value ($)</label><input id="fVal" type="number" placeholder="2500" min="0"></div>
+    <div><label>Date Sent</label><input id="fDate" type="date"></div>
+    <button class="add-btn" onclick="addProposal()">+ Add</button>
+  </div>
+</div>
+
+<div style="max-width:700px;margin:0 auto 10px">
+  <div class="filter-row" id="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">Pending</button>
+    <button class="filter-btn" onclick="setFilter('won',this)">Won</button>
+    <button class="filter-btn" onclick="setFilter('lost',this)">Lost</button>
+    <button class="filter-btn" onclick="setFilter('ghosted',this)">Ghosted</button>
+  </div>
+</div>
+
+<div class="proposals" id="proposalList"></div>
+
+<div class="insights-card" id="insightsCard" style="display:none">
+  <div class="card-title">Insights</div>
+  <div id="insightsList"></div>
+  <div class="prog-row" id="progRow"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const STORE='proposalTracker';
+let proposals=JSON.parse(localStorage.getItem(STORE)||'[]');
+let activeFilter='all';
+
+function fmt(n){return'$'+Math.round(n).toLocaleString()}
+function save(){localStorage.setItem(STORE,JSON.stringify(proposals));}
+
+function addProposal(){
+  const client=document.getElementById('fClient').value.trim();
+  const service=document.getElementById('fService').value;
+  const val=parseFloat(document.getElementById('fVal').value)||0;
+  const date=document.getElementById('fDate').value;
+  if(!client||!date){alert('Please enter a client name and date.');return;}
+  proposals.unshift({id:Date.now(),client,service,val,date,status:'pending'});
+  save();
+  document.getElementById('fClient').value='';
+  document.getElementById('fVal').value='';
+  render();
+}
+
+function updateStatus(id,status){
+  const p=proposals.find(p=>p.id===id);
+  if(p){p.status=status;save();render();}
+}
+
+function delProposal(id){
+  if(!confirm('Remove this proposal?'))return;
+  proposals=proposals.filter(p=>p.id!==id);
+  save();render();
+}
+
+function setFilter(f,btn){
+  activeFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function render(){
+  const won=proposals.filter(p=>p.status==='won');
+  const lost=proposals.filter(p=>p.status==='lost');
+  const ghosted=proposals.filter(p=>p.status==='ghosted');
+  const pending=proposals.filter(p=>p.status==='pending');
+  const decided=won.length+lost.length+ghosted.length;
+  const winRate=decided>0?Math.round(won.length/decided*100):null;
+  const revWon=won.reduce((s,p)=>s+p.val,0);
+  const pipeline=pending.reduce((s,p)=>s+p.val,0);
+  const avgDeal=won.length?revWon/won.length:0;
+
+  document.getElementById('sWinRate').textContent=winRate!==null?winRate+'%':'—';
+  document.getElementById('sRevWon').textContent=fmt(revWon);
+  document.getElementById('sPipeline').textContent=fmt(pipeline);
+  document.getElementById('sAvgDeal').textContent=won.length?fmt(avgDeal):'—';
+
+  const visible=activeFilter==='all'?proposals:proposals.filter(p=>p.status===activeFilter);
+  document.getElementById('proposalList').innerHTML=visible.length
+    ?visible.map(p=>`
+      <div class="prop-row">
+        <div class="prop-main">
+          <div class="prop-client">${p.client}</div>
+          <div class="prop-meta">${p.service} · ${p.date}</div>
+        </div>
+        <div class="prop-val">${p.val?fmt(p.val):''}</div>
+        <select class="status-sel ${p.status}" onchange="updateStatus(${p.id},this.value);this.className='status-sel '+this.value">
+          <option value="pending" ${p.status==='pending'?'selected':''}>Pending</option>
+          <option value="won" ${p.status==='won'?'selected':''}>Won ✓</option>
+          <option value="lost" ${p.status==='lost'?'selected':''}>Lost</option>
+          <option value="ghosted" ${p.status==='ghosted'?'selected':''}>Ghosted</option>
+        </select>
+        <button class="del" onclick="delProposal(${p.id})">✕</button>
+      </div>`).join('')
+    :`<div class="empty">${activeFilter==='all'?'No proposals yet — log your first one above.':'No '+activeFilter+' proposals.'}</div>`;
+
+  // Insights
+  if(proposals.length<2){document.getElementById('insightsCard').style.display='none';return;}
+  document.getElementById('insightsCard').style.display='block';
+  const insights=[];
+  if(winRate!==null){
+    if(winRate>=65)insights.push({i:'🏆',t:`Your win rate is ${winRate}% — that\'s strong. This could be a signal to raise your prices or be more selective about which leads you pitch.`});
+    else if(winRate>=40)insights.push({i:'📈',t:`Win rate of ${winRate}% is solid. Review lost proposals — is there a pattern in the objection, price point, or service type?`});
+    else insights.push({i:'⚠️',t:`Win rate of ${winRate}% is below average. Consider refining your proposal format, following up more consistently, or revisiting your pricing.`});
+  }
+  const ghostRate=decided>0?Math.round(ghosted.length/decided*100):0;
+  if(ghostRate>30)insights.push({i:'👻',t:`${ghostRate}% of your proposals end in ghosting — that\'s high. A structured follow-up sequence (day 3, day 7, day 14) can recover 20–30% of these.`});
+  if(pipeline>0)insights.push({i:'💰',t:`You have ${fmt(pipeline)} sitting in your pipeline. Follow up on those pending proposals — they\'re revenue waiting to be confirmed.`});
+
+  // Best service
+  const svcMap={};
+  proposals.forEach(p=>{
+    if(!svcMap[p.service])svcMap[p.service]={won:0,total:0};
+    svcMap[p.service].total++;
+    if(p.status==='won')svcMap[p.service].won++;
+  });
+  const bestSvc=Object.entries(svcMap).filter(([,v])=>v.total>=2).sort((a,b)=>b[1].won/b[1].total-a[1].won/a[1].total)[0];
+  if(bestSvc)insights.push({i:'⭐',t:`Your highest win rate is in <strong>${bestSvc[0]}</strong> (${Math.round(bestSvc[1].won/bestSvc[1].total*100)}%). Lean into this service when generating new leads.`});
+
+  document.getElementById('insightsList').innerHTML=insights.map(ins=>`<div class="insight"><span class="insight-icon">${ins.i}</span><span>${ins.t}</span></div>`).join('');
+
+  // Status bar
+  const total=proposals.length;
+  const segs=[
+    {pct:Math.round(won.length/total*100),color:'#5AE57A'},
+    {pct:Math.round(pending.length/total*100),color:'#5AE57A'},
+    {pct:Math.round(lost.length/total*100),color:'#5AE57A'},
+    {pct:Math.round(ghosted.length/total*100),color:'#5A845A'},
+  ];
+  document.getElementById('progRow').innerHTML=`
+    <div class="prog-labels">
+      <span style="color:#5AE57A">Won ${won.length}</span>
+      <span style="color:#5AE57A">Pending ${pending.length}</span>
+      <span style="color:#5AE57A">Lost ${lost.length}</span>
+      <span style="color:#BFD8BF">Ghosted ${ghosted.length}</span>
+    </div>
+    <div class="prog-track">${segs.map(s=>`<div class="prog-seg" style="width:${s.pct}%;background:${s.color}"></div>`).join('')}</div>`;
+}
+
+document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
+render();
+</script>
+</body>
+</html>

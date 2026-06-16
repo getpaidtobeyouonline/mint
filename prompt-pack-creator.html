@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Pack Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,select:focus{border-color:#5AE57A}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C9A84C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.name-box{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.45rem}
+.pack-name{font-family:'Playfair Display',serif;font-size:1.3rem;color:#5AE57A;line-height:1.3;flex:1}
+.name-acts{display:flex;align-items:center;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.price-badge{background:#C9A84C22;border:1px solid #C9A84C44;color:#5AE57A;border-radius:5px;padding:.25rem .6rem;font-size:.78rem;font-weight:600;white-space:nowrap}
+.btn-sm{background:transparent;border:1px solid #C9A84C44;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn-sm:hover{opacity:.7}
+.tagline{font-size:.875rem;opacity:.65;line-height:1.55}
+.p-row{display:flex;align-items:center;gap:.7rem;padding:.6rem 0;border-bottom:1px solid #3C603C}
+.p-row:last-child{border-bottom:none;padding-bottom:0}
+.p-num{font-size:.72rem;font-weight:700;color:#5AE57A;opacity:.5;min-width:1.5rem;flex-shrink:0}
+.cat-badge{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-radius:4px;padding:.18rem .48rem;white-space:nowrap;flex-shrink:0}
+.p-title{flex:1;font-size:.9rem;font-weight:500;line-height:1.3;min-width:0}
+.copy-p-btn{background:transparent;border:1px solid #4C724C;color:#FFFFFF;border-radius:5px;padding:.2rem .6rem;font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;transition:opacity .2s;flex-shrink:0}
+.copy-p-btn:hover{opacity:.65}
+.bullet-list{list-style:none}
+.bullet-list li{padding:.55rem 0;border-bottom:1px solid #3C603C;font-size:.9rem;line-height:1.45;display:flex;gap:.65rem}
+.bullet-list li:last-child{border-bottom:none}
+.bullet-list li::before{content:'✓';color:#5AE57A;font-weight:700;flex-shrink:0}
+.copy-btn{width:100%;background:transparent;border:1px solid #C9A84C55;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+.dl-btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.8rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:.6rem}
+.dl-btn:hover{opacity:.88}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.name-row{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Prompt Pack Creator</h1>
+    <p class="subtitle">Design a complete, sellable AI prompt pack — curated prompts, pack name, pricing, and sales bullets — ready in seconds.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Pack Details</h2>
+    <label>Pack Topic</label>
+    <input type="text" id="topic" placeholder="e.g. Instagram marketing, email writing, business planning">
+    <label>Target Audience</label>
+    <input type="text" id="audience" placeholder="e.g. coaches, Etsy sellers, content creators">
+    <label>What will buyers achieve with this pack?</label>
+    <input type="text" id="goal" placeholder="e.g. write better content faster, plan their business in a day">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Pack Focus</label>
+        <select id="focus">
+          <option value="content">Content Creation</option>
+          <option value="marketing">Marketing & Sales</option>
+          <option value="planning">Business Planning</option>
+          <option value="social">Social Media</option>
+          <option value="research">Research & Analysis</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0">Pack Size</label>
+        <select id="size">
+          <option value="10">10 Prompts</option>
+          <option value="20" selected>20 Prompts</option>
+          <option value="30">30 Prompts</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Build My Prompt Pack →</button>
+
+  <div class="results" id="results">
+
+    <div class="name-box">
+      <div class="name-row">
+        <div class="pack-name" id="packName">—</div>
+        <div class="name-acts">
+          <div class="price-badge" id="priceBadge">—</div>
+          <button class="btn-sm" onclick="regenName()">↻ New Name</button>
+        </div>
+      </div>
+      <div class="tagline" id="packTagline">—</div>
+    </div>
+
+    <div class="card">
+      <h2 id="packTitle">Prompts Included</h2>
+      <div id="promptList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Sales Bullets <span style="font-family:'DM Sans',sans-serif;font-weight:400;opacity:.4;font-size:.8rem">— copy into your listing</span></h2>
+      <ul class="bullet-list" id="bullets"></ul>
+    </div>
+
+    <button class="copy-btn" onclick="copyPack()">Copy Full Prompt Pack as Text</button>
+    <button class="dl-btn" onclick="downloadPack()">⬇ Download Pack as .txt File</button>
+
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const cap = s => s ? s.replace(/\b\w/g, c => c.toUpperCase()) : s;
+const fill = (str, T, A) => str.replace(/\{T\}/g, T).replace(/\{A\}/g, A);
+const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const cc = {content:'#5AE57A',strategy:'#5AE57A',copy:'#5AE57A',social:'#5AE57A',repurpose:'#5AE57A',analysis:'#5AE57A'};
+const cl = {content:'Content',strategy:'Strategy',copy:'Copy',social:'Social',repurpose:'Repurpose',analysis:'Analysis'};
+const focusOrder = {
+  content:  ['content','repurpose','social','strategy','copy','analysis'],
+  marketing:['copy','social','strategy','content','repurpose','analysis'],
+  planning: ['strategy','analysis','content','copy','social','repurpose'],
+  social:   ['social','content','repurpose','copy','strategy','analysis'],
+  research: ['analysis','strategy','copy','content','social','repurpose']
+};
+const prices = {10:'$17',20:'$27–$37',30:'$37–$57'};
+
+const nameForms = [
+  (T)    => `The ${cap(T)} Prompt Pack`,
+  (T,_,G)=> `The Done-for-You ${cap(T)} AI Toolkit`,
+  (_,A)  => `The ${cap(A)} AI Prompt Bundle`,
+  (T)    => `${cap(T)} Prompts: The Complete AI Pack`,
+  (_,A)  => `The ${cap(A)}'s AI Prompt Vault`,
+  (T,A)  => `ChatGPT for ${cap(T)}: The ${cap(A)} Edition`
+];
+const taglines = [
+  (T,A,G,n) => `${n} copy-paste AI prompts that help ${A} ${G} — without spending hours figuring out what to type.`,
+  (T,A,G,n) => `Everything ${A} need to ${G} with AI, packaged into ${n} ready-to-use prompts.`,
+  (T,A,G,n) => `Stop writing prompts from scratch. This ${n}-prompt ${T} pack gives ${A} instant results every time.`
+];
+
+const allPrompts = [
+  {c:'content',  t:'Long-Form Blog Post',         p:'Act as a {T} expert. Write a [700–1200]-word blog post for {A} titled "[add your title]". Open with a compelling hook naming a pain {A} face. Cover [3–5] key insights with examples. Close with a clear next step. Tone: [professional/conversational/inspiring].'},
+  {c:'content',  t:'Listicle Article',             p:'Write a listicle titled "[X] Ways {A} Can [outcome]" about {T}. For each item: a bold heading, 2–3 sentences of explanation, and one concrete example. Keep it under 900 words. Tone: [actionable/inspiring]. End with a short CTA.'},
+  {c:'content',  t:'Email Newsletter',             p:'Write a value-packed email newsletter for {A} about {T}. Include: (1) subject line + preview text, (2) short personal opener (2–3 sentences), (3) one key insight with a real example, (4) a practical tip to use today, (5) a soft CTA to [your offer or link].'},
+  {c:'content',  t:'YouTube Script Outline',       p:'Create a YouTube script outline about {T} targeting {A}. Structure: Hook (30 sec), Problem Setup (60 sec), Main Teaching Points [3–4 points with sub-bullets], Example or Demo, CTA (15 sec). Include suggested B-roll notes for each section.'},
+  {c:'content',  t:'Lead Magnet Content',          p:'Write the full content for a [PDF/checklist/guide] lead magnet for {A} about {T}. Solve one specific problem in [5–7] pages or less, use simple language, include [3–5] actionable steps, and end with a next step that leads naturally toward [your paid offer].'},
+  {c:'content',  t:'30-Day Content Plan',          p:'Create a 30-day content plan for {A} focused on {T}. Organize by week. For each week: a theme, [5–7] post topics, one long-form content idea, and one engagement prompt. Format as a table: Week | Day | Format | Topic | Key Message.'},
+  {c:'strategy', t:'90-Day Business Plan',         p:'Write a 90-day business action plan for a {T} business targeting {A}. Break into three 30-day sprints. For each sprint: primary goal, [3–5] key actions, one metric to track, and one likely obstacle with a solution. Be specific and realistic, not generic.'},
+  {c:'strategy', t:'Content Strategy',             p:'Build a 90-day content strategy for {A} focused on {T}. Include: 3 core content pillars, the top 5 questions {A} ask about {T}, best formats by platform, posting frequency recommendation, and one flagship content idea for the quarter.'},
+  {c:'strategy', t:'Product Launch Plan',          p:'Create a [14/21/30]-day product launch plan for a {T} offer targeting {A}. Cover pre-launch (audience warming), launch week (daily content + emails), and post-launch (follow-up). For each phase, suggest: content topic, format, and primary goal.'},
+  {c:'strategy', t:'Competitor Analysis',          p:'Analyze the top [3–5] competitors in the {T} space. For each, identify: what they sell and at what price, their content strategy, messaging angle, and apparent gaps. Then list [3] specific positioning opportunities that are underserved for {A}.'},
+  {c:'strategy', t:'Audience Pain Points Map',     p:'You are a market research expert. Identify the top 10 pain points of {A} regarding {T}. For each: the surface complaint they\'d voice, the deeper emotional fear underneath, and the transformation they\'re really seeking. Format as a table. Use language {A} actually uses.'},
+  {c:'copy',     t:'10 Sales Page Headlines',      p:'Write 10 sales page headline options for a {T} offer targeting {A}. Vary the angles: outcome-focused, curiosity-driven, problem-agitate-solve, social proof, speed/ease, and bold claim. For each headline add a supporting sub-headline. Mark your top 3 picks with a reason.'},
+  {c:'copy',     t:'Product Description',          p:'Write a compelling product description for a {T} digital product targeting {A}. Include: a hook naming their pain, what they\'ll get and achieve, [3–5] benefit-led bullet points, a "who this is for" section, and a clear CTA. Length: 200–350 words. Tone: [direct/warm/bold].'},
+  {c:'copy',     t:'5-Email Welcome Sequence',     p:'Write a 5-email welcome sequence for new subscribers interested in {T}. Target audience: {A}. Email 1: Welcome + quick win. Email 2: Your story + why {T} matters. Email 3: Myth bust. Email 4: Case study. Email 5: Soft pitch for [your offer]. Include subject lines for all 5.'},
+  {c:'copy',     t:'Testimonial Request',          p:'Write [3] versions of a testimonial request for {A} who purchased a {T} product. Version 1: casual DM. Version 2: formal email. Version 3: post-purchase auto email. Each should thank them, ask 2–3 specific questions that prompt outcome-focused answers, and make replying effortless.'},
+  {c:'copy',     t:'3-Version About Bio',          p:'Write 3 versions of a bio for a {T} expert who works with {A}. Version 1: Short (50 words) for social bios. Version 2: Medium (150 words) for a website header. Version 3: Full story (300 words) for an About page. Establish credibility, empathy with {A}, and end with a CTA.'},
+  {c:'social',   t:'Instagram Carousel',           p:'Write a 9-slide Instagram carousel for {A} about {T}. Slide 1: Bold hook (max 8 words). Slides 2–8: One insight or tip per slide (heading + 1–2 sentences). Slide 9: Recap + CTA to [action]. Include 150-word caption and 3–5 hashtag suggestions.'},
+  {c:'social',   t:'LinkedIn Article',             p:'Write a LinkedIn article for {A} about [specific {T} topic]. Structure: personal story or surprising stat as hook, core insight [3–5 key points], concrete example or case study, and a thought-provoking closing question to drive comments. Length: [600–900] words. Professional but human tone.'},
+  {c:'social',   t:'TikTok / Reel Script',         p:'Write a [30/60/90]-second TikTok or Reel script for {A} about {T}. Structure: Hook (first 3 sec), Problem/Context ([5–10] sec), Solution or Insight ([20–40] sec), CTA (final [5] sec). Include on-screen text suggestions and visual direction notes for each section.'},
+  {c:'social',   t:'Twitter / X Thread',           p:'Write a Twitter/X thread for {A} about {T}. Tweet 1: Bold or counterintuitive hook. Tweets 2–8: One insight per tweet (max 250 chars). Tweet 9: Summary. Tweet 10: CTA + personal note. Suggest a thread intro and 2–3 image ideas to boost engagement.'},
+  {c:'social',   t:'Pinterest Pin Descriptions',   p:'Write 10 Pinterest pin descriptions for {A} related to {T}. Each: [100–200] characters, includes a primary keyword, describes the pin\'s value, and ends with a soft CTA. Also suggest 5 relevant keywords per pin and the best pin format (standard/idea/video).'},
+  {c:'analysis', t:'Niche Opportunity Report',     p:'Act as a business analyst. Research the {T} niche and provide: demand estimate, top audience segments including {A}, most in-demand products and services, current content gaps, and [3] untapped opportunities. Format as a "State of the {T} Niche" report.'},
+  {c:'analysis', t:'Content Gap Analysis',         p:'Analyze the top [5] creators or brands in the {T} space. For each: top content themes, what they\'re NOT covering, format gaps, and unanswered {A} questions. Then list [5] content ideas that fill the biggest gaps — prioritized by what {A} need most urgently.'},
+  {c:'analysis', t:'Trending Topics Finder',       p:'You are a {T} trend analyst. Identify [10] trending topics in the {T} space that resonate with {A}. For each: why it\'s trending, the core question {A} have about it, the best content format, and a hook I could use. Rank by relevance and urgency to act.'},
+  {c:'analysis', t:'Ideal Customer Profile',       p:'Build a detailed ICP for my {T} business targeting {A}. Include: demographics, psychographics, top 5 goals, top 5 frustrations, current workarounds, where they spend time online, language they use to describe their pain, and what finally makes them buy.'},
+  {c:'repurpose',t:'Blog Post to Social',          p:'Take the following blog post about {T} and repurpose it into [5] social posts for {A}: Instagram caption, LinkedIn post, Twitter thread opener, Facebook post, and Pinterest description. Each must feel native to its platform while keeping the core message.\n\n[PASTE BLOG POST HERE]'},
+  {c:'repurpose',t:'Long to Short Form',           p:'Take the following long-form content about {T} and condense it into: (1) a 3-bullet email for {A}, (2) a 30-second social video script, and (3) a 280-character tweet. Preserve the most valuable insight in each version. Prioritize clarity over completeness.\n\n[PASTE CONTENT HERE]'},
+  {c:'repurpose',t:'One Idea, 10 Formats',         p:'Take this core {T} idea and rewrite it in 10 formats for {A}: (1) How-to, (2) Listicle, (3) Story, (4) Myth-bust, (5) Case study, (6) Question, (7) Controversial take, (8) Behind-the-scenes, (9) Data/stat, (10) Motivational. Keep each under 150 words.\n\nCore idea: [ADD HERE]'},
+  {c:'repurpose',t:'Video to Newsletter',          p:'I have a video transcript about {T} for {A}. Convert it into an email newsletter: clean up the language, add subject line and preview text, structure with short sections and subheadings, remove filler, add 1–2 links or resources, and close with a CTA. Under 500 words.\n\n[PASTE TRANSCRIPT HERE]'},
+  {c:'repurpose',t:'Interview to Content',         p:'I have an interview transcript about {T}. Convert it into: (1) a Q&A blog post for {A}, (2) [5] social media quote cards, and (3) an email featuring the top 3 insights. Preserve the speaker\'s voice while making each format scannable and immediately valuable.\n\n[PASTE INTERVIEW HERE]'}
+];
+
+let state = {}, nameIdx = 0;
+
+function generate() {
+  const T = document.getElementById('topic').value.trim();
+  const A = document.getElementById('audience').value.trim();
+  const G = document.getElementById('goal').value.trim();
+  const focus = document.getElementById('focus').value;
+  const size = parseInt(document.getElementById('size').value);
+  if (!T) { alert('Please enter a pack topic.'); return; }
+  if (!A) { alert('Please enter your target audience.'); return; }
+  if (!G) { alert('Please enter what buyers will achieve.'); return; }
+  nameIdx = Math.floor(Math.random() * nameForms.length);
+  const order = focusOrder[focus];
+  const sorted = [...allPrompts].sort((a, b) => order.indexOf(a.c) - order.indexOf(b.c));
+  state = {T, A, G, size, prompts: sorted.slice(0, size)};
+  render();
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function render() {
+  const {T, A, G, size, prompts} = state;
+  document.getElementById('packName').textContent = nameForms[nameIdx](T, A, G);
+  document.getElementById('packTagline').textContent = rnd(taglines)(T, A, G, size);
+  document.getElementById('priceBadge').textContent = `Sell for ${prices[size]}`;
+  document.getElementById('packTitle').innerHTML = `Prompts Included <span style="font-family:'DM Sans',sans-serif;font-weight:400;opacity:.4;font-size:.8rem">— ${size} prompts</span>`;
+
+  document.getElementById('promptList').innerHTML = prompts.map((p, i) => {
+    const color = cc[p.c] || '#5AE57A';
+    return `<div class="p-row">
+      <div class="p-num">${String(i+1).padStart(2,'0')}</div>
+      <span class="cat-badge" style="color:${color};background:${color}18;border:1px solid ${color}33">${cl[p.c]}</span>
+      <div class="p-title">${p.t}</div>
+      <button class="copy-p-btn" id="pp-${i}" onclick="copyPrompt(${i})">Copy</button>
+    </div>`;
+  }).join('');
+
+  document.getElementById('bullets').innerHTML = [
+    `${size} copy-paste AI prompts built specifically for ${A} — covering ${cap(state.T)} from every angle`,
+    `Each prompt is pre-engineered for results: just paste into ChatGPT or Claude and get professional output instantly`,
+    `${cap(G)} in a fraction of the time — no prompt writing, no trial and error, no blank-page paralysis`,
+    `Covers ${[...new Set(state.prompts.map(p=>cl[p.c]))].join(', ')} and more`
+  ].map(b => `<li>${b}</li>`).join('');
+}
+
+function regenName() {
+  nameIdx = (nameIdx + 1) % nameForms.length;
+  const {T, A, G} = state;
+  document.getElementById('packName').textContent = nameForms[nameIdx](T, A, G);
+}
+
+function copyPrompt(idx) {
+  const {T, A} = state;
+  const text = fill(state.prompts[idx].p, T, A);
+  const btn = document.getElementById(`pp-${idx}`);
+  const flash = () => { if(btn){const o=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=o,2000);} };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(flash) : (() => {const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();})();
+}
+
+function buildPackText() {
+  const {T, A, size, prompts} = state;
+  const packName = nameForms[nameIdx](T, A, state.G);
+  let text = `PROMPT PACK: ${packName}\nAudience: ${A} | Topic: ${T}\nSize: ${size} prompts | Suggested Price: ${prices[size]}\n\n`;
+  prompts.forEach((p, i) => {
+    text += `PROMPT ${String(i+1).padStart(2,'0')}: ${p.t} [${cl[p.c]}]\n\n${fill(p.p, T, A)}\n\n---\n\n`;
+  });
+  return text + 'Generated by GetPaidToBeYouOnline Prompt Pack Creator';
+}
+
+function copyPack() {
+  if (!state.prompts) { alert('Build your pack first.'); return; }
+  const text = buildPackText();
+  const btn = document.querySelector('.copy-btn');
+  const flash = () => { const o=btn.textContent;btn.textContent='Copied!';setTimeout(()=>btn.textContent=o,2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(flash) : (() => {const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();})();
+}
+
+function downloadPack() {
+  if (!state.prompts) { alert('Build your pack first.'); return; }
+  const packName = nameForms[nameIdx](state.T, state.A, state.G);
+  const fname = packName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') + '.txt';
+  const blob = new Blob([buildPackText()], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = fname || 'prompt-pack.txt';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(a.href);
+}
+
+// Remember the seller's inputs across refreshes
+const SKEY = 'gptby_pack_creator_inputs';
+const inputIds = ['topic','audience','goal','focus','size'];
+function saveInputs() {
+  const d = {}; inputIds.forEach(id => d[id] = document.getElementById(id).value);
+  try { localStorage.setItem(SKEY, JSON.stringify(d)); } catch(e) {}
+}
+(function restoreInputs() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SKEY)); if (!d) return;
+    inputIds.forEach(id => { if (d[id] != null) document.getElementById(id).value = d[id]; });
+  } catch(e) {}
+})();
+inputIds.forEach(id => document.getElementById(id).addEventListener('input', saveInputs));
+</script>
+</body>
+</html>

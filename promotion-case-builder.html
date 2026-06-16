@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promotion Case Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 56px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Promotion Case Builder</h1>
+  <p class="sub">Build the evidence-based case that makes saying yes the easy choice.</p>
+
+  <div class="panel">
+    <label for="target">Role / level you are aiming for</label>
+    <input id="target" placeholder="The next title or band">
+    <label for="results">Results you have delivered</label>
+    <textarea id="results" placeholder="Concrete wins with numbers and impact"></textarea>
+    <label for="scope">Where you already operate at the next level</label>
+    <textarea id="scope" placeholder="Responsibilities you have outgrown your current role"></textarea>
+    <label for="leadership">Leadership &amp; initiative you have shown</label>
+    <textarea id="leadership" placeholder="Mentoring, owning projects, raising the bar"></textarea>
+    <label for="gaps">Any gaps and your plan to close them</label>
+    <textarea id="gaps" placeholder="Honesty here builds trust"></textarea>
+    <label for="ask">Your clear ask</label>
+    <input id="ask" placeholder="e.g. promotion to Senior at the next review cycle">
+    <button class="btn" onclick="gen()">Build Case</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['target','results','scope','leadership','gaps','ask'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('pcb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('pcb_'+k,g(k).value)); });
+  function gen(){
+    const t='PROMOTION CASE'+(v('target')?'\nTarget: '+v('target'):'')+
+    '\n\n1. RESULTS I HAVE DELIVERED\n'+(v('results')||'[wins with measurable impact]')+
+    '\n\n2. I ALREADY OPERATE AT THE NEXT LEVEL\n'+(v('scope')||'[responsibilities beyond your current role]')+
+    '\n\n3. LEADERSHIP & INITIATIVE\n'+(v('leadership')||'[how you lead and raise the bar]')+
+    '\n\n4. GAPS & MY PLAN\n'+(v('gaps')||'[honest gaps and how you will close them]')+
+    '\n\n5. THE ASK\n'+(v('ask')||'[your clear, specific request]')+
+    '\n\n--- How to use this ---\nShare it with your manager before the formal review, not during it.\nFrame it as "here is where I am — what would it take?"\nA promotion rewards work already being done. Show that first.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

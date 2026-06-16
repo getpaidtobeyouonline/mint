@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Marketplace Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 130px; }
+  .scoreline { margin-top: 12px; font-size: .85rem; opacity: .8; }
+  .scoreline b { color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .group h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin: 18px 0 8px; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 14px; margin-bottom: 9px; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .card .ttl { font-weight: 500; }
+  .meta { font-size: .82rem; opacity: .72; margin-top: 2px; }
+  .pill { font-size: .7rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; cursor: pointer; }
+  .badge { font-size: .72rem; padding: 2px 8px; border-radius: 6px; background: #325132; color: #5AE57A; }
+  .badge.low { background: #2E4D2E; color: #5AE57A; }
+  .acts { margin-top: 7px; display: flex; gap: 15px; font-size: .8rem; }
+  .acts span { cursor: pointer; opacity: .68; }
+  .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 24px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Marketplace Planner</h1>
+  <p class="sub">Plan a profitable catalog of prompt listings — score each one for marketplace strength before you publish.</p>
+
+  <div class="panel">
+    <label for="title">Listing title</label>
+    <input id="title" placeholder="Keyword-rich, outcome-driven title" oninput="liveScore()">
+    <div class="grid">
+      <div><label for="cat">Category</label>
+        <select id="cat"><option>Writing</option><option>Marketing</option><option>Business</option><option>Coding</option><option>Image / Art</option><option>Productivity</option><option>Education</option><option>Other</option></select></div>
+      <div><label for="buyer">Who it's for</label><input id="buyer" placeholder="Target buyer" oninput="liveScore()"></div>
+    </div>
+    <label for="tags">Tags / keywords <span style="text-transform:none;opacity:.55">(comma-separated)</span></label>
+    <input id="tags" placeholder="e.g. cold email, sales, b2b, outreach" oninput="liveScore()">
+    <div class="grid">
+      <div><label for="price">Price ($)</label><input id="price" type="number" min="0" value="9" oninput="liveScore()"></div>
+      <div><label for="est">Est. sales / month</label><input id="est" type="number" min="0" value="10"></div>
+      <div><label for="status">Status</label>
+        <select id="status"><option>Idea</option><option>Drafting</option><option>Ready</option><option>Listed</option></select></div>
+    </div>
+    <div class="scoreline" id="scoreline">Listing strength: <b>—</b></div>
+    <button class="btn" onclick="saveItem()" id="saveBtn">+ Add Listing</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="sN">0</div><div class="l">Listings</div></div>
+    <div class="stat"><div class="n" id="sLive">0</div><div class="l">Ready / Listed</div></div>
+    <div class="stat"><div class="n" id="sMon">$0</div><div class="l">Proj. monthly</div></div>
+    <div class="stat"><div class="n" id="sYr">$0</div><div class="l">Proj. yearly</div></div>
+  </div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportMd()">Export Catalog</button>
+  <button class="btn ghost" onclick="exportCsv()">Export CSV</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  let items = JSON.parse(localStorage.getItem('pmkp') || '[]');
+  let editing = -1;
+  const save = () => localStorage.setItem('pmkp', JSON.stringify(items));
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const tagArr = s => s.split(',').map(x=>x.trim()).filter(Boolean);
+
+  function scoreOf(o) {
+    let s = 0; const tips = [];
+    o.title.length >= 25 ? s += 25 : tips.push('Longer, keyword-rich title (25+ chars)');
+    o.title.split(/\s+/).filter(Boolean).length >= 5 ? s += 15 : tips.push('Use 5+ words in the title');
+    o.buyer ? s += 20 : tips.push('Name the target buyer');
+    tagArr(o.tags).length >= 3 ? s += 25 : tips.push('Add 3+ tags/keywords');
+    o.price > 0 ? s += 15 : tips.push('Set a price');
+    return { s, tips };
+  }
+  function liveScore() {
+    const { s, tips } = scoreOf({ title:v('title'), buyer:v('buyer'), tags:v('tags'), price:+v('price')||0 });
+    g('scoreline').innerHTML = `Listing strength: <b>${s}/100</b>` + (tips.length?` — improve: ${tips.join('; ')}` : ' — strong listing ✅');
+  }
+
+  function saveItem() {
+    const title = v('title');
+    if (!title) { alert('Add a listing title.'); return; }
+    const obj = { title, cat:g('cat').value, buyer:v('buyer'), tags:v('tags'), price:+v('price')||0, est:+v('est')||0, status:g('status').value };
+    if (editing >= 0) { items[editing] = obj; editing = -1; g('saveBtn').textContent='+ Add Listing'; g('cancelBtn').style.display='none'; }
+    else items.unshift(obj);
+    ['title','buyer','tags'].forEach(id=>g(id).value=''); g('price').value=9; g('est').value=10;
+    save(); render(); liveScore();
+  }
+  function edit(i) {
+    const x = items[i];
+    g('title').value=x.title; g('cat').value=x.cat; g('buyer').value=x.buyer; g('tags').value=x.tags; g('price').value=x.price; g('est').value=x.est; g('status').value=x.status;
+    editing=i; g('saveBtn').textContent='✓ Update'; g('cancelBtn').style.display='inline-block'; liveScore();
+    window.scrollTo({ top:0, behavior:'smooth' });
+  }
+  function cancelEdit() { editing=-1; g('saveBtn').textContent='+ Add Listing'; g('cancelBtn').style.display='none'; ['title','buyer','tags'].forEach(id=>g(id).value=''); liveScore(); }
+  function del(i) { if (confirm('Delete this listing?')) { items.splice(i,1); if(editing===i)cancelEdit(); save(); render(); } }
+  const order = ['Idea','Drafting','Ready','Listed'];
+  function cycle(i) { const x=items[i]; x.status=order[(order.indexOf(x.status)+1)%order.length]; save(); render(); }
+  function clearAll() { if (confirm('Clear the whole catalog?')) { items=[]; save(); render(); } }
+
+  function render() {
+    const live = items.filter(x=>x.status==='Ready'||x.status==='Listed').length;
+    const mon = items.reduce((s,x)=>s + x.price*x.est, 0);
+    g('sN').textContent=items.length; g('sLive').textContent=live;
+    g('sMon').textContent='$'+Math.round(mon).toLocaleString();
+    g('sYr').textContent='$'+Math.round(mon*12).toLocaleString();
+    const l = g('list');
+    if (!items.length) { l.innerHTML='<div class="empty">No listings planned yet — add your first above.</div>'; return; }
+    let html='';
+    order.forEach(st => {
+      const grp = items.map((x,i)=>({x,i})).filter(({x})=>x.status===st);
+      if (!grp.length) return;
+      html += `<div class="group"><h3>${st} (${grp.length})</h3>` + grp.map(({x,i}) => {
+        const sc = scoreOf(x).s, low = sc < 60;
+        return `<div class="card">
+          <div class="top"><span class="ttl">${esc(x.title)}</span>
+            <span class="badge ${low?'low':''}">${sc}/100</span></div>
+          <div class="meta">${esc(x.cat)}${x.buyer?` · for ${esc(x.buyer)}`:''} · $${x.price} × ${x.est}/mo = $${(x.price*x.est).toLocaleString()}/mo${x.tags?` · ${esc(x.tags)}`:''}</div>
+          <div class="acts"><span class="pill" onclick="cycle(${i})">→ ${x.status}</span>
+            <span onclick="edit(${i})">✎ Edit</span><span onclick="del(${i})">✕ Delete</span></div>
+        </div>`;
+      }).join('') + `</div>`;
+    });
+    l.innerHTML = html;
+  }
+
+  function exportMd() {
+    if (!items.length) { alert('Add a listing first.'); return; }
+    const mon = items.reduce((s,x)=>s+x.price*x.est,0);
+    let t = `# Prompt Marketplace Catalog\n\n${items.length} listings · projected $${Math.round(mon).toLocaleString()}/mo\n`;
+    order.forEach(st => {
+      const grp = items.filter(x=>x.status===st); if (!grp.length) return;
+      t += `\n## ${st}\n`;
+      grp.forEach(x => t += `- **${x.title}** (${x.cat}) — $${x.price} × ${x.est}/mo · score ${scoreOf(x).s}/100${x.tags?` · tags: ${x.tags}`:''}\n`);
+    });
+    dl(new Blob([t.trim()],{type:'text/markdown'}), 'prompt-catalog.md');
+  }
+  function exportCsv() {
+    if (!items.length) { alert('Add a listing first.'); return; }
+    const rows = [['Title','Category','Buyer','Tags','Price','Est/mo','Status','Score']]
+      .concat(items.map(x=>[x.title,x.cat,x.buyer,x.tags,x.price,x.est,x.status,scoreOf(x).s]));
+    const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    dl(new Blob([csv],{type:'text/csv'}), 'prompt-catalog.csv');
+  }
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+
+  render(); liveScore();
+</script>
+</body>
+</html>

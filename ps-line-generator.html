@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P.S. Line Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .ps { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; display:flex; justify-content:space-between; gap:10px; }
+  .ps .t { font-size: .95rem; } .ps .cp { cursor:pointer; color:#5AE57A; font-size:.82rem; }
+  .tip { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>P.S. Line Generator</h1>
+  <p class="sub">The P.S. is the second-most-read line in any email. Don't waste it.</p>
+
+  <div class="panel">
+    <label for="goal">What the P.S. should do</label>
+    <select id="goal"><option value="reinforce">Reinforce the CTA</option><option value="urgency">Add a soft deadline</option><option value="proof">Add a quick proof point</option><option value="warm">Add a human touch</option><option value="bonus">Surface a bonus</option></select>
+    <label for="cta">Your offer / CTA in plain words</label>
+    <input id="cta" placeholder="e.g. join the course before Friday">
+    <button class="btn" onclick="gen()">Generate P.S. Lines</button>
+    <button class="btn ghost" onclick="gen()">↻ More</button>
+  </div>
+
+  <div class="tip">Best practice: keep it 1-2 lines, and never use it for filler. Either reinforce the action or be genuinely personal.</div>
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['goal','cta'].forEach(k=>{ const s=localStorage.getItem('psg_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('psg_'+k,g(k).value)); });
+  const T={
+    reinforce:["P.S. If you only do one thing today: {x}.","P.S. Skimming? Here is the only line that matters: {x}.","P.S. Click below if you are in — {x}.","P.S. Reminder: {x}. Future-you will thank present-you."],
+    urgency:["P.S. The window on this closes soon. {x} before it does.","P.S. This is not 'forever'. Last call is coming this week.","P.S. The deadline is real — don't read this Friday and wish you had moved Tuesday.","P.S. Tomorrow this gets harder. Today it's a tap."],
+    proof:["P.S. The last person who did this said it was the kick they needed. Your turn: {x}.","P.S. We've helped hundreds with exactly this. {x} and join them.","P.S. The result you want is closer than you think — {x}."],
+    warm:["P.S. Reply and tell me what is actually getting in your way — I read everything.","P.S. Even if you don't take me up on this, I am cheering for you.","P.S. Whatever you decide, take one small action today."],
+    bonus:["P.S. Sign up today and you also get [bonus]. Quietly the best part.","P.S. There's a fast-action bonus tucked inside for early movers.","P.S. The bonus alone is worth the price — and you get the rest."]
+  };
+  function gen(){
+    const cta=v('cta')||'take the next step';
+    const pool=(T[g('goal').value]||[]).map(s=>s.replace(/\{x\}/g,cta));
+    g('out').innerHTML=pool.map((c,i)=>`<div class="ps"><span class="t">${esc(c)}</span><span class="cp" onclick="cp(${i})">⧉</span></div>`).join('');
+    window._p=pool;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function cp(i){ navigator.clipboard.writeText(window._p[i]).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

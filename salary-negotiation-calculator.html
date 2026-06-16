@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Negotiation Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .band { display: flex; gap: 8px; margin: 10px 0; }
+  .band div { flex: 1; text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 11px 6px; }
+  .band .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .band .l { font-size: .64rem; opacity: .65; text-transform: uppercase; }
+  .tip { font-size: .88rem; margin-top: 4px; }
+  .tip b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Salary Negotiation Calculator</h1>
+  <p class="sub">Work out your target, your floor and your opening ask — so you negotiate from a clear plan.</p>
+
+  <div class="panel">
+    <label for="offer">The offer (or current salary)</label>
+    <input id="offer" type="number" min="0" placeholder="e.g. 45000">
+    <label for="market">Typical market rate for this role (research it first)</label>
+    <input id="market" type="number" min="0" placeholder="e.g. 52000">
+    <label for="floor">Your absolute minimum (your walk-away floor)</label>
+    <input id="floor" type="number" min="0" placeholder="e.g. 47000">
+    <button class="btn" onclick="calc()">Calculate My Numbers</button>
+    <div class="result" id="out"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const fmt=n=>Math.round(n).toLocaleString();
+  function calc(){
+    const offer=parseFloat(g('offer').value)||0;
+    const market=parseFloat(g('market').value)||0;
+    const floor=parseFloat(g('floor').value)||0;
+    if(!offer||!market){ alert('Enter at least the offer and the market rate.'); return; }
+    const target=Math.max(market, offer*1.1);
+    const ask=Math.round(target*1.07);
+    const gap=target-offer;
+    let advice;
+    if(offer>=market) advice='Your offer is at or above market. You can still ask for a little more, or negotiate non-salary benefits.';
+    else if(gap/offer>0.2) advice='There is a sizeable gap. Anchor high, lead with your research and your value, and be ready to justify it.';
+    else advice='A modest, very reasonable gap. A confident, well-evidenced ask should land well.';
+    g('out').style.display='block';
+    g('out').innerHTML='<div class="band"><div><div class="v">'+fmt(ask)+'</div><div class="l">Opening ask</div></div><div><div class="v">'+fmt(target)+'</div><div class="l">Target</div></div><div><div class="v">'+fmt(floor||offer)+'</div><div class="l">Your floor</div></div></div>'+
+      '<div class="tip"><b>Strategy:</b> '+advice+'</div>'+
+      '<div class="tip" style="margin-top:8px"><b>Script:</b> "Thank you for the offer. Based on my research and the value I bring, I was hoping for something closer to '+fmt(ask)+'. Is there flexibility there?"</div>'+
+      '<div class="tip" style="margin-top:8px">Then pause — and let them respond. If salary cannot move, negotiate holiday, bonus, remote days, or a 6-month review.</div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

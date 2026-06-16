@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Swipe File Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 90px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 160px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input, .toolbar select { flex: 1; min-width: 140px; }
+  .stat { font-size: .82rem; opacity: .65; margin-bottom: 14px; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 15px 16px; margin-bottom: 12px; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .card h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .pill { font-size: .7rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .ptext { white-space: pre-wrap; font-size: .9rem; background: #325132; border: 1px solid #3C603C; border-radius: 6px; padding: 10px; margin: 9px 0; max-height: 130px; overflow: auto; }
+  .note { font-size: .82rem; opacity: .65; font-style: italic; }
+  .acts { display: flex; gap: 16px; margin-top: 9px; font-size: .82rem; }
+  .acts span { cursor: pointer; opacity: .7; }
+  .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 26px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Swipe File Builder</h1>
+  <p class="sub">Build your own searchable library of winning prompts — save once, swipe forever.</p>
+
+  <div class="panel">
+    <label for="title">Prompt Title</label>
+    <input id="title" placeholder="e.g. Cold email that books calls">
+    <div class="grid">
+      <div>
+        <label for="cat">Category</label>
+        <input id="cat" list="cats" placeholder="e.g. Marketing">
+        <datalist id="cats"><option>Marketing</option><option>Writing</option><option>Sales</option><option>Coding</option><option>Research</option><option>Personal</option></datalist>
+      </div>
+    </div>
+    <label for="text">Prompt</label>
+    <textarea id="text" placeholder="The full reusable prompt…"></textarea>
+    <label for="note">Note (optional)</label>
+    <input id="note" placeholder="When / how to use it">
+    <button class="btn" onclick="saveItem()" id="saveBtn">+ Save to Swipe File</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel</button>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" placeholder="🔍 Search prompts…" oninput="render()">
+    <select id="filter" onchange="render()"><option value="">All categories</option></select>
+  </div>
+  <div class="stat" id="stat"></div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportMd()">Export .md</button>
+  <button class="btn ghost" onclick="backup()">Backup JSON</button>
+  <button class="btn ghost" onclick="document.getElementById('restore').click()">Restore</button>
+  <input type="file" id="restore" accept="application/json" style="display:none" onchange="restore(event)">
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  let items = JSON.parse(localStorage.getItem('psfb') || '[]');
+  let editing = -1;
+  const save = () => localStorage.setItem('psfb', JSON.stringify(items));
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const g = id => document.getElementById(id);
+  const v = id => g(id).value.trim();
+
+  function saveItem() {
+    const title = v('title'), text = v('text');
+    if (!title || !text) { alert('Title and prompt are required.'); return; }
+    const obj = { title, text, cat: v('cat') || 'Uncategorized', note: v('note') };
+    if (editing >= 0) { items[editing] = obj; editing = -1; g('saveBtn').textContent = '+ Save to Swipe File'; g('cancelBtn').style.display = 'none'; }
+    else items.unshift(obj);
+    ['title','text','cat','note'].forEach(id => g(id).value = '');
+    save(); render();
+  }
+  function edit(i) {
+    const x = items[i];
+    g('title').value = x.title; g('text').value = x.text; g('cat').value = x.cat; g('note').value = x.note || '';
+    editing = i; g('saveBtn').textContent = '✓ Update Prompt'; g('cancelBtn').style.display = 'inline-block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function cancelEdit() {
+    editing = -1; ['title','text','cat','note'].forEach(id => g(id).value = '');
+    g('saveBtn').textContent = '+ Save to Swipe File'; g('cancelBtn').style.display = 'none';
+  }
+  function del(i) { if (confirm('Delete this prompt?')) { items.splice(i,1); if (editing===i) cancelEdit(); save(); render(); } }
+  function copyP(i) { navigator.clipboard.writeText(items[i].text).then(()=>toast(),()=>alert('Copy failed.')); }
+  function toast() { const b = g('saveBtn'); /* lightweight feedback */ alert('Prompt copied — go swipe it.'); }
+
+  function render() {
+    const cats = [...new Set(items.map(x=>x.cat))].sort();
+    const fSel = g('filter'), keep = fSel.value;
+    fSel.innerHTML = '<option value="">All categories</option>' + cats.map(c=>`<option ${c===keep?'selected':''}>${esc(c)}</option>`).join('');
+    const q = v('search').toLowerCase(), fc = fSel.value;
+    const shown = items.map((x,i)=>({x,i})).filter(({x}) =>
+      (!fc || x.cat===fc) &&
+      (!q || (x.title+' '+x.text+' '+x.cat).toLowerCase().includes(q)));
+    g('stat').textContent = `${items.length} prompt${items.length!==1?'s':''} · ${cats.length} categor${cats.length!==1?'ies':'y'}` + (q||fc ? ` · ${shown.length} shown` : '');
+    const l = g('list');
+    if (!items.length) { l.innerHTML = '<div class="empty">Your swipe file is empty — save your first prompt above.</div>'; return; }
+    if (!shown.length) { l.innerHTML = '<div class="empty">No prompts match your search.</div>'; return; }
+    l.innerHTML = shown.map(({x,i}) => `
+      <div class="card">
+        <div class="top"><h3>${esc(x.title)}</h3><span class="pill">${esc(x.cat)}</span></div>
+        <div class="ptext">${esc(x.text)}</div>
+        ${x.note ? `<div class="note">${esc(x.note)}</div>` : ''}
+        <div class="acts">
+          <span onclick="copyP(${i})">⧉ Copy</span>
+          <span onclick="edit(${i})">✎ Edit</span>
+          <span onclick="del(${i})">✕ Delete</span>
+        </div>
+      </div>`).join('');
+  }
+
+  function exportMd() {
+    if (!items.length) { alert('Save a prompt first.'); return; }
+    let t = `# My Prompt Swipe File\n\n`;
+    [...items].sort((a,b)=>a.cat.localeCompare(b.cat)).forEach(x => {
+      t += `## ${x.title}  _(${x.cat})_\n`;
+      if (x.note) t += `> ${x.note}\n\n`;
+      t += `\`\`\`\n${x.text}\n\`\`\`\n\n`;
+    });
+    dl(new Blob([t.trim()], { type:'text/markdown' }), 'prompt-swipe-file.md');
+  }
+  function backup() {
+    if (!items.length) { alert('Nothing to back up.'); return; }
+    dl(new Blob([JSON.stringify(items,null,2)], { type:'application/json' }), 'swipe-file-backup.json');
+  }
+  function restore(e) {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const d = JSON.parse(r.result);
+        if (!Array.isArray(d)) throw 0;
+        if (confirm(`Import ${d.length} prompts? This adds to your current swipe file.`)) {
+          items = d.concat(items); save(); render();
+        }
+      } catch { alert('That file isn\'t a valid backup.'); }
+      e.target.value = '';
+    };
+    r.readAsText(f);
+  }
+  function dl(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); URL.revokeObjectURL(a.href); }
+
+  render();
+</script>
+</body>
+</html>

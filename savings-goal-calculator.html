@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Savings Goal Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; line-height: 1; }
+  .res .l { font-size: .85rem; opacity: .7; margin-top: 6px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .85rem; opacity: .78; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Savings Goal Calculator</h1>
+  <p class="sub">Set a goal, see exactly how much to set aside each month — and when you'll get there.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="goal">Goal amount ($)</label><input id="goal" type="number" min="0" value="10000" oninput="calc()"></div>
+      <div><label for="have">Already saved ($)</label><input id="have" type="number" min="0" value="500" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="months">Time (months)</label><input id="months" type="number" min="1" value="12" oninput="calc()"></div>
+      <div><label for="rate">Interest rate (% / yr, optional)</label><input id="rate" type="number" min="0" step="0.1" value="0" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="mo">$0</div>
+    <div class="l">to save per month</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="wk">$0</div><div class="l">per week</div></div>
+      <div class="stat"><div class="v" id="dy">$0</div><div class="l">per day</div></div>
+      <div class="stat"><div class="v" id="gap">$0</div><div class="l">to go</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['goal','have','months','rate'].forEach(k=>{ const s=localStorage.getItem('sgc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['goal','have','months','rate'].forEach(k=>localStorage.setItem('sgc_'+k,g(k).value));
+    const gap=Math.max(0,n('goal')-n('have')), m=Math.max(1,n('months')), r=n('rate')/100/12;
+    let pm;
+    if (r>0) { // future value of annuity
+      pm = gap*r/(Math.pow(1+r,m)-1);
+      pm = pm - n('have')*Math.pow(1+r,m)/((Math.pow(1+r,m)-1)/r); // simplified — drop FV-of-current for clarity
+      pm = Math.max(0, gap*r/(Math.pow(1+r,m)-1));
+    } else pm = gap/m;
+    g('gap').textContent='$'+Math.round(gap).toLocaleString();
+    g('mo').textContent='$'+Math.round(pm).toLocaleString();
+    g('wk').textContent='$'+Math.round(pm/4.33).toLocaleString();
+    g('dy').textContent='$'+Math.round(pm/30.4).toLocaleString();
+    g('note').textContent = pm<=0 ? 'You are already there 🎉'
+      : 'Set up an automatic transfer the day you get paid. Hand-saving is willpower; auto-saving is system.';
+  }
+  calc();
+</script>
+</body>
+</html>

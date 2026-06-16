@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product Description Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:700px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+.mb{margin-bottom:1rem}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+label span{font-weight:400;opacity:.5}
+input[type=text],select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;appearance:none}
+input:focus,select:focus,textarea:focus{border-color:#5AE57A}
+textarea{resize:vertical}
+.sopt{background:#325132;border:2px solid #4C724C;border-radius:8px;padding:.8rem .5rem;cursor:pointer;text-align:center;font-size:.8rem;transition:all .2s;line-height:1.35}
+.sopt:hover{border-color:#5AE57A}
+.sopt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.sopt strong{display:block;margin-bottom:.2rem;font-size:.82rem}
+.sopt small{opacity:.5;font-size:.7rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.out{width:100%;min-height:340px;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:1rem 1.1rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;line-height:1.75;resize:vertical;outline:none;margin-bottom:.85rem}
+.out:focus{border-color:#5AE57A}
+.brow{display:flex;gap:.75rem}
+.cbtn{flex:1;background:transparent;border:2px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.8rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+.cbtn:hover{background:#5AE57A;color:#325132}
+.cbtn.done{border-color:#5AE57A;color:#5AE57A}
+.cbtn.sec{border-color:#4C724C;color:#FFFFFF;opacity:.6}
+.cbtn.sec:hover{border-color:#5AE57A;color:#5AE57A;opacity:1;background:transparent}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:520px){h1{font-size:1.75rem}.g2,.g3{grid-template-columns:1fr}.g4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Product Description Builder</h1>
+    <p class="subtitle">Fill in your product details. Get a conversion-ready description in seconds — then copy and paste it anywhere.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Product</h2>
+    <div class="g2">
+      <div><label>Product Name</label><input type="text" id="pname" placeholder="e.g. The Freelancer's Pricing Guide"></div>
+      <div><label>Product Format</label>
+        <select id="format">
+          <option>Guide</option><option>Template Pack</option><option>Checklist</option>
+          <option>Planner</option><option>Workbook</option><option>Toolkit</option>
+          <option>Mini-Course</option><option>Swipe File</option><option>Blueprint</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div><label>Target Audience</label><input type="text" id="audience" placeholder="e.g. freelance designers"></div>
+      <div><label>Price ($)</label><input type="text" id="price" placeholder="e.g. 27"></div>
+    </div>
+    <div class="mb">
+      <label>Problem It Solves <span>(short phrase)</span></label>
+      <input type="text" id="problem" placeholder="e.g. figuring out what to charge for their work">
+    </div>
+    <div class="mb">
+      <label>What They Achieve <span>(the transformation)</span></label>
+      <input type="text" id="transform" placeholder="e.g. price confidently and land better-paying clients">
+    </div>
+    <div class="g3">
+      <div><label>Key Benefit 1</label><input type="text" id="b1" placeholder="e.g. Proven pricing formula"></div>
+      <div><label>Key Benefit 2</label><input type="text" id="b2" placeholder="e.g. Scripts for rate talks"></div>
+      <div><label>Key Benefit 3 <span>(optional)</span></label><input type="text" id="b3" placeholder="e.g. Rate calculator"></div>
+    </div>
+    <div class="mb">
+      <label>What's Included <span>(optional — one item per line or comma-separated)</span></label>
+      <textarea id="included" rows="3" placeholder="e.g. 15 email templates&#10;Swipe file of 50 subject lines&#10;Bonus: pricing worksheet"></textarea>
+    </div>
+    <div>
+      <label>Description Style</label>
+      <div class="g4" style="margin-top:.25rem">
+        <div class="sopt" id="s_story" onclick="pick('story')"><strong>Story-Led</strong><small>Empathy &amp; connection first</small></div>
+        <div class="sopt" id="s_direct" onclick="pick('direct')"><strong>Direct &amp; Punchy</strong><small>Straight to the value</small></div>
+        <div class="sopt" id="s_problem" onclick="pick('problem')"><strong>Problem-Solution</strong><small>Pain first, fix second</small></div>
+        <div class="sopt" id="s_benefits" onclick="pick('benefits')"><strong>Benefit-Heavy</strong><small>Lead with outcomes</small></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Build My Description →</button>
+
+  <div class="results" id="results">
+    <div class="card">
+      <h2>Your Product Description <span style="opacity:.35;font-weight:400;font-size:.8rem">— edit before copying</span></h2>
+      <textarea class="out" id="output"></textarea>
+      <div class="brow">
+        <button class="cbtn" onclick="copyDesc(this)">Copy Description</button>
+        <button class="cbtn sec" onclick="build()">Regenerate ↻</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+let selStyle = null;
+const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const opens = {
+  story:[
+    (p,a)=>`You've been there.\n\nTrying to ${p} — and getting nowhere fast. It's exhausting. And the worst part? Most ${a} never get a clear system that actually works.`,
+    (p,a)=>`Here's what nobody tells ${a} about ${p}:\n\nIt doesn't have to take this long, cost this much, or feel this confusing.`,
+    (p,a)=>`If you're still stuck trying to ${p}, you're not failing — you just haven't had the right framework yet.`
+  ],
+  direct:[
+    p=>`Stop wasting time on ${p}.`,
+    p=>`There's a faster, simpler way to handle ${p}.`,
+    p=>`You don't need to figure out ${p} the hard way.`
+  ],
+  problem:[
+    (p,a)=>`Here's the real problem with ${p}:\n\nNobody hands you a system for it. Most ${a} spend months piecing it together on their own — and still get it wrong.`,
+    (p,a)=>`${p.charAt(0).toUpperCase()+p.slice(1)} is one of the biggest time drains for ${a}. And it doesn't have to be.`,
+    p=>`The frustrating thing about ${p}? It keeps most people stuck in the same loop — trying things, getting nowhere, starting over.`
+  ],
+  benefits:[
+    n=>`${n} gives you:`,
+    n=>`Here's what ${n} was built to do:`,
+    n=>`${n} exists to solve one specific problem. Here's how:`
+  ]
+};
+
+const transitions=[
+  n=>`That's exactly why I created ${n}.`,
+  n=>`That's where ${n} comes in.`,
+  n=>`Enter ${n}.`
+];
+
+const ctas=[
+  p=>`Get instant access for just $${p} and start making progress today.`,
+  p=>`Grab it now for $${p} — and start seeing results immediately.`,
+  p=>`It's just $${p}. Add it to your toolkit and get started today.`
+];
+
+function pick(id) {
+  if (selStyle) document.getElementById('s_'+selStyle).classList.remove('sel');
+  selStyle=id; document.getElementById('s_'+id).classList.add('sel');
+}
+
+function vals() {
+  return {
+    name:     document.getElementById('pname').value.trim(),
+    format:   document.getElementById('format').value,
+    audience: document.getElementById('audience').value.trim()||'digital product creators',
+    price:    document.getElementById('price').value.trim()||'17',
+    problem:  document.getElementById('problem').value.trim()||'this challenge',
+    transform:document.getElementById('transform').value.trim()||'reach your goals',
+    b1:       document.getElementById('b1').value.trim(),
+    b2:       document.getElementById('b2').value.trim(),
+    b3:       document.getElementById('b3').value.trim(),
+    included: document.getElementById('included').value.trim()
+  };
+}
+
+function fmtBenefits(b1,b2,b3){ return [b1,b2,b3].filter(Boolean).map(b=>`→ ${b}`).join('\n'); }
+
+function fmtIncluded(raw) {
+  if (!raw) return '';
+  const lines = raw.includes('\n') ? raw.split('\n') : raw.split(',');
+  return "\n\nWhat's included:\n"+lines.map(l=>`→ ${l.trim()}`).filter(l=>l.length>2).join('\n');
+}
+
+function buildText(v) {
+  const B=fmtBenefits(v.b1,v.b2,v.b3), I=fmtIncluded(v.included), CTA=rnd(ctas)(v.price);
+  if(selStyle==='story'){
+    const O=rnd(opens.story)(v.problem,v.audience), T=rnd(transitions)(v.name);
+    return `${O}\n\n${T}\n\n${v.name} is a ${v.format} for ${v.audience} who want to ${v.transform} — without the guesswork or starting from scratch.\n\nHere's what's inside:\n\n${B}${I}\n\nThis is for you if:\n• You're tired of ${v.problem}\n• You want a clear path to ${v.transform}\n• You're ready to stop waiting and start seeing results\n\n${CTA}`;
+  }
+  if(selStyle==='direct'){
+    const O=rnd(opens.direct)(v.problem);
+    return `${O}\n\n${v.name} is a ${v.format} that gives ${v.audience} exactly what they need to ${v.transform}.\n\nWhat you get:\n\n${B}${I}\n\nNo fluff. No filler. Just what works.\n\nBuilt for ${v.audience} who are done wasting time and ready for results.\n\n${CTA}`;
+  }
+  if(selStyle==='problem'){
+    const O=rnd(opens.problem)(v.problem,v.audience);
+    return `${O}\n\nThere's a better way.\n\n${v.name} is a ${v.format} that shows ${v.audience} exactly how to ${v.transform} — step by step, without the overwhelm.\n\nInside, you'll find:\n\n${B}${I}\n\nThis is for ${v.audience} who are done dealing with ${v.problem} and ready to ${v.transform} for good.\n\n${CTA}`;
+  }
+  if(selStyle==='benefits'){
+    const O=rnd(opens.benefits)(v.name);
+    return `${O}\n\n${B}${I}\n\n${v.name} is a ${v.format} packed with everything ${v.audience} need to ${v.transform} — without spending weeks on ${v.problem}.\n\nPerfect for ${v.audience} who want results, not more guesswork.\n\n${CTA}`;
+  }
+}
+
+function build() {
+  const v=vals();
+  if(!v.name){alert('Please enter your product name.');return;}
+  if(!v.b1||!v.b2){alert('Please enter at least 2 key benefits.');return;}
+  if(!selStyle){alert('Please choose a description style.');return;}
+  document.getElementById('output').value=buildText(v);
+  const res=document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyDesc(btn) {
+  const text=document.getElementById('output').value, orig=btn.textContent;
+  const flash=()=>{btn.textContent='Copied!';btn.classList.add('done');setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},2200);};
+  navigator.clipboard?navigator.clipboard.writeText(text).then(flash):(()=>{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);flash();})();
+}
+</script>
+</body>
+</html>

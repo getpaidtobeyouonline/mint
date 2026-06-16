@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raise Request Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .93rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Raise Request Builder</h1>
+  <p class="sub">Build a tight, value-first script you can rehearse — and send.</p>
+
+  <div class="panel">
+    <label for="role">Your role</label>
+    <input id="role" placeholder="e.g. Senior product designer">
+    <div class="grid">
+      <div><label for="cur">Current salary ($)</label><input id="cur" type="number" min="0" value="80000"></div>
+      <div><label for="ask">Asking ($)</label><input id="ask" type="number" min="0" value="95000"></div>
+    </div>
+    <label for="impact">3 measurable impacts you've made (one per line)</label>
+    <textarea id="impact" placeholder="Shipped X that drove Y%&#10;Saved $Z by doing W&#10;Led team to outcome A"></textarea>
+    <label for="market">Market rate / comparable info (optional)</label>
+    <input id="market" placeholder="e.g. average for this role in city is $90k–$105k">
+    <label for="next">What you'll keep delivering at the new rate</label>
+    <textarea id="next" placeholder="Forward-looking commitment"></textarea>
+    <button class="btn" onclick="gen()">Build Script</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['role','cur','ask','impact','market','next'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('rrb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('rrb_'+k,g(k).value)); });
+  function gen(){
+    const imp=v('impact').split('\n').map(s=>s.trim()).filter(Boolean);
+    const pct=v('cur')&&v('ask')?(((+v('ask')-+v('cur'))/+v('cur'))*100).toFixed(1):'';
+    const t=`Conversation script: raise request\n\nOpener:\n"Thanks for making time. I'd like to talk about my compensation, and I've put some thought into this so it's not a surprise."\n\nValue ($"${v('role')||'[role]'}"):\nOver the last review period I've delivered:\n${imp.length?imp.map((i,n)=>`  ${n+1}. ${i}`).join('\n'):'  1. [impact]\n  2. [impact]\n  3. [impact]'}\n\nThe ask:\n"Based on this impact${v('market')?', and market rates for this role ('+v('market')+')':''}, I'd like to move from $${v('cur')||'[current]'} to $${v('ask')||'[ask]'}${pct?' (a '+pct+'% adjustment)':''}."\n\nForward:\n"At the new rate I'll keep ${v('next')||'[forward commitment]'}."\n\nClose:\n"What questions do you have, and what would you need from me to make this work?"\n\n— Notes —\n• Practise out loud 3x before the meeting.\n• Pause after the ask. Do not refill the silence.\n• If they say no: ask what would need to be true and when to revisit.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Script copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

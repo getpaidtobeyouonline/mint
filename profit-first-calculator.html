@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profit First Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .alloc { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 8px; }
+  .alloc .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .alloc .nm { font-weight: 500; }
+  .alloc .amt { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; }
+  .alloc .pc { font-size: .8rem; opacity: .7; }
+  .bar { background: #3C603C; border-radius: 4px; height: 6px; overflow: hidden; margin-top: 6px; }
+  .bar>i { display: block; height: 100%; background: #5AE57A; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Profit First Calculator</h1>
+  <p class="sub">Pay profit out FIRST — then run the business on what's left.</p>
+
+  <div class="note">Take profit out of every payment received, the moment it lands. Default split below is a healthy starting point; tweak the sliders to your business.</div>
+
+  <div class="panel">
+    <label for="rev">Monthly revenue ($)</label>
+    <input id="rev" type="number" min="0" value="10000" oninput="calc()">
+    <div id="sliders"></div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const A=[
+    {k:'profit',n:'Profit',def:10,c:'#5AE57A'},
+    {k:'owner',n:'Owner pay',def:50,c:'#5AE57A'},
+    {k:'tax',n:'Tax',def:15,c:'#5AE57A'},
+    {k:'op',n:'Operating expenses',def:25,c:'#5AE57A'}
+  ];
+  const g=id=>document.getElementById(id);
+  A.forEach(a=>{ const s=localStorage.getItem('pfc_'+a.k); if(s!==null)a.def=+s; });
+  const rs=localStorage.getItem('pfc_rev'); if(rs!==null)g('rev').value=rs;
+  g('sliders').innerHTML=A.map(a=>`<label>${a.n}: <span id="lv_${a.k}" style="color:#5AE57A">${a.def}%</span></label>
+    <input id="sl_${a.k}" type="range" min="0" max="100" value="${a.def}">`).join('');
+  A.forEach(a=>g('sl_'+a.k).addEventListener('input',calc));
+  function calc(){
+    localStorage.setItem('pfc_rev',g('rev').value);
+    const rev=parseFloat(g('rev').value)||0;
+    let sum=0; A.forEach(a=>{ const v=+g('sl_'+a.k).value; g('lv_'+a.k).textContent=v+'%'; localStorage.setItem('pfc_'+a.k,v); sum+=v; });
+    g('out').innerHTML='<div class="panel">'+
+      A.map(a=>{ const v=+g('sl_'+a.k).value; const amt=rev*v/100;
+        return `<div class="alloc"><div class="top"><span class="nm">${a.n}</span><span class="amt">$${Math.round(amt).toLocaleString()}</span></div>
+          <div class="pc">${v}% of revenue</div><div class="bar"><i style="width:${v}%"></i></div></div>`;
+      }).join('')+
+      `<div class="note" style="background:${sum===100?'#2E4D2E':'#2E4D2E'};border-color:${sum===100?'#4F8A55':'#5AE57A'}">Total allocation: <b>${sum}%</b>. ${sum===100?'Balanced ✓':sum>100?'Over 100% &mdash; reduce somewhere.':'Under 100% &mdash; allocate the rest.'}</div></div>`;
+  }
+  calc();
+</script>
+</body>
+</html>

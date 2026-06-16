@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research Topic Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .q { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; font-size: .92rem; }
+  .saved { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .saved .star { cursor: pointer; color: #5AE57A; flex: none; }
+  .saved .x { cursor: pointer; opacity: .5; flex: none; } .saved .x:hover { opacity: 1; color: #5AE57A; }
+  .q .star { float: right; cursor: pointer; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Research Topic Generator</h1>
+  <p class="sub">Enter a broad subject and get sharp, researchable questions to explore.</p>
+
+  <div class="panel">
+    <label for="subject">Your broad subject area</label>
+    <input id="subject" placeholder="e.g. social media, climate, ancient Rome">
+    <button class="btn" onclick="gen()">Generate Research Questions</button>
+    <div id="out" style="margin-top:14px"></div>
+  </div>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:8px">⭐ Saved questions</div>
+    <div id="saved"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let saved=JSON.parse(localStorage.getItem('rtg_saved')||'[]');
+  const TEMPLATES=[
+    s=>`What factors most influence ${s}, and how do they interact?`,
+    s=>`How has ${s} changed over the past two decades, and why?`,
+    s=>`What is the relationship between ${s} and an outcome people care about?`,
+    s=>`To what extent does ${s} affect a specific group differently?`,
+    s=>`What are the unintended consequences of ${s}?`,
+    s=>`How do different regions or cultures approach ${s}?`,
+    s=>`What does the current evidence reveal — and not reveal — about ${s}?`,
+    s=>`Which interventions are most effective in addressing ${s}?`,
+    s=>`How is ${s} likely to evolve, and what should we prepare for?`,
+    s=>`What assumptions about ${s} deserve to be challenged?`,
+    s=>`How do experts and the public differ in how they view ${s}?`,
+    s=>`What ethical questions does ${s} raise?`
+  ];
+  function gen(){
+    const s=g('subject').value.trim();
+    if(!s){ alert('Enter a subject.'); return; }
+    const picks=[...TEMPLATES].sort(()=>Math.random()-0.5).slice(0,5).map(f=>f(s));
+    g('out').innerHTML=picks.map(q=>'<div class="q"><span class="star" onclick="add(this)">☆</span>'+esc(q)+'</div>').join('');
+  }
+  function add(el){ const q=el.parentElement.textContent.trim();
+    if(!saved.includes(q)){ saved.push(q); localStorage.setItem('rtg_saved',JSON.stringify(saved)); render(); el.textContent='★'; } }
+  function del(i){ saved.splice(i,1); localStorage.setItem('rtg_saved',JSON.stringify(saved)); render(); }
+  function render(){
+    const S=g('saved');
+    if(!saved.length){ S.innerHTML='<div class="empty">Star a question above to save it here.</div>'; return; }
+    S.innerHTML=saved.map((q,i)=>'<div class="saved"><span>'+esc(q)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

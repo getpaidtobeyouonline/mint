@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Productivity Score Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-chip { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto 14px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .dim-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .dim-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .dim-info { flex: 1; }
+  .dim-name { font-weight: 500; font-size: 0.95rem; margin-bottom: 2px; }
+  .dim-desc { font-size: 0.76rem; color: #BFD8BF; }
+  .dim-val { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; flex-shrink: 0; min-width: 28px; text-align: right; }
+  .rstrip { display: flex; gap: 4px; }
+  .rnum { flex: 1; height: 32px; border-radius: 6px; border: 1px solid #3C603C; background: #325132; color: #5A845A; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .rnum.filled { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .calc-row { text-align: center; max-width: 600px; margin: 6px auto 24px; }
+  .btn-calc { background: #5AE57A; color: #325132; border: none; padding: 14px 60px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1.05rem; cursor: pointer; }
+  .btn-calc:hover { background: #5AE57A; }
+  .calc-msg { font-size: 0.8rem; color: #5AE57A; margin-top: 8px; height: 16px; }
+  .score-big { font-family: 'Playfair Display', serif; font-size: 5.5rem; color: #5AE57A; line-height: 1; text-align: center; }
+  .score-of { font-size: 0.75rem; color: #5A845A; text-align: center; margin-bottom: 10px; }
+  .grade-badge { display: inline-block; font-family: 'Playfair Display', serif; font-size: 0.9rem; padding: 5px 18px; border-radius: 20px; border: 1px solid; margin: 0 auto 4px; }
+  .grade-wrap { text-align: center; margin-bottom: 20px; }
+  .divider { border: none; border-top: 1px solid #3C603C; margin: 18px 0; }
+  .bar-item { margin-bottom: 10px; }
+  .bar-item:last-child { margin-bottom: 0; }
+  .bar-lbl { display: flex; justify-content: space-between; font-size: 0.8rem; color: #F0EBE0aa; margin-bottom: 5px; }
+  .bar-track { background: #325132; border-radius: 4px; height: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .insight-row { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; margin-bottom: 14px; }
+  .insight-best { color: #5AE57A; }
+  .insight-worst { color: #5AE57A; }
+  .tip-box { background: #325132; border-left: 3px solid #5AE57A; padding: 11px 14px; border-radius: 0 8px 8px 0; font-size: 0.84rem; color: #F0EBE0aa; line-height: 1.6; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 10px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #5AE57A; color: #5AE57A; }
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.82rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-date { color: #BFD8BF; width: 58px; flex-shrink: 0; }
+  .hist-score { font-family: 'Playfair Display', serif; font-size: 1.1rem; width: 36px; flex-shrink: 0; }
+  .hist-grade { font-family: 'Playfair Display', serif; width: 20px; flex-shrink: 0; }
+  .hist-label { color: #BFD8BF; font-size: 0.78rem; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 10px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Productivity Score Calculator</h1>
+<p class="subtitle">Rate your day across six dimensions. Get a score that tells the truth.</p>
+<p class="date-chip" id="dateChip"></p>
+
+<div id="dimsContainer"></div>
+
+<div class="calc-row">
+  <button class="btn-calc" onclick="calculate()">Calculate My Score</button>
+  <p class="calc-msg" id="calcMsg"></p>
+</div>
+
+<div class="card" id="resultCard" style="display:none">
+  <div class="score-big" id="scoreNum">—</div>
+  <div class="score-of">out of 100</div>
+  <div class="grade-wrap"><div class="grade-badge" id="gradeBadge">—</div></div>
+  <hr class="divider">
+  <div id="dimBars"></div>
+  <hr class="divider">
+  <div class="insight-row">
+    <div class="insight-best">✦ Strength: <span id="insightBest"></span></div>
+    <div class="insight-worst">↓ Drag: <span id="insightWorst"></span></div>
+  </div>
+  <div class="tip-box" id="tipText"></div>
+  <div style="text-align:center;margin-top:18px">
+    <button class="btn-ghost" onclick="resetForm()">Score Another Day</button>
+  </div>
+</div>
+
+<div class="card" id="histCard">
+  <div class="card-title">Past Scores</div>
+  <div id="histList"><p class="empty">No past scores yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const DIMS = [
+    { id:'tasks',    icon:'✅', label:'Task Completion',        desc:'Did you finish what you planned today?',
+      tip:'Try timeboxing: assign specific start times to each task before your day begins.' },
+    { id:'focus',    icon:'🎯', label:'Deep Focus Quality',     desc:'How uninterrupted and concentrated was your best work?',
+      tip:'Reserve a 90-minute morning block for your hardest task — phone in another room.' },
+    { id:'resist',   icon:'🛡', label:'Distraction Resistance', desc:'How well did you stay on task when things pulled at you?',
+      tip:'Identify your #1 distraction trigger today and remove it before tomorrow starts.' },
+    { id:'priority', icon:'⭐', label:'Priority Alignment',     desc:'Were you working on what actually mattered most?',
+      tip:'Name your single Most Important Task before opening email or Slack tomorrow morning.' },
+    { id:'energy',   icon:'⚡', label:'Energy Management',      desc:'Did you match your task demands to your energy levels?',
+      tip:'Track your energy across 3 days to find your peak window — then protect it fiercely.' },
+    { id:'momentum', icon:'🚀', label:'Momentum',               desc:'Did you maintain pace and close the day strong?',
+      tip:"When stalling, commit to just 2 minutes on the task. Starting is the hardest part." },
+  ];
+
+  const GRADES = [
+    { min:90, g:'S', label:'Elite Day',   color:'#5AE57A', bg:'#325132' },
+    { min:80, g:'A', label:'Strong Day',  color:'#5AE57A', bg:'#325132' },
+    { min:70, g:'B', label:'Solid Day',   color:'#5AE57A', bg:'#325132' },
+    { min:60, g:'C', label:'Average Day', color:'#5AE57A', bg:'#325132' },
+    { min:50, g:'D', label:'Below Par',   color:'#5AE57A', bg:'#325132' },
+    { min:0,  g:'F', label:'Rough Day',   color:'#5AE57A', bg:'#325132' },
+  ];
+
+  const TODAY = new Date().toISOString().slice(0,10);
+  document.getElementById('dateChip').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  let ratings = {}, history = JSON.parse(localStorage.getItem('psc_h')||'[]');
+  DIMS.forEach(d => ratings[d.id] = 0);
+
+  document.getElementById('dimsContainer').innerHTML = DIMS.map(d => `
+    <div class="card">
+      <div class="dim-header">
+        <span class="dim-icon">${d.icon}</span>
+        <div class="dim-info">
+          <div class="dim-name">${d.label}</div>
+          <div class="dim-desc">${d.desc}</div>
+        </div>
+        <span class="dim-val" id="dv-${d.id}">—</span>
+      </div>
+      <div class="rstrip">${[1,2,3,4,5].map(v=>`<div class="rnum" id="r-${d.id}-${v}" onclick="rate('${d.id}',${v})">${v}</div>`).join('')}</div>
+    </div>`).join('');
+
+  function rate(id, val) {
+    ratings[id] = val;
+    document.getElementById('dv-'+id).textContent = val+'/5';
+    for (let v=1;v<=5;v++)
+      document.getElementById(`r-${id}-${v}`).className = 'rnum'+(v<=val?' filled':'');
+  }
+
+  function calculate() {
+    const unrated = DIMS.filter(d => ratings[d.id]===0);
+    if (unrated.length) {
+      document.getElementById('calcMsg').textContent = `Rate all 6 areas first — ${unrated.length} remaining.`;
+      return;
+    }
+    document.getElementById('calcMsg').textContent = '';
+
+    const sum = DIMS.reduce((s,d)=>s+ratings[d.id],0);
+    const score = Math.round(sum/(DIMS.length*5)*100);
+    const g = GRADES.find(g=>score>=g.min);
+    const sorted = [...DIMS].sort((a,b)=>ratings[b.id]-ratings[a.id]);
+    const best = sorted[0], worst = sorted[sorted.length-1];
+
+    document.getElementById('scoreNum').textContent = score;
+    const badge = document.getElementById('gradeBadge');
+    badge.textContent = `${g.g}  ·  ${g.label}`;
+    badge.style.color = g.color; badge.style.borderColor = g.color; badge.style.background = g.bg;
+
+    document.getElementById('dimBars').innerHTML = DIMS.map(d => {
+      const v=ratings[d.id], pct=v/5*100;
+      const c = pct>=80?'#5AE57A':pct>=60?'#5AE57A':pct>=40?'#5AE57A':'#5AE57A';
+      return `<div class="bar-item">
+        <div class="bar-lbl"><span>${d.icon} ${d.label}</span><span style="color:${c}">${v}/5</span></div>
+        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c}"></div></div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('insightBest').textContent = `${best.icon} ${best.label} (${ratings[best.id]}/5)`;
+    document.getElementById('insightWorst').textContent = `${worst.icon} ${worst.label} (${ratings[worst.id]}/5)`;
+    document.getElementById('tipText').textContent = worst.tip;
+
+    const card = document.getElementById('resultCard');
+    card.style.display = 'block';
+    card.scrollIntoView({behavior:'smooth',block:'start'});
+
+    history = history.filter(h=>h.date!==TODAY);
+    history.unshift({date:TODAY, score, grade:g.g, label:g.label});
+    if (history.length>14) history.pop();
+    localStorage.setItem('psc_h', JSON.stringify(history));
+    renderHistory();
+  }
+
+  function resetForm() {
+    DIMS.forEach(d => {
+      ratings[d.id]=0;
+      document.getElementById('dv-'+d.id).textContent='—';
+      for(let v=1;v<=5;v++) document.getElementById(`r-${d.id}-${v}`).className='rnum';
+    });
+    document.getElementById('resultCard').style.display='none';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  function renderHistory() {
+    const el = document.getElementById('histList');
+    if (!history.length) { el.innerHTML='<p class="empty">No past scores yet.</p>'; return; }
+    el.innerHTML = history.map(h => {
+      const g = GRADES.find(g=>h.score>=g.min)||GRADES[GRADES.length-1];
+      const d = new Date(h.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `<div class="hist-item">
+        <span class="hist-date">${d}</span>
+        <span class="hist-score" style="color:${g.color}">${h.score}</span>
+        <span class="hist-grade" style="color:${g.color}">${h.grade}</span>
+        <span class="hist-label">${h.label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  renderHistory();
+</script>
+</body>
+</html>

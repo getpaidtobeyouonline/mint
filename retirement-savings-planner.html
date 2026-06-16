@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retirement Savings Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .l { font-size: .85rem; opacity: .7; margin-top: 6px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .85rem; opacity: .82; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Retirement Savings Planner</h1>
+  <p class="sub">See if your current trajectory hits the target — and how much to add monthly to close the gap.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="age">Current age</label><input id="age" type="number" min="0" max="100" value="35" oninput="calc()"></div>
+      <div><label for="ret">Retire at</label><input id="ret" type="number" min="0" max="100" value="65" oninput="calc()"></div>
+      <div><label for="annual">Annual expenses in retirement ($)</label><input id="annual" type="number" min="0" value="50000" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="have">Saved already ($)</label><input id="have" type="number" min="0" value="30000" oninput="calc()"></div>
+      <div><label for="add">Adding per month ($)</label><input id="add" type="number" min="0" value="500" oninput="calc()"></div>
+      <div><label for="rate">Real return (% / yr)</label><input id="rate" type="number" min="0" step="0.1" value="6" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="target">$0</div>
+    <div class="l">your retirement target (25× annual expenses)</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="proj">$0</div><div class="l">Projected at retirement</div></div>
+      <div class="stat"><div class="v" id="gap">$0</div><div class="l">Gap</div></div>
+      <div class="stat"><div class="v" id="need">$0</div><div class="l">Need to add /mo</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['age','ret','annual','have','add','rate'].forEach(k=>{ const s=localStorage.getItem('rsp_'+k); if(s!==null)g(k).value=s; });
+  function fv(P,pm,r,m){ return P*Math.pow(1+r,m) + pm*((Math.pow(1+r,m)-1)/r); }
+  function calc(){
+    ['age','ret','annual','have','add','rate'].forEach(k=>localStorage.setItem('rsp_'+k,g(k).value));
+    const yrs=Math.max(0,n('ret')-n('age')), m=yrs*12, r=n('rate')/100/12;
+    const target=n('annual')*25;
+    g('target').textContent='$'+Math.round(target).toLocaleString();
+    let proj;
+    if(r>0) proj=fv(n('have'),n('add'),r,m); else proj=n('have')+n('add')*m;
+    g('proj').textContent='$'+Math.round(proj).toLocaleString();
+    const gap=target-proj;
+    g('gap').textContent=(gap<=0?'+$':'-$')+Math.abs(Math.round(gap)).toLocaleString();
+    // monthly needed to close gap
+    let need=n('add');
+    if(gap>0 && m>0){
+      if(r>0) need=n('add')+ gap*r/(Math.pow(1+r,m)-1);
+      else need=n('add')+gap/m;
+    }
+    g('need').textContent='$'+Math.max(0,Math.round(need)).toLocaleString();
+    g('note').textContent= gap<=0 ? 'You are on track at the current pace. Stay the course.'
+      : `To close the gap, increase monthly contributions to about $${Math.round(need).toLocaleString()}.`;
+  }
+  calc();
+</script>
+</body>
+</html>

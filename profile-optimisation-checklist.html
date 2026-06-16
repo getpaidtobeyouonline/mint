@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Optimisation Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .platform-picker {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .chip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { border-color: #5AE57A; }
+  .chip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .score-bar {
+    position: sticky;
+    top: 10px;
+    z-index: 10;
+    background: rgba(13, 13, 13, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #5AE57A;
+  }
+  .score-grade {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    font-style: italic;
+  }
+  .progress {
+    background: rgba(240, 235, 224, 0.08);
+    border-radius: 999px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #5AE57A, #5AE57A);
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  .category {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 22px 20px;
+    margin-bottom: 16px;
+  }
+  .category-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .item {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(240, 235, 224, 0.06);
+    cursor: pointer;
+  }
+  .item:last-child { border-bottom: none; }
+  .item input[type="checkbox"] {
+    margin-top: 4px;
+    width: 18px;
+    height: 18px;
+    accent-color: #5AE57A;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .item-body { flex: 1; }
+  .item-label { font-size: 0.98rem; margin-bottom: 2px; }
+  .item-hint { font-size: 0.82rem; opacity: 0.65; }
+  .item.checked .item-label { opacity: 0.55; text-decoration: line-through; }
+  .item.checked .item-hint { opacity: 0.4; }
+  .reset-row { text-align: center; margin-top: 20px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Profile Optimisation Checklist</h1>
+  <p class="subtitle">Audit your profile in 5 minutes. Score yourself. See exactly what's costing you followers and clicks.</p>
+
+  <div class="platform-picker" id="platformPicker">
+    <button class="chip active" data-p="instagram">Instagram</button>
+    <button class="chip" data-p="linkedin">LinkedIn</button>
+    <button class="chip" data-p="tiktok">TikTok</button>
+    <button class="chip" data-p="threads">Threads</button>
+    <button class="chip" data-p="x">X</button>
+    <button class="chip" data-p="youtube">YouTube</button>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-row">
+      <div>
+        <span class="score-num" id="scoreNum">0</span>
+        <span style="opacity:0.6;">/100</span>
+      </div>
+      <div class="score-grade" id="scoreGrade">Start checking items to see your score</div>
+    </div>
+    <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%;"></div></div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="reset-row">
+    <button class="secondary-btn" id="resetBtn">Reset Checklist</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const common = [
+    { cat: 'Profile Basics', items: [
+      { l: 'Profile photo is your face (or sharp logo), well-lit, centered', h: 'Faces convert better than logos for personal brands. Crop tight.' },
+      { l: 'Display name includes your niche, not just your name', h: 'e.g. "Maya · Freelance Pricing" beats "Maya"' },
+      { l: 'Handle is consistent across platforms', h: 'Makes it findable. Pick one and stick to it everywhere.' }
+    ]},
+    { cat: 'Bio / About', items: [
+      { l: 'First line states who you help', h: '"I help [X] do [Y]" beats clever one-liners 9 times out of 10.' },
+      { l: 'Second line states the outcome', h: 'Specific numbers (rates, time saved, results) > vague claims.' },
+      { l: 'Third line has a clear next step', h: 'e.g. "Free pricing guide ↓" or "DM PRICING for the framework"' },
+      { l: 'No vague descriptors like "creator", "passionate", "lover of"', h: 'These mean nothing to a new visitor. Cut them.' }
+    ]},
+    { cat: 'Link / CTA', items: [
+      { l: 'Link goes to ONE specific destination, not a link tree of 12 options', h: 'Decision fatigue kills conversion. Pick the one that matters this month.' },
+      { l: 'Bio CTA matches the link destination', h: 'If the bio says "free guide", the link better lead to the guide.' },
+      { l: 'Lead magnet is visible above the fold on the landing page', h: 'No scrolling to find what you promised.' }
+    ]}
+  ];
+
+  const platformExtras = {
+    instagram: [
+      { cat: 'Instagram-Specific', items: [
+        { l: 'Highlights cover your 3-5 best offers / topics', h: 'Custom covers > emoji covers. Same color family as your feed.' },
+        { l: 'Pinned posts (3) show: who you are, what you offer, social proof', h: 'These are your shop window. Update quarterly.' },
+        { l: 'Recent 9 posts give a clear sense of your niche', h: 'Imagine a stranger scrolling. Could they tell what you do in 5 sec?' }
+      ]}
+    ],
+    linkedin: [
+      { cat: 'LinkedIn-Specific', items: [
+        { l: 'Headline is keyword-rich, not your job title', h: 'e.g. "Helping freelance designers raise rates · Author of [book]"' },
+        { l: 'Banner has a clear value prop, not a stock photo', h: 'Banner = a free billboard. Use it for your offer.' },
+        { l: 'Featured section has your top resource pinned', h: 'Lead magnet, podcast, or strongest post. 1-3 items max.' },
+        { l: 'About section opens with a hook, not a chronology', h: 'No one cares about your degree in paragraph 1.' }
+      ]}
+    ],
+    tiktok: [
+      { cat: 'TikTok-Specific', items: [
+        { l: 'Bio fits in the 80-char limit and includes a hook', h: 'You have 1 line. Make it earn the follow.' },
+        { l: 'Pinned 3 videos = your strongest hooks, not your latest posts', h: 'First impressions decide the follow. Curate intentionally.' },
+        { l: 'Profile niche is obvious from the cover thumbnails alone', h: 'TikTok users scroll fast. Visual coherence speeds the verdict.' }
+      ]}
+    ],
+    threads: [
+      { cat: 'Threads-Specific', items: [
+        { l: 'Bio mirrors your Instagram bio but is sharper / shorter', h: 'Threads bios should feel more conversational, less marketing.' },
+        { l: 'You have at least 5 recent threads (not just replies)', h: 'Visitors check for original content before following.' },
+        { l: 'Your pinned thread is your strongest take, not an intro', h: 'Lead with your sharpest opinion. Save "hi I\'m new here" for the bin.' }
+      ]}
+    ],
+    x: [
+      { cat: 'X-Specific', items: [
+        { l: 'Bio reads like a Twitter bio (punchy, slightly self-aware), not a LinkedIn bio', h: 'Platform-fit matters. Don\'t paste your IG bio in.' },
+        { l: 'Pinned tweet shows your single best banger', h: 'Most clicks happen on pinned. Make it count.' },
+        { l: 'Header image isn\'t a default or a logo — it sells something', h: 'Newsletter, course, or strongest social proof. Free real estate.' }
+      ]}
+    ],
+    youtube: [
+      { cat: 'YouTube-Specific', items: [
+        { l: 'Channel banner clearly states what the channel is about', h: 'Include upload schedule + main promise. Stranger should know in 3 sec.' },
+        { l: 'Featured video is a tailored "channel trailer" for new visitors', h: 'Not your latest video. A 60-90 sec "watch this first" intro.' },
+        { l: 'Playlists are organized by topic, not date', h: 'New viewers binge by topic. Make it easy to fall down the rabbit hole.' },
+        { l: 'About page has your value prop in the first 2 lines', h: 'Search snippet pulls from here. Treat it like SEO copy.' }
+      ]}
+    ]
+  };
+
+  let currentPlatform = 'instagram';
+  const STORAGE = 'poc_v1';
+  let state = JSON.parse(localStorage.getItem(STORAGE) || '{}');
+
+  function key(catIdx, itemIdx) { return `${currentPlatform}_${catIdx}_${itemIdx}`; }
+
+  function render() {
+    const cats = [...common, ...(platformExtras[currentPlatform] || [])];
+    const el = document.getElementById('categories');
+    el.innerHTML = '';
+    let total = 0, checked = 0;
+    cats.forEach((c, ci) => {
+      const catDiv = document.createElement('div');
+      catDiv.className = 'category';
+      let inner = `<div class="category-title">${c.cat}</div>`;
+      c.items.forEach((it, ii) => {
+        const k = key(ci, ii);
+        const isChecked = !!state[k];
+        total++; if (isChecked) checked++;
+        inner += `
+          <label class="item ${isChecked ? 'checked' : ''}">
+            <input type="checkbox" data-key="${k}" ${isChecked ? 'checked' : ''}>
+            <div class="item-body">
+              <div class="item-label">${it.l}</div>
+              <div class="item-hint">${it.h}</div>
+            </div>
+          </label>
+        `;
+      });
+      catDiv.innerHTML = inner;
+      el.appendChild(catDiv);
+    });
+
+    el.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.onchange = () => {
+        state[cb.dataset.key] = cb.checked;
+        localStorage.setItem(STORAGE, JSON.stringify(state));
+        render();
+      };
+    });
+
+    const score = Math.round((checked / total) * 100);
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('progressBar').style.width = score + '%';
+    let grade;
+    if (score === 100) grade = 'Profile is a sales asset. Move on to content.';
+    else if (score >= 80) grade = 'Strong. Tighten the last few and you\'re done.';
+    else if (score >= 60) grade = 'Solid foundation. The unchecked items are leaking conversions.';
+    else if (score >= 40) grade = 'Real gaps. Most visitors won\'t follow yet.';
+    else if (score >= 20) grade = 'Major work needed. Start with bio + first 3 items.';
+    else grade = 'Start checking items to see your score';
+    document.getElementById('scoreGrade').textContent = grade;
+  }
+
+  document.querySelectorAll('#platformPicker .chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('#platformPicker .chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentPlatform = chip.dataset.p;
+      render();
+    };
+  });
+
+  document.getElementById('resetBtn').onclick = () => {
+    if (confirm('Reset this platform\'s checklist?')) {
+      Object.keys(state).forEach(k => { if (k.startsWith(currentPlatform + '_')) delete state[k]; });
+      localStorage.setItem(STORAGE, JSON.stringify(state));
+      render();
+    }
+  };
+
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Increase Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .res { display: none; }
+  .big { text-align: center; margin: 6px 0 14px; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2.3rem; color: #5AE57A; }
+  .rows { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 6px 14px; }
+  .line { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #4C724C; font-size: .92rem; }
+  .line:last-child { border-bottom: none; }
+  .line .v { color: #5AE57A; font-weight: 500; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Rate Increase Calculator</h1>
+  <p class="sub">See exactly what raising your rates does to your income.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label>Current rate (per client / project)</label><input id="cur" type="number" min="0" placeholder="e.g. 800"></div>
+      <div><label>New rate</label><input id="new" type="number" min="0" placeholder="e.g. 1200"></div>
+    </div>
+    <label>Clients / projects per month</label>
+    <input id="clients" type="number" min="0" placeholder="e.g. 6">
+    <button class="btn" onclick="calc()">Calculate</button>
+  </div>
+
+  <div class="res" id="res">
+    <div class="big"><span class="n" id="pct">—</span><div style="opacity:.7;font-size:.85rem">rate increase</div></div>
+    <div class="rows" id="rows"></div>
+    <div class="note">A rate increase rarely needs more clients — just braver pricing. Tip: tell new clients straight away, and give existing clients notice before their next renewal.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const fmt=x=>x.toLocaleString(undefined,{maximumFractionDigits:0});
+  function calc(){
+    const cur=n('cur'), nw=n('new'), c=n('clients');
+    if(!cur||!nw){ alert('Enter your current and new rate.'); return; }
+    const pct=Math.round((nw-cur)/cur*100);
+    const perClient=nw-cur;
+    const monthly=perClient*c, annual=monthly*12;
+    g('pct').textContent=(pct>=0?'+':'')+pct+'%';
+    g('rows').innerHTML=
+      '<div class="line"><span>Extra per client / project</span><span class="v">'+fmt(perClient)+'</span></div>'+
+      '<div class="line"><span>New monthly revenue</span><span class="v">'+fmt(nw*c)+'</span></div>'+
+      '<div class="line"><span>Extra per month</span><span class="v">'+fmt(monthly)+'</span></div>'+
+      '<div class="line"><span>Extra per year</span><span class="v">'+fmt(annual)+'</span></div>';
+    g('res').style.display='block'; g('res').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

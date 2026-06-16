@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Road Trip Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .fuel { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px; text-align: center; margin-top: 10px; }
+  .fuel .big { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .fuel .l { font-size: .78rem; opacity: .7; }
+  .stop { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; align-items: center; gap: 9px; font-size: .87rem; }
+  .stop .num { background: #5AE57A; color: #325132; border-radius: 50%; width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; }
+  .stop .x { margin-left: auto; cursor: pointer; opacity: .5; } .stop .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Road Trip Planner</h1>
+  <p class="sub">Map your route stop by stop — and estimate the fuel cost before you set off.</p>
+
+  <div class="panel">
+    <label>Add a stop along the route</label>
+    <div class="row">
+      <div style="flex:3"><input id="stop" placeholder="e.g. Lakeside town for lunch" onkeydown="if(event.key==='Enter')add()"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+    <div id="list" style="margin-top:10px"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear Route</button>
+  </div>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:8px">Fuel cost estimate</div>
+    <div class="row">
+      <div><label>Distance</label><input id="dist" type="number" min="0" placeholder="total" oninput="fuel()"></div>
+      <div><label>Efficiency (dist/unit)</label><input id="eff" type="number" min="0" step="0.1" placeholder="e.g. 12" oninput="fuel()"></div>
+      <div><label>Fuel price/unit</label><input id="price" type="number" min="0" step="0.01" placeholder="e.g. 1.50" oninput="fuel()"></div>
+    </div>
+    <div class="fuel" id="fuelOut"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('rtp')||'[]');
+  const save=()=>localStorage.setItem('rtp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  ['dist','eff','price'].forEach(k=>{ const s=localStorage.getItem('rtp_'+k); if(s!==null)g(k).value=s; });
+  function add(){ const t=g('stop').value.trim(); if(!t)return; R.push(t); g('stop').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function move(i,d){ const j=i+d; if(j<0||j>=R.length)return; [R[i],R[j]]=[R[j],R[i]]; save(); render(); }
+  function clearAll(){ if(confirm('Clear the route?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No stops added yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="stop"><span class="num">'+(i+1)+'</span><span>'+esc(x)+'</span><span style="margin-left:auto;display:flex;gap:8px"><span style="cursor:pointer;opacity:.55" onclick="move('+i+',-1)">▲</span><span style="cursor:pointer;opacity:.55" onclick="move('+i+',1)">▼</span><span class="x" onclick="del('+i+')">✕</span></span></div>').join('');
+  }
+  function fuel(){
+    ['dist','eff','price'].forEach(k=>localStorage.setItem('rtp_'+k,g(k).value));
+    const dist=parseFloat(g('dist').value)||0, eff=parseFloat(g('eff').value)||0, price=parseFloat(g('price').value)||0;
+    if(!dist||!eff||!price){ g('fuelOut').innerHTML='<div class="l">Fill in distance, efficiency and price</div>'; return; }
+    const units=dist/eff, cost=units*price;
+    g('fuelOut').innerHTML='<div class="big">'+cost.toLocaleString(undefined,{maximumFractionDigits:0})+'</div><div class="l">estimated fuel cost · '+units.toFixed(1)+' units · return trip ~'+(cost*2).toLocaleString(undefined,{maximumFractionDigits:0})+'</div>';
+  }
+  render(); fuel();
+</script>
+</body>
+</html>

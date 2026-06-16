@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revenue Goal Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF;
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; padding: 40px 16px 60px;
+    }
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      color: #5AE57A; text-align: center; margin-bottom: 8px;
+    }
+    .subtitle { text-align: center; opacity: 0.65; font-size: 0.95rem; margin-bottom: 36px; }
+    .card {
+      background: #3C603C; border: 1px solid #4C724C;
+      border-radius: 16px; padding: 32px; width: 100%; max-width: 480px;
+    }
+    .field { margin-bottom: 20px; }
+    label {
+      display: block; font-size: 0.8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: #5AE57A; margin-bottom: 8px;
+    }
+    input, select {
+      width: 100%; background: #325132; border: 1px solid #4C724C;
+      border-radius: 8px; color: #FFFFFF;
+      font-family: 'DM Sans', sans-serif; font-size: 1.05rem;
+      padding: 12px 16px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus { border-color: #5AE57A; }
+    select option { background: #3C603C; }
+    button {
+      width: 100%; background: #5AE57A; color: #325132;
+      border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 1rem;
+      font-weight: 700; padding: 14px; cursor: pointer; margin-top: 8px;
+      transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    button:hover { opacity: 0.85; }
+    .results { margin-top: 28px; display: none; }
+    .results.show { display: block; }
+    hr { border: none; border-top: 1px solid #4C724C; margin: 24px 0; }
+    .result-heading {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; color: #5AE57A; margin-bottom: 16px;
+    }
+    .result-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid #3C603C;
+    }
+    .result-row:last-of-type { border-bottom: none; }
+    .result-label { opacity: 0.7; font-size: 0.88rem; }
+    .result-value { font-size: 1.15rem; font-weight: 600; }
+    .result-value.gold { color: #5AE57A; font-size: 1.6rem; }
+    .insight {
+      background: #325132; border-left: 3px solid #5AE57A;
+      border-radius: 4px; padding: 14px 16px; margin-top: 20px;
+      font-size: 0.88rem; line-height: 1.65; opacity: 0.85;
+    }
+    .btn-reset {
+      background: transparent; border: 1px solid #4C724C; color: #FFFFFF;
+      margin-top: 14px; font-weight: 500; text-transform: none; letter-spacing: 0;
+    }
+    .btn-reset:hover { border-color: #5AE57A; opacity: 1; }
+    footer { margin-top: 48px; font-size: 0.72rem; opacity: 0.35; text-align: center; }
+  </style>
+</head>
+<body>
+
+  <h1>Revenue Goal Calculator</h1>
+  <p class="subtitle">Find out exactly how many sales stand between you and your goal.</p>
+
+  <div class="card">
+    <div class="field">
+      <label>Revenue Goal ($)</label>
+      <input type="number" id="goal" placeholder="e.g. 5000" min="1" />
+    </div>
+    <div class="field">
+      <label>Product Price ($)</label>
+      <input type="number" id="price" placeholder="e.g. 47" min="1" />
+    </div>
+    <div class="field">
+      <label>Time Period</label>
+      <select id="period">
+        <option value="30">Monthly (30 days)</option>
+        <option value="7">Weekly (7 days)</option>
+        <option value="90">Quarterly (90 days)</option>
+        <option value="365">Annually (365 days)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Audience Size <span style="opacity:0.45;font-weight:400;text-transform:none;font-size:0.75rem">(optional — list or followers)</span></label>
+      <input type="number" id="audience" placeholder="e.g. 1200" min="0" />
+    </div>
+
+    <button onclick="calculate()">Calculate My Goal</button>
+
+    <div class="results" id="results">
+      <hr />
+      <p class="result-heading">Your Roadmap to the Goal</p>
+
+      <div class="result-row">
+        <span class="result-label">Total Sales Needed</span>
+        <span class="result-value gold" id="r-sales">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Sales Per Day</span>
+        <span class="result-value" id="r-daily">—</span>
+      </div>
+      <div class="result-row">
+        <span class="result-label">Sales Per Week</span>
+        <span class="result-value" id="r-weekly">—</span>
+      </div>
+      <div class="result-row" id="row-cr" style="display:none">
+        <span class="result-label">Conversion Rate Needed</span>
+        <span class="result-value" id="r-cr">—</span>
+      </div>
+
+      <div class="insight" id="insight"></div>
+      <button class="btn-reset" onclick="reset()">Start Over</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    function calculate() {
+      const goal     = parseFloat(document.getElementById('goal').value);
+      const price    = parseFloat(document.getElementById('price').value);
+      const days     = parseInt(document.getElementById('period').value);
+      const audience = parseFloat(document.getElementById('audience').value) || 0;
+
+      if (!goal || !price || goal <= 0 || price <= 0) {
+        alert('Please enter a valid revenue goal and product price.');
+        return;
+      }
+
+      const salesNeeded = Math.ceil(goal / price);
+      const daily  = (salesNeeded / days).toFixed(2);
+      const weekly = (salesNeeded / days * 7).toFixed(1);
+
+      document.getElementById('r-sales').textContent = salesNeeded.toLocaleString();
+      document.getElementById('r-daily').textContent = daily + ' / day';
+      document.getElementById('r-weekly').textContent = weekly + ' / week';
+
+      const rowCr = document.getElementById('row-cr');
+      if (audience > 0) {
+        const cr = ((salesNeeded / audience) * 100).toFixed(2);
+        document.getElementById('r-cr').textContent = cr + '%';
+        rowCr.style.display = 'flex';
+      } else {
+        rowCr.style.display = 'none';
+      }
+
+      const labels = { 7: 'week', 30: 'month', 90: 'quarter', 365: 'year' };
+      const period = labels[days] || 'period';
+      let insight;
+
+      if (parseFloat(daily) < 1) {
+        insight = `Less than one sale per day — completely doable. Show up consistently, share your offer daily, and a small warm audience is all you need to hit this goal.`;
+      } else if (parseFloat(daily) < 3) {
+        insight = `${daily} sales/day is achievable with a focused launch or a simple email sequence. Run a 5-day promo at the start of your ${period} to build early momentum.`;
+      } else {
+        insight = `${salesNeeded} sales this ${period} likely requires either a larger audience, paid traffic, or affiliate partners. A bundle deal or flash sale can compress your timeline significantly.`;
+      }
+      document.getElementById('insight').textContent = insight;
+      document.getElementById('results').classList.add('show');
+    }
+
+    function reset() {
+      ['goal', 'price', 'audience'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('period').selectedIndex = 0;
+      document.getElementById('results').classList.remove('show');
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') calculate(); });
+  </script>
+</body>
+</html>

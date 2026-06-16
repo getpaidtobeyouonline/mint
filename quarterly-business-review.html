@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quarterly Business Review</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:28px;font-size:.9rem}
+.stepper{display:flex;justify-content:center;gap:0;max-width:500px;margin:0 auto 28px}
+.step{flex:1;text-align:center;position:relative}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid #4C724C;background:#325132;color:#BFD8BF;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;position:relative;z-index:1;transition:all .3s}
+.step-dot.active{border-color:#5AE57A;background:#5AE57A;color:#325132}
+.step-dot.done{border-color:#5AE57A;background:#C9A84C22;color:#5AE57A}
+.step-line{position:absolute;top:14px;left:50%;right:-50%;height:2px;background:#4C724C;z-index:0}
+.step:last-child .step-line{display:none}
+.step-lbl{font-size:.65rem;color:#BFD8BF;letter-spacing:.04em;text-transform:uppercase}
+.step-lbl.active{color:#5AE57A}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:26px;max-width:580px;margin:0 auto 20px;display:none}
+.card.active{display:block}
+.card-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;margin-bottom:6px}
+.card-hint{font-size:.82rem;opacity:.55;margin-bottom:22px;line-height:1.5}
+label{display:block;margin-bottom:5px;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:11px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:18px;transition:border .2s;resize:vertical}
+textarea{min-height:70px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#5AE57A}
+input::placeholder,textarea::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rating{display:flex;gap:8px;margin-bottom:18px}
+.star{font-size:1.5rem;cursor:pointer;opacity:.3;transition:opacity .2s;user-select:none}
+.star.on{opacity:1}
+.nav{display:flex;gap:10px;max-width:580px;margin:0 auto}
+.btn{flex:1;padding:13px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .2s;border:none}
+.btn-next{background:#5AE57A;color:#325132}
+.btn-next:hover{opacity:.85}
+.btn-back{background:transparent;border:1px solid #4C724C;color:#BFD8BF}
+.btn-back:hover{border-color:#5AE57A;color:#5AE57A}
+#report{max-width:580px;margin:20px auto 0;display:none}
+.report-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:28px;white-space:pre-wrap;font-size:.88rem;line-height:1.9;color:#FFFFFF;font-family:'DM Sans',sans-serif}
+.report-card strong{color:#5AE57A}
+.copy-btn{width:100%;max-width:580px;display:block;margin:14px auto 0;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .2s}
+.copy-btn:hover,.copy-btn.done{background:#5AE57A;color:#325132}
+.restart-btn{width:100%;max-width:580px;display:block;margin:10px auto 0;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer}
+footer{text-align:center;margin-top:44px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row{grid-template-columns:1fr}h1{font-size:1.7rem}.step-lbl{display:none}}
+</style>
+</head>
+<body>
+
+<h1>Quarterly Business Review</h1>
+<p class="sub">Reflect, reset, and build your strongest quarter yet</p>
+
+<div class="stepper">
+  <div class="step"><div class="step-dot active" id="dot1">1</div><div class="step-line"></div><div class="step-lbl active" id="lbl1">Quarter</div></div>
+  <div class="step"><div class="step-dot" id="dot2">2</div><div class="step-line"></div><div class="step-lbl" id="lbl2">Look Back</div></div>
+  <div class="step"><div class="step-dot" id="dot3">3</div><div class="step-line"></div><div class="step-lbl" id="lbl3">Numbers</div></div>
+  <div class="step"><div class="step-dot" id="dot4">4</div><div class="step-line"></div><div class="step-lbl" id="lbl4">Look Forward</div></div>
+</div>
+
+<!-- Step 1 -->
+<div class="card active" id="s1">
+  <div class="card-title">The Quarter at a Glance</div>
+  <div class="card-hint">Start by setting the stage — which quarter are you reviewing?</div>
+  <div class="row">
+    <div>
+      <label>Quarter</label>
+      <select id="quarter">
+        <option>Q1 (Jan–Mar)</option><option>Q2 (Apr–Jun)</option>
+        <option>Q3 (Jul–Sep)</option><option>Q4 (Oct–Dec)</option>
+      </select>
+    </div>
+    <div>
+      <label>Year</label>
+      <input id="year" type="number" placeholder="2026" value="2026">
+    </div>
+  </div>
+  <label>One word to describe this quarter</label>
+  <input id="word" type="text" placeholder="e.g. chaotic, breakthrough, steady, transformative">
+  <label>Overall rating</label>
+  <div class="rating" id="stars">
+    <span class="star" onclick="rate(1)">★</span><span class="star" onclick="rate(2)">★</span>
+    <span class="star" onclick="rate(3)">★</span><span class="star" onclick="rate(4)">★</span>
+    <span class="star" onclick="rate(5)">★</span>
+  </div>
+</div>
+
+<!-- Step 2 -->
+<div class="card" id="s2">
+  <div class="card-title">Look Back — Honest Reflection</div>
+  <div class="card-hint">What happened this quarter? Be honest — this is just for you.</div>
+  <label>Top Win #1</label>
+  <input id="w1" type="text" placeholder="e.g. Signed my biggest client yet">
+  <label>Top Win #2</label>
+  <input id="w2" type="text" placeholder="e.g. Launched my email list">
+  <label>Top Win #3</label>
+  <input id="w3" type="text" placeholder="e.g. Finally delegated my admin work">
+  <label>Biggest challenge this quarter</label>
+  <textarea id="challenge" placeholder="What drained you, slowed you down, or didn't go to plan?"></textarea>
+  <label>The key lesson you're taking forward</label>
+  <textarea id="lesson" placeholder="What do you now know that you didn't at the start of this quarter?"></textarea>
+</div>
+
+<!-- Step 3 -->
+<div class="card" id="s3">
+  <div class="card-title">The Numbers — How Did You Do?</div>
+  <div class="card-hint">Numbers don't lie. Capture them here so you can spot the trend.</div>
+  <div class="row">
+    <div><label>Revenue This Quarter</label><input id="rev" type="text" placeholder="e.g. $12,400"></div>
+    <div><label>Revenue Goal</label><input id="revGoal" type="text" placeholder="e.g. $15,000"></div>
+  </div>
+  <div class="row">
+    <div><label>New Clients / Customers</label><input id="clients" type="text" placeholder="e.g. 8"></div>
+    <div><label>Leads Generated</label><input id="leads" type="text" placeholder="e.g. 34"></div>
+  </div>
+  <label>Biggest metric win (in your own words)</label>
+  <input id="metricWin" type="text" placeholder="e.g. Email list grew by 400 subscribers">
+  <label>What would you do differently with the numbers?</label>
+  <textarea id="numLesson" placeholder="e.g. I'd raise my prices sooner and take fewer, better-fit clients"></textarea>
+</div>
+
+<!-- Step 4 -->
+<div class="card" id="s4">
+  <div class="card-title">Look Forward — Next Quarter</div>
+  <div class="card-hint">What does a successful next quarter look like? Be specific.</div>
+  <label>Priority #1</label>
+  <input id="p1" type="text" placeholder="e.g. Hit $20K in revenue">
+  <label>Priority #2</label>
+  <input id="p2" type="text" placeholder="e.g. Build a waitlist of 50 people">
+  <label>Priority #3</label>
+  <input id="p3" type="text" placeholder="e.g. Hire a VA for 10 hrs/week">
+  <label>Your theme / focus word for next quarter</label>
+  <input id="theme" type="text" placeholder="e.g. SCALE, SIMPLIFY, VISIBILITY, DEPTH">
+  <label>One bold move you've been avoiding</label>
+  <textarea id="bold" placeholder="e.g. Raise my prices by 40%, pitch that podcast, launch the group programme"></textarea>
+</div>
+
+<div class="nav" id="nav">
+  <button class="btn btn-back" id="backBtn" onclick="back()" style="display:none">← Back</button>
+  <button class="btn btn-next" id="nextBtn" onclick="next()">Next →</button>
+</div>
+
+<div id="report">
+  <div class="report-card" id="reportText"></div>
+  <button class="copy-btn" id="copyBtn" onclick="doCopy()">Copy Full Report</button>
+  <button class="restart-btn" onclick="restart()">Start a New Review</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+let step=1,rating=0;
+const totalSteps=4;
+
+function v(id){return(document.getElementById(id)||{}).value||''}
+function rate(n){
+  rating=n;
+  document.querySelectorAll('.star').forEach((s,i)=>s.classList.toggle('on',i<n));
+}
+
+function setStep(n){
+  for(let i=1;i<=totalSteps;i++){
+    document.getElementById('s'+i).classList.toggle('active',i===n);
+    const dot=document.getElementById('dot'+i);
+    const lbl=document.getElementById('lbl'+i);
+    dot.classList.toggle('active',i===n);
+    dot.classList.toggle('done',i<n);
+    lbl.classList.toggle('active',i===n);
+  }
+  document.getElementById('backBtn').style.display=n>1?'':'none';
+  document.getElementById('nextBtn').textContent=n===totalSteps?'Generate My Report →':'Next →';
+  step=n;
+}
+
+function next(){
+  if(step<totalSteps){setStep(step+1);window.scrollTo({top:0,behavior:'smooth'});}
+  else generateReport();
+}
+function back(){if(step>1){setStep(step-1);window.scrollTo({top:0,behavior:'smooth'});}}
+
+function generateReport(){
+  const q=v('quarter'),yr=v('year')||'2026';
+  const stars='★'.repeat(rating)+'☆'.repeat(5-rating);
+  const lines=[
+    `QUARTERLY BUSINESS REVIEW — ${q} ${yr}`,
+    `${'─'.repeat(42)}`,
+    ``,
+    `QUARTER RATING: ${stars} (${rating}/5)`,
+    `ONE WORD: ${v('word')||'—'}`,
+    ``,
+    `WINS`,
+    `• ${v('w1')||'—'}`,
+    `• ${v('w2')||'—'}`,
+    `• ${v('w3')||'—'}`,
+    ``,
+    `BIGGEST CHALLENGE`,
+    v('challenge')||'—',
+    ``,
+    `KEY LESSON`,
+    v('lesson')||'—',
+    ``,
+    `THE NUMBERS`,
+    `Revenue: ${v('rev')||'—'} (Goal: ${v('revGoal')||'—'})`,
+    `New Clients: ${v('clients')||'—'} | Leads: ${v('leads')||'—'}`,
+    `Metric Win: ${v('metricWin')||'—'}`,
+    ``,
+    `WHAT I'D DO DIFFERENTLY`,
+    v('numLesson')||'—',
+    ``,
+    `NEXT QUARTER PRIORITIES`,
+    `1. ${v('p1')||'—'}`,
+    `2. ${v('p2')||'—'}`,
+    `3. ${v('p3')||'—'}`,
+    ``,
+    `THEME: ${v('theme')||'—'}`,
+    ``,
+    `MY BOLD MOVE`,
+    v('bold')||'—',
+    ``,
+    `${'─'.repeat(42)}`,
+    `Powered by GetPaidToBeYouOnline`,
+  ];
+  const plain=lines.join('\n');
+  const html=lines.map(l=>{
+    if(l.startsWith('QUARTERLY')||l.startsWith('──'))return`<strong>${l}</strong>`;
+    if(/^(WINS|BIGGEST|KEY|THE NUMBERS|WHAT|NEXT|THEME|MY BOLD)/.test(l))return`<strong>${l}</strong>`;
+    return l;
+  }).join('\n');
+
+  document.getElementById('reportText').innerHTML=html;
+  document.getElementById('reportText').dataset.plain=plain;
+  document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+  document.getElementById('nav').style.display='none';
+  document.getElementById('report').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function doCopy(){
+  const text=document.getElementById('reportText').dataset.plain;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.textContent='Copied!';b.classList.add('done');
+    setTimeout(()=>{b.textContent='Copy Full Report';b.classList.remove('done')},1800);
+  });
+}
+
+function restart(){
+  document.querySelectorAll('input,textarea').forEach(el=>el.value='');
+  rating=0;
+  document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.card').forEach(c=>c.style.display='');
+  document.getElementById('nav').style.display='';
+  document.getElementById('report').style.display='none';
+  setStep(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+setStep(1);
+</script>
+</body>
+</html>

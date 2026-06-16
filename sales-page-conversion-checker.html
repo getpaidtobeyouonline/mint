@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Page Conversion Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.score-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 16px;display:flex;align-items:center;gap:20px}
+.grade-circle{width:72px;height:72px;border-radius:50%;border:3px solid #5AE57A;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.grade-letter{font-family:'Playfair Display',serif;font-size:1.8rem;color:#5AE57A;line-height:1}
+.grade-pct{font-size:.65rem;color:#BFD8BF;margin-top:2px}
+.score-info{flex:1}
+.score-label{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:6px}
+.score-desc{font-size:.82rem;opacity:.7;line-height:1.5}
+.prog-track{background:#325132;border-radius:20px;height:8px;overflow:hidden;margin-top:10px}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .5s}
+.actions{display:flex;gap:8px;max-width:700px;margin:0 auto 16px;flex-wrap:wrap}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-gold{background:#5AE57A;color:#325132}.btn-ghost{background:transparent;border:1px solid #4C724C;color:#FFFFFF}
+.btn:hover{opacity:.8}
+.section{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:16px 18px;max-width:700px;margin:0 auto 10px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-title{font-family:'Playfair Display',serif;font-size:.9rem;color:#5AE57A}
+.sec-count{font-size:.72rem;color:#BFD8BF}
+.item{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid #325132;cursor:pointer}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.cb{width:17px;height:17px;border:2px solid #4C724C;border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cb.chk{background:#5AE57A;border-color:#5AE57A}
+.cb.chk::after{content:'✓';font-size:.65rem;color:#325132;font-weight:700}
+.item-text{font-size:.87rem;line-height:1.5;flex:1}
+.item-text.chk{opacity:.4;text-decoration:line-through}
+.tag{font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-left:6px;vertical-align:middle}
+.tag-k{background:#C9A84C22;color:#5AE57A}.tag-q{background:#44cc6622;color:#5AE57A}
+.fixes-card{background:#C9A84C0D;border:1px solid #C9A84C22;border-radius:12px;padding:16px 18px;max-width:700px;margin:0 auto 14px;display:none}
+.fixes-title{font-size:.75rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.fix-item{font-size:.85rem;line-height:1.6;padding:7px 0;border-bottom:1px solid #C9A84C18;opacity:.9}
+.fix-item:last-child{border-bottom:none;padding-bottom:0}
+.fix-num{color:#5AE57A;font-weight:700;margin-right:6px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#5AE57A;color:#325132;padding:10px 20px;border-radius:8px;font-weight:600;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.score-card{flex-direction:column;text-align:center}.grade-circle{margin:0 auto}}
+</style>
+</head>
+<body>
+<h1>Sales Page Conversion Checker</h1>
+<p class="sub">Audit your page against 36 proven conversion elements. Know exactly what's costing you sales.</p>
+
+<div class="score-card">
+  <div class="grade-circle"><div class="grade-letter" id="gL">—</div><div class="grade-pct" id="gP">0%</div></div>
+  <div class="score-info">
+    <div class="score-label" id="gN">Start Auditing Your Page Below</div>
+    <div class="score-desc" id="gD">Tick each element that's already present on your sales page. Your conversion score and top priority fixes will update as you go.</div>
+    <div class="prog-track"><div class="prog-fill" id="pF" style="width:0%"></div></div>
+  </div>
+</div>
+
+<div class="actions">
+  <button class="btn btn-gold" onclick="copyRes()">Copy Audit Report</button>
+  <button class="btn btn-ghost" onclick="resetAll()">Reset Checklist</button>
+</div>
+
+<div id="secs"></div>
+
+<div class="fixes-card" id="fixesCard">
+  <div class="fixes-title">✦ Your Top Conversion Fixes</div>
+  <div id="fixesList"></div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const D=[
+  {c:'Hook & Headline',i:[
+    {t:'Headline speaks directly to the reader\'s biggest pain point or burning desire',k:1},
+    {t:'Subheadline adds specificity, a timeframe, or a compelling supporting promise',k:1},
+    {t:'A clear call-to-action button is visible above the fold without scrolling',k:1},
+    {t:'Hero image, product mockup, or photo is professional and relevant to the offer'},
+    {t:'Page loads quickly and is fully functional on mobile devices',q:1},
+    {t:'Page title and URL include a keyword your ideal buyer would actually search for',q:1},
+  ]},
+  {c:'Problem & Agitation',i:[
+    {t:'The core problem your product solves is named clearly within the first scroll',k:1},
+    {t:'Uses the exact words and phrases your ideal customer uses to describe their struggle',k:1},
+    {t:'Creates emotional resonance — the reader feels "this was written for me"'},
+    {t:'The cost of NOT solving the problem is made clear — lost time, money, or opportunity'},
+    {t:'The reader\'s struggle is validated without making them feel blamed or judged'},
+  ]},
+  {c:'Solution & Offer',i:[
+    {t:'Explains what the product is in plain, jargon-free language',k:1},
+    {t:'Clearly states who the product is for — and ideally who it\'s not for',k:1},
+    {t:'Lists every deliverable with specifics: formats, lengths, number of resources',k:1},
+    {t:'Shows the transformation: where the reader is now vs where they\'ll be after'},
+    {t:'Differentiates the offer from free alternatives or competing products'},
+    {t:'Product name and format are immediately clear at a glance',q:1},
+  ]},
+  {c:'Trust & Social Proof',i:[
+    {t:'At least 3 testimonials from real customers are included on the page',k:1},
+    {t:'Testimonials mention specific results, outcomes, or timeframes — not just praise',k:1},
+    {t:'Creator bio establishes relevant credibility or lived experience with the topic'},
+    {t:'Social proof — student count, followers, press mentions — is visible if applicable'},
+    {t:'A FAQ section addresses the top 3–5 objections buyers are likely to have',k:1},
+  ]},
+  {c:'Value & Pricing',i:[
+    {t:'Price is clearly displayed with no ambiguity or surprises at checkout',k:1},
+    {t:'A value stack or breakdown shows everything included before the price is revealed',k:1},
+    {t:'Bonuses, urgency, or scarcity elements give a concrete reason to buy now'},
+    {t:'A money-back guarantee or risk reversal reduces buyer hesitation',k:1},
+    {t:'Price is anchored against a higher comparison — your time, alternatives, or the problem cost'},
+  ]},
+  {c:'Call to Action',i:[
+    {t:'CTA button copy is specific, not generic — "Get Instant Access" beats "Buy Now"',k:1},
+    {t:'Multiple CTAs are placed throughout the page, not only at the very bottom',k:1},
+    {t:'The CTA button is visually distinct and stands out from surrounding content',q:1},
+    {t:'Button copy or nearby text explains what happens immediately after clicking'},
+    {t:'At least one CTA appears above the fold without requiring any scroll',k:1},
+  ]},
+  {c:'Readability & Design',i:[
+    {t:'Page can be fully understood by skimming headers and bullet points alone',k:1},
+    {t:'Paragraphs are 3 lines or fewer — no large walls of text anywhere on the page',q:1},
+    {t:'Strong visual contrast between text and background throughout the entire page'},
+    {t:'No typos, broken links, missing images, or placeholder text anywhere on the page',q:1},
+  ]},
+];
+
+const KEY='spcc';
+let ck=JSON.parse(localStorage.getItem(KEY)||'{}');
+const total=D.reduce((a,s)=>a+s.i.length,0);
+
+function doneCount(){return Object.values(ck).filter(Boolean).length;}
+
+function grade(p){
+  if(p>=90)return{l:'A',n:'High-Converting Page',d:'Excellent — your page has all the core conversion elements in place. Focus on traffic, headline split-testing, and stronger testimonials to keep improving.',c:'#5AE57A'};
+  if(p>=75)return{l:'B',n:'Strong Foundation',d:'Your page converts reasonably well but a few key elements are missing. Fix those first and you\'ll see a meaningful lift in your conversion rate.',c:'#5AE57A'};
+  if(p>=60)return{l:'C',n:'Needs Optimisation',d:'You have the basics covered but critical conversion triggers are absent. Your page is likely leaving significant money on the table right now.',c:'#5AE57A'};
+  if(p>=40)return{l:'D',n:'Major Gaps',d:'Several fundamental elements are missing. Visitors are landing and leaving without buying — work through each category methodically starting with KEYs.',c:'#5AE57A'};
+  return{l:'F',n:'Rewrite Needed',d:'Your page is missing too many conversion essentials. Start with your Headline, the Problem section, and your Call to Action — rebuild from the top down.',c:'#5AE57A'};
+}
+
+function render(){
+  const p=Math.round(doneCount()/total*100);
+  const g=grade(p);
+  const started=doneCount()>0;
+  document.getElementById('gL').textContent=started?g.l:'—';
+  document.getElementById('gL').style.color=started?g.c:'#5AE57A';
+  document.getElementById('gP').textContent=p+'%';
+  document.getElementById('gN').textContent=started?g.n:'Start Auditing Your Page Below';
+  document.getElementById('gD').textContent=started?g.d:'Tick each element that\'s already present on your sales page. Your conversion score and top priority fixes will update as you go.';
+  document.getElementById('pF').style.width=p+'%';
+
+  document.getElementById('secs').innerHTML=D.map((sec,si)=>{
+    const sd=sec.i.filter((_,ii)=>ck[si+'-'+ii]).length;
+    return`<div class="section">
+      <div class="sec-head"><div class="sec-title">${sec.c}</div><div class="sec-count">${sd}/${sec.i.length}</div></div>
+      ${sec.i.map((item,ii)=>{
+        const id=si+'-'+ii,chk=!!ck[id];
+        const tag=item.k?'<span class="tag tag-k">KEY</span>':item.q?'<span class="tag tag-q">QUICK WIN</span>':'';
+        return`<div class="item" onclick="tog('${id}')">
+          <div class="cb ${chk?'chk':''}"></div>
+          <div class="item-text ${chk?'chk':''}">${item.t}${tag}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+
+  const fixes=[];
+  D.forEach((sec,si)=>{sec.i.forEach((item,ii)=>{if(item.k&&!ck[si+'-'+ii])fixes.push(item.t);});});
+  const fc=document.getElementById('fixesCard');
+  if(fixes.length&&started){
+    fc.style.display='block';
+    document.getElementById('fixesList').innerHTML=fixes.slice(0,3).map((f,i)=>`<div class="fix-item"><span class="fix-num">${i+1}.</span>${f}</div>`).join('');
+  }else{fc.style.display='none';}
+}
+
+function tog(id){ck[id]=!ck[id];localStorage.setItem(KEY,JSON.stringify(ck));render();}
+function resetAll(){if(confirm('Reset all checklist items?')){ck={};localStorage.setItem(KEY,JSON.stringify(ck));render();}}
+
+function copyRes(){
+  const p=Math.round(doneCount()/total*100);
+  const g=grade(p);
+  let out=`SALES PAGE CONVERSION AUDIT — ${p}% — ${g.n}\n\n`;
+  D.forEach((sec,si)=>{
+    out+=`${sec.c.toUpperCase()}\n`;
+    sec.i.forEach((item,ii)=>{out+=(ck[si+'-'+ii]?'[✓] ':'[ ] ')+item.t+'\n';});
+    out+='\n';
+  });
+  navigator.clipboard.writeText(out).then(()=>{
+    const t=document.getElementById('toast');t.style.opacity=1;setTimeout(()=>t.style.opacity=0,2200);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

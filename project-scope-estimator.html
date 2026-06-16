@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Scope Estimator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:640px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.row3{display:grid;grid-template-columns:2fr 1fr auto;gap:10px;align-items:flex-end;margin-bottom:10px}
+.field{margin-bottom:16px}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;height:40px}
+.add-btn:hover{opacity:.85}
+.task-list{margin-top:4px}
+.task-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#325132;border-radius:8px;margin-bottom:8px;border:1px solid #3C603C}
+.task-name{flex:1;font-size:.88rem}
+.task-hrs{font-size:.85rem;color:#5AE57A;font-weight:600;white-space:nowrap}
+.task-cost{font-size:.78rem;color:#BFD8BF;white-space:nowrap}
+.del{background:transparent;border:none;color:#5A845A;cursor:pointer;font-size:.9rem;padding:2px 6px;border-radius:4px;transition:color .2s}
+.del:hover{color:#5AE57A}
+.no-tasks{text-align:center;opacity:.35;font-size:.85rem;padding:16px}
+.slider-row{margin-bottom:16px}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#4C724C;border:none;padding:0;margin-top:8px;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#5AE57A;cursor:pointer}
+.slider-top{display:flex;justify-content:space-between;align-items:center}
+.slider-val{color:#FFFFFF;font-size:.88rem}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid #3C603C}
+.toggle-label{font-size:.88rem}
+.toggle-sub{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.toggle{position:relative;width:42px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:#4C724C;border-radius:12px;cursor:pointer;transition:.2s}
+.slider:before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:#BFD8BF;border-radius:50%;transition:.2s}
+.toggle input:checked+.slider{background:#C9A84C22}
+.toggle input:checked+.slider:before{background:#5AE57A;transform:translateX(18px)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:#325132;border:1px solid #3C603C;border-radius:10px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;color:#5AE57A;margin-bottom:3px}
+.stat-lbl{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.quote-band{background:#C9A84C18;border:1px solid #C9A84C44;border-radius:10px;padding:16px;text-align:center;margin-bottom:14px}
+.quote-range{font-family:'Playfair Display',serif;font-size:1.8rem;color:#5AE57A}
+.quote-lbl{font-size:.75rem;color:#BFD8BF;margin-top:4px;text-transform:uppercase;letter-spacing:.05em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.copy-btn:hover,.copy-btn.done{background:#5AE57A;color:#325132}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:500px){.stats{grid-template-columns:1fr 1fr}.row{grid-template-columns:1fr}h1{font-size:1.7rem}.row3{grid-template-columns:1fr 80px auto}}
+</style>
+</head>
+<body>
+
+<h1>Project Scope Estimator</h1>
+<p class="sub">Build your project estimate in minutes — never underprice a scope again</p>
+
+<!-- Project Details -->
+<div class="card">
+  <div class="card-title">Project Details</div>
+  <div class="row">
+    <div class="field"><label>Project Name</label><input id="projName" type="text" placeholder="e.g. Brand Identity Package"></div>
+    <div class="field"><label>Client Name</label><input id="clientName" type="text" placeholder="e.g. Bloom Boutique"></div>
+  </div>
+  <div class="row">
+    <div class="field" style="margin:0">
+      <label>Project Type</label>
+      <select id="projType" onchange="calc()">
+        <option>Branding & Design</option><option>Web Design / Dev</option>
+        <option>Copywriting</option><option>Social Media</option>
+        <option>Coaching / Consulting</option><option>Photography / Video</option>
+        <option>Virtual Assistant</option><option>Other</option>
+      </select>
+    </div>
+    <div class="field" style="margin:0">
+      <label>Your Hourly Rate ($)</label>
+      <input id="rate" type="number" placeholder="75" value="75" oninput="calc()">
+    </div>
+  </div>
+</div>
+
+<!-- Tasks -->
+<div class="card">
+  <div class="card-title">Tasks & Deliverables</div>
+  <div class="row3">
+    <div><label>Task / Deliverable</label><input id="tName" type="text" placeholder="e.g. Discovery call & brief"></div>
+    <div><label>Est. Hours</label><input id="tHrs" type="number" placeholder="2" min="0.5" step="0.5"></div>
+    <button class="add-btn" onclick="addTask()">+ Add</button>
+  </div>
+  <div class="task-list" id="taskList"><div class="no-tasks">Add your first task above to get started.</div></div>
+</div>
+
+<!-- Adjustments -->
+<div class="card">
+  <div class="card-title">Adjustments</div>
+  <div class="slider-row">
+    <div class="slider-top"><label style="margin:0">Complexity Buffer</label><span class="slider-val" id="bufferVal">20%</span></div>
+    <input type="range" id="buffer" min="0" max="60" step="5" value="20" oninput="document.getElementById('bufferVal').textContent=this.value+'%';calc()">
+  </div>
+  <div class="slider-row">
+    <div class="slider-top"><label style="margin:0">Revision Rounds</label><span class="slider-val" id="revVal">2</span></div>
+    <input type="range" id="revisions" min="0" max="5" value="2" oninput="document.getElementById('revVal').textContent=this.value;calc()">
+  </div>
+  <div class="toggle-row">
+    <div><div class="toggle-label">Rush Fee</div><div class="toggle-sub">Adds 30% for expedited delivery</div></div>
+    <label class="toggle"><input type="checkbox" id="rushFee" onchange="calc()"><span class="slider"></span></label>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="card" id="resultsCard">
+  <div class="card-title">Your Estimate</div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="rBaseHrs">0</div><div class="stat-lbl">Base Hours</div></div>
+    <div class="stat"><div class="stat-val" id="rTotalHrs">0</div><div class="stat-lbl">Total Hours</div></div>
+    <div class="stat"><div class="stat-val" id="rDays">0</div><div class="stat-lbl">Work Days</div></div>
+  </div>
+  <div class="quote-band">
+    <div class="quote-range" id="quoteRange">$0 – $0</div>
+    <div class="quote-lbl">Suggested Quote Range</div>
+  </div>
+  <button class="copy-btn" id="copyBtn" onclick="copyScope()">Copy Scope Summary</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+let tasks=[];
+
+function addTask(){
+  const name=document.getElementById('tName').value.trim();
+  const hrs=parseFloat(document.getElementById('tHrs').value);
+  if(!name||!hrs||hrs<=0)return;
+  tasks.push({id:Date.now(),name,hrs});
+  document.getElementById('tName').value='';
+  document.getElementById('tHrs').value='';
+  document.getElementById('tName').focus();
+  render();calc();
+}
+
+function delTask(id){tasks=tasks.filter(t=>t.id!==id);render();calc();}
+
+function render(){
+  const rate=parseFloat(document.getElementById('rate').value)||0;
+  document.getElementById('taskList').innerHTML=tasks.length
+    ?tasks.map(t=>`
+      <div class="task-row">
+        <span class="task-name">${t.name}</span>
+        <span class="task-hrs">${t.hrs}h</span>
+        <span class="task-cost">${rate?'$'+(t.hrs*rate).toLocaleString():''}</span>
+        <button class="del" onclick="delTask(${t.id})">✕</button>
+      </div>`).join('')
+    :'<div class="no-tasks">No tasks yet — add deliverables above.</div>';
+}
+
+function calc(){
+  render();
+  const rate     = parseFloat(document.getElementById('rate').value)||0;
+  const buffer   = parseFloat(document.getElementById('buffer').value)||0;
+  const revs     = parseFloat(document.getElementById('revisions').value)||0;
+  const rush     = document.getElementById('rushFee').checked;
+  const baseHrs  = tasks.reduce((s,t)=>s+t.hrs,0);
+  const revHrs   = baseHrs * (revs * 0.1);
+  const buffered = (baseHrs + revHrs) * (1 + buffer/100);
+  const final    = rush ? buffered * 1.3 : buffered;
+  const low      = final * rate;
+  const high     = final * rate * 1.2;
+  const days     = (final/8).toFixed(1);
+
+  document.getElementById('rBaseHrs').textContent  = baseHrs.toFixed(1);
+  document.getElementById('rTotalHrs').textContent = final.toFixed(1);
+  document.getElementById('rDays').textContent     = days;
+  document.getElementById('quoteRange').textContent= low>0
+    ?'$'+Math.round(low).toLocaleString()+' – $'+Math.round(high).toLocaleString()
+    :'Add tasks & rate';
+}
+
+function copyScope(){
+  const proj   = document.getElementById('projName').value||'Project Estimate';
+  const client = document.getElementById('clientName').value;
+  const type   = document.getElementById('projType').value;
+  const rate   = parseFloat(document.getElementById('rate').value)||0;
+  const buffer = document.getElementById('buffer').value;
+  const revs   = document.getElementById('revisions').value;
+  const rush   = document.getElementById('rushFee').checked;
+  const baseHrs= tasks.reduce((s,t)=>s+t.hrs,0);
+  const revHrs = baseHrs*(parseFloat(revs)*0.1);
+  const buffered=(baseHrs+revHrs)*(1+parseFloat(buffer)/100);
+  const final  = rush?buffered*1.3:buffered;
+  const low    = Math.round(final*rate);
+  const high   = Math.round(final*rate*1.2);
+
+  const lines=[
+    `PROJECT ESTIMATE — ${proj}`,
+    client?`Client: ${client}`:'',
+    `Type: ${type}`,
+    `Date: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`,
+    '─'.repeat(40),
+    '',
+    'SCOPE OF WORK',
+    ...tasks.map(t=>`• ${t.name} — ${t.hrs} hrs`),
+    '',
+    'ESTIMATE BREAKDOWN',
+    `Base hours: ${baseHrs.toFixed(1)} hrs`,
+    `Revision rounds (${revs}): +${revHrs.toFixed(1)} hrs`,
+    `Complexity buffer (${buffer}%): included`,
+    rush?'Rush fee (30%): applied':'',
+    `Total estimated hours: ${final.toFixed(1)} hrs`,
+    '',
+    `QUOTED RANGE: $${low.toLocaleString()} – $${high.toLocaleString()}`,
+    '',
+    'Note: Final invoice based on agreed scope. Any out-of-scope work quoted separately.',
+    '─'.repeat(40),
+    'Powered by GetPaidToBeYouOnline',
+  ].filter(l=>l!==null&&l!==undefined).join('\n');
+
+  navigator.clipboard.writeText(lines).then(()=>{
+    const b=document.getElementById('copyBtn');
+    b.textContent='Copied!';b.classList.add('done');
+    setTimeout(()=>{b.textContent='Copy Scope Summary';b.classList.remove('done')},1800);
+  });
+}
+
+document.getElementById('tHrs').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+document.getElementById('tName').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('tHrs').focus();});
+calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Success Rate Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  input, select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 10px 12px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .addrow { display: flex; gap: 10px; } .addrow input { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 130px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .bar select { flex: 1; min-width: 150px; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 13px 15px; margin-bottom: 11px; }
+  .card.warn { border-left-color: #5AE57A; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .card .nm { font-weight: 500; }
+  .rate { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .lbl { font-size: .72rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .lbl.bad { border-color: #5AE57A; color: #5AE57A; }
+  .lbl.mid { border-color: #5AE57A; color: #5AE57A; }
+  .meta { font-size: .8rem; opacity: .7; margin-top: 4px; }
+  .spark { display: flex; gap: 3px; margin-top: 6px; }
+  .sq { width: 13px; height: 13px; border-radius: 3px; background: #4C724C; }
+  .sq.ok { background: #5AE57A; } .sq.no { background: #5AE57A; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .lg { background: #2E4D2E; border: 1px solid #4F8A55; color: #5AE57A; cursor: pointer; padding: 8px 16px; border-radius: 7px; font-size: .85rem; font-weight: 500; }
+  .lg.fail { background: #2E4D2E; border-color: #5AE57A; color: #5AE57A; }
+  .mini { background: transparent; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 7px 12px; border-radius: 7px; font-size: .8rem; }
+  .mini:hover { border-color: #5AE57A; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 22px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Success Rate Tracker</h1>
+  <p class="sub">One tap per use. See which prompts reliably work — and which ones to fix or retire.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <input id="name" placeholder="Add a prompt to track (name it)" onkeydown="if(event.key==='Enter')addP()">
+      <button class="btn" onclick="addP()" style="margin-top:0">+ Track</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="sP">0</div><div class="l">Prompts</div></div>
+    <div class="stat"><div class="n" id="sU">0</div><div class="l">Total uses</div></div>
+    <div class="stat"><div class="n" id="sR">—</div><div class="l">Overall success</div></div>
+    <div class="stat"><div class="n" id="sB">—</div><div class="l">Most reliable</div></div>
+  </div>
+
+  <div class="bar">
+    <select id="sort" onchange="render()">
+      <option value="rate">Best success rate</option>
+      <option value="worst">Worst first</option>
+      <option value="used">Most used</option>
+      <option value="name">Name A–Z</option>
+    </select>
+  </div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportCsv()">Export CSV</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let P = JSON.parse(localStorage.getItem('psrt') || '[]');
+  const save = () => localStorage.setItem('psrt', JSON.stringify(P));
+  const uses = p => p.s + p.f;
+  const rate = p => uses(p) ? p.s/uses(p) : 0;
+
+  function addP() {
+    const n = g('name').value.trim();
+    if (!n) { alert('Name the prompt.'); return; }
+    if (P.some(p=>p.name.toLowerCase()===n.toLowerCase())) { alert('Already tracking that one.'); return; }
+    P.unshift({ name:n, s:0, f:0, recent:[] });
+    g('name').value=''; save(); render();
+  }
+  function log(i, ok) {
+    const p = P[i];
+    ok ? p.s++ : p.f++;
+    p.recent.push(ok); if (p.recent.length>12) p.recent.shift();
+    save(); render();
+  }
+  function resetP(i){ if(confirm('Reset this prompt\'s stats?')){ P[i]={...P[i],s:0,f:0,recent:[]}; save(); render(); } }
+  function delP(i){ if(confirm('Stop tracking this prompt?')){ P.splice(i,1); save(); render(); } }
+  function clearAll(){ if(confirm('Clear everything?')){ P=[]; save(); render(); } }
+
+  function classify(p) {
+    const u = uses(p), r = rate(p)*100;
+    if (u < 5) return ['Needs data','mid'];
+    if (r >= 90) return ['Rock solid',''];
+    if (r >= 75) return ['Reliable',''];
+    if (r >= 50) return ['Inconsistent','mid'];
+    return ['Unreliable','bad'];
+  }
+
+  function render() {
+    const totU = P.reduce((s,p)=>s+uses(p),0);
+    const totS = P.reduce((s,p)=>s+p.s,0);
+    g('sP').textContent = P.length;
+    g('sU').textContent = totU;
+    g('sR').textContent = totU ? Math.round(totS/totU*100)+'%' : '—';
+    const eligible = P.filter(p=>uses(p)>=5);
+    const best = eligible.sort((a,b)=>rate(b)-rate(a))[0];
+    g('sB').textContent = best ? Math.round(rate(best)*100)+'%' : '—';
+
+    const sort = g('sort').value;
+    const arr = P.map((p,i)=>({p,i}));
+    arr.sort((a,b)=>{
+      if (sort==='used') return uses(b.p)-uses(a.p);
+      if (sort==='name') return a.p.name.localeCompare(b.p.name);
+      if (sort==='worst') return rate(a.p)-rate(b.p) || uses(b.p)-uses(a.p);
+      return rate(b.p)-rate(a.p) || uses(b.p)-uses(a.p);
+    });
+
+    const L = g('list');
+    if (!P.length) { L.innerHTML='<div class="empty">No prompts tracked yet — add one above and tap ✓/✗ as you use it.</div>'; return; }
+    L.innerHTML = arr.map(({p,i})=>{
+      const u = uses(p), r = Math.round(rate(p)*100), [lab,cls] = classify(p);
+      const flag = u>=5 && r<50;
+      const recR = p.recent.length ? Math.round(p.recent.filter(Boolean).length/p.recent.length*100) : null;
+      let trend='';
+      if (p.recent.length>=4 && u>=6) {
+        if (recR > r+10) trend=' <span style="color:#5AE57A">▲ improving</span>';
+        else if (recR < r-10) trend=' <span style="color:#5AE57A">▼ slipping</span>';
+      }
+      return `<div class="card ${flag?'warn':''}">
+        <div class="top"><span class="nm">${esc(p.name)}</span>
+          <span><span class="rate">${u?r+'%':'—'}</span> <span class="lbl ${cls}">${lab}</span></span></div>
+        <div class="meta">${p.s} worked · ${p.f} failed · ${u} use${u!==1?'s':''}${trend}${flag?' · <b style="color:#5AE57A">fix or retire</b>':''}</div>
+        ${p.recent.length?`<div class="spark">${p.recent.map(x=>`<span class="sq ${x?'ok':'no'}"></span>`).join('')}</div>`:''}
+        <div class="row">
+          <button class="lg" onclick="log(${i},true)">✓ Worked</button>
+          <button class="lg fail" onclick="log(${i},false)">✗ Failed</button>
+          <button class="mini" onclick="resetP(${i})">Reset</button>
+          <button class="mini" onclick="delP(${i})">Delete</button>
+        </div></div>`;
+    }).join('');
+  }
+
+  function exportCsv() {
+    if (!P.length) { alert('Track a prompt first.'); return; }
+    const out = [['Prompt','Worked','Failed','Uses','Success %','Rating']]
+      .concat(P.map(p=>[p.name,p.s,p.f,uses(p),uses(p)?Math.round(rate(p)*100):0,classify(p)[0]]));
+    const csv = out.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const b=new Blob([csv],{type:'text/csv'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='prompt-success-rates.csv'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  render();
+</script>
+</body>
+</html>

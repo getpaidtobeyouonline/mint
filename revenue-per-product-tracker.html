@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revenue Per Product Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=number]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.65rem .75rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input[type=text]:focus,input[type=number]:focus{border-color:#5AE57A}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.col-heads{display:grid;grid-template-columns:1fr 90px 90px;gap:.5rem;font-size:.72rem;opacity:.38;margin-top:.9rem;margin-bottom:.35rem;padding:0 .1rem}
+.prod-row{display:grid;grid-template-columns:1fr 90px 90px;gap:.5rem;margin-bottom:.55rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.perf-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.perf-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;gap:.5rem}
+.perf-title{display:flex;align-items:baseline;gap:.35rem}
+.perf-rank{font-size:.72rem;opacity:.32}
+.perf-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.perf-badge{font-size:.65rem;font-weight:600;padding:.18rem .55rem;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.perf-rev{font-family:'Playfair Display',serif;font-size:1.65rem;margin-bottom:.2rem}
+.perf-meta{font-size:.78rem;opacity:.4;margin-bottom:.4rem}
+.perf-bar{height:4px;background:#4C724C;border-radius:2px;margin:.35rem 0 .55rem}
+.perf-fill{height:100%;border-radius:2px}
+.perf-rec{font-size:.8rem;opacity:.65;line-height:1.45}
+.perf-rec strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.sum-card{background:#325132;border:1px solid #C9A84C33;border-radius:10px;padding:1.4rem 1.5rem;text-align:center;margin-bottom:1.1rem}
+.sum-lbl{font-size:.72rem;opacity:.5;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.sum-amt{font-family:'Playfair Display',serif;font-size:2.2rem;color:#5AE57A;margin-bottom:.2rem}
+.sum-period{font-size:.85rem;opacity:.42;margin-bottom:.55rem}
+.sum-insight{font-size:.8rem;opacity:.58;line-height:1.5;font-style:italic;max-width:480px;margin:0 auto}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.prod-row,.col-heads{grid-template-columns:1fr 70px 65px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Revenue Per Product Tracker</h1>
+    <p class="subtitle">Compare revenue across your digital products, spot your star earners, and see exactly where to focus next.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Products</h2>
+    <label>Period</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickP(0)" id="p0">Last 30 Days</button>
+      <button class="opt"     onclick="pickP(1)" id="p1">Last 90 Days</button>
+      <button class="opt"     onclick="pickP(2)" id="p2">Last 12 Months</button>
+    </div>
+    <div class="col-heads"><span>Product Name</span><span>Price ($)</span><span>Sales</span></div>
+    <div class="prod-row">
+      <input type="text"   class="pname"  placeholder="e.g. Email Toolkit">
+      <input type="number" class="pprice" placeholder="47" min="0">
+      <input type="number" class="psales" placeholder="12" min="0">
+    </div>
+    <div class="prod-row">
+      <input type="text"   class="pname"  placeholder="e.g. Content Planner">
+      <input type="number" class="pprice" placeholder="27" min="0">
+      <input type="number" class="psales" placeholder="30" min="0">
+    </div>
+    <div class="prod-row">
+      <input type="text"   class="pname"  placeholder="e.g. Launch Checklist">
+      <input type="number" class="pprice" placeholder="17" min="0">
+      <input type="number" class="psales" placeholder="8"  min="0">
+    </div>
+    <div class="prod-row">
+      <input type="text"   class="pname"  placeholder="Optional 4th product">
+      <input type="number" class="pprice" placeholder="97" min="0">
+      <input type="number" class="psales" placeholder="0"  min="0">
+    </div>
+    <div class="prod-row">
+      <input type="text"   class="pname"  placeholder="Optional 5th product">
+      <input type="number" class="pprice" placeholder="197" min="0">
+      <input type="number" class="psales" placeholder="0"  min="0">
+    </div>
+    <button class="btn" onclick="analyse()">Analyse My Products →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="perfCards"></div>
+    <div class="sum-card" id="sumCard"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Revenue Report as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fmtM = n => n >= 10000 ? '$'+(n/1000).toFixed(0)+'k' : n >= 1000 ? '$'+(n/1000).toFixed(1)+'k' : '$'+Math.round(n);
+const fmtN = n => n >= 1000 ? n.toLocaleString() : String(n);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const periodLabel = ['Last 30 Days','Last 90 Days','Last 12 Months'];
+const periodShort = ['30-Day','90-Day','Annual'];
+
+const recByLevel = {
+  star:[
+    'Your top earner — consider a companion product or V2.0 to extend this revenue line',
+    'This carries the portfolio. Feature it prominently and add an upsell or upgrade path',
+  ],
+  mid:[
+    'Consistent but not your star. Test a $10–$20 price increase or add a bonus to lift perceived value',
+    'Running steadily. Refresh testimonials and the sales page CTA to push it toward star territory',
+  ],
+  under:[
+    'Low revenue contributor. Bundle with your star product or test a lower price as a tripwire entry point',
+    'Underperforming relative to your portfolio. Consider repositioning as a free lead magnet instead',
+  ],
+};
+
+let state = {p:0};
+
+function pickP(i) {
+  state.p = i;
+  [0,1,2].forEach(x => document.getElementById(`p${x}`).classList.toggle('sel', x===i));
+}
+
+function getProducts() {
+  const names  = [...document.querySelectorAll('.pname')].map(e => e.value.trim());
+  const prices = [...document.querySelectorAll('.pprice')].map(e => parseFloat(e.value));
+  const salesA = [...document.querySelectorAll('.psales')].map(e => parseInt(e.value));
+  return names.map((n,i) => ({name:n, price:prices[i], sales:salesA[i], rev:prices[i]*salesA[i]}))
+    .filter(p => p.name && !isNaN(p.price) && p.price > 0 && !isNaN(p.sales) && p.sales >= 0);
+}
+
+function getLevel(rev, avg, total) {
+  if (total === 0) return 'under';
+  return rev >= avg * 1.5 ? 'star' : rev >= avg * 0.5 ? 'mid' : 'under';
+}
+const getLbl = l => ({star:'Star Product', mid:'Steady Performer', under:'Needs Attention'})[l];
+const getCol = l => ({star:'#5AE57A', mid:'#5AE57A', under:'#5AE57A'})[l];
+
+function analyse() {
+  const products = getProducts();
+  if (products.length < 1) { alert('Please enter at least one product with a name, price, and number of sales.'); return; }
+
+  const total  = products.reduce((s,p) => s + p.rev, 0);
+  const avg    = total / products.length;
+  const sorted = [...products].sort((a,b) => b.rev - a.rev);
+
+  document.getElementById('statsBar').innerHTML =
+    st(sorted.length,'Products') + st(fmtM(total),periodShort[state.p]+' Revenue') +
+    st(fmtM(sorted[0].rev),'Best Earner') + st(Math.round(sorted[0].rev/Math.max(total,1)*100)+'%','Top Share');
+
+  document.getElementById('perfCards').innerHTML = sorted.map((p,i) => {
+    const level = getLevel(p.rev, avg, total);
+    const col   = getCol(level);
+    const lbl   = getLbl(level);
+    const share = Math.round(p.rev / Math.max(total,1) * 100);
+    const rec   = recByLevel[level][i % 2];
+    return `<div class="perf-card" style="border-left-color:${col}">
+      <div class="perf-head">
+        <div class="perf-title">
+          <span class="perf-rank">#${i+1}</span>
+          <span class="perf-name">${p.name}</span>
+        </div>
+        <span class="perf-badge" style="color:${col};background:${col}18;border:1px solid ${col}44">${lbl}</span>
+      </div>
+      <div class="perf-rev" style="color:${col}">${fmtM(p.rev)}</div>
+      <div class="perf-meta">$${p.price} × ${fmtN(p.sales)} sales · ${share}% of total revenue</div>
+      <div class="perf-bar"><div class="perf-fill" style="width:${share}%;background:${col}"></div></div>
+      <div class="perf-rec"><strong>Focus:</strong> ${rec}</div>
+    </div>`;
+  }).join('');
+
+  const topShare = Math.round(sorted[0].rev / Math.max(total,1) * 100);
+  let insight = '';
+  if (sorted.length === 1) {
+    insight = 'One product in your portfolio — consider adding a complementary lower-ticket or higher-ticket offer to spread your revenue risk.';
+  } else if (total === 0) {
+    insight = 'No revenue recorded yet across your products. Enter your sales numbers to see a full performance breakdown.';
+  } else if (topShare >= 70) {
+    insight = `${sorted[0].name} generates ${topShare}% of your total revenue — a concentrated portfolio. Consider adding a new product to reduce single-product dependency.`;
+  } else if (topShare <= 40) {
+    insight = 'Well-balanced portfolio with multiple solid revenue streams. Keep optimising each product independently to grow your total.';
+  } else {
+    insight = `${sorted[0].name} is your clear leader at ${topShare}% of revenue — feature it more prominently and consider an upsell or companion offer.`;
+  }
+
+  document.getElementById('sumCard').innerHTML =
+    `<div class="sum-lbl">Total Revenue</div>
+     <div class="sum-amt">${fmtM(total)}</div>
+     <div class="sum-period">${periodLabel[state.p]} · ${sorted.length} product${sorted.length>1?'s':''}</div>
+     <div class="sum-insight">${insight}</div>`;
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const products = getProducts();
+  const total    = products.reduce((s,p) => s + p.rev, 0);
+  const avg      = total / products.length;
+  const sorted   = [...products].sort((a,b) => b.rev - a.rev);
+
+  let text = `REVENUE PER PRODUCT TRACKER\n`;
+  text += `Period: ${periodLabel[state.p]} · Products: ${sorted.length} · Total: ${fmtM(total)}\n\n`;
+  text += `PRODUCT BREAKDOWN\n${'─'.repeat(36)}\n`;
+  sorted.forEach((p,i) => {
+    const level = getLevel(p.rev, avg, total);
+    const lbl   = getLbl(level);
+    const share = Math.round(p.rev / Math.max(total,1) * 100);
+    const rec   = recByLevel[level][i % 2];
+    text += `#${i+1} ${p.name} [${lbl.toUpperCase()}]\n`;
+    text += `Revenue: ${fmtM(p.rev)} · $${p.price} × ${p.sales} sales · ${share}% of total\n`;
+    text += `Focus: ${rec}\n\n`;
+  });
+  const topShare = Math.round(sorted[0].rev / Math.max(total,1) * 100);
+  text += `TOP EARNER: ${sorted[0].name} at ${topShare}% of revenue\n`;
+  text += `---\nCreated with Revenue Per Product Tracker by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Revenue Report as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

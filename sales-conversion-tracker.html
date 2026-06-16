@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Conversion Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 28px; }
+    .wrap { width: 100%; max-width: 560px; }
+    .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .sum-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; }
+    .sum-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.42; margin-bottom: 6px; }
+    .sum-val { font-family: 'Playfair Display', serif; font-size: 1.65rem; color: #5AE57A; line-height: 1; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 14px; }
+    .field { flex: 1; }
+    label { display: block; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; }
+    input { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.93rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #5AE57A; }
+    .source-field { margin-bottom: 10px; }
+    .row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .btn-add { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; padding: 12px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; }
+    .btn-add:hover { opacity: 0.85; }
+    .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .list-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; }
+    .sort-note { font-size: 0.7rem; opacity: 0.32; }
+    .entry { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+    .entry-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .entry-source { font-weight: 600; font-size: 0.92rem; line-height: 1.3; flex: 1; padding-right: 8px; }
+    .btn-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0; flex-shrink: 0; transition: color 0.2s; }
+    .btn-del:hover { color: #5AE57A; }
+    .metrics { display: flex; gap: 6px; margin-bottom: 10px; }
+    .metric { flex: 1; text-align: center; background: #325132; border-radius: 8px; padding: 8px 4px; }
+    .m-val { font-size: 0.92rem; font-weight: 600; margin-bottom: 3px; }
+    .m-val.gold { color: #5AE57A; }
+    .m-lbl { font-size: 0.62rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
+    .conv-bar { height: 3px; background: #3C603C; border-radius: 2px; overflow: hidden; }
+    .conv-fill { height: 100%; background: #5AE57A; border-radius: 2px; transition: width 0.4s ease; }
+    .empty { text-align: center; opacity: 0.28; font-size: 0.88rem; padding: 36px 0; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Sales Conversion Tracker</h1>
+  <p class="subtitle">Track every traffic source. Find what actually converts.</p>
+
+  <div class="wrap">
+    <div class="summary">
+      <div class="sum-card"><div class="sum-lbl">Total Visitors</div><div class="sum-val" id="s-vis">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Total Sales</div><div class="sum-val" id="s-sales">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Overall Conv Rate</div><div class="sum-val" id="s-conv">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Total Revenue</div><div class="sum-val" id="s-rev">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add Traffic Source</div>
+      <div class="source-field">
+        <label>Source / Campaign</label>
+        <input type="text" id="source" placeholder="e.g. Email Welcome Sequence, Instagram Bio, TikTok #47" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Visitors</label>
+          <input type="number" id="visitors" placeholder="e.g. 500" min="1" />
+        </div>
+        <div class="field">
+          <label>Sales</label>
+          <input type="number" id="sales-n" placeholder="e.g. 12" min="0" />
+        </div>
+        <div class="field">
+          <label>Price ($)</label>
+          <input type="number" id="price" placeholder="e.g. 47" min="0" step="0.01" />
+        </div>
+      </div>
+      <button class="btn-add" onclick="addEntry()">+ Add Source</button>
+    </div>
+
+    <div class="list-header">
+      <span class="list-title">Sources</span>
+      <span class="sort-note">sorted by conversion rate</span>
+    </div>
+    <div id="entries"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let entries = [];
+    const load = () => { try { entries = JSON.parse(localStorage.getItem('conv_v1') || '[]'); } catch(e) { entries = []; } };
+    const save = () => localStorage.setItem('conv_v1', JSON.stringify(entries));
+    const fmtN = n => n.toLocaleString('en-US');
+    const fmtC = n => n.toFixed(2) + '%';
+
+    function addEntry() {
+      const source   = document.getElementById('source').value.trim();
+      const visitors = parseInt(document.getElementById('visitors').value) || 0;
+      const salesN   = parseInt(document.getElementById('sales-n').value)  || 0;
+      const price    = parseFloat(document.getElementById('price').value)  || 0;
+      if (!source || !visitors || !price) { alert('Please fill in Source, Visitors, and Price.'); return; }
+      if (salesN > visitors) { alert('Sales cannot exceed visitors.'); return; }
+      entries.unshift({ id: Date.now(), source, visitors, sales: salesN, price });
+      save(); render();
+      document.getElementById('source').value = '';
+      document.getElementById('visitors').value = '';
+      document.getElementById('sales-n').value = '';
+    }
+
+    function deleteEntry(id) { entries = entries.filter(e => e.id !== id); save(); render(); }
+
+    function render() {
+      const totV = entries.reduce((s, e) => s + e.visitors, 0);
+      const totS = entries.reduce((s, e) => s + e.sales, 0);
+      const totR = entries.reduce((s, e) => s + e.sales * e.price, 0);
+      const conv = totV > 0 ? (totS / totV) * 100 : null;
+
+      document.getElementById('s-vis').textContent   = totV ? fmtN(totV) : '—';
+      document.getElementById('s-sales').textContent = totS ? fmtN(totS) : '—';
+      document.getElementById('s-conv').textContent  = conv !== null ? fmtC(conv) : '—';
+      document.getElementById('s-rev').textContent   = totR ? '$' + fmtN(Math.round(totR)) : '—';
+
+      const el = document.getElementById('entries');
+      if (!entries.length) { el.innerHTML = '<div class="empty">No sources yet. Add your first traffic source above.</div>'; return; }
+
+      const sorted  = [...entries].sort((a, b) => (b.sales / Math.max(b.visitors,1)) - (a.sales / Math.max(a.visitors,1)));
+      const topConv = (sorted[0].sales / Math.max(sorted[0].visitors, 1)) * 100 || 1;
+
+      el.innerHTML = sorted.map(e => {
+        const cv  = (e.sales / e.visitors * 100);
+        const rev = Math.round(e.sales * e.price);
+        const bar = Math.round((cv / topConv) * 100);
+        return `
+          <div class="entry">
+            <div class="entry-top">
+              <span class="entry-source">${e.source}</span>
+              <button class="btn-del" onclick="deleteEntry(${e.id})" title="Remove">×</button>
+            </div>
+            <div class="metrics">
+              <div class="metric"><div class="m-val">${fmtN(e.visitors)}</div><div class="m-lbl">Visitors</div></div>
+              <div class="metric"><div class="m-val">${fmtN(e.sales)}</div><div class="m-lbl">Sales</div></div>
+              <div class="metric"><div class="m-val gold">${fmtC(cv)}</div><div class="m-lbl">Conv Rate</div></div>
+              <div class="metric"><div class="m-val">$${fmtN(rev)}</div><div class="m-lbl">Revenue</div></div>
+            </div>
+            <div class="conv-bar"><div class="conv-fill" style="width:${bar}%"></div></div>
+          </div>`;
+      }).join('');
+    }
+
+    ['source','visitors','sales-n','price'].forEach(id =>
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') addEntry(); })
+    );
+
+    load(); render();
+  </script>
+</body>
+</html>

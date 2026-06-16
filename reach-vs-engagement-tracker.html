@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reach vs Engagement Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .addrow > div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .post { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .post .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .post .nm { font-weight: 500; }
+  .post .er { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .post .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .post.win { border-left-color: #5AE57A; } .post.low { border-left-color: #5AE57A; }
+  .post .x { cursor: pointer; opacity: .5; } .post .x:hover { opacity: 1; color: #5AE57A; }
+  .note { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 8px; padding: 12px 15px; font-size: .9rem; margin-bottom: 12px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reach vs Engagement Tracker</h1>
+  <p class="sub">High reach but low engagement? Track both per post and see which content actually connects.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Post</label><input id="nm" placeholder="e.g. Reel: pricing mistakes"></div>
+      <div><label for="rc">Reach</label><input id="rc" type="number" min="0"></div>
+      <div><label for="en">Engagements</label><input id="en" type="number" min="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="note" id="note" style="display:none"></div>
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let P=JSON.parse(localStorage.getItem('rve')||'[]');
+  const save=()=>localStorage.setItem('rve',JSON.stringify(P));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const er=p=>p.r>0?p.e/p.r*100:0;
+  function add(){ const nm=v('nm'); if(!nm){alert('Name the post.');return;} P.push({nm,r:nu('rc'),e:nu('en')}); ['nm','rc','en'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ P.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all posts?')){ P=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!P.length){ L.innerHTML='<div class="empty">No posts logged yet.</div>'; g('note').style.display='none'; return; }
+    const avg=P.reduce((s,p)=>s+er(p),0)/P.length;
+    const best=[...P].sort((a,b)=>er(b)-er(a))[0];
+    g('note').style.display='block';
+    g('note').innerHTML=`Avg engagement rate: <b>${avg.toFixed(1)}%</b>. Your best connector: <b>${esc(best.nm)}</b> (${er(best).toFixed(1)}%). Make more like it — high reach + low engagement means the algorithm pushed it but people didn't care.`;
+    L.innerHTML=[...P].map((p,i)=>({p,i})).sort((a,b)=>er(b.p)-er(a.p)).map(({p,i})=>{
+      const e=er(p), cls=e>=avg*1.2?'win':e<avg*0.6?'low':'';
+      return `<div class="post ${cls}"><div class="top"><span class="nm">${esc(p.nm)}</span><span class="er">${e.toFixed(1)}%</span></div>
+        <div class="meta">👁 ${p.r.toLocaleString()} reach · ❤ ${p.e.toLocaleString()} engagements <span class="x" onclick="del(${i})">✕</span></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

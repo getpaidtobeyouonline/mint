@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Bank Organiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 80px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .9rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .bar input { flex: 2; min-width: 160px; } .bar select { flex: 1; min-width: 140px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 12px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 5px 11px; border-radius: 20px; font-size: .8rem; }
+  .chip.on { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .stat { font-size: .83rem; opacity: .72; margin-bottom: 12px; }
+  .stat b { color: #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 13px 15px; margin-bottom: 11px; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .card h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .star { cursor: pointer; font-size: 1rem; opacity: .5; }
+  .star.on { opacity: 1; color: #5AE57A; }
+  .ptext { white-space: pre-wrap; font-size: .88rem; background: #325132; border: 1px solid #3C603C; border-radius: 6px; padding: 9px; margin: 8px 0; max-height: 120px; overflow: auto; }
+  .ctags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ct { font-size: .7rem; padding: 1px 8px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .row2 { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+  .uses { font-size: .76rem; opacity: .6; }
+  .acts { display: flex; gap: 14px; font-size: .8rem; }
+  .acts span { cursor: pointer; opacity: .68; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 24px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Bank Organiser</h1>
+  <p class="sub">Tag, filter, and rank your whole prompt bank — find any prompt and see which ones you actually use.</p>
+
+  <div class="panel">
+    <label for="title">Prompt title</label>
+    <input id="title" placeholder="e.g. Repurpose blog into thread">
+    <label for="text">Prompt</label>
+    <textarea id="text" placeholder="The full prompt…"></textarea>
+    <label for="tags">Tags <span style="text-transform:none;opacity:.55">(comma-separated — multi-tag)</span></label>
+    <input id="tags" placeholder="e.g. content, social, repurpose">
+    <button class="btn" onclick="saveItem()" id="saveBtn">+ Add to Bank</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel</button>
+  </div>
+
+  <div class="bar">
+    <input id="search" placeholder="🔍 Search title or prompt…" oninput="render()">
+    <select id="sort" onchange="render()">
+      <option value="recent">Recently added</option>
+      <option value="used">Most used</option>
+      <option value="az">A–Z</option>
+      <option value="fav">Favourites first</option>
+    </select>
+  </div>
+  <div class="tags" id="tagBar"></div>
+  <div class="stat" id="stat"></div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportMd()">Export .md</button>
+  <button class="btn ghost" onclick="backup()">Backup JSON</button>
+  <button class="btn ghost" onclick="document.getElementById('imp').click()">Restore</button>
+  <input type="file" id="imp" accept="application/json" style="display:none" onchange="restore(event)">
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let bank = JSON.parse(localStorage.getItem('pbo') || '[]');
+  let editing = -1, active = new Set();
+  const save = () => localStorage.setItem('pbo', JSON.stringify(bank));
+  const tagList = s => [...new Set(s.split(',').map(x=>x.trim().toLowerCase()).filter(Boolean))];
+
+  function saveItem() {
+    const title = v('title'), text = v('text');
+    if (!title || !text) { alert('Title and prompt are required.'); return; }
+    if (editing>=0) { bank[editing] = { ...bank[editing], title, text, tags:tagList(v('tags')) }; editing=-1; g('saveBtn').textContent='+ Add to Bank'; g('cancelBtn').style.display='none'; }
+    else bank.unshift({ title, text, tags:tagList(v('tags')), fav:false, uses:0, added:Date.now() });
+    ['title','text','tags'].forEach(x=>g(x).value='');
+    save(); render();
+  }
+  function edit(i){ const x=bank[i]; g('title').value=x.title; g('text').value=x.text; g('tags').value=(x.tags||[]).join(', '); editing=i; g('saveBtn').textContent='✓ Update'; g('cancelBtn').style.display='inline-block'; window.scrollTo({top:0,behavior:'smooth'}); }
+  function cancelEdit(){ editing=-1; g('saveBtn').textContent='+ Add to Bank'; g('cancelBtn').style.display='none'; ['title','text','tags'].forEach(x=>g(x).value=''); }
+  function del(i){ if(confirm('Delete this prompt?')){ bank.splice(i,1); if(editing===i)cancelEdit(); save(); render(); } }
+  function star(i){ bank[i].fav=!bank[i].fav; save(); render(); }
+  function copyP(i){ bank[i].uses=(bank[i].uses||0)+1; bank[i].last=Date.now(); save(); render(); navigator.clipboard.writeText(bank[i].text).then(()=>{},()=>{}); }
+  function clearAll(){ if(confirm('Clear the whole bank?')){ bank=[]; active.clear(); save(); render(); } }
+
+  function render() {
+    const allTags = {};
+    bank.forEach(p => (p.tags||[]).forEach(t => allTags[t]=(allTags[t]||0)+1));
+    const tagsSorted = Object.keys(allTags).sort();
+    g('tagBar').innerHTML = tagsSorted.length
+      ? tagsSorted.map(t=>`<span class="chip ${active.has(t)?'on':''}" data-t="${esc(t)}">${esc(t)} (${allTags[t]})</span>`).join('')
+      : '<span style="opacity:.5;font-size:.82rem">No tags yet — add some when you save prompts.</span>';
+    g('tagBar').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const t=c.dataset.t; active.has(t)?active.delete(t):active.add(t); render(); });
+
+    const q = v('search').toLowerCase(), sort = g('sort').value;
+    let shown = bank.map((p,i)=>({p,i})).filter(({p}) =>
+      [...active].every(t => (p.tags||[]).includes(t)) &&
+      (!q || (p.title+' '+p.text).toLowerCase().includes(q)));
+    shown.sort((a,b)=>{
+      if (sort==='used') return (b.p.uses||0)-(a.p.uses||0);
+      if (sort==='az') return a.p.title.localeCompare(b.p.title);
+      if (sort==='fav') return (b.p.fav?1:0)-(a.p.fav?1:0) || (b.p.added||0)-(a.p.added||0);
+      return (b.p.added||0)-(a.p.added||0);
+    });
+
+    const mostUsed = bank.reduce((m,p)=> (p.uses||0)>(m?.uses||0)?p:m, null);
+    g('stat').innerHTML = bank.length
+      ? `<b>${bank.length}</b> prompts · <b>${tagsSorted.length}</b> tags`
+        + (mostUsed&&mostUsed.uses ? ` · most used: <b>${esc(mostUsed.title)}</b> (${mostUsed.uses}×)` : '')
+        + ((q||active.size)?` · ${shown.length} shown`:'')
+      : '';
+
+    const L = g('list');
+    if (!bank.length) { L.innerHTML='<div class="empty">Your bank is empty — add your first prompt above.</div>'; return; }
+    if (!shown.length) { L.innerHTML='<div class="empty">No prompts match the current filter.</div>'; return; }
+    L.innerHTML = shown.map(({p,i})=>`
+      <div class="card">
+        <div class="top"><h3>${esc(p.title)}</h3><span class="star ${p.fav?'on':''}" onclick="star(${i})">${p.fav?'★':'☆'}</span></div>
+        <div class="ptext">${esc(p.text)}</div>
+        <div class="ctags">${(p.tags||[]).map(t=>`<span class="ct">${esc(t)}</span>`).join('')||'<span style="opacity:.4;font-size:.75rem">untagged</span>'}</div>
+        <div class="row2">
+          <span class="uses">used ${p.uses||0}×</span>
+          <span class="acts"><span onclick="copyP(${i})">⧉ Copy</span><span onclick="edit(${i})">✎ Edit</span><span onclick="del(${i})">✕ Delete</span></span>
+        </div>
+      </div>`).join('');
+  }
+
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+  function exportMd() {
+    if (!bank.length) { alert('Add a prompt first.'); return; }
+    let t = `# Prompt Bank\n\n${bank.length} prompts\n`;
+    [...bank].sort((a,b)=>a.title.localeCompare(b.title)).forEach(p=>{
+      t += `\n## ${p.title}\n`;
+      if ((p.tags||[]).length) t += `*tags: ${p.tags.join(', ')}* · used ${p.uses||0}×\n`;
+      t += `\n\`\`\`\n${p.text}\n\`\`\`\n`;
+    });
+    dl(new Blob([t.trim()],{type:'text/markdown'}), 'prompt-bank.md');
+  }
+  function backup(){ if(!bank.length){alert('Nothing to back up.');return;} dl(new Blob([JSON.stringify(bank,null,2)],{type:'application/json'}),'prompt-bank-backup.json'); }
+  function restore(e){
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result); if(!Array.isArray(d))throw 0;
+      if(confirm(`Import ${d.length} prompts into your bank?`)){ bank=d.concat(bank); save(); render(); } }
+      catch{ alert('That file isn\'t a valid backup.'); } e.target.value=''; };
+    r.readAsText(f);
+  }
+
+  render();
+</script>
+</body>
+</html>

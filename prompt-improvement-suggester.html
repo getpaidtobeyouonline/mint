@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Improvement Suggester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 12px 14px; border-radius: 8px; resize: vertical; min-height: 130px; }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .score { text-align: center; }
+  .score .big { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .score .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 4px; }
+  .track { background: #3C603C; border-radius: 5px; height: 9px; overflow: hidden; margin-top: 12px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .sug { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .sug.high { border-left-color: #5AE57A; }
+  .sug .imp { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; opacity: .6; }
+  .sug b { color: #5AE57A; }
+  .sug p { font-size: .9rem; }
+  .ok { background: #2E4D2E; border: 1px solid #2E4D2E; border-radius: 8px; padding: 12px 15px; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Improvement Suggester</h1>
+  <p class="sub">Paste a prompt. Get an instant strength score, prioritized fixes, and an upgraded version — automatically.</p>
+
+  <div class="panel">
+    <label for="in">Your prompt</label>
+    <textarea id="in" placeholder="Paste the prompt you want to improve…" oninput="autosave()"></textarea>
+    <button class="btn" onclick="analyze()">Analyze & Improve</button>
+    <button class="btn ghost" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="panel score" id="scorebox" style="display:none">
+    <div class="big" id="score">0</div><div class="vd" id="verdict"></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+  </div>
+
+  <div id="sugs"></div>
+
+  <div class="panel" id="impWrap" style="display:none">
+    <label for="imp">Upgraded prompt scaffold <span style="text-transform:none;opacity:.55">— fill the [brackets]</span></label>
+    <textarea id="imp" style="min-height:170px"></textarea>
+    <button class="btn" onclick="copyImp()">Copy Upgraded Prompt</button>
+    <button class="btn ghost" onclick="copyReport()">Copy Report</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  g('in').value = localStorage.getItem('pis_in') || '';
+  function autosave(){ localStorage.setItem('pis_in', g('in').value); }
+
+  const VERBS = /\b(write|create|summari[sz]e|analy[sz]e|explain|list|generate|draft|build|design|compare|translate|rewrite|review|plan|outline|describe|brainstorm|evaluate|fix|improve|give|make|produce|suggest|recommend|turn|convert|extract)\b/i;
+  const VAGUE = /\b(good|nice|some|stuff|things?|etc\.?|better|great|interesting|a lot|various|appropriate)\b/i;
+
+  function checks(t) {
+    const low = t.toLowerCase(), words = t.trim().split(/\s+/).filter(Boolean), wc = words.length;
+    return [
+      { ok:/\b(act as|you are|as an? (expert|senior|professional)|role of)\b/i.test(t), high:true,
+        title:"No role defined", why:"Giving Claude an expert role measurably sharpens the answer.",
+        add:"Act as an expert [role/specialty]." },
+      { ok:/\b(format|bullets?|numbered|table|json|markdown|steps|paragraphs?|sections?|headings?|outline|list)\b/i.test(low), high:true,
+        title:"No output format", why:"Without a format you get whatever shape Claude guesses.",
+        req:"- Output format: [bullets / table / steps / prose]" },
+      { ok:/\b(\d+\s*(words?|sentences?|bullets?|points?|items?|paragraphs?)|concise|brief|short|detailed|in[- ]depth)\b/i.test(low), high:false,
+        title:"No length or scope limit", why:"Length guidance prevents rambling or thin answers.",
+        req:"- Length: [e.g. ~200 words / 5 bullets]" },
+      { ok:/\b(for (a|an|my|the|people|users|beginners|experts)|audience|reader|aimed at|targeted)\b/i.test(low), high:false,
+        title:"No audience named", why:"Output changes a lot when the reader is specified.",
+        req:"- Write it for: [specific audience]" },
+      { ok:!VAGUE.test(low), high:false,
+        title:"Vague wording detected", why:"Words like 'good', 'some', 'things' give Claude nothing concrete to aim at.",
+        note:true },
+      { ok:wc>=8, high:true,
+        title:"Prompt is very short", why:"Under ~8 words is almost always under-specified.",
+        note:true },
+      { ok:/\b(example|e\.g\.|such as|for instance|like this)\b/i.test(low), high:false,
+        title:"No example given", why:"One example steers quality more than ten adjectives.",
+        req:"- Match this example: [paste a sample of the output you want]" },
+      { ok:VERBS.test(t.trim().split(/\s+/).slice(0,4).join(' ')), high:false,
+        title:"Doesn't open with a clear action", why:"Leading with the task verb removes ambiguity.",
+        note:true },
+      { ok:/\b(ask|clarify|if (unclear|unsure|ambiguous)|questions? (first|before))\b/i.test(low), high:false,
+        title:"No instruction to ask when unsure", why:"Stops confident answers built on wrong assumptions.",
+        req:"- If anything is ambiguous, ask before answering." },
+      { ok:!(wc>55 && !/\n/.test(t) && (t.match(/[.!?]/g)||[]).length<2), high:false,
+        title:"Long, unstructured block", why:"A wall of text buries the actual ask. Break it into lines/sections.",
+        note:true }
+    ];
+  }
+
+  function analyze() {
+    const t = g('in').value.trim();
+    if (!t) { alert('Paste a prompt first.'); return; }
+    const cs = checks(t);
+    const fails = cs.filter(c=>!c.ok);
+    const score = Math.round(cs.filter(c=>c.ok).length / cs.length * 100);
+    g('scorebox').style.display='block';
+    g('score').textContent = score;
+    g('bar').style.width = score+'%';
+    g('verdict').textContent = score>=85?'Strong prompt — minor polish':score>=60?'Decent — clear gaps to close':score>=35?'Weak — needs real work':'Very weak — rebuild it';
+    const sorted = [...fails].sort((a,b)=> (b.high?1:0)-(a.high?1:0));
+    g('sugs').innerHTML = sorted.length ? sorted.map(c=>`
+      <div class="sug ${c.high?'high':''}">
+        <div class="imp">${c.high?'High impact':'Improvement'}</div>
+        <b>${c.title}</b><p>${c.why}</p>
+      </div>`).join('') : '<div class="ok">No structural weaknesses found — this prompt is well formed. ✅</div>';
+
+    // build upgraded scaffold
+    const roleFail = fails.find(c=>c.add);
+    const reqs = fails.filter(c=>c.req).map(c=>c.req);
+    let out = '';
+    if (roleFail) out += roleFail.add + '\n\n';
+    const startsVerb = VERBS.test(t.split(/\s+/).slice(0,4).join(' '));
+    out += (startsVerb ? t : 'Your task: ' + t);
+    if (reqs.length) out += '\n\nRequirements:\n' + reqs.join('\n');
+    if (VAGUE.test(t.toLowerCase())) out += '\n\n(Replace vague terms with specifics before sending.)';
+    g('imp').value = out;
+    g('impWrap').style.display='block';
+    window._rep = { score, fails: sorted };
+    g('scorebox').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function copyImp(){ navigator.clipboard.writeText(g('imp').value).then(()=>alert('Upgraded prompt copied!'),()=>alert('Copy failed.')); }
+  function copyReport(){
+    const r=window._rep; if(!r){return;}
+    let t=`PROMPT STRENGTH: ${r.score}/100\n\nFIXES:\n`+
+      (r.fails.length? r.fails.map(c=>`- [${c.high?'HIGH':'MED'}] ${c.title}: ${c.why}`).join('\n') : 'None — well formed.');
+    navigator.clipboard.writeText(t).then(()=>alert('Report copied!'),()=>alert('Copy failed.'));
+  }
+  function clearAll(){ g('in').value=''; localStorage.removeItem('pis_in'); g('scorebox').style.display='none'; g('impWrap').style.display='none'; g('sugs').innerHTML=''; }
+</script>
+</body>
+</html>

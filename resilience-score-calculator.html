@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resilience Score Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .q { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q span { flex: 1; min-width: 230px; font-size: .92rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; margin-top: 5px; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Resilience Score Calculator</h1>
+  <p class="sub">Resilience is not toughness — it is recovery. Score your real ability to bounce back across 8 markers.</p>
+
+  <div id="form"></div>
+  <button class="btn" onclick="run()">Score My Resilience</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    ["I can name what I am feeling, not just react to it","Self-awareness is the first muscle.","Tonight, write the one-word emotion you ended the day with."],
+    ["I have at least 2 people I can call when I am struggling","Connection beats willpower every time.","Reach out to one person this week — even a 'thinking of you' text counts."],
+    ["I sleep, eat and move most days","Your nervous system runs on these. No exceptions.","Pick the weakest of the three this week and protect it ferociously."],
+    ["I can sit with a hard feeling without numbing it","Avoidance compounds.","Next time you reach for the phone/snack/scroll, pause 5 minutes. Notice what you were avoiding."],
+    ["I have bounced back from something hard before","Past evidence steadies present panic.","Write a list of 3 hard things you survived. Keep it visible."],
+    ["I take responsibility without sliding into shame","Owning ≠ blaming yourself.","Catch yourself saying 'I am so stupid' and swap to 'that did not work — what now?'."],
+    ["I ask for help before I am drowning","Earlier ask = lighter ask.","Next time you notice the slide, ask within 24 hours, not 24 days."],
+    ["I have a small daily practice that grounds me","Routine is resilience's foundation.","Pick one 5-minute thing (walk / journal / breath / prayer) and do it tomorrow morning."]
+  ];
+  const g=id=>document.getElementById(id);
+  g('form').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q[0]}<small style="display:block;opacity:.6;font-size:.78rem">${q[1]}</small></span>
+    <select id="q${i}"><option value="1">Rarely</option><option value="2">Sometimes</option><option value="3">Often</option><option value="4">Almost always</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('rsc8')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('rsc8',JSON.stringify(o)); }); });
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0);
+    const pct=Math.round(sc/(Q.length*4)*100);
+    const vd= pct>=80?['High resilience','You bend without breaking. Now use this to help someone else.']
+      : pct>=60?['Solid','Strong base. Close the lower gaps before the next hard season.']
+      : pct>=40?['Building','You are getting through, not flourishing. Tend to the basics below.']
+      : ['Running low','You are surviving on willpower — that runs out. The fixes below are not luxuries; they are oxygen.'];
+    const weak=Q.map((q,i)=>({q,v:+g('q'+i).value})).filter(o=>o.v<=2).slice(0,3);
+    g('res').innerHTML='<div class="res"><div class="n">'+pct+'%</div><div class="vd">'+vd[0]+'</div><div style="opacity:.8;font-size:.92rem;margin-top:4px">'+vd[1]+'</div></div>'+
+      (weak.length?'<h3 style="font-family:\'Playfair Display\',serif;color:#5AE57A;margin:0 0 10px">Tend to these first</h3>'+
+       weak.map(o=>'<div class="fix"><b style="color:#5AE57A">'+esc(o.q[0])+'</b><br>'+esc(o.q[2])+'</div>').join('')
+       :'<div class="fix" style="border-left-color:#5AE57A">Strong across the board — keep tending the practices that got you here.</div>');
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function reset(){ if(confirm('Reset?')){ localStorage.removeItem('rsc8'); Q.forEach((_,i)=>g('q'+i).value='1'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

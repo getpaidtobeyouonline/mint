@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Milestone Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add project form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 620px; margin: 0 auto 20px; }
+  .add-card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input[type="text"] { flex: 1; min-width: 160px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .add-row input[type="text"]:focus { border-color: #5AE57A; }
+  .add-row input[type="date"] { background: #325132; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  .add-row input[type="date"]:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Project cards */
+  .projects { max-width: 620px; margin: 0 auto; }
+  .proj-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; margin-bottom: 14px; overflow: hidden; }
+  .proj-header { padding: 16px 18px; cursor: pointer; user-select: none; }
+  .proj-header:hover { background: #3C603C; }
+  .proj-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .proj-name { flex: 1; font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  .status-badge { font-size: 0.68rem; padding: 3px 9px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .s-none     { background: #3C603C;     color: #BFD8BF; }
+  .s-progress { background: #325132; color: #5AE57A; }
+  .s-complete { background: #2E4D2E; color: #5AE57A; }
+  .s-overdue  { background: #2E4D2E; color: #5AE57A; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .proj-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .due-chip { font-size: 0.75rem; color: #F0EBE0aa; white-space: nowrap; }
+  .due-chip.overdue { color: #5AE57A; }
+  .due-chip.soon { color: #5AE57A; }
+  .ms-count { font-size: 0.75rem; color: #BFD8BF; margin-left: auto; }
+  .bar-track { background: #325132; border-radius: 4px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+  .chevron { color: #5A845A; font-size: 0.75rem; margin-left: 4px; transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* Milestones panel */
+  .ms-panel { display: none; border-top: 1px solid #3C603C; padding: 14px 18px; }
+  .ms-panel.open { display: block; }
+  .ms-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #3C603C; }
+  .ms-item:last-child { border-bottom: none; }
+  .ms-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: #5AE57A; cursor: pointer; flex-shrink: 0; }
+  .ms-name { flex: 1; font-size: 0.9rem; }
+  .ms-name.done { text-decoration: line-through; color: #5A845A; }
+  .ms-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 2px 4px; }
+  .ms-del:hover { color: #5AE57A; }
+  .ms-add-row { display: flex; gap: 8px; margin-top: 12px; }
+  .ms-input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 8px 12px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .ms-input:focus { border-color: #5AE57A; }
+  .btn-sm { background: #5AE57A; color: #325132; border: none; padding: 8px 16px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+  .btn-sm:hover { background: #5AE57A; }
+  .empty-ms { font-size: 0.82rem; color: #5A845A; text-align: center; padding: 10px 0; }
+
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Project Milestone Tracker</h1>
+<p class="subtitle">Break every project into milestones. Track what's done. Know what's next.</p>
+
+<div class="add-card">
+  <div class="add-card-title">New Project</div>
+  <div class="add-row">
+    <input type="text" id="projName" placeholder="Project name…" maxlength="70" />
+    <input type="date" id="projDue" title="Due date (optional)" />
+    <button class="btn-gold" onclick="addProject()">Add</button>
+  </div>
+</div>
+
+<div class="projects" id="projList">
+  <p class="empty" id="emptyMsg">No projects yet — add your first one above.</p>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TODAY = new Date().toISOString().slice(0, 10);
+  let projects = JSON.parse(localStorage.getItem('pmt_projects') || '[]');
+  let openIds   = new Set(JSON.parse(localStorage.getItem('pmt_open') || '[]'));
+
+  function save() {
+    localStorage.setItem('pmt_projects', JSON.stringify(projects));
+    localStorage.setItem('pmt_open', JSON.stringify([...openIds]));
+  }
+
+  function addProject() {
+    const name = document.getElementById('projName').value.trim();
+    if (!name) return;
+    const due = document.getElementById('projDue').value || '';
+    projects.unshift({ id: Date.now(), name, due, milestones: [] });
+    save(); render();
+    document.getElementById('projName').value = '';
+    document.getElementById('projDue').value = '';
+  }
+
+  function removeProject(id) {
+    if (!confirm('Delete this project and all its milestones?')) return;
+    projects = projects.filter(p => p.id !== id);
+    openIds.delete(id); save(); render();
+  }
+
+  function toggleProject(id) {
+    openIds.has(id) ? openIds.delete(id) : openIds.add(id);
+    save(); render();
+  }
+
+  function addMilestone(projId) {
+    const input = document.getElementById('ms-input-' + projId);
+    const name = input.value.trim(); if (!name) return;
+    const p = projects.find(p => p.id === projId); if (!p) return;
+    p.milestones.push({ id: Date.now(), name, done: false });
+    save(); render(); input.value = '';
+    document.getElementById('ms-input-' + projId)?.focus();
+  }
+
+  function toggleMs(projId, msId) {
+    const p = projects.find(p => p.id === projId); if (!p) return;
+    const m = p.milestones.find(m => m.id === msId); if (!m) return;
+    m.done = !m.done; save(); render();
+  }
+
+  function removeMs(projId, msId) {
+    const p = projects.find(p => p.id === projId); if (!p) return;
+    p.milestones = p.milestones.filter(m => m.id !== msId);
+    save(); render();
+  }
+
+  function getStatus(p) {
+    const total = p.milestones.length, done = p.milestones.filter(m => m.done).length;
+    if (done === total && total > 0) return 'complete';
+    if (p.due && p.due < TODAY && done < total) return 'overdue';
+    if (done > 0) return 'progress';
+    return 'none';
+  }
+
+  function getDueLabel(due) {
+    if (!due) return '';
+    const diff = Math.round((new Date(due+'T12:00:00') - new Date(TODAY+'T12:00:00')) / 86400000);
+    if (diff < 0)  return { text: `${Math.abs(diff)}d overdue`, cls: 'overdue' };
+    if (diff === 0) return { text: 'Due today', cls: 'soon' };
+    if (diff <= 7)  return { text: `Due in ${diff}d`, cls: 'soon' };
+    return { text: `Due ${new Date(due+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}`, cls: '' };
+  }
+
+  function barColor(status) {
+    return { complete:'#5AE57A', overdue:'#5AE57A', progress:'#5AE57A', none:'#4C724C' }[status];
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    const list = document.getElementById('projList');
+    if (!projects.length) { list.innerHTML = '<p class="empty" id="emptyMsg">No projects yet — add your first one above.</p>'; return; }
+
+    list.innerHTML = projects.map(p => {
+      const total = p.milestones.length;
+      const done  = p.milestones.filter(m => m.done).length;
+      const pct   = total ? Math.round(done / total * 100) : 0;
+      const status = getStatus(p);
+      const sLabel = { none:'Not Started', progress:'In Progress', complete:'Complete', overdue:'Overdue' }[status];
+      const due = p.due ? getDueLabel(p.due) : null;
+      const isOpen = openIds.has(p.id);
+      const color = barColor(status);
+
+      return `
+        <div class="proj-card">
+          <div class="proj-header" onclick="toggleProject(${p.id})">
+            <div class="proj-top">
+              <div class="proj-name">${esc(p.name)}</div>
+              <span class="status-badge s-${status}">${sLabel}</span>
+              <button class="del-btn" onclick="event.stopPropagation();removeProject(${p.id})">✕</button>
+              <span class="chevron ${isOpen?'open':''}">▼</span>
+            </div>
+            <div class="proj-meta">
+              ${due ? `<span class="due-chip ${due.cls}">${due.text}</span>` : ''}
+              <span class="ms-count">${done}/${total} milestones</span>
+            </div>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          </div>
+          <div class="ms-panel ${isOpen?'open':''}">
+            ${!total ? '<p class="empty-ms">No milestones yet — add one below.</p>' :
+              p.milestones.map(m => `
+                <div class="ms-item">
+                  <input type="checkbox" ${m.done?'checked':''} onchange="toggleMs(${p.id},${m.id})" />
+                  <span class="ms-name ${m.done?'done':''}">${esc(m.name)}</span>
+                  <button class="ms-del" onclick="removeMs(${p.id},${m.id})">✕</button>
+                </div>`).join('')}
+            <div class="ms-add-row">
+              <input class="ms-input" id="ms-input-${p.id}" placeholder="Add a milestone…" maxlength="80"
+                onkeydown="if(event.key==='Enter')addMilestone(${p.id})" />
+              <button class="btn-sm" onclick="addMilestone(${p.id})">Add</button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  document.getElementById('projName').addEventListener('keydown', e => { if (e.key === 'Enter') addProject(); });
+  render();
+</script>
+</body>
+</html>

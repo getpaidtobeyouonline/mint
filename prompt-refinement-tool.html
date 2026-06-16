@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Refinement Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 32px 20px; min-height: 100vh;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.1rem;
+    color: #5AE57A; text-align: center; margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: .8; margin-bottom: 26px; font-size: .95rem; }
+  label { display: block; font-weight: 500; margin-bottom: 6px; font-size: .95rem; }
+  textarea {
+    width: 100%; background: #2A442A; color: #FFFFFF;
+    border: 1px solid #4C724C; border-radius: 8px;
+    padding: 13px 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem;
+    resize: vertical; min-height: 110px;
+  }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A; color: #325132; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem;
+    padding: 14px 24px; border-radius: 8px; cursor: pointer;
+    width: 100%; margin-top: 16px; transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  .panel { display: none; margin-top: 26px; }
+  .panel.show { display: block; }
+  .score { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; margin-bottom: 4px; }
+  .scoresub { opacity: .7; font-size: .88rem; margin-bottom: 18px; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; margin: 24px 0 12px; }
+  .check { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid #3C603C; font-size: .92rem; }
+  .mark { flex-shrink: 0; width: 20px; font-weight: 700; }
+  .ok { color: #5AE57A; }
+  .miss { color: #5AE57A; }
+  .out {
+    background: #2A442A; border: 1px solid #5AE57A; border-radius: 8px;
+    padding: 18px; white-space: pre-wrap; font-size: .92rem; margin-top: 8px;
+  }
+  .copy-btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; margin-top: 44px; opacity: .55; font-size: .82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prompt Refinement Tool</h1>
+  <p class="sub">Paste a rough prompt. Get a quality score, a fix-list, and a rewritten version that gets sharper answers.</p>
+
+  <label>Your draft prompt</label>
+  <textarea id="draft" placeholder="write me some marketing copy for my product"></textarea>
+  <button onclick="analyze()">Refine My Prompt</button>
+
+  <div id="panel" class="panel">
+    <div class="score" id="score"></div>
+    <div class="scoresub" id="scoresub"></div>
+
+    <h2>What we checked</h2>
+    <div id="checks"></div>
+
+    <h2>Refined version</h2>
+    <div class="out" id="out"></div>
+    <button class="copy-btn" onclick="copyOut()">Copy Refined Prompt</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  var vague = ['good','nice','some','stuff','things','etc','better','great','interesting','a lot','very'];
+
+  function has(t, arr){ for(var i=0;i<arr.length;i++){ if(t.indexOf(arr[i])>-1) return true; } return false; }
+
+  function analyze(){
+    var raw = document.getElementById('draft').value.trim();
+    if(!raw){ alert('Paste a prompt to refine.'); return; }
+    var t = raw.toLowerCase();
+    var words = raw.split(/\s+/).length;
+
+    var checks = [
+      { ok: words >= 12, pass: 'Has enough detail to act on.', fail: 'Too short — under-specified prompts get generic answers.' },
+      { ok: has(t,['you are','act as','as a ','role of']), pass: 'Assigns the AI a clear role.', fail: 'No role set — tell the AI who it should be.' },
+      { ok: has(t,['list','table','json','steps','bullet','paragraph','words','format','sentences']), pass: 'Specifies an output format.', fail: 'No output format — say exactly how you want the answer shaped.' },
+      { ok: has(t,[' for ','audience','reader','customer','beginner','expert']), pass: 'Names the audience.', fail: 'No audience defined — who is this for?' },
+      { ok: has(t,["don't",'avoid','must','only','no ','never','keep it']), pass: 'Includes constraints.', fail: 'No constraints — set rules for what to avoid.' },
+      { ok: !has(t, vague), pass: 'Free of vague filler words.', fail: 'Contains vague words (e.g. "good", "some", "stuff"). Be concrete.' }
+    ];
+
+    var passed = checks.filter(function(c){ return c.ok; }).length;
+    var pct = Math.round(passed / checks.length * 100);
+    var verdict = pct >= 80 ? 'Strong prompt' : pct >= 50 ? 'Decent — tighten it up' : 'Weak — needs work';
+    document.getElementById('score').textContent = pct + '/100 · ' + verdict;
+    document.getElementById('scoresub').textContent = passed + ' of ' + checks.length + ' best practices met.';
+
+    document.getElementById('checks').innerHTML = checks.map(function(c){
+      return '<div class="check"><span class="mark ' + (c.ok?'ok':'miss') + '">' +
+        (c.ok?'✓':'!') + '</span><span>' + (c.ok?c.pass:c.fail) + '</span></div>';
+    }).join('');
+
+    var p = 'You are an expert in the relevant field.\n\n';
+    p += 'Task:\n' + raw + '\n\n';
+    p += 'Requirements:\n';
+    if(!checks[2].ok) p += '- Output format: [e.g. a numbered list, a 150-word paragraph, a table]\n';
+    if(!checks[3].ok) p += '- Intended audience: [e.g. complete beginners, paying customers]\n';
+    if(!checks[4].ok) p += '- Constraints: [e.g. no jargon, under 200 words, no clichés]\n';
+    if(checks[2].ok && checks[3].ok && checks[4].ok) p += '- Keep the answer focused, concrete, and free of filler.\n';
+    p += '\nBefore answering, ask me one clarifying question if anything is ambiguous.';
+
+    document.getElementById('out').textContent = p;
+    document.getElementById('panel').classList.add('show');
+  }
+
+  function copyOut(){
+    navigator.clipboard.writeText(document.getElementById('out').textContent).then(function(){
+      var b = document.querySelector('.copy-btn');
+      b.textContent = 'Copied ✓';
+      setTimeout(function(){ b.textContent = 'Copy Refined Prompt'; }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
