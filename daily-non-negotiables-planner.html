@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Non-Negotiables</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+.subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 22px; }
+.score-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 14px; text-align: center; }
+.ring-wrap { width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--rc,#4C724C) var(--prog,0%), #3C603C 0%); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; transition: background 0.4s; }
+.ring-wrap.complete { animation: ringpulse 2.5s ease-in-out infinite; }
+@keyframes ringpulse { 0%,100%{box-shadow:0 0 0 0 #70c07044}60%{box-shadow:0 0 0 14px #70c07000} }
+.ring-inner { width: 108px; height: 108px; border-radius: 50%; background: #325132; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.ring-pct { font-family: 'Playfair Display', serif; font-size: 2.2rem; line-height: 1; }
+.ring-lbl { font-size: 0.62rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; margin-top: 2px; }
+.done-msg { font-size: 0.83rem; min-height: 1.3em; }
+.list-header { display: flex; align-items: center; justify-content: space-between; max-width: 580px; margin: 0 auto 10px; padding: 0 2px; }
+.list-label { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; }
+.edit-btn { font-size: 0.78rem; color: #BFD8BF; cursor: pointer; background: none; border: 1px solid #4C724C; border-radius: 6px; padding: 4px 10px; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.edit-btn:hover { color: #5AE57A; border-color: #C9A84C55; }
+.nitem { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: 10px; background: #3C603C; border: 1px solid #3C603C; max-width: 580px; margin: 0 auto 7px; cursor: pointer; transition: all 0.15s; user-select: none; }
+.nitem:hover { border-color: #4C724C; }
+.nitem.done { background: #325132; border-color: #325132; cursor: default; }
+.nitem.done .nitem-text { color: #5A845A; text-decoration: line-through; }
+.nitem-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #4C724C; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #325132; transition: all 0.2s; }
+.nitem.done .nitem-check { background: #5AE57A; border-color: #5AE57A; }
+.nitem-text { font-size: 0.9rem; color: #F0EBE0cc; flex: 1; line-height: 1.4; }
+.nitem-streak { font-size: 0.75rem; color: #BFD8BF; flex-shrink: 0; min-width: 36px; text-align: right; }
+.nitem-del { font-size: 0.85rem; cursor: pointer; padding: 2px 4px; flex-shrink: 0; display: none; color: #5AE57A; transition: color 0.15s; }
+.edit-mode .nitem { cursor: default; }
+.edit-mode .nitem:hover { border-color: #3C603C; background: #3C603C; }
+.edit-mode .nitem.done:hover { background: #325132; }
+.edit-mode .nitem-del { display: block; }
+.add-btn { display: block; max-width: 580px; margin: 4px auto 12px; width: 100%; background: #3C603C; border: 1px dashed #4C724C; color: #5AE57A; border-radius: 10px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
+.add-btn:hover { border-color: #C9A84C55; background: #3C603C; }
+.add-form { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; max-width: 580px; margin: 0 auto 12px; display: none; }
+.add-form.open { display: block; }
+.form-label { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.finput { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.87rem; padding: 10px 12px; outline: none; }
+.finput:focus { border-color: #C9A84C55; }
+.form-row { display: flex; gap: 8px; margin-top: 12px; }
+.btn-primary { flex: 1; background: #5AE57A; color: #325132; border: none; border-radius: 8px; padding: 11px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; }
+.btn-ghost { background: #325132; color: #BFD8BF; border: 1px solid #4C724C; border-radius: 8px; padding: 11px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+.hist-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; max-width: 580px; margin: 4px auto 0; }
+.card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.95rem; margin-bottom: 14px; }
+.hist-row { display: flex; gap: 6px; justify-content: space-between; }
+.hist-day { flex: 1; text-align: center; }
+.hist-dot { width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 5px; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-family: 'Playfair Display', serif; }
+.hist-lbl { font-size: 0.64rem; color: #BFD8BF; }
+.empty-state { text-align: center; color: #5A845A; font-size: 0.84rem; padding: 18px 0; max-width: 580px; margin: 0 auto; }
+footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Non-Negotiables</h1>
+<p class="subtitle">The daily habits you protect no matter what.</p>
+
+<div class="score-card">
+  <div class="ring-wrap" id="ring">
+    <div class="ring-inner">
+      <div class="ring-pct" id="ringPct" style="color:#5A845A">—</div>
+      <div class="ring-lbl">today</div>
+    </div>
+  </div>
+  <div class="done-msg" id="doneMsg" style="color:#5A845A">Add your first non-negotiable below.</div>
+</div>
+
+<div class="list-header">
+  <span class="list-label" id="listLabel">Today's List</span>
+  <button class="edit-btn" id="editBtn" onclick="toggleEdit()">Edit</button>
+</div>
+
+<div id="checkList"></div>
+
+<button class="add-btn" id="addToggleBtn" onclick="toggleAdd()">+ Add Non-Negotiable</button>
+
+<div class="add-form" id="addForm">
+  <div class="form-label">What's non-negotiable for you?</div>
+  <input class="finput" id="fStmt" type="text" placeholder="e.g. Meditate for 10 minutes">
+  <div class="form-row">
+    <button class="btn-ghost" onclick="toggleAdd()">Cancel</button>
+    <button class="btn-primary" onclick="submitAdd()">Add</button>
+  </div>
+</div>
+
+<div class="hist-card">
+  <div class="card-title">Last 7 Days</div>
+  <div class="hist-row" id="histRow"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const TODAY=new Date().toISOString().slice(0,10);
+let items=JSON.parse(localStorage.getItem('nnn_items')||'[]');
+let hist=JSON.parse(localStorage.getItem('nnn_hist')||'{}');
+let editMode=false, showAdd=false, deleteTarget=null, deleteTimer=null;
+
+function saveItems(){localStorage.setItem('nnn_items',JSON.stringify(items));}
+function saveHist(){
+  const co=new Date();co.setDate(co.getDate()-90);const cos=co.toISOString().slice(0,10);
+  Object.keys(hist).forEach(k=>{if(k<cos) delete hist[k];});
+  localStorage.setItem('nnn_hist',JSON.stringify(hist));
+}
+
+function getDone(date){return new Set(hist[date]||[]);}
+function setDone(date,ids){hist[date]=[...ids];saveHist();}
+
+function getStreak(itemId){
+  let streak=0;const d=new Date();
+  const todayDone=getDone(TODAY).has(itemId);
+  for(let i=0;i<365;i++){
+    const ds=d.toISOString().slice(0,10);
+    if(getDone(ds).has(itemId)){streak++;d.setDate(d.getDate()-1);}
+    else if(i===0&&!todayDone){d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return streak;
+}
+
+function toggleItem(id){
+  if(editMode) return;
+  const done=getDone(TODAY);
+  if(done.has(id)) done.delete(id); else done.add(id);
+  setDone(TODAY,done);render();
+}
+
+function toggleEdit(){
+  editMode=!editMode;deleteTarget=null;
+  document.getElementById('editBtn').textContent=editMode?'Done':'Edit';
+  document.getElementById('checkList').classList.toggle('edit-mode',editMode);
+  render();
+}
+
+function toggleAdd(){
+  showAdd=!showAdd;
+  document.getElementById('addForm').classList.toggle('open',showAdd);
+  document.getElementById('addToggleBtn').textContent=showAdd?'− Cancel':'+ Add Non-Negotiable';
+  if(showAdd) setTimeout(()=>document.getElementById('fStmt').focus(),50);
+}
+
+function submitAdd(){
+  const text=document.getElementById('fStmt').value.trim();
+  if(!text) return;
+  items.push({id:'n'+Date.now(),text,created:TODAY});
+  saveItems();document.getElementById('fStmt').value='';
+  showAdd=false;document.getElementById('addForm').classList.remove('open');
+  document.getElementById('addToggleBtn').textContent='+ Add Non-Negotiable';
+  render();
+}
+
+function deleteItem(id,e){
+  e.stopPropagation();
+  if(deleteTarget===id){
+    clearTimeout(deleteTimer);deleteTarget=null;
+    items=items.filter(i=>i.id!==id);
+    Object.keys(hist).forEach(d=>{const s=getDone(d);s.delete(id);if(s.size) hist[d]=[...s]; else delete hist[d];});
+    saveItems();saveHist();render();return;
+  }
+  deleteTarget=id;render();
+  deleteTimer=setTimeout(()=>{deleteTarget=null;render();},3000);
+}
+
+function render(){
+  const done=getDone(TODAY);
+  const total=items.length,n=items.filter(i=>done.has(i.id)).length;
+  const pct=total?Math.round(n/total*100):0;
+  const allDone=total>0&&n===total;
+  const rc=allDone?'#5AE57A':pct>=50?'#5AE57A':'#C9A84C55';
+  const ring=document.getElementById('ring');
+  ring.style.setProperty('--prog',total?pct+'%':'0%');
+  ring.style.setProperty('--rc',total?rc:'#4C724C');
+  ring.classList.toggle('complete',allDone);
+  const rp=document.getElementById('ringPct');
+  rp.textContent=total?pct+'%':'—';rp.style.color=total?rc:'#5A845A';
+  const dm=document.getElementById('doneMsg');
+  if(!total){dm.textContent='Add your first non-negotiable below.';dm.style.color='#5A845A';}
+  else if(allDone){dm.textContent='All done. That\'s what discipline looks like. ✦';dm.style.color='#5AE57A';}
+  else if(n===0){dm.textContent='Start anywhere. Just start.';dm.style.color='#BFD8BF';}
+  else{dm.textContent=`${total-n} left. Keep the streak alive.`;dm.style.color='#BFD8BF';}
+
+  document.getElementById('listLabel').textContent=total?`${n} of ${total} done today`:"Today's List";
+
+  const el=document.getElementById('checkList');
+  if(!items.length){el.innerHTML='<p class="empty-state">No non-negotiables yet — add some below.</p>';return;}
+  el.innerHTML=items.map(item=>{
+    const isDone=done.has(item.id);
+    const streak=getStreak(item.id);
+    const isDel=deleteTarget===item.id;
+    return`<div class="nitem${isDone?' done':''}" onclick="toggleItem('${item.id}')">
+      <div class="nitem-check">${isDone?'✓':''}</div>
+      <div class="nitem-text">${item.text}</div>
+      <div class="nitem-streak">${streak?`🔥 ${streak}d`:''}</div>
+      <div class="nitem-del" onclick="deleteItem('${item.id}',event)" style="${isDel?'color:#FFFFFF;font-weight:500':''}">${isDel?'confirm?':'×'}</div>
+    </div>`;
+  }).join('');
+
+  const hEl=document.getElementById('histRow');
+  hEl.innerHTML=Array.from({length:7},(_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-(6-i));
+    const ds=d.toISOString().slice(0,10);
+    const dayDone=getDone(ds);
+    const dayN=items.filter(it=>dayDone.has(it.id)).length;
+    const full=total&&dayN===total,partial=dayN>0&&dayN<total;
+    const bg=full?'#70c07033':partial?'#C9A84C22':'#3C603C';
+    const col=full?'#5AE57A':partial?'#5AE57A':'#4C724C';
+    const txt=full?'✦':partial?dayN:'·';
+    const isToday=ds===TODAY;
+    const dayLetter=d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,1);
+    return`<div class="hist-day"><div class="hist-dot" style="background:${bg};color:${col};${isToday?`outline:1px solid ${col};outline-offset:2px`:''}">${txt}</div><div class="hist-lbl">${dayLetter}</div></div>`;
+  }).join('');
+}
+
+document.getElementById('fStmt').addEventListener('keydown',e=>{if(e.key==='Enter') submitAdd();});
+render();
+</script>
+</body>
+</html>

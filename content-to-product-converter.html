@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content to Product Converter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.prod-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.prod-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem;gap:.5rem}
+.prod-type{font-size:.68rem;font-weight:600;padding:.18rem .55rem;border-radius:4px;white-space:nowrap}
+.prod-name{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.25rem;line-height:1.3}
+.prod-price{font-size:.82rem;color:#5AE57A;font-weight:600;margin-bottom:.6rem}
+.prod-items{list-style:none;margin-bottom:.65rem}
+.prod-items li{font-size:.82rem;opacity:.72;padding:.2rem 0 .2rem 1.1rem;position:relative;line-height:1.4}
+.prod-items li::before{content:'→';position:absolute;left:0;color:#5AE57A;font-size:.75rem;top:.22rem}
+.prod-tip{background:#325132;border-radius:6px;padding:.6rem .8rem;font-size:.75rem;opacity:.6;line-height:1.45}
+.prod-tip strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Content to Product Converter</h1>
+    <p class="subtitle">Turn your existing content into sellable digital products — see exactly what to create and how to package it.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Content</h2>
+    <label>Content Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickCT(0)" id="ct0">Blog Posts</button>
+      <button class="opt"     onclick="pickCT(1)" id="ct1">Podcast</button>
+      <button class="opt"     onclick="pickCT(2)" id="ct2">Videos</button>
+      <button class="opt"     onclick="pickCT(3)" id="ct3">Emails</button>
+      <button class="opt"     onclick="pickCT(4)" id="ct4">Social</button>
+    </div>
+    <label>Content Topic</label>
+    <input type="text" id="inT" placeholder="e.g. email marketing, mindset, productivity">
+    <label>Target Audience</label>
+    <input type="text" id="inA" placeholder="e.g. freelancers, coaches, online business owners">
+    <label>Core Outcome / Transformation</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, land clients">
+    <label>Products to Generate</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickN(3)" id="n3">Top 3</button>
+      <button class="opt sel" onclick="pickN(5)" id="n5">Top 5</button>
+      <button class="opt"     onclick="pickN(6)" id="n6">All 6</button>
+    </div>
+    <button class="btn" onclick="generate()">Convert My Content →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="prodCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Product Ideas as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const ctLabel = ['Blog Posts','Podcast','YouTube Videos','Email Series','Social Content'];
+const ctShort = ['Blog','Podcast','Video','Email','Social'];
+
+const prods = [
+  {type:'Ebook / Guide',    col:'#5AE57A', price:'$17–$27',
+   names:['{T} Playbook for {A}','The {A} Guide to {X}','Complete {T} Handbook','Your {T} Roadmap to {X}'],
+   items:['Compile & expand your best {T} content into chapters','Add a clear framework or step-by-step structure','Include examples, templates or worksheets','Write a "how to use this" intro tailored for {A}'],
+   tip:['Gather 5–8 related posts → restructure as chapters → add transitions','Transcribe key episodes → edit into readable sections → add visuals','Pull video scripts → expand with detail → add diagrams and frameworks','Sequence 6–10 emails into logical chapters → add summaries per section','Collect best threads by theme → expand each into a full written section']},
+  {type:'Mini-Course',      col:'#5AE57A', price:'$37–$97',
+   names:['The {T} Mini-Course','Fast-Track {T} for {A}','{X} in 5 Days','The {A} {T} Method'],
+   items:['Break content into 3–7 focused lessons with clear outcomes','Add a worksheet or action step to each lesson','Record a short welcome video introducing {A} to the course','Include a quick-win early so {A} feel immediate progress'],
+   tip:['Each major post = one lesson → add a short explainer video per post','Episode = lesson → record a summary video + worksheet per episode','Repackage video series with worksheets into a structured course flow','Email sequence = course drip → add worksheets + optional private community','Group posts by theme → each theme = one module → add exercises']},
+  {type:'Template Kit',     col:'#5AE57A', price:'$17–$47',
+   names:['{T} Templates for {A}','The {A} {T} Swipe Kit','Ready-to-Use {T} Templates','The {T} Toolkit'],
+   items:['Extract repeatable formats and frameworks from your content','Create fill-in-the-blank versions {A} can use immediately','Add a usage guide + before/after example for each template','Bundle 5–12 templates covering different {T} scenarios'],
+   tip:['Pull post structures, outlines, and intro formulas → template them','Script templates, episode frameworks, show notes templates','Video description scripts, thumbnail frameworks, outline templates','Email swipe files, subject line formulas, nurture sequence templates','Caption templates, content calendars, hook formulas from top posts']},
+  {type:'Checklist Bundle', col:'#5AE57A', price:'$9–$17',
+   names:['{T} Checklists for {A}','The {A} {T} Action Pack','Your {T} Quick-Start Kit','The {T} Checklist Bundle'],
+   items:['Distil each piece of content into 8–12 clear action steps','Create a checklist for every key {T} process or scenario','Add a master overview checklist as a quick reference','Keep each checklist to one page — scannable, not overwhelming'],
+   tip:['Each post → 10-step checklist → bundle by category or theme','Episode takeaways → one action checklist per episode','Tutorial steps → visual step-by-step checklists','Email CTAs compiled into themed action checklists','Tip posts and threads → convert to scannable checklist format']},
+  {type:'Live Workshop',    col:'#5AE57A', price:'$47–$197',
+   names:['{T} Live Workshop','The {A} {T} Intensive','Live: {X} for {A}','{T} Implementation Day'],
+   items:['Use your content as the curriculum backbone','Structure as 90–120 min teach + implement session','Add live Q&A and hot seats where {A} get direct feedback','Create a workbook {A} complete during the workshop'],
+   tip:['Teach your top posts live → add interactive exercises between sections','Expand your best episode into a full workshop curriculum','Use videos as pre-watch → live session = deep Q&A + implementation','Email content as slide deck → workshop = live deep-dive version','Aggregate best tips → teach + expand live with audience examples']},
+  {type:'Resource Library', col:'#5AE57A', price:'$27–$67',
+   names:['{T} Resource Library','The {A} {T} Vault','Your Complete {T} Collection','The {T} Resource Hub'],
+   items:['Organise all {T} content into a searchable vault','Add new resources monthly to maintain and grow value','Include templates, guides, checklists and swipe files','Create a welcome guide showing {A} exactly where to start'],
+   tip:['Every post + freebie → Notion or Google Drive vault → add monthly','Episode notes, transcripts, resources → organised member library','Video archive + worksheets + links → members-only resource hub','Full email archive + downloads → gated and organised resource vault','Best posts, threads, and tip collections → curated searchable library']},
+];
+
+let state = {ct:0, n:5};
+let titleIdx = 0;
+
+function pickCT(i) {
+  state.ct = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`ct${x}`).classList.toggle('sel', x===i));
+}
+function pickN(n) {
+  state.n = n;
+  [3,5,6].forEach(x => document.getElementById(`n${x}`).classList.toggle('sel', x===n));
+}
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const slice = prods.slice(0, state.n);
+
+  document.getElementById('statsBar').innerHTML =
+    st(state.n,'Products') + st(ctShort[state.ct],'Source') + st('$9+','Starting At') + st('$197+','Up To');
+
+  document.getElementById('prodCards').innerHTML = slice.map((p,i) => {
+    const name = fill(cap(p.names[titleIdx % p.names.length]), T, A, X);
+    return `<div class="prod-card" style="border-left-color:${p.col}">
+      <div class="prod-head">
+        <span class="prod-type" style="background:${p.col}22;color:${p.col};border:1px solid ${p.col}44">${p.type}</span>
+        <span style="font-size:.75rem;opacity:.3">${i+1} of ${slice.length}</span>
+      </div>
+      <div class="prod-name">${name}</div>
+      <div class="prod-price">${p.price} suggested price point</div>
+      <ul class="prod-items">${p.items.map(it=>`<li>${fill(it,T,A,X)}</li>`).join('')}</ul>
+      <div class="prod-tip"><strong>Convert from ${ctLabel[state.ct]}:</strong> ${p.tip[state.ct]}</div>
+    </div>`;
+  }).join('');
+  titleIdx++;
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  const slice = prods.slice(0, state.n);
+  let text = `CONTENT TO PRODUCT CONVERTER\n`;
+  text += `Content: ${ctLabel[state.ct]} · Topic: ${T} · Audience: ${A}\n\n`;
+  slice.forEach((p,i) => {
+    const name = fill(cap(p.names[(titleIdx-1) % p.names.length]), T, A, X);
+    text += `${i+1}. ${p.type.toUpperCase()}: ${name}\n`;
+    text += `   Price: ${p.price}\n`;
+    p.items.forEach(it => text += `   → ${fill(it,T,A,X)}\n`);
+    text += `   How to convert: ${p.tip[state.ct]}\n\n`;
+  });
+  text += `---\nCreated with Content to Product Converter by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Product Ideas as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

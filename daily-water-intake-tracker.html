@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Water Intake Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .glass { text-align: center; }
+  .glass .n { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .glass .of { opacity: .7; font-size: .9rem; }
+  .track { background: #3C603C; border-radius: 5px; height: 14px; overflow: hidden; margin: 14px 0 6px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 18px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .streak { text-align: center; font-size: .85rem; opacity: .8; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Daily Water Intake Tracker</h1>
+  <p class="sub">Tap a glass each time you drink. Hit the goal, build the streak.</p>
+
+  <div class="panel">
+    <label for="goal">Daily goal (glasses)</label>
+    <input id="goal" type="number" min="1" value="8" oninput="render()">
+    <div class="glass" style="margin-top:14px">
+      <div><span class="n" id="count">0</span><span class="of" id="of"> / 8 glasses</span></div>
+      <div class="track"><i id="bar" style="width:0%"></i></div>
+      <div class="of" id="msg"></div>
+    </div>
+    <div class="btns">
+      <button class="btn" onclick="add(1)">+ 1 glass</button>
+      <button class="btn ghost" onclick="add(-1)">− 1</button>
+      <button class="btn ghost" onclick="resetDay()">Reset day</button>
+    </div>
+    <div class="streak" id="streak"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const today=new Date().toISOString().slice(0,10);
+  let data=JSON.parse(localStorage.getItem('dwit')||'{}');
+  if(localStorage.getItem('dwit_goal'))g('goal').value=localStorage.getItem('dwit_goal');
+  function add(d){ data[today]=Math.max(0,(data[today]||0)+d); localStorage.setItem('dwit',JSON.stringify(data)); render(); }
+  function resetDay(){ data[today]=0; localStorage.setItem('dwit',JSON.stringify(data)); render(); }
+  function streak(){ const goal=+g('goal').value||8; let s=0,d=new Date();
+    for(;;){ const k=d.toISOString().slice(0,10); if((data[k]||0)>=goal){s++; d.setDate(d.getDate()-1);} else break; }
+    return s; }
+  function render(){
+    localStorage.setItem('dwit_goal',g('goal').value);
+    const goal=+g('goal').value||8, c=data[today]||0;
+    g('count').textContent=c; g('of').textContent=' / '+goal+' glasses';
+    g('bar').style.width=Math.min(100,c/goal*100)+'%';
+    g('msg').textContent= c>=goal?'Goal hit — nicely done 💧':(goal-c)+' to go';
+    const s=streak();
+    g('streak').textContent= s>0?'🔥 '+s+'-day streak':'Hit your goal today to start a streak.';
+  }
+  render();
+</script>
+</body>
+</html>

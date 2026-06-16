@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Growth Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:22px;font-size:.9rem}
+.top-bar{display:flex;gap:12px;max-width:700px;margin:0 auto 14px;flex-wrap:wrap;align-items:flex-end}
+.top-field{flex:1;min-width:130px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.prog-card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px 18px;max-width:700px;margin:0 auto 14px}
+.prog-top{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:6px}
+.prog-pct{color:#5AE57A;font-weight:700}
+.track{background:#325132;border-radius:20px;height:8px;overflow:hidden}
+.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .5s}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 14px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:12px}
+.log-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr 1fr auto;gap:8px;align-items:flex-end}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;height:38px;white-space:nowrap;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.plat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;max-width:700px;margin:0 auto 14px}
+.plat-card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:16px}
+.plat-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.plat-name{font-size:.88rem;font-weight:600;display:flex;align-items:center;gap:6px}
+.plat-count{font-family:'Playfair Display',serif;font-size:1.5rem;color:#5AE57A;margin-bottom:3px}
+.plat-delta{font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:10px}
+.pos-d{background:#44cc6622;color:#5AE57A}.neg-d{background:#ff444422;color:#5AE57A}.zero-d{background:#33333322;color:#BFD8BF}
+.plat-bar{background:#325132;border-radius:10px;height:4px;overflow:hidden;margin-top:8px}
+.plat-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#5AE57A,#5AE57A)}
+.plat-eng{font-size:.7rem;color:#BFD8BF;margin-top:4px}
+.edit-plat{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.8rem;padding:2px 5px;border-radius:4px;transition:color .2s}
+.edit-plat:hover{color:#5AE57A}
+.chart-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 14px}
+svg.chart{width:100%;height:180px;overflow:visible}
+.snap-row{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid #3C603C;font-size:.82rem;flex-wrap:wrap}
+.snap-row:last-child{border-bottom:none}
+.snap-plat{display:flex;align-items:center;gap:5px;min-width:100px;font-weight:600}
+.snap-count{font-family:'Playfair Display',serif;color:#5AE57A;min-width:60px}
+.snap-date{color:#BFD8BF;font-size:.72rem;min-width:80px}
+.snap-note{color:#BFD8BF;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.snap-del{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.82rem;transition:color .2s;flex-shrink:0}
+.snap-del:hover{color:#5AE57A}
+.empty{text-align:center;opacity:.35;padding:20px;font-size:.85rem}
+.add-plat-row{display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #4C724C;flex-wrap:wrap}
+.emoji-inp{width:60px !important;text-align:center;font-size:1.1rem;flex-shrink:0}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr}.log-grid{grid-template-columns:1fr 1fr}.log-grid .add-btn{grid-column:1/-1;width:100%}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Community Growth Dashboard</h1>
+<p class="sub">Track every platform. Know your total reach. Grow with intention.</p>
+
+<div class="top-bar">
+  <div class="top-field"><label>Member Goal (combined)</label><input id="goalInput" type="number" placeholder="5,000" oninput="saveGoal();render()"></div>
+  <div class="top-field"><label>Tracking Period</label>
+    <select id="period" onchange="render()">
+      <option value="all">All time</option>
+      <option value="30">Last 30 days</option>
+      <option value="90">Last 90 days</option>
+    </select>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sTotal">—</div><div class="stat-lbl">Total Members</div></div>
+  <div class="stat"><div class="stat-val green" id="sGrowth">—</div><div class="stat-lbl">Growth This Period</div></div>
+  <div class="stat"><div class="stat-val blue" id="sPlats">—</div><div class="stat-lbl">Platforms</div></div>
+  <div class="stat"><div class="stat-val gold" id="sBest">—</div><div class="stat-lbl">Fastest Growing</div></div>
+</div>
+
+<div class="prog-card" id="progCard" style="display:none">
+  <div class="prog-top"><span id="progLabel">Goal Progress</span><span class="prog-pct" id="progPct">0%</span></div>
+  <div class="track"><div class="fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div class="plat-grid" id="platGrid"></div>
+
+<div class="card">
+  <div class="card-title">Log a Snapshot</div>
+  <div class="log-grid">
+    <div><label>Platform</label><select id="fPlat"></select></div>
+    <div><label>Date</label><input id="fDate" type="date"></div>
+    <div><label>Members</label><input id="fCount" type="number" placeholder="1,250"></div>
+    <div><label>Active (optional)</label><input id="fActive" type="number" placeholder="340"></div>
+    <button class="add-btn" onclick="addSnap()">+ Log</button>
+  </div>
+  <div class="add-plat-row">
+    <input class="emoji-inp" id="newEmoji" type="text" placeholder="📱" maxlength="2">
+    <input id="newPlatName" type="text" placeholder="Add new platform… e.g. Skool, Discord" style="flex:1;min-width:120px">
+    <button class="add-btn" style="background:transparent;border:1px solid #5AE57A;color:#5AE57A" onclick="addPlatform()">+ Platform</button>
+  </div>
+</div>
+
+<div class="chart-card" id="chartCard" style="display:none">
+  <div class="card-title">Total Growth Over Time</div>
+  <svg class="chart" id="chartSvg" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="card" id="snapCard">
+  <div class="card-title">Recent Snapshots</div>
+  <div id="snapList"><div class="empty">No snapshots yet — log your first community count above.</div></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const PS='commPlatforms',SS='commSnaps',GS='commGoal';
+let platforms=JSON.parse(localStorage.getItem(PS)||'null')||[
+  {id:1,emoji:'👥',name:'Facebook Group'},{id:2,emoji:'📸',name:'Instagram'},
+  {id:3,emoji:'🎮',name:'Discord'},{id:4,emoji:'⭕',name:'Circle'},
+  {id:5,emoji:'🏫',name:'Skool'},{id:6,emoji:'▶️',name:'YouTube'},
+];
+let snaps=JSON.parse(localStorage.getItem(SS)||'[]');
+let goal=parseInt(localStorage.getItem(GS)||'0');
+let nextPlatId=Math.max(...platforms.map(p=>p.id))+1;
+
+function save(){localStorage.setItem(PS,JSON.stringify(platforms));localStorage.setItem(SS,JSON.stringify(snaps));}
+function saveGoal(){goal=parseInt(document.getElementById('goalInput').value)||0;localStorage.setItem(GS,goal);}
+function fmtN(n){return Math.round(n).toLocaleString()}
+
+function getLatest(platId,beforeDate){
+  return snaps.filter(s=>s.platId===platId&&(!beforeDate||s.date<=beforeDate)).sort((a,b)=>b.date.localeCompare(a.date))[0];
+}
+function getPrev(platId,beforeDate){
+  return snaps.filter(s=>s.platId===platId&&s.date<beforeDate).sort((a,b)=>b.date.localeCompare(a.date))[0];
+}
+
+function addPlatform(){
+  const emoji=document.getElementById('newEmoji').value.trim()||'💬';
+  const name=document.getElementById('newPlatName').value.trim();
+  if(!name)return;
+  platforms.push({id:nextPlatId++,emoji,name});
+  save();
+  document.getElementById('newEmoji').value='';document.getElementById('newPlatName').value='';
+  render();
+}
+
+function removePlat(id){
+  if(!confirm('Remove this platform and all its snapshots?'))return;
+  platforms=platforms.filter(p=>p.id!==id);
+  snaps=snaps.filter(s=>s.platId!==id);
+  save();render();
+}
+
+function addSnap(){
+  const platId=parseInt(document.getElementById('fPlat').value);
+  const date=document.getElementById('fDate').value;
+  const count=parseInt(document.getElementById('fCount').value);
+  const active=parseInt(document.getElementById('fActive').value)||0;
+  if(!platId||!date||!count)return;
+  snaps.push({id:Date.now(),platId,date,count,active});
+  snaps.sort((a,b)=>a.date.localeCompare(b.date));
+  save();
+  document.getElementById('fCount').value='';document.getElementById('fActive').value='';
+  render();
+}
+
+function delSnap(id){snaps=snaps.filter(s=>s.id!==id);save();render();}
+
+function render(){
+  const period=parseInt(document.getElementById('period').value)||0;
+  const cutoff=period?new Date(Date.now()-period*864e5).toISOString().split('T')[0]:'';
+  const today=new Date().toISOString().split('T')[0];
+  if(goal)document.getElementById('goalInput').value=goal;
+
+  // Populate platform select
+  document.getElementById('fPlat').innerHTML=platforms.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('');
+
+  // Platform cards
+  let totalNow=0,totalPrev=0,bestPlat='—',bestGrowth=-Infinity;
+  document.getElementById('platGrid').innerHTML=platforms.map(p=>{
+    const latest=getLatest(p.id,today);
+    const prev=latest?getPrev(p.id,latest.date):null;
+    const count=latest?latest.count:0;
+    const prevCount=prev?prev.count:0;
+    const delta=latest&&prev?count-prevCount:null;
+    const deltaStr=delta===null?'No data yet':delta===0?'No change':(delta>0?'+':'')+fmtN(delta);
+    const deltaCls=delta===null||delta===0?'zero-d':delta>0?'pos-d':'neg-d';
+    const growthPct=prevCount>0?((count-prevCount)/prevCount*100):0;
+    const engRate=latest?.active&&count?Math.round(latest.active/count*100):0;
+    totalNow+=count;totalPrev+=prevCount;
+    if(growthPct>bestGrowth&&count){bestGrowth=growthPct;bestPlat=p.emoji+' '+p.name;}
+    const maxCount=Math.max(...snaps.filter(s=>s.platId===p.id).map(s=>s.count),1);
+    return`<div class="plat-card">
+      <div class="plat-top">
+        <span class="plat-name">${p.emoji} ${p.name}</span>
+        <button class="edit-plat" onclick="removePlat(${p.id})" title="Remove">✕</button>
+      </div>
+      <div class="plat-count">${count?fmtN(count):'—'}</div>
+      <span class="plat-delta ${deltaCls}">${deltaStr}</span>
+      <div class="plat-bar"><div class="plat-fill" style="width:${Math.round(count/maxCount*100)}%"></div></div>
+      ${engRate?`<div class="plat-eng">${engRate}% engagement rate</div>`:''}
+    </div>`;
+  }).join('');
+
+  // Stats
+  const growth=totalNow-totalPrev;
+  document.getElementById('sTotal').textContent=totalNow?fmtN(totalNow):'—';
+  const gEl=document.getElementById('sGrowth');
+  gEl.textContent=totalPrev?(growth>=0?'+':'')+fmtN(growth):'—';
+  gEl.style.color=growth>0?'#5AE57A':growth<0?'#5AE57A':'#5AE57A';
+  document.getElementById('sPlats').textContent=platforms.filter(p=>getLatest(p.id,today)).length;
+  document.getElementById('sBest').textContent=bestPlat==='—'?'—':bestPlat.slice(0,12)+(bestPlat.length>12?'…':'');
+
+  // Progress
+  if(goal&&totalNow){
+    document.getElementById('progCard').style.display='block';
+    const pct=Math.min(Math.round(totalNow/goal*100),100);
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progPct').textContent=pct+'%';
+    document.getElementById('progLabel').textContent=fmtN(totalNow)+' of '+fmtN(goal)+' goal';
+  } else document.getElementById('progCard').style.display='none';
+
+  // Chart — total per date
+  const dateMap={};
+  snaps.forEach(s=>{
+    if(!dateMap[s.date])dateMap[s.date]=0;
+    dateMap[s.date]+=s.count;
+  });
+  const chartDates=Object.keys(dateMap).sort();
+  if(chartDates.length>1){
+    document.getElementById('chartCard').style.display='block';
+    const W=600,H=160,pt=16,pb=24,pl=8,pr=8;
+    const vals=chartDates.map(d=>dateMap[d]);
+    const minV=Math.min(...vals)*0.9,maxV=goal?Math.max(...vals,goal)*1.08:Math.max(...vals)*1.1;
+    const xp=i=>pl+i*(W-pl-pr)/(chartDates.length-1);
+    const yp=v=>H-pb-(v-minV)/(maxV-minV)*(H-pt-pb);
+    const pts=chartDates.map((d,i)=>`${xp(i)},${yp(dateMap[d])}`).join(' ');
+    const area=`${xp(0)},${H-pb} ${pts} ${xp(chartDates.length-1)},${H-pb}`;
+    const goalLine=goal&&goal>=minV&&goal<=maxV?`<line x1="${pl}" y1="${yp(goal)}" x2="${W-pr}" y2="${yp(goal)}" stroke="#5AE57A" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+    <text x="${W-pr-2}" y="${yp(goal)-4}" fill="#5AE57A" font-size="9" text-anchor="end" font-family="DM Sans" opacity="0.7">Goal</text>`:'';
+    const dots=chartDates.map((d,i)=>`<circle cx="${xp(i)}" cy="${yp(dateMap[d])}" r="4" fill="#5AE57A" stroke="#325132" stroke-width="2"><title>${d} — ${fmtN(dateMap[d])}</title></circle>`).join('');
+    const xlbls=[0,Math.floor(chartDates.length/2),chartDates.length-1].filter((v,i,a)=>a.indexOf(v)===i).map(i=>`<text x="${xp(i)}" y="${H-4}" fill="#BFD8BF" font-size="9" text-anchor="middle" font-family="DM Sans">${chartDates[i].slice(5)}</text>`).join('');
+    document.getElementById('chartSvg').innerHTML=`<defs><linearGradient id="cg" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#5AE57A" stop-opacity="0.2"/><stop offset="100%" stop-color="#5AE57A" stop-opacity="0"/></linearGradient></defs>
+    ${goalLine}<polygon points="${area}" fill="url(#cg)"/>
+    <polyline points="${pts}" fill="none" stroke="#5AE57A" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}${xlbls}`;
+  } else document.getElementById('chartCard').style.display='none';
+
+  // Recent snaps
+  const recent=[...snaps].reverse().slice(0,12);
+  document.getElementById('snapList').innerHTML=recent.length
+    ?recent.map(s=>{
+      const p=platforms.find(p=>p.id===s.platId)||{emoji:'?',name:'Unknown'};
+      return`<div class="snap-row">
+        <span class="snap-plat">${p.emoji} ${p.name}</span>
+        <span class="snap-count">${fmtN(s.count)}</span>
+        <span class="snap-date">${new Date(s.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</span>
+        ${s.active?`<span style="font-size:.72rem;color:#BFD8BF">${s.active} active</span>`:''}
+        <button class="snap-del" onclick="delSnap(${s.id})">✕</button>
+      </div>`;}).join('')
+    :'<div class="empty">No snapshots logged yet.</div>';
+}
+
+document.getElementById('fDate').value=new Date().toISOString().split('T')[0];
+render();
+</script>
+</body>
+</html>

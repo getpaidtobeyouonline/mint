@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conference Learning Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .session { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .session .top { display: flex; justify-content: space-between; gap: 10px; }
+  .session .nm { color: #5AE57A; font-weight: 500; }
+  .session .x { cursor: pointer; opacity: .5; flex: none; } .session .x:hover { opacity: 1; color: #5AE57A; }
+  .session .tx { font-size: .87rem; margin-top: 3px; white-space: pre-wrap; }
+  .session .ax { font-size: .85rem; margin-top: 4px; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Conference Learning Tool</h1>
+  <p class="sub">Capture takeaways session by session — so a conference leaves you with more than a tote bag.</p>
+
+  <div class="panel">
+    <label>Session / talk title</label>
+    <input id="title" placeholder="e.g. Keynote — the future of...">
+    <label>Top takeaways</label>
+    <textarea id="notes" placeholder="The ideas worth keeping"></textarea>
+    <label>One action this gave me</label>
+    <input id="action" placeholder="Something you will actually do">
+    <button class="btn" onclick="add()">+ Save Session</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn" onclick="copyAll()">Copy All Takeaways</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('clt')||'[]');
+  const save=()=>localStorage.setItem('clt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('title')&&!v('notes')){ alert('Add a session title or notes.'); return; }
+    R.push({t:v('title'),n:v('notes'),a:v('action')}); ['title','notes','action'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all sessions?')){ R=[]; save(); render(); } }
+  function copyAll(){ if(!R.length){ alert('Nothing to copy.'); return; }
+    const t='CONFERENCE TAKEAWAYS\n\n'+R.map(x=>(x.t||'Session')+'\n'+(x.n||'')+(x.a?'\nAction: '+x.a:'')).join('\n\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.'));
+  }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No sessions saved yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="session"><div class="top"><span class="nm">'+esc(x.t||'Session')+'</span><span class="x" onclick="del('+i+')">✕</span></div>'+(x.n?'<div class="tx">'+esc(x.n)+'</div>':'')+(x.a?'<div class="ax">→ '+esc(x.a)+'</div>':'')+'</div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

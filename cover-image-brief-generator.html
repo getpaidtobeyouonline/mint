@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cover Image Brief Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:700px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;appearance:none}
+input:focus,select:focus{border-color:#5AE57A}
+.vibe-row{display:grid;grid-template-columns:repeat(5,1fr);gap:.55rem;margin-top:.25rem}
+.vibe{background:#325132;border:2px solid #4C724C;border-radius:8px;padding:.65rem .3rem;cursor:pointer;text-align:center;font-size:.76rem;transition:all .2s;line-height:1.35}
+.vibe:hover{border-color:#5AE57A}
+.vibe.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.vibe .ico{font-size:1.2rem;display:block;margin-bottom:.2rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.sec{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.sec h3{font-family:'Playfair Display',serif;color:#5AE57A;font-size:.95rem;margin-bottom:.875rem;padding-bottom:.4rem;border-bottom:1px solid #4C724C}
+.row2{display:flex;gap:1.5rem}
+.col{flex:1}
+.lbl{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:.3rem}
+.val{font-size:.9rem;line-height:1.5}
+.swatches{display:flex;gap:.75rem;flex-wrap:wrap}
+.sw{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+.sw-box{width:48px;height:48px;border-radius:8px;border:1px solid #4C724C}
+.sw-hex{font-size:.68rem;opacity:.6;font-family:monospace}
+.bullets{list-style:none;display:flex;flex-direction:column;gap:.4rem}
+.bullets li{font-size:.875rem;opacity:.75;padding-left:.9rem;position:relative;line-height:1.4}
+.bullets li::before{content:'→';position:absolute;left:0;color:#5AE57A;opacity:.7}
+.pbox{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.85rem 1rem;font-size:.85rem;line-height:1.65;opacity:.8;margin-bottom:.65rem}
+.cbtn{background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:6px;padding:.38rem .85rem;font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.cbtn:hover{background:#5AE57A;color:#325132}
+.cbtn.done{border-color:#5AE57A;color:#5AE57A}
+.copy-all{width:100%;background:#3C603C;border:2px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.8rem;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:1.25rem}
+.copy-all:hover{background:#5AE57A;color:#325132}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:1.5rem;padding-bottom:1rem}
+@media(max-width:520px){h1{font-size:1.75rem}.grid{grid-template-columns:1fr}.vibe-row{grid-template-columns:repeat(3,1fr)}.row2{flex-direction:column;gap:.75rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Cover Image Brief Generator</h1>
+    <p class="subtitle">Answer 6 questions. Get a complete cover design brief — ready to hand to a designer or drop into any AI image tool.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Product Details</h2>
+    <div class="grid">
+      <div><label>Product Name</label><input type="text" id="pname" placeholder="e.g. The Freelancer's Pricing Guide"></div>
+      <div><label>Product Format</label>
+        <select id="format">
+          <option>Ebook / PDF</option><option>Template Pack</option><option>Checklist</option>
+          <option>Planner</option><option>Workbook</option><option>Course</option>
+          <option>Toolkit</option><option>Swipe File</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid">
+      <div><label>Your Niche</label>
+        <select id="niche">
+          <option value="health">Health & Wellness</option><option value="finance">Money & Finance</option>
+          <option value="business">Business & Marketing</option><option value="creative">Creative Arts & Design</option>
+          <option value="tech">Tech & Productivity</option><option value="relationships">Relationships</option>
+          <option value="parenting">Parenting & Family</option><option value="lifestyle">Lifestyle & Hobbies</option>
+        </select>
+      </div>
+      <div><label>Target Audience</label><input type="text" id="audience" placeholder="e.g. freelancers"></div>
+    </div>
+    <div style="margin-bottom:1rem"><label>Short Tagline (to appear on cover)</label><input type="text" id="tagline" placeholder="e.g. Charge what you're worth — and get it"></div>
+    <div><label>Visual Vibe</label>
+      <div class="vibe-row">
+        <div class="vibe" id="v_minimal" onclick="pickVibe('minimal')"><span class="ico">◻</span>Clean &amp; Minimal</div>
+        <div class="vibe" id="v_bold" onclick="pickVibe('bold')"><span class="ico">⚡</span>Bold &amp; Energetic</div>
+        <div class="vibe" id="v_luxe" onclick="pickVibe('luxe')"><span class="ico">✦</span>Luxe &amp; Premium</div>
+        <div class="vibe" id="v_warm" onclick="pickVibe('warm')"><span class="ico">☀</span>Warm &amp; Friendly</div>
+        <div class="vibe" id="v_dark" onclick="pickVibe('dark')"><span class="ico">◆</span>Dark &amp; Moody</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Generate My Cover Brief →</button>
+
+  <div class="results" id="results">
+
+    <div class="sec">
+      <h3>Cover Layout & Mockup Style</h3>
+      <div class="lbl" style="margin-bottom:.3rem">Recommended Mockup</div>
+      <div class="val" id="oMockup" style="margin-bottom:.85rem"></div>
+      <div class="lbl" style="margin-bottom:.3rem">Layout Description</div>
+      <div class="val" id="oLayout" style="font-size:.875rem;opacity:.8;line-height:1.65"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Color Palette</h3>
+      <div class="swatches" id="oSwatches"></div>
+    </div>
+
+    <div class="sec">
+      <h3>Typography</h3>
+      <div class="row2">
+        <div class="col"><div class="lbl">Heading Font</div><div class="val" id="oHeading"></div></div>
+        <div class="col"><div class="lbl">Body Font</div><div class="val" id="oBody"></div></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>Design Style Notes</h3>
+      <ul class="bullets" id="oStyle"></ul>
+    </div>
+
+    <div class="sec">
+      <h3>AI Image Prompt <span style="opacity:.4;font-weight:400;font-size:.8rem">(Midjourney / DALL-E / Canva AI)</span></h3>
+      <div class="pbox" id="oAI"></div>
+      <button class="cbtn" onclick="copyEl('oAI',this)">Copy Prompt</button>
+    </div>
+
+    <div class="sec">
+      <h3>Canva Search Keywords</h3>
+      <div class="pbox" id="oCanva"></div>
+      <button class="cbtn" onclick="copyEl('oCanva',this)">Copy Keywords</button>
+    </div>
+
+    <button class="copy-all" onclick="copyAll(this)">Copy Full Brief as Plain Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const vibes = {
+  minimal:{label:'Clean & Minimal',pal:['#FFFFFF','#FFFFFF','#3C603C','{a}'],h:'DM Sans Bold or Inter Bold',b:'DM Sans Regular',style:['Generous white space — let it breathe','Flat geometric shapes as decorative accents','Thin single-pixel dividing lines','One accent color only; everything else neutral','Centered or left-aligned symmetrical layout'],layout:'White or off-white background. Product title large and centered in the top third. Tagline in lighter weight below. Subtle geometric shape or line element as decoration. Clean accent-color bottom strip with author name.',canva:'minimal, white background, geometric, clean, modern, professional, flat design, simple',ai:(n,a,ni)=>`Minimalist digital product cover for "${n}", clean white background, bold sans-serif title, subtle geometric line elements, single ${ni} accent color, generous white space, flat professional design, no clutter, for ${a}`},
+  bold:{label:'Bold & Energetic',pal:['#2E4D2E','#5AE57A','#FFFFFF','{a}'],h:'Montserrat Black or Oswald Bold',b:'Montserrat or Open Sans',style:['High contrast color blocking — dark vs vivid','Diagonal or angled geometric elements','Oversized title dominates the composition','Gradient background option for added energy','Asymmetric dynamic layout'],layout:'Deep dark background with bold vivid color blocks. Oversized title in white takes up the top half. Bright accent stripe or diagonal band crosses the layout. Tagline in white below. Optional corner badge or callout element.',canva:'bold, vibrant, energetic, high contrast, gradient, dynamic, impactful, modern, graphic design',ai:(n,a,ni)=>`Bold energetic digital product cover for "${n}", high contrast color blocking, dark background with vivid accent colors, oversized bold typography, diagonal graphic elements, dynamic asymmetric composition, powerful and modern design, for ${a} in ${ni}`},
+  luxe:{label:'Luxe & Premium',pal:['#325132','#5AE57A','#5AE57A','#FFFFFF'],h:'Cormorant Garamond or Playfair Display SemiBold',b:'DM Sans Light or Lato Light',style:['Deep navy or near-black background','Thin gold rectangular border frame around the cover','Elegant serif headings — refined, not heavy','Subtle grain or texture overlay on background','Minimal elements — every detail earns its place'],layout:'Deep navy or charcoal background. Thin gold rectangular border frame. Elegant serif title centered in gold. Thin gold rule below title. Tagline in cream-colored DM Sans Light. Small decorative gold emblem. Author name in gold small caps at bottom.',canva:'luxury, premium, gold, elegant, dark, sophisticated, high-end, minimal, serif, navy, fine',ai:(n,a,ni)=>`Luxury premium digital product cover for "${n}", deep navy background, gold typography and thin rectangular border frame, elegant serif font, sophisticated minimal design, subtle grain texture, high-end aesthetic, for discerning ${a} in ${ni}`},
+  warm:{label:'Warm & Friendly',pal:['#FFFFFF','#5AE57A','#5AE57A','#5AE57A'],h:'Nunito Bold or Raleway Bold',b:'Nunito Regular or Lato Regular',style:['Warm cream or peach background — inviting, never stark','Organic rounded shapes as frame or background element','Botanical or hand-drawn illustration accent in corners','Optional handwritten script as a single accent word','Approachable and trustworthy — warm recommendation energy'],layout:'Warm cream or soft peach background. Friendly rounded heading font in warm brown. Organic shape or botanical illustration in one or two corners. Tagline in slightly lighter weight. The whole cover feels like a warm, trusted referral.',canva:'warm, cozy, friendly, organic, terracotta, peach, botanical, approachable, watercolor, hand-drawn',ai:(n,a,ni)=>`Warm friendly digital product cover for "${n}", warm cream and terracotta color palette, organic rounded shapes, soft botanical illustration accents, inviting approachable typography, hand-crafted feel, for ${a} interested in ${ni}`},
+  dark:{label:'Dark & Moody',pal:['#325132','#3C603C','#BFD8BF','{a}'],h:'Playfair Display Bold or Libre Baskerville Bold',b:'DM Sans Regular or IBM Plex Sans',style:['Near-black background with subtle noise or grain texture','Dramatic single light-source effect behind key text','Strong serif title in white or silver — editorial quality','One jewel-tone or metallic accent element only','Magazine-quality composition — nothing wasted'],layout:'Dark charcoal or pure black background with grain texture. Bold serif title in white or silver. Subtle light-bloom behind the main text. Tagline in lighter gray. One jewel-tone accent line or shape. The cover reads like a premium editorial publication.',canva:'dark, moody, editorial, dramatic, noir, sophisticated, cinematic, dark background, magazine',ai:(n,a,ni)=>`Dark moody editorial digital product cover for "${n}", near-black background with grain texture, dramatic lighting effect, bold serif typography in white, editorial magazine aesthetic, sophisticated composition, jewel-tone accent, for ${a} in ${ni}`}
+};
+
+const accents = {health:'#5AE57A',finance:'#5AE57A',business:'#5AE57A',creative:'#5AE57A',tech:'#5AE57A',relationships:'#5AE57A',parenting:'#5AE57A',lifestyle:'#5AE57A'};
+const mockups = {'Ebook / PDF':'3D book cover, portrait orientation, slight angle with soft drop shadow','Template Pack':'Flat lay — multiple pages fanned or overlapping, top-down or slight angle','Checklist':'Single portrait page mockup, checklist rows partially visible','Planner':'Open spiral-bound planner spread, overhead top-down angle','Workbook':'Closed thick workbook with tab markers visible, slight 3D angle','Course':'Laptop or tablet device mockup with course preview on screen','Toolkit':'Collection of items spread out — pages, icons, and swatches flat lay','Swipe File':'Fanned stack of documents, slight perspective angle, pages visible'};
+
+let selVibe = null;
+function pickVibe(id) {
+  if (selVibe) document.getElementById('v_'+selVibe).classList.remove('sel');
+  selVibe = id; document.getElementById('v_'+id).classList.add('sel');
+}
+
+function generate() {
+  const name = document.getElementById('pname').value.trim();
+  if (!name) { alert('Please enter your product name.'); return; }
+  if (!selVibe) { alert('Please select a visual vibe.'); return; }
+  const niche = document.getElementById('niche').value;
+  const audience = document.getElementById('audience').value.trim() || 'digital product buyers';
+  const format = document.getElementById('format').value;
+  const v = vibes[selVibe];
+  const accent = accents[niche];
+  const pal = v.pal.map(c => c === '{a}' ? accent : c);
+
+  document.getElementById('oMockup').textContent = mockups[format];
+  document.getElementById('oLayout').textContent = v.layout;
+  document.getElementById('oSwatches').innerHTML = pal.map(hex =>
+    `<div class="sw"><div class="sw-box" style="background:${hex}"></div><div class="sw-hex">${hex}</div></div>`).join('');
+  document.getElementById('oHeading').textContent = v.h;
+  document.getElementById('oBody').textContent = v.b;
+  document.getElementById('oStyle').innerHTML = v.style.map(s => `<li>${s}</li>`).join('');
+  document.getElementById('oAI').textContent = v.ai(name, audience, niche);
+  document.getElementById('oCanva').textContent = v.canva;
+
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function flash(btn, orig) { btn.textContent='Copied!'; btn.classList.add('done'); setTimeout(()=>{ btn.textContent=orig; btn.classList.remove('done'); },2200); }
+
+function copyEl(id, btn) {
+  const text = document.getElementById(id).textContent, orig = btn.textContent;
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(()=>flash(btn,orig)) : fallbackCopy(text, ()=>flash(btn,orig));
+}
+
+function copyAll(btn) {
+  const niche = document.getElementById('niche').value;
+  const v = vibes[selVibe]; const pal = v.pal.map(c=>c==='{a}'?accents[niche]:c);
+  const text = ['== COVER IMAGE BRIEF ==','','VIBE: '+v.label,'MOCKUP: '+document.getElementById('oMockup').textContent,'','LAYOUT:',document.getElementById('oLayout').textContent,'','COLOR PALETTE:',pal.join('  |  '),'','TYPOGRAPHY:','Heading: '+v.h,'Body: '+v.b,'','DESIGN STYLE NOTES:',...v.style.map(s=>'→ '+s),'','AI IMAGE PROMPT:',document.getElementById('oAI').textContent,'','CANVA KEYWORDS:',document.getElementById('oCanva').textContent].join('\n');
+  const orig = btn.textContent;
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(()=>flash(btn,orig)) : fallbackCopy(text,()=>flash(btn,orig));
+}
+
+function fallbackCopy(text, cb) {
+  const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); cb();
+}
+</script>
+</body>
+</html>

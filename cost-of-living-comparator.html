@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cost Of Living Comparator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .cols { display: flex; gap: 10px; }
+  .cols>div { flex: 1; }
+  .ch { text-align: center; font-family: 'Playfair Display', serif; color: #5AE57A; margin-bottom: 6px; }
+  .cat { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; opacity: .65; margin: 8px 0 3px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; text-align: center; margin-top: 12px; }
+  .result .big { font-family: 'Playfair Display', serif; font-size: 1.8rem; }
+  .result .l { font-size: .82rem; opacity: .7; margin-top: 3px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cost Of Living Comparator</h1>
+  <p class="sub">Compare two places side by side — fill in typical monthly costs and see the difference.</p>
+
+  <div class="panel">
+    <div class="cols">
+      <div>
+        <div class="ch"><input id="nameA" placeholder="Place A" style="text-align:center;font-family:'Playfair Display',serif" oninput="render()"></div>
+      </div>
+      <div>
+        <div class="ch"><input id="nameB" placeholder="Place B" style="text-align:center;font-family:'Playfair Display',serif" oninput="render()"></div>
+      </div>
+    </div>
+    <div id="rows"></div>
+  </div>
+
+  <div class="result" id="result"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const CATS=["Rent / housing","Utilities &amp; internet","Groceries","Eating out","Transport","Health insurance","Leisure &amp; other"];
+  const KEYS=CATS.map((_,i)=>'c'+i);
+  function build(){
+    g('rows').innerHTML=CATS.map((c,i)=>'<div class="cat">'+c+'</div><div class="cols"><div><input type="number" min="0" id="A'+i+'" placeholder="0" oninput="render()"></div><div><input type="number" min="0" id="B'+i+'" placeholder="0" oninput="render()"></div></div>').join('');
+    KEYS.forEach((k,i)=>{ ['A','B'].forEach(s=>{ const v=localStorage.getItem('colc_'+s+i); if(v!==null)g(s+i).value=v; }); });
+    ['nameA','nameB'].forEach(k=>{ const v=localStorage.getItem('colc_'+k); if(v!==null)g(k).value=v; });
+  }
+  function render(){
+    let totA=0,totB=0;
+    CATS.forEach((_,i)=>{
+      const a=parseFloat(g('A'+i).value)||0, b=parseFloat(g('B'+i).value)||0;
+      totA+=a; totB+=b;
+      localStorage.setItem('colc_A'+i,g('A'+i).value);
+      localStorage.setItem('colc_B'+i,g('B'+i).value);
+    });
+    localStorage.setItem('colc_nameA',g('nameA').value);
+    localStorage.setItem('colc_nameB',g('nameB').value);
+    const nA=g('nameA').value.trim()||'Place A', nB=g('nameB').value.trim()||'Place B';
+    const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:0});
+    let msg;
+    if(!totA&&!totB){ msg='<div class="l">Fill in some costs to compare</div>'; }
+    else {
+      const diff=Math.abs(totA-totB);
+      const cheaper=totA<totB?nA:nB;
+      const pct=Math.max(totA,totB)?Math.round(diff/Math.max(totA,totB)*100):0;
+      msg='<div class="big">'+nA+': '+fmt(totA)+' &nbsp;vs&nbsp; '+nB+': '+fmt(totB)+'</div>'+
+        '<div class="l">'+(diff?cheaper+' is cheaper by '+fmt(diff)+'/month ('+pct+'% less)':'They cost about the same')+'</div>';
+    }
+    g('result').innerHTML=msg;
+  }
+  build(); render();
+</script>
+</body>
+</html>

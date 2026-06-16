@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Recycling Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 80px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 24px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .piece {
+    background: rgba(240, 235, 224, 0.04);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+  }
+  .piece-tag {
+    display: inline-block;
+    background: rgba(201, 168, 76, 0.18);
+    color: #5AE57A;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .piece-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+  .piece-detail { font-size: 0.9rem; opacity: 0.85; }
+  .schedule-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(240, 235, 224, 0.06);
+    align-items: center;
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-date {
+    color: #5AE57A;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+  .schedule-task { font-size: 0.92rem; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content Recycling Planner</h1>
+  <p class="subtitle">Stop hitting publish once and abandoning your best work. Turn one piece of pillar content into 10+ posts across 30 days.</p>
+
+  <div class="grid">
+    <div>
+      <label for="type">Original Content Type</label>
+      <select id="type">
+        <option>Podcast episode</option>
+        <option>YouTube video</option>
+        <option>Long-form blog post</option>
+        <option>Newsletter / email</option>
+        <option>Webinar / live</option>
+        <option>Long Twitter thread</option>
+        <option>LinkedIn article</option>
+      </select>
+    </div>
+    <div>
+      <label for="start">Start Date</label>
+      <input type="date" id="start" />
+    </div>
+  </div>
+
+  <label for="title">Original Title / Topic</label>
+  <input type="text" id="title" placeholder="e.g. Why hourly pricing is killing your freelance business" />
+
+  <label for="takeaways">3 Key Takeaways / Punchy Lines (one per line)</label>
+  <textarea id="takeaways" placeholder="Hourly pricing caps your income no matter how fast you work&#10;Outcome-based pricing reframes you as a partner, not a vendor&#10;The discovery call is where pricing actually happens, not the proposal"></textarea>
+
+  <button class="build-btn" id="buildBtn">Build My Plan</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Repurposed Pieces</div>
+      <div id="pieces"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">30-Day Distribution Schedule</div>
+      <div id="schedule"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Plan</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function fmtDate(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function build() {
+    const type = document.getElementById('type').value;
+    const title = document.getElementById('title').value.trim() || '[original title]';
+    const startStr = document.getElementById('start').value;
+    const start = startStr ? new Date(startStr + 'T12:00:00') : new Date();
+    const takeawaysRaw = document.getElementById('takeaways').value.trim();
+    const takeaways = takeawaysRaw ? takeawaysRaw.split('\n').filter(t=>t.trim()).slice(0,3) : ['[takeaway 1]','[takeaway 2]','[takeaway 3]'];
+
+    const pieces = [
+      { tag: 'Short-form video #1', title: 'Hook clip from the strongest moment', detail: `Pull the 30-60 sec section where you say takeaway #1: "${takeaways[0]}". Add captions. Vertical 9:16. Post to Reels, TikTok, Shorts.` },
+      { tag: 'Short-form video #2', title: 'Hot-take clip', detail: `Find the punchiest contrarian moment from "${title}". Edit to 45 sec max. Lead with the contrarian line as the on-screen hook.` },
+      { tag: 'Carousel (10 slides)', title: `The ${title} carousel`, detail: `Slide 1: Bold hook. Slides 2-4: ${takeaways[0]}. Slides 5-7: ${takeaways[1]}. Slides 8-9: ${takeaways[2]}. Slide 10: CTA.` },
+      { tag: 'Single-image post', title: 'Quote graphic from takeaway #1', detail: `Design: bold typography over a clean background. Quote: "${takeaways[0]}". Caption: a 1-paragraph story that earned this lesson.` },
+      { tag: 'Text post / Threads', title: 'The contrarian take', detail: `Lead with: "Unpopular opinion:" then takeaway #2: "${takeaways[1]}". Add 2-3 supporting sentences and an open-ended question.` },
+      { tag: 'X / Twitter thread', title: `Thread version of "${title}"`, detail: `7-10 tweets. Tweet 1: hook. Tweets 2-4: takeaway #1 with one example. Tweets 5-7: takeaway #2 + #3. Final tweet: CTA + link back to original ${type.toLowerCase()}.` },
+      { tag: 'Newsletter snippet', title: 'The "if you missed it" email', detail: `Subject: "What I learned from making this week's ${type.toLowerCase()}". Body: 200 words on the surprise lesson, link to full piece.` },
+      { tag: 'Story / poll', title: 'Engagement spike via takeaway #3', detail: `Poll on stories: "${takeaways[2]}" → "agree" / "disagree". Follow up with a swipe-up to the original ${type.toLowerCase()}.` },
+      { tag: 'Audio clip', title: 'Standalone audio quote', detail: `30-second audio pull, captioned waveform video. Best for IG Reels with audio and LinkedIn video posts.` },
+      { tag: 'Pinned anchor post', title: 'Year-long pinned post', detail: `Build a single post that links to "${title}" and pin it. This is your shop window for the topic for the next 12 months.` },
+      { tag: 'Repurposed at +60 days', title: 'Same content, new hook', detail: `In 60 days, rewrite ONLY the first line. Same body. New audience will see it fresh. The hook is the algorithm — the body doesn't have to be original.` }
+    ];
+
+    document.getElementById('pieces').innerHTML = pieces.map(p => `
+      <div class="piece">
+        <span class="piece-tag">${p.tag}</span>
+        <div class="piece-title">${p.title}</div>
+        <div class="piece-detail">${p.detail}</div>
+      </div>
+    `).join('');
+
+    const schedule = [
+      { day: 0, task: `Original ${type.toLowerCase()} publishes: "${title}". Announce on every platform.` },
+      { day: 1, task: `Pinned anchor post goes live. Carousel (10-slide) drops on IG/LinkedIn.` },
+      { day: 2, task: `Short-form video #1 (hook clip) — Reels, TikTok, Shorts.` },
+      { day: 3, task: `Quote graphic + story (takeaway #1).` },
+      { day: 5, task: `Text/Threads contrarian post (takeaway #2).` },
+      { day: 7, task: `Newsletter snippet email — "If you missed it".` },
+      { day: 10, task: `X / Twitter thread version (full breakdown).` },
+      { day: 13, task: `Story poll using takeaway #3.` },
+      { day: 17, task: `Short-form video #2 (hot-take clip).` },
+      { day: 21, task: `Audio clip post (LinkedIn + IG Reels).` },
+      { day: 28, task: `Wrap-up post: "${title}" — what surprised me from your replies.` },
+      { day: 60, task: `Repurpose with a fresh hook. Same body. New audience.` }
+    ];
+
+    const schedEl = document.getElementById('schedule');
+    schedEl.innerHTML = schedule.map(s => {
+      const d = new Date(start);
+      d.setDate(d.getDate() + s.day);
+      return `
+        <div class="schedule-row">
+          <div class="schedule-date">${fmtDate(d)}<br><span style="opacity:0.7;font-size:0.72rem;text-transform:none;letter-spacing:0;">Day ${s.day}</span></div>
+          <div class="schedule-task">${s.task}</div>
+        </div>
+      `;
+    }).join('');
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const text = document.getElementById('plan').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Plan', 1500);
+    });
+  });
+
+  document.getElementById('start').valueAsDate = new Date();
+</script>
+</body>
+</html>

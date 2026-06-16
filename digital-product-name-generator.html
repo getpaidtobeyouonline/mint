@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Product Name Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.grid:last-child{margin-bottom:0}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;appearance:none}
+input[type=text]:focus,select:focus{border-color:#5AE57A}
+.btn-row{display:flex;gap:.75rem;margin-bottom:1.25rem}
+.btn{flex:1;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s}
+.btn:hover{opacity:.88}
+.btn.sec{background:#3C603C;color:#5AE57A;border:2px solid #5AE57A;display:none}
+.results{display:none}
+.results.show{display:block}
+.name-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.7rem;display:flex;align-items:center;gap:1rem}
+.name-left{flex:1;min-width:0}
+.style-tag{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:.25rem}
+.name-text{font-family:'Playfair Display',serif;font-size:1.05rem;line-height:1.4}
+.copy-btn{background:#325132;border:1px solid #4C724C;color:#FFFFFF;border-radius:6px;padding:.4rem .85rem;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'DM Sans',sans-serif;flex-shrink:0}
+.copy-btn:hover{border-color:#5AE57A;color:#5AE57A}
+.copy-btn.done{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:500px){h1{font-size:1.75rem}.grid{grid-template-columns:1fr}.name-card{flex-wrap:wrap}.copy-btn{align-self:flex-end}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Product Name Generator</h1>
+    <p class="subtitle">Fill in 4 fields. Get 12 ready-to-use product name ideas — instantly.</p>
+  </header>
+
+  <div class="card">
+    <h2>Tell us about your product</h2>
+    <div class="grid">
+      <div>
+        <label>Topic or Niche</label>
+        <input type="text" id="topic" placeholder="e.g. email marketing">
+      </div>
+      <div>
+        <label>Target Audience</label>
+        <input type="text" id="audience" placeholder="e.g. freelancers">
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label>Product Format</label>
+        <select id="format">
+          <option>Guide</option><option>Template</option><option>Checklist</option>
+          <option>Planner</option><option>Workbook</option><option>Toolkit</option>
+          <option>Blueprint</option><option>Playbook</option><option>Swipe File</option>
+          <option>Mini-Course</option><option>Workshop</option><option>Roadmap</option>
+        </select>
+      </div>
+      <div>
+        <label>Desired Outcome</label>
+        <input type="text" id="outcome" placeholder="e.g. land more clients">
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn" onclick="generate()">Generate Names →</button>
+    <button class="btn sec" id="regenBtn" onclick="regen()">Regenerate ↻</button>
+  </div>
+
+  <div class="results" id="results">
+    <div id="nameList"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const cap = s => s.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1));
+
+const slots = [
+  { style:'Direct', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The ${T} ${F} for ${A}`,
+    (T,A,F,O)=>`A ${T} ${F} Built for ${A}`,
+    (T,A,F,O)=>`${T} ${F}: Made for ${A}`
+  ]},
+  { style:'Audience-First', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The ${A}'s Complete ${T} ${F}`,
+    (T,A,F,O)=>`The ${A}'s ${T} ${F}`,
+    (T,A,F,O)=>`${A}: Your ${T} ${F}`
+  ]},
+  { style:'Outcome-Led', color:'#5AE57A', v:[
+    (T,A,F,O)=>`Your ${O} Blueprint: A ${T} ${F}`,
+    (T,A,F,O)=>`The ${O} ${F}`,
+    (T,A,F,O)=>`How to ${O}: A ${T} ${F}`
+  ]},
+  { style:'Authority', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The Ultimate ${T} ${F}`,
+    (T,A,F,O)=>`The Complete ${T} ${F} for ${A}`,
+    (T,A,F,O)=>`The Definitive ${T} ${F}`
+  ]},
+  { style:'Simplicity', color:'#5AE57A', v:[
+    (T,A,F,O)=>`${T} Made Simple: A ${F} for ${A}`,
+    (T,A,F,O)=>`Simple ${T}: A ${F} for ${A}`,
+    (T,A,F,O)=>`${T} Without the Overwhelm: A ${F} for ${A}`
+  ]},
+  { style:'Curiosity', color:'#5AE57A', v:[
+    (T,A,F,O)=>`${T} Secrets: A ${F} for ${A}`,
+    (T,A,F,O)=>`What Nobody Tells You About ${T}: A ${F}`,
+    (T,A,F,O)=>`The ${T} ${F} You Wish You Had Sooner`
+  ]},
+  { style:'Transformation', color:'#5AE57A', v:[
+    (T,A,F,O)=>`From Stuck to ${O}: Your ${T} ${F}`,
+    (T,A,F,O)=>`The ${O} Roadmap: A ${T} ${F} for ${A}`,
+    (T,A,F,O)=>`${O} Faster: The ${T} ${F} for ${A}`
+  ]},
+  { style:'Bold', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The No-Fluff ${T} ${F}`,
+    (T,A,F,O)=>`No-BS ${T}: A ${F} for ${A}`,
+    (T,A,F,O)=>`The Real ${T} ${F} for ${A}`
+  ]},
+  { style:'Time-Based', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The 30-Day ${T} ${F} for ${A}`,
+    (T,A,F,O)=>`The 7-Step ${T} ${F}`,
+    (T,A,F,O)=>`The 5-Day ${T} ${F} for ${A}`
+  ]},
+  { style:'Tailored', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The Busy ${A}'s ${T} ${F}`,
+    (T,A,F,O)=>`${T} for the Everyday ${A}`,
+    (T,A,F,O)=>`The ${A}-Friendly ${T} ${F}`
+  ]},
+  { style:'Results', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The ${T} ${F} That Actually Works`,
+    (T,A,F,O)=>`${T} That Gets Results: A ${F} for ${A}`,
+    (T,A,F,O)=>`The ${T} ${F} That Changes Everything`
+  ]},
+  { style:'Premium', color:'#5AE57A', v:[
+    (T,A,F,O)=>`The ${T} Playbook for ${A}`,
+    (T,A,F,O)=>`${T} Mastery: A ${F} for ${A}`,
+    (T,A,F,O)=>`The ${T} Toolkit for ${A}`
+  ]}
+];
+
+let picks = [];
+
+function getInputs() {
+  return {
+    topic:   document.getElementById('topic').value.trim(),
+    audience:document.getElementById('audience').value.trim(),
+    format:  document.getElementById('format').value,
+    outcome: document.getElementById('outcome').value.trim()
+  };
+}
+
+function generate() {
+  const {topic, audience, outcome} = getInputs();
+  if (!topic || !audience || !outcome) { alert('Please fill in Topic, Audience, and Desired Outcome.'); return; }
+  picks = slots.map(() => Math.floor(Math.random() * 3));
+  render();
+}
+
+function regen() { picks = slots.map(() => Math.floor(Math.random() * 3)); render(); }
+
+function render() {
+  const {topic, audience, format, outcome} = getInputs();
+  const T = cap(topic), A = cap(audience), F = format, O = cap(outcome);
+  document.getElementById('nameList').innerHTML = slots.map((slot, i) => {
+    const name = slot.v[picks[i]](T, A, F, O);
+    return `<div class="name-card">
+      <div class="name-left">
+        <div class="style-tag" style="color:${slot.color}">${slot.style}</div>
+        <div class="name-text">${name}</div>
+      </div>
+      <button class="copy-btn" data-name="${name.replace(/"/g,'&quot;')}" onclick="copyName(this)">Copy</button>
+    </div>`;
+  }).join('');
+  document.getElementById('results').classList.add('show');
+  document.getElementById('regenBtn').style.display = '';
+  document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyName(btn) {
+  const name = btn.getAttribute('data-name');
+  const flash = () => { btn.textContent='Copied!'; btn.classList.add('done'); setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done');},2000); };
+  if (navigator.clipboard) { navigator.clipboard.writeText(name).then(flash); }
+  else { const ta=document.createElement('textarea'); ta.value=name; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); flash(); }
+}
+</script>
+</body>
+</html>

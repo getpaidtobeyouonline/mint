@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Question Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .chip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { border-color: #5AE57A; }
+  .chip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .generate-btn {
+    display: block;
+    margin: 0 auto 32px;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .question-card {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    min-height: 140px;
+  }
+  .category-tag {
+    display: inline-block;
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: #FFFFFF;
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+  .platform-hint {
+    font-size: 0.9rem;
+    color: rgba(240, 235, 224, 0.7);
+    border-left: 2px solid #5AE57A;
+    padding-left: 12px;
+  }
+  .empty {
+    text-align: center;
+    opacity: 0.6;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Community Question Generator</h1>
+  <p class="subtitle">Spark real conversations in your DMs, comments, and community. Pick a vibe and get a question worth answering.</p>
+
+  <div class="controls">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="icebreaker">Icebreaker</button>
+    <button class="chip" data-cat="opinion">Opinion</button>
+    <button class="chip" data-cat="vulnerable">Vulnerable</button>
+    <button class="chip" data-cat="poll">Poll</button>
+    <button class="chip" data-cat="reflection">Reflection</button>
+  </div>
+
+  <button class="generate-btn" id="generateBtn">Generate Question</button>
+
+  <div id="questionContainer">
+    <div class="empty">Pick a vibe and tap generate to find your next conversation starter.</div>
+  </div>
+
+  <div class="actions" id="actions" style="display:none;">
+    <button class="secondary-btn" id="copyBtn">Copy Question</button>
+    <button class="secondary-btn" id="anotherBtn">Another One</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const questions = {
+    icebreaker: [
+      { q: "What's a tab you've had open for over a week and refuse to close?", t: "Great for stories with a poll sticker or open-ended reply box." },
+      { q: "What's the most useful thing you bought for under $20 this year?", t: "Goldmine on Threads and X — invites quick, specific answers." },
+      { q: "What's a song that's living rent-free in your head right now?", t: "Easy first-comment magnet on any platform." },
+      { q: "What's a small ritual that makes your workday feel less like work?", t: "Perfect for LinkedIn carousels or IG story prompts." },
+      { q: "What's a weirdly specific thing you're an expert on?", t: "Pure replies. Use on Threads, X, or as a community post." }
+    ],
+    opinion: [
+      { q: "What's a piece of advice in your industry you secretly disagree with?", t: "Strong on LinkedIn and Threads — invites bold takes." },
+      { q: "Overrated tool you've quietly stopped using?", t: "Specific products = specific opinions = comments." },
+      { q: "Hot take: what's something everyone's praising that actually slows you down?", t: "Pair with your own answer to model vulnerability." },
+      { q: "What's a trend you're refusing to participate in?", t: "Sparks tribe-finding in the replies." },
+      { q: "Honest answer — what's a 'best practice' you've abandoned?", t: "Best as a text post with no image." }
+    ],
+    vulnerable: [
+      { q: "What's something you're working through that no one in your feed knows about?", t: "DM bait — set expectations that you'll reply." },
+      { q: "When was the last time you cried over your work — good tears or bad?", t: "Heavy. Use sparingly and respond to every reply." },
+      { q: "What's a fear you have about the next 12 months?", t: "Anchors trust. Share yours first, then ask." },
+      { q: "What's one thing you're proud of that you'd never put on a resume?", t: "Reframes 'success.' Strong on LinkedIn." },
+      { q: "What part of your work life feels like a quiet performance?", t: "Best in a longer caption with your own answer included." }
+    ],
+    poll: [
+      { q: "Morning person or night owl when it comes to deep work?", t: "Two-option IG sticker or X poll." },
+      { q: "Would you rather work 4 long days or 5 short ones?", t: "Classic LinkedIn poll — high engagement." },
+      { q: "Newsletter or podcast — which do you actually consume?", t: "Useful market research disguised as a poll." },
+      { q: "Free workshop or paid intensive — which do you trust more?", t: "Surface buyer psychology in your audience." },
+      { q: "Pick one: more clients or higher prices?", t: "Forces a real preference. Comment-bait." }
+    ],
+    reflection: [
+      { q: "What's one decision you made this year that's quietly changing everything?", t: "End-of-quarter goldmine. Long-form caption-friendly." },
+      { q: "What were you doing exactly one year ago today?", t: "Time-marker posts always perform. Add a then-and-now photo." },
+      { q: "What's a belief you've outgrown in the last 90 days?", t: "Personal growth angle without being preachy." },
+      { q: "If you could send one sentence back to yourself a year ago, what would it say?", t: "Quote-tweet / repost magnet." },
+      { q: "What's something you used to chase that you no longer want?", t: "Pair with a story for a high-performing carousel." }
+    ]
+  };
+
+  const catLabels = { icebreaker: 'Icebreaker', opinion: 'Opinion', vulnerable: 'Vulnerable', poll: 'Poll', reflection: 'Reflection' };
+
+  let activeCat = 'all';
+  let lastQ = null;
+
+  const chips = document.querySelectorAll('.chip');
+  const generateBtn = document.getElementById('generateBtn');
+  const container = document.getElementById('questionContainer');
+  const actions = document.getElementById('actions');
+  const copyBtn = document.getElementById('copyBtn');
+  const anotherBtn = document.getElementById('anotherBtn');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = chip.dataset.cat;
+    });
+  });
+
+  function pickQuestion() {
+    let pool = [];
+    if (activeCat === 'all') {
+      for (const cat in questions) questions[cat].forEach(x => pool.push({ ...x, cat }));
+    } else {
+      questions[activeCat].forEach(x => pool.push({ ...x, cat: activeCat }));
+    }
+    let pick;
+    do { pick = pool[Math.floor(Math.random() * pool.length)]; }
+    while (pool.length > 1 && pick.q === lastQ);
+    lastQ = pick.q;
+    return pick;
+  }
+
+  function render() {
+    const pick = pickQuestion();
+    container.innerHTML = `
+      <div class="question-card">
+        <span class="category-tag">${catLabels[pick.cat]}</span>
+        <div class="question-text">${pick.q}</div>
+        <div class="platform-hint">Where it works: ${pick.t}</div>
+      </div>
+    `;
+    actions.style.display = 'flex';
+  }
+
+  generateBtn.addEventListener('click', render);
+  anotherBtn.addEventListener('click', render);
+
+  copyBtn.addEventListener('click', () => {
+    if (!lastQ) return;
+    navigator.clipboard.writeText(lastQ).then(() => {
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => copyBtn.textContent = original, 1500);
+    });
+  });
+</script>
+</body>
+</html>

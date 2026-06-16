@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comment Strategy Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .9rem; margin-left: 16px; }
+  .stat { display:inline-block; background:#2E4D2E; border:1px solid #4F8A55; border-radius:8px; padding:8px 14px; font-size:.9rem; margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Comment Strategy Planner</h1>
+  <p class="sub">Commenting is the fastest free growth lever. Here's a daily plan that compounds.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="mins">Minutes/day for commenting</label><input id="mins" type="number" min="5" value="20" oninput="plan()"></div>
+      <div><label for="goal">Goal</label><select id="goal" onchange="plan()"><option value="grow">Grow followers</option><option value="auth">Build authority</option><option value="net">Network with peers</option></select></div>
+    </div>
+    <label for="niche">Your niche</label>
+    <input id="niche" placeholder="e.g. solopreneur productivity" oninput="plan()">
+  </div>
+
+  <div class="stat" id="stat"></div>
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0, v=id=>g(id).value.trim();
+  ['mins','goal','niche'].forEach(k=>{ const s=localStorage.getItem('csp_'+k); if(s!==null)g(k).value=s; });
+  function plan(){
+    ['mins','goal','niche'].forEach(k=>localStorage.setItem('csp_'+k,g(k).value));
+    const mins=Math.max(5,n('mins')); const perComment=2; const num=Math.floor(mins/perComment);
+    g('stat').innerHTML=`At ~2 min/comment that's <b>${num} quality comments/day</b> → ~<b>${num*30}/month</b>.`;
+    const tgt = {
+      grow:["Larger accounts in your niche (be early — comment within 15 min of their post)","Their engaged commenters (reply to the best comments, not just the creator)","Trending posts your audience is already watching"],
+      auth:["Posts where you can add a genuine expert nuance, not just praise","Questions in your niche you can answer in 2–3 sentences","Threads where a contrarian-but-true take stands out"],
+      net:["Peers at your size — start real conversations, not one-liners","Creators you'd want to collab with later (warm them up first)","Communities/groups where your people gather"]
+    }[g('goal').value];
+    const niche=v('niche')||'your niche';
+    g('out').innerHTML=`<div class="blk"><h4>Who to comment on (${niche})</h4><ul>${tgt.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div class="blk"><h4>The comment formula</h4><ul>
+      <li>Add value or a specific reaction — never "great post! 🔥"</li>
+      <li>One sharp sentence + a question or insight that invites a reply</li>
+      <li>Sound like you, not a brand. Personality &gt; polish</li></ul></div>
+      <div class="blk"><h4>Daily routine (${mins} min)</h4><ul>
+      <li>5 min: comment on 2 big accounts (visibility)</li>
+      <li>${Math.max(5,mins-10)} min: ${Math.max(1,num-4)} value comments on right-size accounts</li>
+      <li>5 min: reply to everyone who replied to you yesterday</li></ul></div>
+      <div class="blk" style="border-left-color:#BFD8BF"><h4>The rule</h4><p style="font-size:.9rem">Consistency beats volume. ${num} thoughtful comments daily for 30 days will outgrow one viral post you can't repeat.</p></div>`;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  plan();
+</script>
+</body>
+</html>

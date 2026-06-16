@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Avatar Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    .container { max-width: 680px; margin: 0 auto; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.6; margin-bottom: 1.75rem; font-size: 0.9rem; }
+
+    .prog-wrap { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1rem 1.3rem; margin-bottom: 1.25rem; }
+    .prog-top { display: flex; justify-content: space-between; font-size: 0.82rem; opacity: 0.55; margin-bottom: 0.55rem; }
+    .bar { background: #3C603C; border-radius: 6px; overflow: hidden; height: 6px; }
+    .bar-fill { height: 100%; border-radius: 6px; background: #5AE57A; transition: width 0.35s, background 0.35s; }
+
+    .sec { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.3rem; margin-bottom: 1rem; }
+    .sec-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 0.15rem; }
+    .sec-sub { font-size: 0.75rem; opacity: 0.42; margin-bottom: 1rem; }
+    .field { margin-bottom: 0.85rem; }
+    .field:last-child { margin-bottom: 0; }
+    label { display: block; font-size: 0.75rem; opacity: 0.5; margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    input, select, textarea { width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.6rem 0.9rem; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.86rem; outline: none; transition: border-color 0.15s; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: #5AE57A; }
+    select option { background: #3C603C; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 500px) { .row-2 { grid-template-columns: 1fr; } }
+
+    .btn-row { display: flex; gap: 0.65rem; margin: 0.5rem 0 2.5rem; }
+    .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 0.78rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500; flex: 2; transition: opacity 0.2s; }
+    .btn-gold:hover { opacity: 0.86; }
+    .btn-out { background: transparent; border: 1px solid #4C724C; color: #BFD8BF; padding: 0.78rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.86rem; flex: 1; transition: all 0.2s; }
+    .btn-out:hover { border-color: #5AE57A; color: #5AE57A; }
+
+    /* Avatar card */
+    #avatarView { display: none; }
+    .av-card { background: #345534; border: 1px solid #3C603C; border-radius: 12px; overflow: hidden; margin-bottom: 1rem; }
+    .av-header { background: linear-gradient(135deg, #325132 0%, #325132 100%); border-bottom: 1px solid #2E4D2E; padding: 1.5rem 1.75rem; display: flex; align-items: center; gap: 1.25rem; }
+    .av-avatar { width: 56px; height: 56px; border-radius: 50%; background: #C9A84C22; border: 2px solid #C9A84C44; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; flex-shrink: 0; }
+    .av-name { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; margin-bottom: 0.2rem; }
+    .av-meta { font-size: 0.8rem; opacity: 0.55; }
+    .av-body { padding: 1.5rem 1.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+    @media (max-width: 540px) { .av-body { grid-template-columns: 1fr; } }
+    .av-sec { }
+    .av-sec.full { grid-column: span 2; }
+    @media (max-width: 540px) { .av-sec.full { grid-column: span 1; } }
+    .av-sec-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.4; margin-bottom: 0.5rem; }
+    .av-text { font-size: 0.84rem; line-height: 1.55; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .tag { background: #3C603C; border: 1px solid #4C724C; border-radius: 4px; padding: 0.2rem 0.55rem; font-size: 0.75rem; color: #BFD8BF; }
+    .quote-box { background: #325132; border-left: 3px solid #5AE57A; padding: 0.75rem 1rem; border-radius: 0 6px 6px 0; font-size: 0.88rem; font-style: italic; color: #C9A84Ccc; line-height: 1.5; }
+    .ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+    @media (max-width: 540px) { .ba-grid { grid-template-columns: 1fr; } }
+    .ba-box { background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 0.85rem; }
+    .ba-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .ba-label.before { color: #5AE57A; opacity: 0.8; }
+    .ba-label.after  { color: #5AE57A; opacity: 0.8; }
+    .ba-text { font-size: 0.83rem; line-height: 1.5; opacity: 0.85; }
+
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; padding-bottom: 1rem; }
+
+    @media print {
+      body { background: #FFFFFF; color: #325132; padding: 1rem; }
+      .av-card { border: 1px solid #FFFFFF; }
+      .av-header { background: #FFFFFF !important; border-bottom: 1px solid #FFFFFF; }
+      .av-name { color: #5AE57A !important; }
+      .av-avatar { background: #FFFFFF !important; border-color: #5AE57A !important; color: #5AE57A !important; }
+      .tag { background: #FFFFFF !important; border-color: #FFFFFF !important; color: #BFD8BF !important; }
+      .ba-box { background: #FFFFFF !important; border-color: #FFFFFF !important; }
+      .quote-box { background: #FFFFFF !important; border-color: #5AE57A !important; }
+      .prog-wrap, #formView, .btn-row { display: none !important; }
+      #avatarView { display: block !important; }
+      footer { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Customer Avatar Builder</h1>
+  <p class="subtitle">Build a vivid profile of the person you're selling to.</p>
+
+  <div class="prog-wrap">
+    <div class="prog-top"><span>Profile Completeness</span><span id="pct">0%</span></div>
+    <div class="bar"><div class="bar-fill" id="pBar" style="width:0%"></div></div>
+  </div>
+
+  <div id="formView">
+    <div class="sec">
+      <div class="sec-title">Identity</div>
+      <div class="sec-sub">Give your ideal customer a name and a life</div>
+      <div class="row-2">
+        <div class="field"><label>Avatar Name</label><input id="f_name" type="text" placeholder="e.g. Sarah, Marcus…" oninput="prog()"></div>
+        <div class="field"><label>Age Range</label>
+          <select id="f_age" onchange="prog()">
+            <option value="">Select…</option>
+            <option>18–24</option><option>25–34</option><option>35–44</option><option>45–54</option><option>55+</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field"><label>Occupation</label><input id="f_occ" type="text" placeholder="e.g. VA, stay-at-home parent, teacher" oninput="prog()"></div>
+        <div class="field"><label>Lifestyle / Location</label><input id="f_loc" type="text" placeholder="e.g. suburban mom, remote worker" oninput="prog()"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Goals & Desires</div>
+      <div class="sec-sub">What does your ideal customer truly want?</div>
+      <div class="field"><label>#1 Goal</label><input id="f_goal" type="text" placeholder="The one thing they want most right now" oninput="prog()"></div>
+      <div class="row-2">
+        <div class="field"><label>They Want MORE of…</label><input id="f_more" type="text" placeholder="e.g. freedom, income, confidence" oninput="prog()"></div>
+        <div class="field"><label>They Want LESS of…</label><input id="f_less" type="text" placeholder="e.g. stress, confusion, overwhelm" oninput="prog()"></div>
+      </div>
+      <div class="field"><label>Dream Outcome</label><textarea id="f_dream" rows="2" placeholder="Paint the picture — what does success look like for them?" oninput="prog()"></textarea></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Pain Points & Fears</div>
+      <div class="sec-sub">What's holding them back from what they want?</div>
+      <div class="field"><label>Biggest Frustration</label><textarea id="f_pain" rows="2" placeholder="What annoys or exhausts them most right now?" oninput="prog()"></textarea></div>
+      <div class="row-2">
+        <div class="field"><label>Biggest Fear</label><input id="f_fear" type="text" placeholder="e.g. wasting money, failing again" oninput="prog()"></div>
+        <div class="field"><label>Top Objection to Buying</label><input id="f_obj" type="text" placeholder="e.g. 'I don't have time', 'Too expensive'" oninput="prog()"></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Behavior & Voice</div>
+      <div class="sec-sub">Where do they spend time and how do they talk about their problems?</div>
+      <div class="field"><label>Platforms They Use</label><input id="f_platforms" type="text" placeholder="e.g. Instagram, Pinterest, YouTube, Facebook Groups" oninput="prog()"></div>
+      <div class="field"><label>Creators / People They Trust</label><input id="f_trust" type="text" placeholder="e.g. Amy Porterfield, specific niche influencers" oninput="prog()"></div>
+      <div class="field"><label>Phrase That Resonates (their words)</label><input id="f_phrase" type="text" placeholder='e.g. "I just need a simple system that actually works"' oninput="prog()"></div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">Before & After Transformation</div>
+      <div class="sec-sub">The emotional shift your product creates</div>
+      <div class="row-2">
+        <div class="field"><label>Before — How They Feel Now</label><textarea id="f_before" rows="3" placeholder="Stuck, frustrated, overwhelmed…" oninput="prog()"></textarea></div>
+        <div class="field"><label>After — How They Feel With You</label><textarea id="f_after" rows="3" placeholder="Confident, clear, moving forward…" oninput="prog()"></textarea></div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-gold" onclick="buildAvatar()">Build Avatar Profile</button>
+      <button class="btn-out" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+
+  <div id="avatarView">
+    <div class="av-card" id="avCard"></div>
+    <div class="btn-row">
+      <button class="btn-gold" onclick="switchView('form')">← Edit Avatar</button>
+      <button class="btn-out" onclick="copyAvatar()">Copy Profile</button>
+      <button class="btn-out" onclick="window.print()">Print / PDF</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const KEY = 'gpbyo_avatar_v1';
+  const FIELDS = ['f_name','f_age','f_occ','f_loc','f_goal','f_more','f_less','f_dream','f_pain','f_fear','f_obj','f_platforms','f_trust','f_phrase','f_before','f_after'];
+  const g   = id => document.getElementById(id);
+  const val = id => g(id)?.value.trim()||'';
+  const esc = s  => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+  const or  = (v,fb) => v||fb;
+
+  function prog() {
+    const filled = FIELDS.filter(id => val(id)).length;
+    const pct = Math.round(filled/FIELDS.length*100);
+    g('pBar').style.width = pct+'%';
+    g('pBar').style.background = pct===100?'#5AE57A':'#5AE57A';
+    g('pct').textContent = pct+'%';
+    saveState();
+  }
+
+  function saveState() {
+    const d={};
+    FIELDS.forEach(id=>d[id]=g(id)?.value||'');
+    localStorage.setItem(KEY,JSON.stringify(d));
+  }
+
+  function loadState() {
+    const s=localStorage.getItem(KEY);
+    if(!s) return;
+    const d=JSON.parse(s);
+    FIELDS.forEach(id=>{ if(g(id)) g(id).value=d[id]||''; });
+    prog();
+  }
+
+  function buildAvatar() {
+    const name      = or(val('f_name'),'Your Avatar');
+    const age       = val('f_age');
+    const occ       = val('f_occ');
+    const loc       = val('f_loc');
+    const goal      = or(val('f_goal'),'—');
+    const more      = val('f_more');
+    const less      = val('f_less');
+    const dream     = or(val('f_dream'),'—');
+    const pain      = or(val('f_pain'),'—');
+    const fear      = val('f_fear');
+    const obj       = val('f_obj');
+    const platforms = val('f_platforms');
+    const trust     = val('f_trust');
+    const phrase    = val('f_phrase');
+    const before    = or(val('f_before'),'—');
+    const after     = or(val('f_after'),'—');
+
+    const initial   = name.trim()[0]?.toUpperCase()||'?';
+    const metaParts = [age,occ,loc].filter(Boolean);
+
+    const tagHtml = s => s.split(/[,\/]+/).map(t=>t.trim()).filter(Boolean).map(t=>`<span class="tag">${esc(t)}</span>`).join('');
+
+    g('avCard').innerHTML = `
+      <div class="av-header">
+        <div class="av-avatar">${initial}</div>
+        <div>
+          <div class="av-name">${esc(name)}</div>
+          <div class="av-meta">${esc(metaParts.join(' · '))}</div>
+        </div>
+      </div>
+      <div class="av-body">
+        <div class="av-sec">
+          <div class="av-sec-title">#1 Goal</div>
+          <div class="av-text">${esc(goal)}</div>
+        </div>
+        <div class="av-sec">
+          <div class="av-sec-title">Biggest Frustration</div>
+          <div class="av-text">${esc(pain)}</div>
+        </div>
+        ${more||less?`<div class="av-sec">
+          <div class="av-sec-title">Wants More Of</div>
+          <div class="tag-row">${tagHtml(more||'—')}</div>
+        </div>
+        <div class="av-sec">
+          <div class="av-sec-title">Wants Less Of</div>
+          <div class="tag-row">${tagHtml(less||'—')}</div>
+        </div>`:''}
+        <div class="av-sec full">
+          <div class="av-sec-title">Dream Outcome</div>
+          <div class="av-text">${esc(dream)}</div>
+        </div>
+        ${fear||obj?`<div class="av-sec">
+          <div class="av-sec-title">Biggest Fear</div>
+          <div class="av-text">${esc(fear||'—')}</div>
+        </div>
+        <div class="av-sec">
+          <div class="av-sec-title">Top Objection</div>
+          <div class="av-text">${esc(obj||'—')}</div>
+        </div>`:''}
+        ${platforms||trust?`<div class="av-sec">
+          <div class="av-sec-title">Platforms</div>
+          <div class="tag-row">${tagHtml(platforms||'—')}</div>
+        </div>
+        <div class="av-sec">
+          <div class="av-sec-title">Trusts / Follows</div>
+          <div class="av-text">${esc(trust||'—')}</div>
+        </div>`:''}
+        ${phrase?`<div class="av-sec full">
+          <div class="av-sec-title">Their Words</div>
+          <div class="quote-box">"${esc(phrase)}"</div>
+        </div>`:''}
+        <div class="av-sec full">
+          <div class="av-sec-title">Transformation</div>
+          <div class="ba-grid">
+            <div class="ba-box"><div class="ba-label before">Before</div><div class="ba-text">${esc(before)}</div></div>
+            <div class="ba-box"><div class="ba-label after">After</div><div class="ba-text">${esc(after)}</div></div>
+          </div>
+        </div>
+      </div>`;
+
+    switchView('avatar');
+  }
+
+  function switchView(v) {
+    g('formView').style.display   = v==='form'   ? 'block' : 'none';
+    g('avatarView').style.display = v==='avatar' ? 'block' : 'none';
+  }
+
+  function copyAvatar() {
+    const lines = [
+      `CUSTOMER AVATAR: ${val('f_name')||'My Avatar'}`,
+      '─'.repeat(32),
+      val('f_age')&&`Age: ${val('f_age')}`, val('f_occ')&&`Occupation: ${val('f_occ')}`, val('f_loc')&&`Lifestyle: ${val('f_loc')}`,
+      '', `#1 Goal: ${val('f_goal')||'—'}`, `Dream Outcome: ${val('f_dream')||'—'}`,
+      val('f_more')&&`Wants More: ${val('f_more')}`, val('f_less')&&`Wants Less: ${val('f_less')}`,
+      '', `Biggest Frustration: ${val('f_pain')||'—'}`, val('f_fear')&&`Fear: ${val('f_fear')}`, val('f_obj')&&`Objection: ${val('f_obj')}`,
+      '', val('f_platforms')&&`Platforms: ${val('f_platforms')}`, val('f_trust')&&`Trusts: ${val('f_trust')}`,
+      val('f_phrase')&&`\n"${val('f_phrase')}"`,
+      '', `BEFORE: ${val('f_before')||'—'}`, `AFTER: ${val('f_after')||'—'}`,
+    ].filter(l=>l!==false&&l!==undefined&&l!==null).join('\n');
+
+    navigator.clipboard.writeText(lines).then(()=>{
+      const b=document.querySelectorAll('#avatarView .btn-out')[0];
+      b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy Profile',1600);
+    });
+  }
+
+  function clearAll() {
+    if (confirm('Clear all avatar data?')) {
+      localStorage.removeItem(KEY);
+      FIELDS.forEach(id=>{ if(g(id)) g(id).value=''; });
+      prog(); switchView('form');
+    }
+  }
+
+  loadState();
+</script>
+</body>
+</html>

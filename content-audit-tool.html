@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Audit Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  textarea, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 180px; resize: vertical; }
+  textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .grade-block { text-align: center; padding: 10px 0 18px; }
+  .grade {
+    font-family: 'Playfair Display', serif;
+    font-size: 80px;
+    line-height: 1;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .grade-verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-top: 6px;
+  }
+  .grade-summary { opacity: 0.8; font-size: 14px; margin-top: 4px; }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 6px;
+  }
+  @media (max-width: 520px) { .metric-grid { grid-template-columns: 1fr; } }
+  .metric {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .metric-name {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .metric-note { font-size: 13px; opacity: 0.75; margin-top: 4px; }
+  .audit-list { list-style: none; }
+  .audit-list li {
+    padding: 11px 0 11px 28px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .audit-list li:last-child { border-bottom: none; }
+  .audit-list li.good:before { content: "✓"; color: #5AE57A; position: absolute; left: 4px; font-weight: 700; }
+  .audit-list li.bad:before { content: "✗"; color: #5AE57A; opacity: 0.5; position: absolute; left: 4px; font-weight: 700; }
+  .audit-list li.tip:before { content: "→"; color: #5AE57A; position: absolute; left: 4px; font-weight: 700; }
+  .stat-row { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; opacity: 0.75; margin-top: 12px; }
+  .stat-row span .dot { color: #5AE57A; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content Audit Tool</h1>
+  <p class="subtitle">Paste any piece of content. Get a letter grade, the breakdown, and exactly what to fix.</p>
+
+  <div class="card">
+    <label>What type of content is this?</label>
+    <select id="type">
+      <option>Social caption</option>
+      <option>Newsletter / Email</option>
+      <option>Blog post</option>
+      <option>Sales / Landing copy</option>
+      <option>Video script</option>
+    </select>
+    <label>Paste your content</label>
+    <textarea id="content" placeholder="Paste the full piece — caption, post, email, page copy..."></textarea>
+    <button onclick="audit()">Audit My Content</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="grade-block">
+        <div class="grade" id="grade">—</div>
+        <div class="grade-verdict" id="verdict">—</div>
+        <div class="grade-summary" id="summary"></div>
+      </div>
+      <div class="stat-row" id="stats"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">Score Breakdown</label>
+      <div class="metric-grid" id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">What's Working</label>
+      <ul class="audit-list" id="working"></ul>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">What to Fix</label>
+      <ul class="audit-list" id="fix"></ul>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+function audit() {
+  const text = document.getElementById('content').value.trim();
+  const type = document.getElementById('type').value;
+  if (!text) { alert('Paste your content first.'); return; }
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const wc = words.length;
+  const sentences = text.split(/[.!?\n]+/).filter(s => s.trim());
+  const sc = sentences.length || 1;
+  const avgWps = wc / sc;
+  const lower = text.toLowerCase();
+  const firstLine = text.split('\n').find(l => l.trim()) || '';
+
+  // Hook
+  const hookWords = ['what','why','how','if','stop','never','imagine','here','this','nobody'];
+  const hook = (hookWords.some(w => firstLine.toLowerCase().startsWith(w + ' ')) ? 60 : 30)
+    + (firstLine.length < 80 ? 25 : 0)
+    + (/[?]/.test(firstLine) ? 15 : 0);
+
+  // Clarity
+  const clarity = avgWps < 14 ? 92 : avgWps < 20 ? 72 : avgWps < 28 ? 52 : 32;
+
+  // Value density - look for specifics
+  const valueSignals = (text.match(/\d/g) || []).length
+    + (lower.match(/example|step|tip|because|reason|so that/g) || []).length * 4;
+  const value = Math.min(99, 30 + valueSignals * 6);
+
+  // Emotion
+  const emotionWords = ['love','hate','fear','win','lose','fail','best','worst','easy','hard','free','proven','real','honest','quietly','almost'];
+  const emoCount = emotionWords.filter(w => lower.includes(w)).length;
+  const emotion = Math.min(99, 25 + emoCount * 14);
+
+  // CTA
+  const ctaWords = ['comment','reply','share','dm','link','bio','tag','save','sign up','subscribe','click','grab','join','book','start'];
+  const cta = ctaWords.some(w => lower.includes(w)) ? 90 : 25;
+
+  // Length fit
+  const idealRanges = {
+    'Social caption': [30, 150],
+    'Newsletter / Email': [120, 350],
+    'Blog post': [600, 2000],
+    'Sales / Landing copy': [150, 600],
+    'Video script': [50, 250]
+  };
+  const [min, max] = idealRanges[type];
+  let lengthFit;
+  if (wc >= min && wc <= max) lengthFit = 95;
+  else if (wc < min) lengthFit = Math.max(30, Math.round(60 * wc / min));
+  else lengthFit = Math.max(35, 95 - Math.round((wc - max) / max * 80));
+
+  const overall = Math.round(hook*0.2 + clarity*0.18 + value*0.18 + emotion*0.14 + cta*0.15 + lengthFit*0.15);
+  let grade, verdict, summary;
+  if (overall >= 88) { grade = 'A'; verdict = 'Excellent'; summary = 'Strong on every dimension. Ship it.'; }
+  else if (overall >= 78) { grade = 'B'; verdict = 'Solid'; summary = 'Good piece — small tweaks could lift performance.'; }
+  else if (overall >= 65) { grade = 'C'; verdict = 'Average'; summary = 'It works, but it won\'t stand out. Strengthen weak areas.'; }
+  else if (overall >= 50) { grade = 'D'; verdict = 'Needs work'; summary = 'Multiple structural issues. Worth a rewrite pass.'; }
+  else { grade = 'F'; verdict = 'Rewrite'; summary = 'Too many gaps — start over with a clearer plan.'; }
+
+  document.getElementById('grade').textContent = grade;
+  document.getElementById('verdict').textContent = verdict + ' — ' + overall + '/100';
+  document.getElementById('summary').textContent = summary;
+  document.getElementById('stats').innerHTML = `
+    <span><span class="dot">●</span> ${wc} words</span>
+    <span><span class="dot">●</span> ${sc} sentences</span>
+    <span><span class="dot">●</span> ${avgWps.toFixed(1)} words/sentence</span>
+    <span><span class="dot">●</span> Ideal: ${min}-${max} words</span>
+  `;
+
+  const metrics = [
+    {name: 'Hook', val: Math.round(hook)},
+    {name: 'Clarity', val: Math.round(clarity)},
+    {name: 'Value Density', val: Math.round(value)},
+    {name: 'Emotional Pull', val: Math.round(emotion)},
+    {name: 'Call to Action', val: Math.round(cta)},
+    {name: 'Length Fit', val: Math.round(lengthFit)}
+  ];
+
+  document.getElementById('metrics').innerHTML = metrics.map(m => `
+    <div class="metric">
+      <div class="metric-name">${m.name}</div>
+      <div class="metric-val">${m.val}</div>
+      <div class="metric-note">${m.val >= 80 ? 'Strong' : m.val >= 60 ? 'Decent' : m.val >= 40 ? 'Weak' : 'Critical'}</div>
+    </div>
+  `).join('');
+
+  const working = [];
+  const fix = [];
+  if (hook >= 65) working.push('Opening line pulls attention.');
+  else fix.push('Rewrite the first line — lead with a question, contrarian claim, or vivid image.');
+
+  if (clarity >= 70) working.push('Sentences are tight and easy to read.');
+  else fix.push(`Sentences average ${avgWps.toFixed(1)} words — cut them down to under 14 for snap.`);
+
+  if (value >= 70) working.push('You give concrete specifics (numbers, examples, reasoning).');
+  else fix.push('Add specifics — a number, an example, or a "because" reason. Vague hurts.');
+
+  if (emotion >= 60) working.push('Language has emotional pull.');
+  else fix.push('Inject one emotional or vivid word (free, real, proven, fail, win) so readers feel something.');
+
+  if (cta >= 70) working.push('Clear ask at the end — readers know what to do.');
+  else fix.push('Add a direct CTA: reply, save, share, click, comment X.');
+
+  if (lengthFit >= 75) working.push(`Length fits ${type.toLowerCase()} norms.`);
+  else fix.push(wc < min ? `Too short for ${type.toLowerCase()} — aim for ${min}+ words.` : `Too long for ${type.toLowerCase()} — trim toward ${max} words.`);
+
+  if (!working.length) working.push('No clear strengths yet — focus on the fix list below.');
+  if (!fix.length) fix.push('Nothing major to fix. A/B test against one variation.');
+
+  document.getElementById('working').innerHTML = working.map(t => `<li class="good">${t}</li>`).join('');
+  document.getElementById('fix').innerHTML = fix.map(t => `<li class="tip">${t}</li>`).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

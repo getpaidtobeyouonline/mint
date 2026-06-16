@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadline Countdown Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 640px; margin: 0 auto 20px; }
+  .add-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input[type="text"] { flex: 1; min-width: 160px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none; }
+  .add-row input[type="text"]:focus { border-color: #5AE57A; }
+  .add-row input[type="date"], .add-row input[type="time"] { background: #325132; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  .add-row input[type="date"]:focus, .add-row input[type="time"]:focus { border-color: #5AE57A; color: #FFFFFF; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Summary */
+  .summary { max-width: 640px; margin: 0 auto 20px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .sum-pill { background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 7px 14px; font-size: 0.78rem; color: #F0EBE0aa; }
+  .sum-pill span { font-weight: 500; }
+
+  /* Deadline cards */
+  .deadlines { max-width: 640px; margin: 0 auto; }
+  .dl-card { background: #3C603C; border-left: 4px solid; border-radius: 12px; margin-bottom: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; overflow: hidden; transition: opacity 0.2s; }
+  .dl-card.overdue { opacity: 0.7; }
+  .dl-info { flex: 1; min-width: 0; }
+  .dl-name { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dl-due { font-size: 0.75rem; color: #BFD8BF; }
+  .dl-urgency { font-size: 0.68rem; padding: 2px 8px; border-radius: 10px; display: inline-block; margin-top: 4px; }
+  .dl-countdown { text-align: right; flex-shrink: 0; }
+  .dl-main { font-family: 'Playfair Display', serif; font-size: 1.7rem; line-height: 1; white-space: nowrap; }
+  .dl-sub { font-size: 0.72rem; color: #BFD8BF; margin-top: 3px; white-space: nowrap; }
+  .dl-overdue-label { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.88rem; padding: 4px 6px; flex-shrink: 0; align-self: flex-start; }
+  .del-btn:hover { color: #5AE57A; }
+
+  /* Urgency levels */
+  .u0 { border-color: #5AE57A; }  /* overdue */
+  .u1 { border-color: #5AE57A; }  /* < 1 day */
+  .u2 { border-color: #5AE57A; }  /* 1-3 days */
+  .u3 { border-color: #5AE57A; }  /* 3-7 days */
+  .u4 { border-color: #5AE57A; }  /* 7-14 days */
+  .u5 { border-color: #5AE57A; }  /* > 14 days */
+
+  .c0 { color: #5AE57A; } .c1 { color: #5AE57A; } .c2 { color: #5AE57A; }
+  .c3 { color: #5AE57A; } .c4 { color: #5AE57A; } .c5 { color: #5AE57A; }
+
+  .bg0 { background: #e0707022; color: #5AE57A; }
+  .bg1 { background: #e0707018; color: #5AE57A; }
+  .bg2 { background: #d4824a22; color: #5AE57A; }
+  .bg3 { background: #C9A84C22; color: #5AE57A; }
+  .bg4 { background: #7dd69a22; color: #5AE57A; }
+  .bg5 { background: #3a5a4a22; color: #5AE57A; }
+
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Deadline Countdown Timer</h1>
+<p class="subtitle">See exactly how much time is left. Feel the urgency. Get it done.</p>
+
+<div class="add-card">
+  <div class="add-title">Add a Deadline</div>
+  <div class="add-row">
+    <input type="text" id="dlName" placeholder="What's due? e.g. Client proposal, Tax return…" maxlength="70" />
+    <input type="date" id="dlDate" />
+    <input type="time" id="dlTime" value="17:00" />
+    <button class="btn-gold" onclick="addDeadline()">Add</button>
+  </div>
+</div>
+
+<div class="summary" id="summary"></div>
+<div class="deadlines" id="dlList"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let deadlines = JSON.parse(localStorage.getItem('dct_deadlines') || '[]');
+
+  function save() { localStorage.setItem('dct_deadlines', JSON.stringify(deadlines)); }
+
+  // Set default date to tomorrow
+  const tmr = new Date(); tmr.setDate(tmr.getDate() + 7);
+  document.getElementById('dlDate').value = tmr.toISOString().slice(0, 10);
+
+  function addDeadline() {
+    const name = document.getElementById('dlName').value.trim(); if (!name) return;
+    const date = document.getElementById('dlDate').value; if (!date) return;
+    const time = document.getElementById('dlTime').value || '17:00';
+    deadlines.push({ id: Date.now(), name, datetime: `${date}T${time}` });
+    deadlines.sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    save(); render();
+    document.getElementById('dlName').value = '';
+    document.getElementById('dlName').focus();
+  }
+
+  function remove(id) { deadlines = deadlines.filter(d => d.id !== id); save(); render(); }
+
+  function urgencyLevel(ms) {
+    if (ms < 0)               return 0; // overdue
+    if (ms < 86400000)        return 1; // < 1 day
+    if (ms < 3 * 86400000)    return 2; // 1-3 days
+    if (ms < 7 * 86400000)    return 3; // 3-7 days
+    if (ms < 14 * 86400000)   return 4; // 7-14 days
+    return 5;                            // > 14 days
+  }
+
+  function urgencyLabel(lvl) {
+    return ['Overdue','Due today','Due soon','This week','Coming up','Plenty of time'][lvl];
+  }
+
+  function formatCountdown(ms) {
+    if (ms < 0) {
+      const abs = Math.abs(ms);
+      const d = Math.floor(abs / 86400000);
+      const h = Math.floor((abs % 86400000) / 3600000);
+      return { main: d > 0 ? `${d}d ${h}h` : `${h}h`, sub: 'overdue', overdue: true };
+    }
+    const d  = Math.floor(ms / 86400000);
+    const h  = Math.floor((ms % 86400000) / 3600000);
+    const m  = Math.floor((ms % 3600000) / 60000);
+    const s  = Math.floor((ms % 60000) / 1000);
+    if (d >= 2)  return { main: `${d}d`, sub: `${h}h ${m}m remaining` };
+    if (d === 1) return { main: `${d}d ${h}h`, sub: `${m}m ${s}s remaining` };
+    if (h >= 1)  return { main: `${h}:${pad(m)}:${pad(s)}`, sub: `hours remaining` };
+    return { main: `${m}:${pad(s)}`, sub: `minutes remaining` };
+  }
+
+  function pad(n) { return n.toString().padStart(2, '0'); }
+
+  function fmtDateTime(dt) {
+    return new Date(dt).toLocaleString('en-US', { weekday:'short', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  }
+
+  function render() {
+    const now = Date.now();
+    const active = deadlines.filter(d => new Date(d.datetime) > new Date(now - 7*86400000));
+
+    // Summary
+    const upcoming = deadlines.filter(d => new Date(d.datetime) > now);
+    const overdue  = deadlines.filter(d => new Date(d.datetime) <= now);
+    const urgent   = upcoming.filter(d => (new Date(d.datetime) - now) < 3*86400000);
+    document.getElementById('summary').innerHTML = deadlines.length ? [
+      upcoming.length ? `<div class="sum-pill"><span style="color:#5AE57A">${upcoming.length}</span> upcoming</div>` : '',
+      urgent.length   ? `<div class="sum-pill"><span style="color:#5AE57A">${urgent.length}</span> urgent</div>` : '',
+      overdue.length  ? `<div class="sum-pill"><span style="color:#BFD8BF">${overdue.length}</span> overdue</div>` : '',
+    ].join('') : '';
+
+    // Cards
+    const el = document.getElementById('dlList');
+    if (!deadlines.length) { el.innerHTML = '<p class="empty">No deadlines yet — add one above and the clock starts.</p>'; return; }
+
+    const sorted = [...deadlines].sort((a, b) => new Date(a.datetime) - new Date(b.datetime));
+    el.innerHTML = sorted.map(d => {
+      const ms  = new Date(d.datetime) - now;
+      const lvl = urgencyLevel(ms);
+      const cd  = formatCountdown(ms);
+      return `
+        <div class="dl-card u${lvl} ${cd.overdue ? 'overdue' : ''}">
+          <div class="dl-info">
+            <div class="dl-name">${esc(d.name)}</div>
+            <div class="dl-due">${fmtDateTime(d.datetime)}</div>
+            <div class="dl-urgency bg${lvl}">${urgencyLabel(lvl)}</div>
+          </div>
+          <div class="dl-countdown">
+            ${cd.overdue
+              ? `<div class="dl-overdue-label">Overdue</div><div class="dl-sub">${cd.main} ago</div>`
+              : `<div class="dl-main c${lvl}">${cd.main}</div><div class="dl-sub">${cd.sub}</div>`}
+          </div>
+          <button class="del-btn" onclick="remove(${d.id})">✕</button>
+        </div>`;
+    }).join('');
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  document.getElementById('dlName').addEventListener('keydown', e => { if (e.key === 'Enter') addDeadline(); });
+
+  render();
+  setInterval(render, 1000);
+</script>
+</body>
+</html>

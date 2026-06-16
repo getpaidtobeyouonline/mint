@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Power Questions Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; text-align: center; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .q { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 9px; font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; line-height: 1.4; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Daily Power Questions Tool</h1>
+  <p class="sub">3 high-leverage questions to ask yourself before the day owns you.</p>
+
+  <div class="panel">
+    <button class="btn" onclick="gen()">Give Me Today's Questions</button>
+    <button class="btn ghost" onclick="gen()">↻ Different Ones</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    "If only one thing got done today, what would make me feel okay tonight?",
+    "What am I avoiding that, if I did it today, would change the week?",
+    "Where am I making this harder than it needs to be?",
+    "What is the kindest thing I can do for future-me today?",
+    "What would the version of me I am becoming do right now?",
+    "Where am I performing instead of choosing?",
+    "What am I tolerating that I do not have to?",
+    "What is the smallest brave action available to me today?",
+    "What do I need today: rest, food, water, air, or a person?",
+    "What is one boundary I have been ignoring, and what would honouring it look like in the next hour?",
+    "Who do I want to be in conversation with people today?",
+    "What is enough today, so I can stop chasing 'more'?",
+    "If I trusted that I would handle whatever happens, what would I attempt today?",
+    "What gets to be easy today, not earned?",
+    "What would I do today if no one was watching?",
+    "Where am I waiting to feel ready? Can I start anyway?",
+    "What feeling am I trying to manage with productivity? What does that feeling actually need?",
+    "What did I learn yesterday that I should not waste today?",
+    "What would I refuse to repeat from this week, starting now?",
+    "What is one thing I would be proud to tell future-me I did today?"
+  ];
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const p=[...Q]; for(let i=p.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+    g('out').innerHTML=p.slice(0,3).map(x=>'<div class="q">'+esc(x)+'</div>').join('');
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

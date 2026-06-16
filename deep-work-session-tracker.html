@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Work Session Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Goal progress */
+  .goal-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .goal-hours { font-size: 1.6rem; font-family: 'Playfair Display', serif; color: #FFFFFF; }
+  .goal-meta { font-size: 0.82rem; color: #F0EBE0aa; }
+  .goal-meta span { color: #5AE57A; }
+  .bar-track { background: #325132; border-radius: 6px; height: 8px; overflow: hidden; margin-bottom: 8px; }
+  .bar-fill { height: 100%; background: #5AE57A; border-radius: 6px; transition: width 0.5s ease; }
+  .bar-fill.reached { background: #5AE57A; }
+  .goal-caption { font-size: 0.8rem; color: #F0EBE0aa; display: flex; justify-content: space-between; }
+  .goal-caption span { color: #5AE57A; }
+  .goal-edit { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid #3C603C; }
+  .goal-edit label { font-size: 0.82rem; color: #F0EBE0aa; }
+  .goal-edit input { width: 60px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 6px 10px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; text-align: center; }
+  .goal-edit input:focus { border-color: #5AE57A; }
+  .btn-xs { background: #5AE57A; color: #325132; border: none; padding: 6px 14px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; font-weight: 500; cursor: pointer; }
+  .btn-xs:hover { background: #5AE57A; }
+
+  /* Live timer */
+  .project-input { width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; margin-bottom: 14px; }
+  .project-input:focus { border-color: #5AE57A; }
+  .project-input:disabled { opacity: 0.5; }
+  .timer-row { display: flex; align-items: center; gap: 14px; }
+  .elapsed { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; flex: 1; letter-spacing: 0.04em; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+  .btn-stop { background: #5AE57A; color: #5AE57A; border: 1px solid #5AE57A; }
+  .btn-stop:hover { background: #5AE57A; }
+
+  /* Manual log */
+  .log-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .log-row input[type="text"] { flex: 1; min-width: 130px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .log-row input[type="text"]:focus { border-color: #5AE57A; }
+  .log-row input[type="number"] { width: 62px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 8px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; text-align: center; }
+  .dur-label { font-size: 0.8rem; color: #F0EBE0aa; white-space: nowrap; }
+
+  /* Session list */
+  .session-item { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid #3C603C; }
+  .session-item:last-child { border-bottom: none; }
+  .session-dot { width: 8px; height: 8px; border-radius: 50%; background: #5AE57A; flex-shrink: 0; }
+  .session-name { flex: 1; font-size: 0.92rem; }
+  .session-dur { font-size: 0.82rem; color: #5AE57A; white-space: nowrap; }
+  .session-time { font-size: 0.78rem; color: #F0EBE0aa; white-space: nowrap; }
+  .del-btn { background: none; border: none; color: #5A845A; cursor: pointer; font-size: 0.9rem; padding: 3px 5px; border-radius: 4px; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 16px 0; }
+  .week-row { display: flex; justify-content: space-between; gap: 6px; }
+  .week-day { flex: 1; background: #325132; border-radius: 8px; padding: 10px 6px; text-align: center; }
+  .wd-label { font-size: 0.72rem; color: #F0EBE0aa; margin-bottom: 4px; }
+  .wd-val { font-size: 0.85rem; color: #5AE57A; font-weight: 500; }
+  .wd-val.today { color: #FFFFFF; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Deep Work Session Tracker</h1>
+<p class="subtitle">Log every focused session. Watch your hours stack up.</p>
+
+<div class="card">
+  <div class="card-title">Today's Progress</div>
+  <div class="goal-row">
+    <div class="goal-hours" id="todayHours">0h 0m</div>
+    <div class="goal-meta">Goal: <span id="goalDisplay">4</span> hrs</div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%"></div></div>
+  <div class="goal-caption"><span id="barCaption">0%</span><span id="dateLabel"></span></div>
+  <div class="goal-edit">
+    <label>Daily goal (hrs):</label>
+    <input type="number" id="goalInput" value="4" min="1" max="16" />
+    <button class="btn-xs" onclick="setGoal()">Set</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Start a Session</div>
+  <input type="text" class="project-input" id="projectInput" placeholder="What are you working on?" maxlength="80" />
+  <div class="timer-row">
+    <div class="elapsed" id="elapsed">00:00:00</div>
+    <button class="btn-gold" id="timerBtn" onclick="toggleTimer()">Start</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log Past Session</div>
+  <div class="log-row">
+    <input type="text" id="logProject" placeholder="Project / task name" maxlength="80" />
+    <input type="number" id="logHrs" value="0" min="0" max="12" />
+    <span class="dur-label">hr</span>
+    <input type="number" id="logMins" value="30" min="0" max="59" />
+    <span class="dur-label">min</span>
+    <button class="btn-gold" onclick="logManual()">Log</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Sessions</div>
+  <div id="sessionList"><p class="empty">No sessions yet today.</p></div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Week</div>
+  <div class="week-row" id="weekRow"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const GOAL_KEY = 'dwt_goal', SESS_KEY = 'dwt_sessions';
+  let goal = parseFloat(localStorage.getItem(GOAL_KEY) || '4');
+  let sessions = JSON.parse(localStorage.getItem(SESS_KEY) || '[]');
+  let liveStart = null, liveTicker = null;
+
+  const TODAY = new Date().toISOString().slice(0, 10);
+
+  function save() { localStorage.setItem(SESS_KEY, JSON.stringify(sessions)); }
+
+  function setGoal() {
+    goal = Math.max(1, parseFloat(document.getElementById('goalInput').value) || 4);
+    localStorage.setItem(GOAL_KEY, goal);
+    render();
+  }
+
+  function toggleTimer() {
+    if (liveTicker) {
+      const mins = Math.round((Date.now() - liveStart) / 60000);
+      const project = document.getElementById('projectInput').value.trim() || 'Deep Work';
+      if (mins > 0) addSession(project, mins);
+      clearInterval(liveTicker); liveTicker = null; liveStart = null;
+      document.getElementById('elapsed').textContent = '00:00:00';
+      document.getElementById('timerBtn').textContent = 'Start';
+      document.getElementById('timerBtn').classList.remove('btn-stop');
+      document.getElementById('projectInput').disabled = false;
+    } else {
+      liveStart = Date.now();
+      document.getElementById('timerBtn').textContent = 'Stop & Save';
+      document.getElementById('timerBtn').classList.add('btn-stop');
+      document.getElementById('projectInput').disabled = true;
+      liveTicker = setInterval(() => {
+        const s = Math.floor((Date.now() - liveStart) / 1000);
+        const h = Math.floor(s / 3600).toString().padStart(2,'0');
+        const m = Math.floor((s % 3600) / 60).toString().padStart(2,'0');
+        const sc = (s % 60).toString().padStart(2,'0');
+        document.getElementById('elapsed').textContent = `${h}:${m}:${sc}`;
+      }, 1000);
+    }
+  }
+
+  function logManual() {
+    const project = document.getElementById('logProject').value.trim();
+    const hrs = parseInt(document.getElementById('logHrs').value) || 0;
+    const mins = parseInt(document.getElementById('logMins').value) || 0;
+    const total = hrs * 60 + mins;
+    if (!project || total <= 0) return;
+    addSession(project, total);
+    document.getElementById('logProject').value = '';
+  }
+
+  function addSession(project, mins) {
+    sessions.push({ id: Date.now(), date: TODAY, project, mins, time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) });
+    save(); render();
+  }
+
+  function remove(id) { sessions = sessions.filter(s => s.id !== id); save(); render(); }
+
+  function fmtMins(m) {
+    const h = Math.floor(m / 60), min = m % 60;
+    return h > 0 ? (min > 0 ? `${h}h ${min}m` : `${h}h`) : `${min}m`;
+  }
+
+  function render() {
+    document.getElementById('goalDisplay').textContent = goal;
+    document.getElementById('goalInput').value = goal;
+    document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+
+    const todaySess = sessions.filter(s => s.date === TODAY);
+    const todayMins = todaySess.reduce((t, s) => t + s.mins, 0);
+    const pct = Math.min(100, Math.round((todayMins / (goal * 60)) * 100));
+
+    document.getElementById('todayHours').textContent = fmtMins(todayMins);
+    document.getElementById('barFill').style.width = pct + '%';
+    document.getElementById('barFill').classList.toggle('reached', pct >= 100);
+    document.getElementById('barCaption').textContent = pct + '%';
+
+    const list = document.getElementById('sessionList');
+    if (!todaySess.length) { list.innerHTML = '<p class="empty">No sessions yet today.</p>'; }
+    else list.innerHTML = [...todaySess].reverse().map(s => `
+      <div class="session-item">
+        <div class="session-dot"></div>
+        <div class="session-name">${esc(s.project)}</div>
+        <div class="session-dur">${fmtMins(s.mins)}</div>
+        <div class="session-time">${s.time}</div>
+        <button class="del-btn" onclick="remove(${s.id})">✕</button>
+      </div>`).join('');
+
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const now = new Date(); const todayDow = now.getDay();
+    const weekHtml = Array.from({length: 7}, (_, i) => {
+      const d = new Date(now); d.setDate(now.getDate() - todayDow + i);
+      const key = d.toISOString().slice(0,10);
+      const m = sessions.filter(s => s.date === key).reduce((t,s) => t + s.mins, 0);
+      const isToday = key === TODAY;
+      return `<div class="week-day"><div class="wd-label">${days[i]}</div><div class="wd-val ${isToday?'today':''}">${m ? fmtMins(m) : '—'}</div></div>`;
+    }).join('');
+    document.getElementById('weekRow').innerHTML = weekHtml;
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  render();
+</script>
+</body>
+</html>

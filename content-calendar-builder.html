@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Calendar Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: 0.85; margin-bottom: 24px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 16px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { opacity: 0.88; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 540px) { .row { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 14px; }
+  th, td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #4C724C; vertical-align: top; }
+  th { color: #5AE57A; font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .pillar { display: inline-block; padding: 3px 8px; border-radius: 999px; background: #C9A84C22; color: #5AE57A; font-size: 12px; font-weight: 500; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .actions button { flex: 1; }
+  .ghost { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; }
+  .instructions { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+  footer { text-align: center; margin-top: 32px; font-size: 13px; opacity: 0.6; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Content Calendar Builder</h1>
+  <p class="sub">A 30-day posting plan tailored to your niche, audience, and platform — built in seconds.</p>
+
+  <div class="card">
+    <p class="instructions">Tell us about your business. We'll generate a balanced 30-day calendar across 4 proven content pillars (educate, inspire, sell, connect) with post ideas and suggested formats.</p>
+
+    <label>Your niche / what you sell</label>
+    <input id="niche" placeholder="e.g. Notion templates for freelancers">
+
+    <label>Target audience</label>
+    <input id="audience" placeholder="e.g. New freelancers building their first systems">
+
+    <div class="row">
+      <div>
+        <label>Platform</label>
+        <select id="platform">
+          <option>Instagram</option>
+          <option>TikTok</option>
+          <option>LinkedIn</option>
+          <option>Twitter / X</option>
+        </select>
+      </div>
+      <div>
+        <label>Posts per week</label>
+        <select id="freq">
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5" selected>5</option>
+          <option value="7">7</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Start date</label>
+    <input type="date" id="start">
+
+    <button onclick="generate()">Build My Calendar</button>
+  </div>
+
+  <div id="output"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+document.getElementById('start').valueAsDate = new Date();
+
+const pillars = ['Educate', 'Inspire', 'Sell', 'Connect'];
+const ideas = {
+  Educate: [
+    'Share 3 mistakes {audience} make with {niche}',
+    'Quick tutorial: one step toward {result}',
+    'Myth vs truth about {niche}',
+    'Behind-the-scenes of how you use {niche}',
+    'Beginner glossary: 5 terms in {niche}'
+  ],
+  Inspire: [
+    'Your origin story — why you started {niche}',
+    'A client win that proves {niche} works',
+    'Quote post with your spin on it',
+    'Before/after transformation in {niche}',
+    'Lesson from a recent failure'
+  ],
+  Sell: [
+    'Soft pitch: why {audience} need {niche} now',
+    'Testimonial spotlight + CTA',
+    'Limited offer or bonus announcement',
+    'Compare your offer vs the "free" way',
+    'Direct CTA: tap link in bio for {niche}'
+  ],
+  Connect: [
+    'Ask {audience} their biggest struggle',
+    'Poll: this or that in {niche}',
+    'Reply to a comment with a full post',
+    'Day-in-the-life of your work',
+    'Share an unpopular opinion in {niche}'
+  ]
+};
+
+const formats = {
+  Instagram: ['Reel', 'Carousel', 'Single image', 'Story series'],
+  TikTok: ['Talking head', 'Trend remix', 'Tutorial', 'POV'],
+  LinkedIn: ['Text post', 'Carousel PDF', 'Article', 'Poll'],
+  'Twitter / X': ['Thread', 'Single tweet', 'Image post', 'Poll']
+};
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function generate() {
+  const niche = document.getElementById('niche').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const platform = document.getElementById('platform').value;
+  const freq = parseInt(document.getElementById('freq').value);
+  const startStr = document.getElementById('start').value;
+  const out = document.getElementById('output');
+
+  if (!niche || !audience || !startStr) {
+    out.innerHTML = '<div class="card" style="border-color:#5AE57A">Please fill in all fields.</div>';
+    return;
+  }
+
+  const start = new Date(startStr + 'T00:00:00');
+  const totalPosts = Math.round((freq / 7) * 30);
+  const daySpacing = 30 / totalPosts;
+  const fmts = formats[platform];
+
+  let rows = '';
+  for (let i = 0; i < totalPosts; i++) {
+    const d = new Date(start);
+    d.setDate(d.getDate() + Math.round(i * daySpacing));
+    const pillar = pillars[i % 4];
+    const ideaTemplate = ideas[pillar][i % ideas[pillar].length];
+    const idea = ideaTemplate.replace('{audience}', audience).replace('{niche}', niche).replace('{result}', 'growth');
+    const format = fmts[i % fmts.length];
+    rows += `<tr>
+      <td>${fmtDate(d)}</td>
+      <td><span class="pillar">${pillar}</span></td>
+      <td>${format}</td>
+      <td>${idea}</td>
+    </tr>`;
+  }
+
+  out.innerHTML = `<div class="card">
+    <div class="scroll">
+      <table id="cal">
+        <thead><tr><th>Date</th><th>Pillar</th><th>Format</th><th>Post Idea</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="actions">
+      <button onclick="downloadCSV()">Download CSV</button>
+      <button class="ghost" onclick="window.print()">Print</button>
+    </div>
+  </div>`;
+}
+
+function downloadCSV() {
+  const rows = [['Date', 'Pillar', 'Format', 'Post Idea']];
+  document.querySelectorAll('#cal tbody tr').forEach(tr => {
+    const cells = [...tr.querySelectorAll('td')].map(td => '"' + td.innerText.replace(/"/g, '""') + '"');
+    rows.push(cells);
+  });
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'content-calendar.csv';
+  a.click();
+}
+</script>
+</body>
+</html>

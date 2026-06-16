@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Product Empire Roadmap</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.path-note{font-size:.78rem;opacity:.4;text-align:center;margin-bottom:1rem;font-style:italic}
+.phase-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid}
+.phase-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem;gap:.5rem}
+.phase-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.phase-time{font-size:.65rem;opacity:.35;flex-shrink:0}
+.current-badge{font-size:.6rem;background:#5AE57A;color:#325132;border-radius:4px;padding:.15rem .5rem;font-weight:700;margin-left:.35rem;vertical-align:middle;flex-shrink:0}
+.phase-focus{font-size:.82rem;opacity:.58;font-style:italic;line-height:1.4;margin-bottom:.65rem}
+.action-list{list-style:none;margin-bottom:.6rem}
+.action-list li{font-size:.83rem;opacity:.72;padding:.3rem 0 .3rem 1.2rem;position:relative;line-height:1.45;border-bottom:1px solid #3C603C}
+.action-list li:last-child{border-bottom:none}
+.action-list li::before{content:'✓';position:absolute;left:0;color:#5AE57A;font-size:.75rem;top:.35rem}
+.phase-milestone{display:flex;align-items:center;justify-content:space-between;padding:.45rem .65rem;background:#325132;border-radius:6px;margin-bottom:.5rem;font-size:.78rem;opacity:.7}
+.milestone-val{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;opacity:1}
+.phase-avoid{font-size:.75rem;opacity:.42;line-height:1.4;font-style:italic}
+.phase-avoid strong{font-style:normal;font-size:.68rem;text-transform:uppercase;letter-spacing:.04em;opacity:.6}
+.section-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.section-card h3{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:.75rem}
+.pillar-card{background:#325132;border-radius:8px;padding:.75rem .9rem;margin-bottom:.55rem}
+.pillar-card:last-child{margin-bottom:0}
+.pillar-name{font-family:'Playfair Display',serif;font-size:.9rem;color:#5AE57A;margin-bottom:.2rem}
+.pillar-desc{font-size:.79rem;opacity:.62;line-height:1.45}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Digital Product Empire Roadmap</h1>
+    <p class="subtitle">Tell us where you are and where you want to go — get a personalised phase-by-phase roadmap to building your digital product empire.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Situation</h2>
+    <label>Product Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPT(0)" id="pt0">Course</button>
+      <button class="opt"     onclick="pickPT(1)" id="pt1">Ebook</button>
+      <button class="opt"     onclick="pickPT(2)" id="pt2">Template Kit</button>
+      <button class="opt"     onclick="pickPT(3)" id="pt3">Membership</button>
+      <button class="opt"     onclick="pickPT(4)" id="pt4">Coaching</button>
+    </div>
+    <label>Current Stage</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickS(0)" id="s0">No Products Yet</button>
+      <button class="opt"     onclick="pickS(1)" id="s1">1–2 Products</button>
+      <button class="opt"     onclick="pickS(2)" id="s2">3–5 Products</button>
+      <button class="opt"     onclick="pickS(3)" id="s3">6+ Products</button>
+    </div>
+    <label>Product / Brand Topic</label>
+    <input type="text" id="inT" placeholder="e.g. email marketing, mindset, productivity">
+    <label>Target Audience</label>
+    <input type="text" id="inA" placeholder="e.g. coaches, freelancers, online sellers">
+    <label>Core Outcome You Deliver</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, sign 3 clients">
+    <button class="btn" onclick="generate()">Build My Empire Roadmap →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div class="path-note" id="pathNote"></div>
+    <div id="phaseCards"></div>
+    <div class="section-card">
+      <h3>Your Empire Pillars</h3>
+      <div id="pillarGrid"></div>
+    </div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Empire Roadmap as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const ptLabel = ['Course','Ebook','Template Kit','Membership','Coaching'];
+const stageMilestones = ['First $1,000','$3,000/month','$8,000–$10,000/month','$25,000+/month'];
+const stageNotes = [
+  'You\'re building your foundation — focus entirely on creating and selling your first {T} product for {A}.',
+  'You\'re in your momentum phase — launch properly, collect proof, and grow a suite around {T}.',
+  'You\'re scaling — add systems, recurring revenue, and affiliates to your {T} business for {A}.',
+  'You\'re at Empire level — premium positioning and a self-sustaining product ecosystem is your focus.',
+];
+
+const phases = [
+  {name:'Foundation', col:'#5AE57A', time:'Months 1–3',
+   focus:'Build one product, grow your first 500 subscribers, and collect 5 proof-of-results testimonials from {A}',
+   actions:[
+     'Create and publish your first {T} product — done and out beats perfect and delayed, every single time',
+     'Build a free lead magnet that solves one specific problem for {A} and starts growing your email list',
+     'Collect 5 real testimonials from beta buyers — these become the foundation of every launch you run from here',
+     'Show up in one place where {A} gather and be consistent — one email per week is more powerful than sporadic bursts'
+   ],
+   milestone:'First $1,000',
+   avoid:'Don\'t build multiple products yet — one great {T} product marketed consistently outperforms three average ones every time'},
+  {name:'Momentum', col:'#5AE57A', time:'Months 4–9',
+   focus:'Run a proper launch, grow to 2,500 subscribers, and hit $3,000/month consistently from your {T} products',
+   actions:[
+     'Run a proper launch for your {T} product — email sequence, urgency window, and a clear published close date',
+     'Create a second {T}-adjacent product to lift average order value for the same {A} you already serve',
+     'Grow your email list to 2,500 using your lead magnet, consistent social, and guest appearances in {A} spaces',
+     'Document 3 case studies from {A} who achieved {X} — these become your primary and most durable sales asset'
+   ],
+   milestone:'$3,000/month consistently',
+   avoid:'Don\'t hire or outsource yet — know your own {T} process and what drives sales before you delegate any of it'},
+  {name:'Scale', col:'#5AE57A', time:'Months 10–18',
+   focus:'Build a product suite, add recurring revenue, and create systems so your {T} business grows without you launching every month',
+   actions:[
+     'Add a recurring revenue stream — membership, subscription, or retainer — to your existing {T} product line for {A}',
+     'Launch an affiliate programme and recruit 10 active promoters already serving {A} in the {T} space',
+     'Build a content engine: one pillar piece per week repurposed across 3 platforms where {A} spend their time',
+     'Segment your email list by buyer vs. non-buyer — different messages, higher conversion, same list size'
+   ],
+   milestone:'$8,000–$10,000/month',
+   avoid:'Don\'t expand into a new niche yet — go deeper into {A} and {T} first. Authority compounds; scattered attention doesn\'t'},
+  {name:'Empire', col:'#5AE57A', time:'Month 19+',
+   focus:'Premium positioning, brand authority, and a portfolio that generates revenue whether or not you actively launch anything new',
+   actions:[
+     'Launch a premium high-ticket offer — group programme, mastermind, or done-for-you service at $1,000+ for {A}',
+     'Build a partner network: co-create, co-promote, or co-host with established names already serving {A} and {T}',
+     'Create your flagship product — the definitive {A} resource on {X}, the one you want to be permanently known for',
+     'Design your product ecosystem so every free piece leads to your entry offer, and every entry offer leads to premium'
+   ],
+   milestone:'$25,000+/month',
+   avoid:'Don\'t try to be everywhere — own one channel completely and let that authority pull {A} into everything else you offer'},
+];
+
+const pillars = [
+  [{name:'Flagship Course',  desc:'Your anchor product — the definitive {T} resource {A} think of first when they want to {X}. Everything else in your ecosystem feeds into it.'},
+   {name:'Email List Asset', desc:'Your list is your empire\'s foundation. 5,000 engaged {A} subscribers outperforms 50,000 social followers on every launch you ever run.'},
+   {name:'Community Layer',  desc:'A paid or free community turns one-time buyers into a recurring audience — and your best {A} students become your most credible sales proof.'}],
+  [{name:'Content Library',  desc:'A growing body of {T} titles that establishes you as the go-to resource for {A} — each book feeds your list and your next release.'},
+   {name:'Lead Magnet Funnel',desc:'Every free resource earns an email address. Your {A} list is the only platform you own outright — build it with every piece you publish.'},
+   {name:'Bundle Strategy',  desc:'Bundling 3–5 titles into seasonal collections lifts average order value without creating new products — your back catalogue is the asset.'}],
+  [{name:'Evergreen Shop',   desc:'A shop or marketplace listing that sells {T} templates for {A} around the clock — no launch required, no list needed to generate sales.'},
+   {name:'Recurring Drops',  desc:'A new template collection quarterly keeps buyers returning and builds predictable revenue from {A} who already trust your quality.'},
+   {name:'Affiliate Network', desc:'Template affiliates in the {T} space promote on autopilot — a 30% commission on a $47 kit compounds faster than any solo campaign.'}],
+  [{name:'Recurring Revenue Core',desc:'Monthly income from {A} members is your most stable foundation — prioritise retention over acquisition once you reach 50 active members.'},
+   {name:'Community Identity',    desc:'The most successful memberships in {T} are communities first, content libraries second. Make {A} feel they belong, not just subscribed.'},
+   {name:'Annual Upgrade Path',   desc:'An annual option at a 2-month discount cuts churn and locks in {A} revenue — offer it at 90 days when satisfaction and habit are at their peak.'}],
+  [{name:'Premium 1:1 Offer', desc:'Your highest-ticket, highest-transformation offer for {A} who want to {X} fast — price reflects access and accountability, not content volume.'},
+   {name:'Group Programme',   desc:'A cohort at half the 1:1 price scales income without multiplying your calendar — the bridge between a course and premium coaching for {A}.'},
+   {name:'Course Leverage',   desc:'A self-paced {T} course brings {A} into your world at a lower price — and your best course buyers are your warmest coaching prospects.'}],
+];
+
+let state = {pt:0, stage:0};
+function pickPT(i)  { state.pt=i;    [0,1,2,3,4].forEach(x=>document.getElementById(`pt${x}`).classList.toggle('sel',x===i)); }
+function pickS(i)   { state.stage=i; [0,1,2,3].forEach(x=>document.getElementById(`s${x}`).classList.toggle('sel',x===i)); }
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const ahead = 3 - state.stage;
+  document.getElementById('statsBar').innerHTML =
+    st('Phase '+(state.stage+1),'Current Phase') +
+    st(phases[state.stage].name,'Phase Name') +
+    st(ahead > 0 ? ahead : 'You\'re Here','Phases to Empire') +
+    st(ptLabel[state.pt],'Product Type');
+
+  document.getElementById('pathNote').textContent = fill(stageNotes[state.stage], T, A, X);
+
+  document.getElementById('phaseCards').innerHTML = phases.map((p,i) => {
+    const isCurrent = i === state.stage;
+    return `<div class="phase-card" style="border-left-color:${p.col}${isCurrent?'':';opacity:.85'}">
+      <div class="phase-head">
+        <span class="phase-name" style="color:${p.col}">Phase ${i+1}: ${p.name}${isCurrent?'<span class="current-badge">You Are Here</span>':''}</span>
+        <span class="phase-time">${p.time}</span>
+      </div>
+      <div class="phase-focus">${fill(p.focus,T,A,X)}</div>
+      <ul class="action-list">${p.actions.map(a=>`<li>${fill(a,T,A,X)}</li>`).join('')}</ul>
+      <div class="phase-milestone"><span>Revenue Milestone</span><span class="milestone-val">${p.milestone}</span></div>
+      <div class="phase-avoid"><strong>Not yet:</strong> ${fill(p.avoid,T,A,X)}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('pillarGrid').innerHTML = pillars[state.pt].map(p =>
+    `<div class="pillar-card"><div class="pillar-name">${p.name}</div><div class="pillar-desc">${fill(p.desc,T,A,X)}</div></div>`
+  ).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T) return;
+  let text = `DIGITAL PRODUCT EMPIRE ROADMAP\nTopic: ${T} · Audience: ${A} · Outcome: ${X}\nProduct Type: ${ptLabel[state.pt]} · Current Phase: ${state.stage+1} (${phases[state.stage].name})\n\n`;
+  phases.forEach((p,i) => {
+    const mark = i===state.stage?' ← YOU ARE HERE':'';
+    text += `PHASE ${i+1}: ${p.name.toUpperCase()}${mark}\n${p.time} · Target: ${p.milestone}\n${'─'.repeat(36)}\n`;
+    text += `${fill(p.focus,T,A,X)}\n\n`;
+    p.actions.forEach(a => { text += `✓ ${fill(a,T,A,X)}\n`; });
+    text += `\nNot yet: ${fill(p.avoid,T,A,X)}\n\n`;
+  });
+  text += `YOUR EMPIRE PILLARS (${ptLabel[state.pt]})\n${'─'.repeat(36)}\n`;
+  pillars[state.pt].forEach(p => { text += `${p.name}\n${fill(p.desc,T,A,X)}\n\n`; });
+  text += `---\nCreated with Digital Product Empire Roadmap by GetPaidToBeYouOnline`;
+
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Empire Roadmap as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

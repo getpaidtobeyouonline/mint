@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Meditation Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 520px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 24px 20px; margin-bottom: 16px; }
+  .presets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 7px 16px; cursor: pointer; font-size: .9rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .clock { font-family: 'Playfair Display', serif; font-size: 4rem; color: #5AE57A; margin: 10px 0; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 24px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stat { font-size: .9rem; opacity: .8; }
+  .stat b { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .clock { font-size: 3rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Daily Meditation Timer</h1>
+  <p class="sub">Sit, breathe, and let a gentle chime mark the end of your practice.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="clock" id="clock">10:00</div>
+    <div>
+      <button class="btn" id="startBtn" onclick="toggle()">Start</button>
+      <button class="btn ghost" onclick="reset()">Reset</button>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="stat">Sessions today: <b id="today">0</b> &nbsp;·&nbsp; All time: <b id="all">0</b></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const MINS=[5,10,15,20,30]; let dur=600, rem=600, tick=null, running=false;
+  function drawPresets(){
+    g('presets').innerHTML=MINS.map(m=>'<span class="pre'+(m*60===dur?' on':'')+'" onclick="setDur('+m+')">'+m+' min</span>').join('');
+  }
+  function setDur(m){ if(running)return; dur=m*60; rem=dur; show(); drawPresets(); }
+  function show(){ const mm=Math.floor(rem/60), ss=rem%60; g('clock').textContent=mm+':'+(ss<10?'0':'')+ss; }
+  function toggle(){ running?pause():start(); }
+  function start(){ if(rem<=0)rem=dur; running=true; g('startBtn').textContent='Pause';
+    tick=setInterval(()=>{ rem--; show(); if(rem<=0){ done(); } },1000); }
+  function pause(){ running=false; g('startBtn').textContent='Start'; clearInterval(tick); }
+  function reset(){ pause(); rem=dur; show(); }
+  function done(){ pause(); chime(); logSession(); rem=dur; show(); }
+  function chime(){
+    try{ const a=new (window.AudioContext||window.webkitAudioContext)();
+      [0,0.7,1.4].forEach(t=>{ const o=a.createOscillator(),gn=a.createGain();
+        o.frequency.value=528; o.type='sine'; o.connect(gn); gn.connect(a.destination);
+        gn.gain.setValueAtTime(0.0001,a.currentTime+t); gn.gain.exponentialRampToValueAtTime(0.3,a.currentTime+t+0.05);
+        gn.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+t+0.6);
+        o.start(a.currentTime+t); o.stop(a.currentTime+t+0.7); });
+    }catch(e){ alert('Practice complete.'); }
+  }
+  function logSession(){
+    const today=new Date().toISOString().slice(0,10);
+    let d=JSON.parse(localStorage.getItem('dmt')||'{}');
+    d.all=(d.all||0)+1; if(d.day!==today){ d.day=today; d.count=0; } d.count++;
+    localStorage.setItem('dmt',JSON.stringify(d)); renderStats();
+  }
+  function renderStats(){
+    const today=new Date().toISOString().slice(0,10);
+    let d=JSON.parse(localStorage.getItem('dmt')||'{}');
+    g('today').textContent=(d.day===today?d.count:0)||0;
+    g('all').textContent=d.all||0;
+  }
+  drawPresets(); show(); renderStats();
+</script>
+</body>
+</html>

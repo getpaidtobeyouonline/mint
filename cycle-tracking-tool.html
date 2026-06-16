@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cycle Tracking Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 18px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .pred { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; margin-top: 14px; }
+  .pred .big { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .pred p { font-size: .88rem; margin-top: 3px; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .85rem; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cycle Tracking Tool</h1>
+  <p class="sub">Log period start dates. The tool estimates your average cycle and next likely date.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label for="start">Period start date</label><input id="start" type="date"></div>
+      <div><label for="len">Cycle length (optional)</label><input id="len" type="number" min="15" max="60" placeholder="auto-estimated"></div>
+    </div>
+    <button class="btn" onclick="add()">+ Log Period Start</button>
+    <div class="note">An estimate for personal planning only — not contraception or medical advice. Cycles naturally vary.</div>
+  </div>
+
+  <div class="pred" id="pred" style="display:none"></div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('ctt')||'[]');
+  const save=()=>localStorage.setItem('ctt',JSON.stringify(R));
+  g('start').value=new Date().toISOString().slice(0,10);
+  function add(){ const d=g('start').value; if(!d){alert('Pick a start date.');return;}
+    if(R.includes(d)){ alert('That date is already logged.'); return; }
+    R.push(d); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all logged dates?')){ R=[]; save(); render(); } }
+  function render(){
+    const S=[...R].sort();
+    const P=g('pred');
+    if(S.length>=2){
+      let gaps=[]; for(let i=1;i<S.length;i++)gaps.push((new Date(S[i])-new Date(S[i-1]))/86400000);
+      let avg=g('len').value?+g('len').value:Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
+      const last=new Date(S[S.length-1]);
+      const next=new Date(last); next.setDate(next.getDate()+avg);
+      const days=Math.ceil((next-new Date())/86400000);
+      P.style.display='block';
+      P.innerHTML='<div class="big">Next period: ~'+next.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'})+'</div>'+
+        '<p>'+(days>=0?'About '+days+' day'+(days===1?'':'s')+' away':'Expected '+(-days)+' day'+(days===-1?'':'s')+' ago').replace(/-/g,'')+' · average cycle '+avg+' days</p>'+
+        '<p style="opacity:.7">Based on '+gaps.length+' recorded cycle'+(gaps.length===1?'':'s')+'.</p>';
+    } else { P.style.display='none'; }
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No period dates logged yet.</div>'; return; }
+    L.innerHTML=[...S].reverse().map(d=>{ const i=R.indexOf(d);
+      return '<div class="row2"><span><b style="color:#5AE57A">'+new Date(d).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'})+'</b></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

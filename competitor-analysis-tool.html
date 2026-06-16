@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competitor Analysis Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 28px; }
+    .wrap { width: 100%; max-width: 560px; }
+    .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .sum-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 16px; }
+    .sum-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; margin-bottom: 5px; }
+    .sum-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 14px; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .field { flex: 1; margin-bottom: 10px; }
+    label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; }
+    input, textarea { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus, textarea:focus { border-color: #5AE57A; }
+    textarea { resize: none; height: 62px; font-size: 0.85rem; }
+    .btn-add { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; padding: 12px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+    .btn-add:hover { opacity: 0.85; }
+    .comp-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+    .comp-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .comp-name { font-weight: 600; font-size: 0.95rem; }
+    .comp-platform { font-size: 0.74rem; opacity: 0.38; margin-top: 2px; }
+    .comp-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-left: 8px; }
+    .comp-price { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; }
+    .btn-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0; transition: color 0.2s; }
+    .btn-del:hover { color: #5AE57A; }
+    .comp-section { margin-bottom: 8px; }
+    .comp-section:last-child { margin-bottom: 0; }
+    .sec-lbl { font-size: 0.66rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+    .sec-lbl.str  { color: #5AE57A; }
+    .sec-lbl.weak { color: #5AE57A; }
+    .sec-text { font-size: 0.84rem; opacity: 0.68; line-height: 1.5; }
+    .sort-bar { display: flex; gap: 6px; margin-bottom: 12px; align-items: center; }
+    .sort-lbl { font-size: 0.72rem; opacity: 0.4; }
+    .sort-btn { background: #3C603C; border: 1px solid #4C724C; border-radius: 16px; padding: 4px 10px; font-size: 0.74rem; cursor: pointer; color: #FFFFFF; transition: all 0.18s; }
+    .sort-btn:hover { border-color: #5A845A; }
+    .sort-btn.active { background: #5AE57A; border-color: #5AE57A; color: #325132; font-weight: 600; }
+    .empty { text-align: center; opacity: 0.28; font-size: 0.88rem; padding: 32px 0; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Competitor Analysis Tool</h1>
+  <p class="subtitle">Map the competition. Find the gaps. Own your edge.</p>
+
+  <div class="wrap">
+    <div class="summary">
+      <div class="sum-card"><div class="sum-lbl">Competitors Tracked</div><div class="sum-val" id="s-count">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Avg Price</div><div class="sum-val" id="s-avg">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Price Range</div><div class="sum-val" id="s-range">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Gaps Identified</div><div class="sum-val" id="s-gaps">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Add Competitor</div>
+      <div class="row">
+        <div class="field" style="margin-bottom:0">
+          <label>Brand / Name</label>
+          <input type="text" id="c-name" placeholder="e.g. The Template Co." />
+        </div>
+        <div class="field" style="flex:0 0 110px;margin-bottom:0">
+          <label>Price ($)</label>
+          <input type="number" id="c-price" placeholder="e.g. 47" min="0" step="0.01" />
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label>Platform / Where They Sell</label>
+        <input type="text" id="c-platform" placeholder="e.g. Etsy, Gumroad, Instagram, Their own site" />
+      </div>
+      <div style="margin-top:10px">
+        <label>Strengths</label>
+        <textarea id="c-str" placeholder="e.g. Strong visuals, large following, great reviews"></textarea>
+      </div>
+      <div style="margin-top:10px">
+        <label>Weaknesses / Gaps</label>
+        <textarea id="c-weak" placeholder="e.g. No support, outdated content, poor onboarding"></textarea>
+      </div>
+      <button class="btn-add" onclick="addComp()">+ Add Competitor</button>
+    </div>
+
+    <div class="sort-bar">
+      <span class="sort-lbl">Sort:</span>
+      <button class="sort-btn active" onclick="setSort('added',this)">Recently Added</button>
+      <button class="sort-btn" onclick="setSort('price-lo',this)">Price ↑</button>
+      <button class="sort-btn" onclick="setSort('price-hi',this)">Price ↓</button>
+    </div>
+    <div id="comp-list"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let comps = [], sortMode = 'added';
+    const load = () => { try { comps = JSON.parse(localStorage.getItem('comp_anal_v1') || '[]'); } catch(e) { comps = []; } };
+    const save = () => localStorage.setItem('comp_anal_v1', JSON.stringify(comps));
+    const h = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function addComp() {
+      const name     = document.getElementById('c-name').value.trim();
+      const price    = parseFloat(document.getElementById('c-price').value) || 0;
+      const platform = document.getElementById('c-platform').value.trim();
+      const str      = document.getElementById('c-str').value.trim();
+      const weak     = document.getElementById('c-weak').value.trim();
+      if (!name) { alert('Please enter a competitor name.'); return; }
+      comps.unshift({ id: Date.now(), name, price, platform, str, weak });
+      save(); render();
+      ['c-name','c-platform','c-str','c-weak'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('c-price').value = '';
+    }
+
+    function deleteComp(id) { comps = comps.filter(c => c.id !== id); save(); render(); }
+
+    function setSort(mode, btn) {
+      sortMode = mode;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      render();
+    }
+
+    function render() {
+      const priced = comps.filter(c => c.price > 0);
+      const avg    = priced.length ? Math.round(priced.reduce((s,c) => s+c.price, 0) / priced.length) : null;
+      const low    = priced.length ? Math.min(...priced.map(c => c.price)) : null;
+      const high   = priced.length ? Math.max(...priced.map(c => c.price)) : null;
+      const gaps   = comps.filter(c => c.weak).length;
+
+      document.getElementById('s-count').textContent = comps.length || '—';
+      document.getElementById('s-avg').textContent   = avg !== null ? '$' + avg : '—';
+      document.getElementById('s-range').textContent = low !== null ? '$' + Math.round(low) + '–$' + Math.round(high) : '—';
+      document.getElementById('s-gaps').textContent  = gaps || '—';
+
+      const el = document.getElementById('comp-list');
+      if (!comps.length) { el.innerHTML = '<div class="empty">No competitors yet — add one above to start mapping the market.</div>'; return; }
+
+      const sorted = [...comps].sort((a,b) => {
+        if (sortMode === 'price-lo') return (a.price||0) - (b.price||0);
+        if (sortMode === 'price-hi') return (b.price||0) - (a.price||0);
+        return b.id - a.id;
+      });
+
+      el.innerHTML = sorted.map(c => `
+        <div class="comp-card">
+          <div class="comp-top">
+            <div>
+              <div class="comp-name">${h(c.name)}</div>
+              ${c.platform ? `<div class="comp-platform">${h(c.platform)}</div>` : ''}
+            </div>
+            <div class="comp-right">
+              ${c.price ? `<span class="comp-price">$${Math.round(c.price).toLocaleString()}</span>` : ''}
+              <button class="btn-del" onclick="deleteComp(${c.id})" title="Remove">×</button>
+            </div>
+          </div>
+          ${c.str  ? `<div class="comp-section"><div class="sec-lbl str">Strengths</div><div class="sec-text">${h(c.str)}</div></div>`  : ''}
+          ${c.weak ? `<div class="comp-section"><div class="sec-lbl weak">Weaknesses / Gaps</div><div class="sec-text">${h(c.weak)}</div></div>` : ''}
+        </div>`).join('');
+    }
+
+    load(); render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Challenge Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ch { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #FFFFFF; min-height: 100px; display: flex; align-items: center; justify-content: center; padding: 12px; text-align: left; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .ch { font-size: 1.15rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Creative Challenge Generator</h1>
+  <p class="sub">Stuck? Tap for a sharp little challenge to break the freeze.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="ch" id="ch">Pick a category, then tap "New Challenge".</div>
+    <button class="btn" onclick="next()">New Challenge</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const C={
+    'Visual art':[
+      'Make a piece using only three colours.',
+      'Work small for an hour — postcard-sized.',
+      'Draw the same object from three angles, in three different styles.',
+      'Use your non-dominant hand for one whole sketch.',
+      'Make a piece without lifting the pen.',
+      'Create something using one tool you have never tried.',
+      'Copy an old master — then make it new.'
+    ],
+    'Writing':[
+      'Write a story in six sentences.',
+      'Open with a line of dialogue. Close with a stage direction.',
+      'Write a scene set entirely in one room.',
+      'Tell a story where nothing dramatic happens — but everything changes.',
+      'Write a piece in a voice that is not your usual one.',
+      'Use a single word as a recurring refrain.',
+      'Write for fifteen minutes without stopping. Then keep going.'
+    ],
+    'Music':[
+      'Write a song in a key you rarely use.',
+      'Limit yourself to four chords and two notes per measure.',
+      'Record a one-minute idea on your phone every day for a week.',
+      'Cover a song in a completely different genre.',
+      'Compose a piece in 5/4 or 7/8 — odd time.',
+      'Build a track using only sounds from your kitchen.'
+    ],
+    'Craft':[
+      'Make something using only what you already have.',
+      'Set a 2-hour timer — finish whatever it is when it goes off.',
+      'Repair something instead of replacing it.',
+      'Make a tiny version of something you usually make full size.',
+      'Give it to a stranger.'
+    ]
+  };
+  let cat='Visual art';
+  const g=id=>document.getElementById(id);
+  function drawPresets(){ g('presets').innerHTML=Object.keys(C).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=C[cat]; g('ch').textContent='"'+list[Math.floor(Math.random()*list.length)]+'"'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

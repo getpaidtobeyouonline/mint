@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Product Idea Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fmt-label{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600;margin-bottom:8px}
+.fmt-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.fmt-chip{background:#325132;border:1px solid #4C724C;border-radius:20px;padding:7px 14px;font-size:.8rem;cursor:pointer;transition:all .2s;user-select:none;color:#BFD8BF}
+.fmt-chip:hover{border-color:#BFD8BF;color:#FFFFFF}
+.fmt-chip.on{border-color:#5AE57A;color:#5AE57A;background:#C9A84C10}
+.btn{width:100%;max-width:660px;display:block;margin:0 auto 20px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.results{max-width:660px;margin:0 auto}
+.idea-card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:20px;margin-bottom:12px}
+.idea-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px}
+.idea-name{font-family:'Playfair Display',serif;font-size:1.1rem;line-height:1.4;flex:1}
+.fmt-badge{font-size:.65rem;font-weight:700;padding:3px 10px;border-radius:12px;background:#C9A84C22;color:#5AE57A;border:1px solid #C9A84C40;white-space:nowrap;flex-shrink:0;margin-top:3px}
+.idea-desc{font-size:.85rem;line-height:1.7;opacity:.8;margin-bottom:12px}
+.idea-meta{display:flex;gap:10px;flex-wrap:wrap}
+.meta-pill{font-size:.72rem;padding:4px 10px;border-radius:10px;font-weight:600}
+.price-pill{background:#44cc6622;color:#5AE57A;border:1px solid #44cc6640}
+.diff-pill{background:#C9A84C22;color:#5AE57A;border:1px solid #C9A84C40}
+.time-pill{background:#6699ff22;color:#5AE57A;border:1px solid #6699ff40}
+.copy-btn{background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:6px;padding:5px 12px;font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;margin-top:10px;transition:all .2s}
+.copy-btn:hover,.copy-btn.done{border-color:#5AE57A;color:#5AE57A}
+.regen-btn{width:100%;max-width:660px;display:block;margin:4px auto 8px;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s}
+.regen-btn:hover{background:#5AE57A;color:#325132}
+.back-btn{width:100%;max-width:660px;display:block;margin:0 auto 8px;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s}
+.back-btn:hover{border-color:#BFD8BF;color:#BFD8BF}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Digital Product Idea Generator</h1>
+<p class="sub">Enter your expertise and audience — get 8 ready-to-build product ideas with prices and timelines</p>
+
+<div id="formArea">
+<div class="card">
+  <div class="card-title">Your Expertise & Audience</div>
+  <label>Your expertise or skill</label>
+  <input id="niche" type="text" placeholder="e.g. social media marketing, bookkeeping, fitness coaching, graphic design">
+  <label>Your target audience</label>
+  <input id="audience" type="text" placeholder="e.g. female entrepreneurs, new moms, freelancers, small business owners">
+  <div class="row">
+    <div>
+      <label>Audience's #1 problem</label>
+      <input id="problem" type="text" placeholder="e.g. no time, no clients, overwhelmed">
+    </div>
+    <div>
+      <label>Price Tier</label>
+      <select id="tier">
+        <option value="low">Low Ticket ($7–$47)</option>
+        <option value="mid" selected>Mid Ticket ($47–$297)</option>
+        <option value="high">High Ticket ($297–$997)</option>
+        <option value="mix">Mix of all tiers</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Product Formats to Include</div>
+  <div class="fmt-label">Select the types you want (tap to toggle)</div>
+  <div class="fmt-grid" id="fmtChips"></div>
+</div>
+</div>
+
+<button class="btn" onclick="generate()">Generate My Product Ideas →</button>
+
+<div class="results" id="results" style="display:none">
+  <div id="ideaCards"></div>
+  <button class="regen-btn" onclick="generate()">↻ Regenerate Ideas</button>
+  <button class="back-btn" onclick="goBack()">← Edit My Inputs</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const fmts=[
+  {id:'template',label:'📋 Template Pack'},
+  {id:'ebook',label:'📖 Ebook / Guide'},
+  {id:'course',label:'🎬 Mini Course'},
+  {id:'swipe',label:'✍️ Swipe File'},
+  {id:'challenge',label:'🏆 Challenge'},
+  {id:'toolkit',label:'🧰 Toolkit / Bundle'},
+  {id:'workshop',label:'🎙 Workshop'},
+  {id:'planner',label:'📅 Planner / Tracker'},
+  {id:'checklist',label:'✅ Checklist / Framework'},
+  {id:'membership',label:'💎 Membership'},
+];
+
+const prices={low:['$7','$17','$27','$37','$47'],mid:['$47','$97','$127','$197','$247'],high:['$297','$497','$697','$997'],mix:['$17','$47','$97','$197','$297','$497']};
+
+const archetypes={
+  template:[
+    (n,a,p)=>({name:`The ${cap(n)} Template Vault`,desc:`A complete pack of done-for-you templates that help ${a} ${p?'stop '+p:' save hours every week'}. Everything is pre-built, fully customisable, and ready to use in minutes.`,diff:'Easy',time:'3–5 days'}),
+    (n,a)=>({name:`${cap(a)} ${cap(n)} Starter Templates`,desc:`Professionally designed templates covering every core ${n} task ${a} face. Drag, drop, and customise — no starting from scratch.`,diff:'Easy',time:'2–4 days'}),
+    (n,a)=>({name:`Done-For-You ${cap(n)} Kit`,desc:`A plug-and-play template system for ${a} who want professional results without the professional price tag. Includes fully editable files and a quick-start guide.`,diff:'Easy',time:'3–6 days'}),
+  ],
+  ebook:[
+    (n,a,p)=>({name:`The ${cap(a)} ${cap(n)} Blueprint`,desc:`A step-by-step guide teaching ${a} exactly how to master ${n}${p?' and stop '+p:''}. Written in plain language with actionable steps, real examples, and no fluff.`,diff:'Medium',time:'1–2 weeks'}),
+    (n,a)=>({name:`${cap(n)} Simplified: A ${cap(a)} Guide`,desc:`Everything ${a} need to know about ${n} — explained simply, structured clearly, and built for real results. The guide you wish existed when you started.`,diff:'Medium',time:'1–2 weeks'}),
+    (n,a,p)=>({name:`The ${cap(n)} Playbook for ${cap(a)}`,desc:`A comprehensive, no-fluff playbook packed with strategies, frameworks, and examples${p?' to help '+a+' finally stop '+p:''}. Actionable from page one.`,diff:'Medium',time:'1–3 weeks'}),
+  ],
+  course:[
+    (n,a,p)=>({name:`${cap(n)} Masterclass for ${cap(a)}`,desc:`A focused video training that walks ${a} through the complete ${n} process${p?' so they can stop '+p:' step by step'}. Concise, results-driven, and immediately actionable.`,diff:'Medium',time:'2–4 weeks'}),
+    (n,a)=>({name:`${cap(n)} Accelerator — Mini Course`,desc:`A 5-module video course giving ${a} the exact system, tools, and templates to master ${n} faster than figuring it out alone.`,diff:'Medium',time:'2–3 weeks'}),
+    (n,a,p)=>({name:`From Stuck to ${cap(n)}: A Course for ${cap(a)}`,desc:`A beginner-friendly course that takes ${a} from overwhelmed${p?' and '+p:''} to confident in ${n}. Includes video lessons, workbooks, and implementation support.`,diff:'Hard',time:'3–5 weeks'}),
+  ],
+  swipe:[
+    (n,a)=>({name:`The ${cap(n)} Swipe File for ${cap(a)}`,desc:`A curated collection of proven copy, scripts, and templates ${a} can steal and customise for their ${n} work. Stop writing from scratch — swipe what works.`,diff:'Easy',time:'3–5 days'}),
+    (n,a)=>({name:`${cap(n)} Scripts & Copy Vault`,desc:`Ready-to-use scripts, emails, captions, and messages for every ${n} situation ${a} face. Just fill in the blanks and send.`,diff:'Easy',time:'2–4 days'}),
+  ],
+  challenge:[
+    (n,a,p)=>({name:`The 5-Day ${cap(n)} Challenge for ${cap(a)}`,desc:`A structured 5-day challenge that helps ${a} build momentum in ${n}${p?' and break the cycle of '+p:''}. Daily prompts, community support, and quick wins every day.`,diff:'Medium',time:'1–2 weeks'}),
+    (n,a)=>({name:`30-Day ${cap(n)} Reset`,desc:`A month-long guided challenge giving ${a} daily actions to transform their approach to ${n}. Accountability, structure, and real results in 30 days.`,diff:'Medium',time:'2–3 weeks'}),
+  ],
+  toolkit:[
+    (n,a,p)=>({name:`The Complete ${cap(n)} Toolkit`,desc:`Everything ${a} need to ${p?'stop '+p+' and':''} succeed at ${n} — templates, guides, checklists, scripts, and resources bundled into one powerful kit.`,diff:'Medium',time:'1–2 weeks'}),
+    (n,a)=>({name:`${cap(a)} ${cap(n)} Starter Bundle`,desc:`The ultimate starter pack for ${a} ready to get serious about ${n}. Combine multiple resources into one purchase and give buyers a massive head start.`,diff:'Medium',time:'1–2 weeks'}),
+  ],
+  workshop:[
+    (n,a,p)=>({name:`${cap(n)} Workshop for ${cap(a)}`,desc:`A live (or recorded) 90-minute workshop walking ${a} through the exact framework to achieve results in ${n}${p?' without '+p:''}. Interactive, practical, and results-focused.`,diff:'Medium',time:'1 week'}),
+    (n,a)=>({name:`${cap(n)} Intensive — Half-Day Workshop`,desc:`A deep-dive workshop for ${a} who want to fast-track their ${n} skills in a single, focused session. Includes workbook and implementation checklist.`,diff:'Medium',time:'1–2 weeks'}),
+  ],
+  planner:[
+    (n,a,p)=>({name:`The ${cap(n)} Planner for ${cap(a)}`,desc:`A beautifully designed digital (or printable) planner helping ${a} organise, track, and stay consistent with ${n}${p?' — no more '+p:''}. Plan smarter, not harder.`,diff:'Easy',time:'3–7 days'}),
+    (n,a)=>({name:`${cap(a)} ${cap(n)} Goal Tracker`,desc:`A structured tracker that helps ${a} set meaningful ${n} goals, monitor progress, and hit targets. Built for clarity, consistency, and accountability.`,diff:'Easy',time:'2–5 days'}),
+  ],
+  checklist:[
+    (n,a,p)=>({name:`The Ultimate ${cap(n)} Checklist for ${cap(a)}`,desc:`A comprehensive, actionable checklist that removes all guesswork from ${n}${p?' and stops '+a+' from '+p:''}. Simple to follow, impossible to miss a step.`,diff:'Easy',time:'1–3 days'}),
+    (n,a)=>({name:`${cap(n)} Framework & Checklist Bundle`,desc:`A proven framework plus implementation checklists giving ${a} a clear, repeatable system for ${n}. Download, follow, and get results.`,diff:'Easy',time:'2–4 days'}),
+  ],
+  membership:[
+    (n,a,p)=>({name:`The ${cap(n)} Collective — Monthly Membership`,desc:`A recurring membership giving ${a} ongoing access to ${n} resources, templates, live sessions, and a community${p?' so they never feel '+p+' again':''}. A reliable monthly revenue stream for you.`,diff:'Hard',time:'3–6 weeks'}),
+    (n,a)=>({name:`${cap(n)} Inner Circle`,desc:`An exclusive membership for ${a} who want continued support, new resources monthly, and a community of peers all growing their ${n} together.`,diff:'Hard',time:'4–6 weeks'}),
+  ],
+};
+
+function cap(s){return s?s.split(' ').map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(' '):'';}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
+
+// Build chips
+document.getElementById('fmtChips').innerHTML=fmts.map(f=>`<div class="fmt-chip on" data-id="${f.id}" onclick="toggleFmt(this)">${f.label}</div>`).join('');
+function toggleFmt(el){el.classList.toggle('on');}
+
+function getSelFmts(){return [...document.querySelectorAll('.fmt-chip.on')].map(el=>el.dataset.id);}
+
+function getPriceForFormat(fmtId,tier){
+  const overrides={template:'low',checklist:'low',planner:'low',swipe:'low',ebook:'low',challenge:'mid',toolkit:'mid',workshop:'mid',course:'mid',membership:'mid'};
+  const effectiveTier=tier==='mix'?(overrides[fmtId]||'mid'):tier;
+  return pick(prices[effectiveTier]);
+}
+
+function generate(){
+  const niche=document.getElementById('niche').value.trim()||'your expertise';
+  const aud=document.getElementById('audience').value.trim()||'your audience';
+  const problem=document.getElementById('problem').value.trim();
+  const tier=document.getElementById('tier').value;
+  const selFmts=getSelFmts();
+  if(!selFmts.length){alert('Please select at least one product format.');return;}
+
+  const pool=[];
+  selFmts.forEach(fid=>{
+    if(archetypes[fid]){archetypes[fid].forEach(fn=>pool.push({fid,fn}));}
+  });
+  if(!pool.length)return;
+
+  const shuffled=pool.sort(()=>Math.random()-.5);
+  const seen=new Set();const ideas=[];
+  for(const item of shuffled){
+    if(ideas.length>=8)break;
+    const idea=item.fn(niche,aud,problem);
+    const key=idea.name.slice(0,20).toLowerCase();
+    if(!seen.has(key)){seen.add(key);ideas.push({...idea,fid:item.fid,price:getPriceForFormat(item.fid,tier)});}
+  }
+
+  const fmtLabels=Object.fromEntries(fmts.map(f=>[f.id,f.label.split(' ').slice(1).join(' ')]));
+  document.getElementById('ideaCards').innerHTML=ideas.map((idea,i)=>`
+    <div class="idea-card">
+      <div class="idea-top">
+        <div class="idea-name">${idea.name}</div>
+        <div class="fmt-badge">${fmtLabels[idea.fid]||idea.fid}</div>
+      </div>
+      <div class="idea-desc">${idea.desc}</div>
+      <div class="idea-meta">
+        <span class="meta-pill price-pill">💰 ${idea.price}</span>
+        <span class="meta-pill diff-pill">⚡ ${idea.diff} to create</span>
+        <span class="meta-pill time-pill">⏱ ${idea.time}</span>
+      </div>
+      <button class="copy-btn" onclick="copyIdea(this,'${idea.name.replace(/'/g,'\\\'')}: ${idea.desc.replace(/'/g,'\\\'')}')">Copy idea</button>
+    </div>`).join('');
+
+  document.getElementById('formArea').style.display='none';
+  document.querySelector('.btn').style.display='none';
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyIdea(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy idea';btn.classList.remove('done');},1600);
+  });
+}
+
+function goBack(){
+  document.getElementById('formArea').style.display='block';
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('results').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

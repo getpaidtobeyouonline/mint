@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consistency Score Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 22px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; margin-top: 5px; }
+  .res .d { font-size: .9rem; opacity: .8; margin-top: 6px; }
+  .bd { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .85rem; }
+  .bd div { display: flex; justify-content: space-between; padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Consistency Score Calculator</h1>
+  <p class="sub">Consistency beats intensity. Score yours and see exactly where the gaps are.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="target">Posts you AIM for / week</label><input id="target" type="number" min="1" value="5" oninput="calc()"></div>
+      <div><label for="actual">Posts you ACTUALLY did (last 4 wks avg)</label><input id="actual" type="number" min="0" value="3" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="weeks">Weeks posted in last 12 (no full skips)</label><input id="weeks" type="number" min="0" max="12" value="9" oninput="calc()"></div>
+      <div><label for="streak">Current streak (weeks unbroken)</label><input id="streak" type="number" min="0" value="4" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="score">0</div>
+    <div class="vd" id="vd">consistency score</div>
+    <div class="d" id="d"></div>
+    <div class="bd" id="bd"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['target','actual','weeks','streak'].forEach(k=>{ const s=localStorage.getItem('csc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['target','actual','weeks','streak'].forEach(k=>localStorage.setItem('csc_'+k,g(k).value));
+    const hit=Math.min(1, n('actual')/Math.max(1,n('target')))*40;     // hitting your own target
+    const show=Math.min(1, n('weeks')/12)*40;                          // showing up most weeks
+    const streak=Math.min(1, n('streak')/8)*20;                        // momentum
+    const score=Math.round(hit+show+streak);
+    g('score').textContent=score;
+    const t= score>=80?['Locked in','This is the boring secret to growth. Protect it above reach, fancy edits, everything.']
+      : score>=58?['Solid','Reliable enough to compound. Close the smaller gap to go from good to unstoppable.']
+      : score>=35?['Patchy','The algorithm and your audience can\'t rely on you yet. Lower the bar so you never fully skip.']
+      : ['Inconsistent','This is almost certainly your #1 growth blocker — fix this before anything else.'];
+    g('vd').textContent=t[0]; g('d').textContent=t[1];
+    g('bd').innerHTML=[['Hitting your target',hit,40],['Showing up weekly',show,40],['Momentum / streak',streak,20]]
+      .map(([l,x,m])=>`<div><span>${l}</span><span style="color:#5AE57A">${Math.round(x)}/${m}</span></div>`).join('')+
+      `<div style="border-top:1px solid #4C724C;margin-top:4px;padding-top:5px;opacity:.7">Tip: if "hitting target" is low, your target is too high — cut it in half and never miss instead.</div>`;
+  }
+  calc();
+</script>
+</body>
+</html>

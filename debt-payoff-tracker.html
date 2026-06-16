@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Debt Payoff Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .d { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .d.paid { opacity: .5; }
+  .d .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .d .nm { font-weight: 500; }
+  .d .bal { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .d .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .track { background: #3C603C; border-radius: 4px; height: 6px; overflow: hidden; margin-top: 5px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; }
+  .acts { display: flex; gap: 12px; margin-top: 6px; font-size: .8rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  .strat { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Debt Payoff Tracker</h1>
+  <p class="sub">Track every debt, pick a strategy, and watch the balances fall.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Debt name</label><input id="nm" placeholder="e.g. Credit card"></div>
+      <div><label>Starting balance</label><input id="start" type="number" min="0"></div>
+      <div><label>Current balance</label><input id="bal" type="number" min="0"></div>
+      <div><label>APR (%)</label><input id="apr" type="number" min="0" step="0.1"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+    <label for="strat" style="margin-top:10px">Strategy</label>
+    <select id="strat" onchange="render()"><option value="snow">Snowball (smallest balance first — fastest wins)</option><option value="ava">Avalanche (highest APR first — least interest)</option></select>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sTot">$0</div><div class="l">Total owed</div></div>
+    <div class="stat"><div class="v" id="sPaid">$0</div><div class="l">Paid down</div></div>
+    <div class="stat"><div class="v" id="sPct">0%</div><div class="l">Cleared</div></div>
+  </div>
+
+  <div class="strat" id="advice"></div>
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let D=JSON.parse(localStorage.getItem('dpt')||'[]');
+  const save=()=>localStorage.setItem('dpt',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Name the debt.');return;}
+    const start=nu('start')||nu('bal'); D.push({nm,start,bal:nu('bal'),apr:nu('apr')}); ['nm','start','bal','apr'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ D.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ D=[]; save(); render(); } }
+  function payDown(i){ const a=prompt('How much paid?'); const p=parseFloat(a); if(!p)return; D[i].bal=Math.max(0,D[i].bal-p); save(); render(); }
+  function render(){
+    const tot=D.reduce((s,x)=>s+x.bal,0), startSum=D.reduce((s,x)=>s+x.start,0), paid=startSum-tot;
+    g('sTot').textContent='$'+Math.round(tot).toLocaleString();
+    g('sPaid').textContent='$'+Math.round(paid).toLocaleString();
+    g('sPct').textContent=startSum>0?Math.round(paid/startSum*100)+'%':'0%';
+    const order = g('strat').value==='ava' ? [...D].sort((a,b)=>b.apr-a.apr) : [...D].sort((a,b)=>a.bal-b.bal);
+    const target=order.filter(x=>x.bal>0)[0];
+    g('advice').innerHTML = D.length===0?'Add your debts above to start tracking.'
+      : target ? `Strategy: <b>${g('strat').selectedOptions[0].text}</b>. Throw every extra dollar at <b style="color:#5AE57A">${esc(target.nm)}</b> first &mdash; pay the minimum on the rest.`
+      : 'All cleared 🎉 Now redirect those payments to savings or investing.';
+    const L=g('list');
+    if(!D.length){ L.innerHTML='<div class="empty">No debts yet.</div>'; return; }
+    L.innerHTML=order.map(x=>{ const i=D.indexOf(x), pct=x.start>0?Math.min(100,Math.round((x.start-x.bal)/x.start*100)):0;
+      return `<div class="d ${x.bal===0?'paid':''}"><div class="top"><span class="nm">${esc(x.nm)}${x.bal===0?' ✓':''}</span><span class="bal">$${x.bal.toLocaleString()}</span></div>
+        <div class="meta">${pct}% paid · APR ${x.apr}% · start $${x.start.toLocaleString()}</div>
+        <div class="track"><i style="width:${pct}%"></i></div>
+        <div class="acts"><span onclick="payDown(${i})">+ Log payment</span><span onclick="del(${i})">✕ Delete</span></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

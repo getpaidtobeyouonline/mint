@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content ROI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .result {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .result.show { display: block; }
+  .headline {
+    text-align: center;
+    margin-bottom: 22px;
+    padding: 22px;
+    border-radius: 12px;
+  }
+  .green { background: rgba(80, 200, 120, 0.12); border: 1px solid rgba(80,200,120,0.3); }
+  .yellow { background: rgba(201, 168, 76, 0.12); border: 1px solid rgba(201,168,76,0.4); }
+  .red { background: rgba(255, 120, 100, 0.12); border: 1px solid rgba(255,120,100,0.3); }
+  .roi-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .green .roi-num { color: #5AE57A; }
+  .yellow .roi-num { color: #5AE57A; }
+  .red .roi-num { color: #5AE57A; }
+  .roi-label { font-size: 0.9rem; opacity: 0.85; }
+  .verdict { margin-top: 10px; font-style: italic; }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: rgba(240, 235, 224, 0.04);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #5AE57A;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    opacity: 0.8;
+  }
+  .section { margin-bottom: 20px; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: #5AE57A;
+    margin-bottom: 8px;
+  }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 5px; font-size: 0.95rem; }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content ROI Calculator</h1>
+  <p class="subtitle">Find out what your content actually earned — accounting for the hours you sunk into making it.</p>
+
+  <div class="grid">
+    <div>
+      <label for="hours">Hours Spent On The Piece</label>
+      <input type="number" id="hours" placeholder="6" min="0" step="0.5" />
+    </div>
+    <div>
+      <label for="rate">Your Hourly Value ($)</label>
+      <input type="number" id="rate" placeholder="75" min="0" />
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label for="conversions">Conversions (sales, signups, leads)</label>
+      <input type="number" id="conversions" placeholder="12" min="0" />
+    </div>
+    <div>
+      <label for="value">Avg Value Per Conversion ($)</label>
+      <input type="number" id="value" placeholder="35" min="0" />
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label for="adspend">Ad / Boost Spend ($, optional)</label>
+      <input type="number" id="adspend" placeholder="0" min="0" />
+    </div>
+    <div>
+      <label for="reach">Total Reach (optional)</label>
+      <input type="number" id="reach" placeholder="4500" min="0" />
+    </div>
+  </div>
+
+  <button class="build-btn" id="buildBtn">Calculate ROI</button>
+
+  <div class="result" id="result">
+    <div class="headline" id="headline">
+      <div class="roi-num" id="roiNum"></div>
+      <div class="roi-label">Return On Investment</div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="section">
+      <div class="section-title">What This Means</div>
+      <ul id="meaning"></ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Next Move</div>
+      <ul id="nextMove"></ul>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function fmtMoney(n) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  function calculate() {
+    const hours = parseFloat(document.getElementById('hours').value) || 0;
+    const rate = parseFloat(document.getElementById('rate').value) || 0;
+    const conversions = parseInt(document.getElementById('conversions').value) || 0;
+    const value = parseFloat(document.getElementById('value').value) || 0;
+    const adspend = parseFloat(document.getElementById('adspend').value) || 0;
+    const reach = parseInt(document.getElementById('reach').value) || 0;
+
+    const timeCost = hours * rate;
+    const totalCost = timeCost + adspend;
+    const revenue = conversions * value;
+    const net = revenue - totalCost;
+    const roi = totalCost > 0 ? ((net / totalCost) * 100) : (revenue > 0 ? Infinity : 0);
+    const cpc = conversions > 0 ? totalCost / conversions : 0;
+    const cpr = reach > 0 ? (totalCost / reach) * 1000 : 0;
+    const breakEvenConv = value > 0 ? Math.ceil(totalCost / value) : 0;
+
+    let cls, verdict;
+    if (!isFinite(roi)) { cls = 'green'; verdict = 'Free content with conversions — pure profit. Make more.'; }
+    else if (roi >= 200) { cls = 'green'; verdict = 'Strong winner. This is a pillar piece. Build on it.'; }
+    else if (roi >= 50) { cls = 'green'; verdict = 'Solid return. Worth repeating the format.'; }
+    else if (roi >= 0) { cls = 'yellow'; verdict = 'Break-even to mildly positive. Optimize before scaling.'; }
+    else if (roi >= -50) { cls = 'yellow'; verdict = 'Losing money — but recoverable. The piece has a long tail you may not have measured yet.'; }
+    else { cls = 'red'; verdict = 'Net loss. Either this format isn\'t working or you\'re overspending on production.'; }
+
+    document.getElementById('headline').className = 'headline ' + cls;
+    document.getElementById('roiNum').textContent = isFinite(roi) ? `${roi >= 0 ? '+' : ''}${roi.toFixed(0)}%` : '∞';
+    document.getElementById('verdict').textContent = verdict;
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-num">${fmtMoney(revenue)}</div><div class="stat-label">Revenue</div></div>
+      <div class="stat"><div class="stat-num">${fmtMoney(totalCost)}</div><div class="stat-label">Total Cost</div></div>
+      <div class="stat"><div class="stat-num">${net >= 0 ? '+' : ''}${fmtMoney(net)}</div><div class="stat-label">Net</div></div>
+      <div class="stat"><div class="stat-num">${conversions > 0 ? fmtMoney(cpc) : '—'}</div><div class="stat-label">Cost Per Conv</div></div>
+      ${reach > 0 ? `<div class="stat"><div class="stat-num">${fmtMoney(cpr)}</div><div class="stat-label">Cost / 1k Reach</div></div>` : ''}
+    `;
+
+    const meaning = [];
+    meaning.push(`You spent <strong>${hours} hours</strong> at <strong>${fmtMoney(rate)}/hour</strong> = <strong>${fmtMoney(timeCost)}</strong> of your time${adspend > 0 ? ` plus ${fmtMoney(adspend)} in ad spend` : ''}.`);
+    if (conversions > 0) {
+      meaning.push(`${conversions} conversion${conversions===1?'':'s'} × ${fmtMoney(value)} = <strong>${fmtMoney(revenue)}</strong> in revenue.`);
+      if (cpc <= value * 0.3) meaning.push(`Cost per conversion (${fmtMoney(cpc)}) is well under your average value (${fmtMoney(value)}). Healthy.`);
+      else if (cpc <= value) meaning.push(`Cost per conversion (${fmtMoney(cpc)}) is below average value, but tight. Watch this number.`);
+      else meaning.push(`Cost per conversion (${fmtMoney(cpc)}) is ABOVE your average value (${fmtMoney(value)}). This piece is losing money per buyer.`);
+    } else {
+      meaning.push(`No conversions logged. If this was awareness content, that may be fine — but track downstream conversions over the next 30 days before judging it.`);
+    }
+    if (reach > 0) {
+      meaning.push(`Total reach of ${reach.toLocaleString()} cost you ${fmtMoney(cpr)} per 1,000 people reached.`);
+    }
+    document.getElementById('meaning').innerHTML = meaning.map(m => `<li>${m}</li>`).join('');
+
+    const next = [];
+    if (cls === 'green') {
+      next.push(`This format works. Make 2-3 more like it in the next 30 days.`);
+      next.push(`Document what you did differently here vs. your average piece. The pattern is your moat.`);
+      if (reach > 0 && cpr < 50) next.push(`Cost per 1k reach is low enough that a small ad boost could amplify this further.`);
+    } else if (cls === 'yellow') {
+      next.push(`Don't kill this — refine it. Try cutting production time by 30% on the next piece and see if ROI flips green.`);
+      if (value > 0 && conversions > 0) next.push(`You need ${breakEvenConv} conversion${breakEvenConv===1?'':'s'} just to break even at this production cost. Aim for double that next time.`);
+      next.push(`Check whether this piece is still converting in 30/60/90 days. Long-tail content often turns yellow → green over time.`);
+    } else {
+      next.push(`Pause this format. Spend ${hours} hours on a different approach next time.`);
+      next.push(`Audit: was the issue production cost (cut hours), offer (low value per conversion), or audience match (wrong people)?`);
+      if (hours > 4) next.push(`Anything over 4 hours of production should be repurposed at least 5 ways to justify the time. Were you?`);
+    }
+    document.getElementById('nextMove').innerHTML = next.map(n => `<li>${n}</li>`).join('');
+
+    document.getElementById('result').classList.add('show');
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', calculate);
+</script>
+</body>
+</html>

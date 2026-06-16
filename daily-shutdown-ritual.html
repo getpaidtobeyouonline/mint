@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Shutdown Ritual</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 20px; }
+  .prog-wrap { max-width: 580px; margin: 0 auto 20px; display: flex; align-items: center; gap: 10px; }
+  .prog-track { flex: 1; background: #3C603C; height: 3px; border-radius: 2px; }
+  .prog-fill { height: 100%; background: #5AE57A; border-radius: 2px; transition: width 0.4s ease; }
+  .prog-lbl { font-size: 0.72rem; color: #BFD8BF; white-space: nowrap; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 6px; }
+  .card-sub { font-size: 0.8rem; color: #BFD8BF; margin-bottom: 18px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .f-input, textarea { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; resize: none; }
+  .f-input:focus, textarea:focus { border-color: #5AE57A; }
+  .rating-row { display: flex; gap: 8px; margin-bottom: 18px; }
+  .r-btn { flex: 1; background: #325132; border: 2px solid #3C603C; border-radius: 10px; padding: 12px 6px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .r-btn:hover { border-color: var(--rc); }
+  .r-btn.sel { border-color: var(--rc); background: var(--rb); }
+  .r-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .r-num { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--rc,#5A845A); }
+  .r-lbl { font-size: 0.6rem; color: #BFD8BF; }
+  .citem { display: flex; align-items: flex-start; gap: 12px; padding: 11px 12px; border-radius: 9px; background: #325132; border: 1px solid #3C603C; margin-bottom: 7px; cursor: pointer; transition: opacity 0.15s; }
+  .citem.done { opacity: 0.45; }
+  .ci-check { width: 20px; height: 20px; border-radius: 4px; border: 2px solid #4C724C; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; transition: all 0.15s; margin-top: 1px; }
+  .citem.done .ci-check { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .ci-text { font-size: 0.86rem; color: #F0EBE0aa; line-height: 1.5; }
+  .btn-main { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; margin-top: 18px; }
+  .btn-main:hover { background: #5AE57A; }
+  .err { font-size: 0.78rem; color: #5AE57A; min-height: 16px; margin-top: 6px; }
+  .sc-wrap { text-align: center; padding: 10px 0 6px; }
+  .sc-glyph { font-size: 3rem; display: block; animation: pulse 3s ease-in-out infinite; margin-bottom: 10px; }
+  @keyframes pulse { 0%,100%{opacity:0.5;transform:scale(0.88)} 50%{opacity:1;transform:scale(1.06)} }
+  .sc-title { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; margin-bottom: 4px; }
+  .sc-time { font-size: 0.78rem; color: #BFD8BF; margin-bottom: 20px; }
+  .sc-mit { background: #325132; border-left: 3px solid #5AE57A; padding: 12px 16px; border-radius: 0 8px 8px 0; font-size: 0.9rem; color: #F0EBE0cc; margin: 16px 0; text-align: left; line-height: 1.5; }
+  .sc-streak { display: inline-block; font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; border: 1px solid #C9A84C33; background: #1a150820; padding: 5px 20px; border-radius: 20px; margin: 8px 0 20px; }
+  .sc-farewell { font-size: 0.88rem; color: #BFD8BF; font-style: italic; }
+  .hist-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #325132; font-size: 0.8rem; }
+  .hist-row:last-child { border-bottom: none; }
+  .hist-date { color: #BFD8BF; width: 60px; flex-shrink: 0; }
+  .hist-stars { flex: 1; }
+  .hist-mit { font-size: 0.74rem; color: #5A845A; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 200px; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Daily Shutdown Ritual</h1>
+<p class="subtitle">Close the day completely. Protect your rest.</p>
+
+<div class="prog-wrap" id="progWrap">
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:25%"></div></div>
+  <div class="prog-lbl" id="progLbl">Step 1 of 4</div>
+</div>
+
+<div id="ph1" class="card">
+  <div class="card-title">Day Review</div>
+  <div class="card-sub">How did today go, honestly?</div>
+  <div class="field-label">Rate your day</div>
+  <div class="rating-row" id="ratingRow"></div>
+  <div class="field-label">What went well today?</div>
+  <textarea id="wentWell" rows="3" placeholder="Even a rough day has at least one win…"></textarea>
+  <div class="err" id="err1"></div>
+  <button class="btn-main" onclick="next(2)">Continue →</button>
+</div>
+
+<div id="ph2" class="card" style="display:none">
+  <div class="card-title">Close the Loops</div>
+  <div class="card-sub">Work through each item before you close out.</div>
+  <div id="checkWrap"></div>
+  <div style="margin-top:14px">
+    <div class="field-label">Any open loops or nagging thoughts?</div>
+    <textarea id="openLoops" rows="3" placeholder="Write it all out — then let it go."></textarea>
+  </div>
+  <button class="btn-main" id="ph2Btn" onclick="next(3)">Continue →</button>
+</div>
+
+<div id="ph3" class="card" style="display:none">
+  <div class="card-title">Tomorrow's Intent</div>
+  <div class="card-sub">Set one clear priority before you close.</div>
+  <div class="field-label">Most Important Task for tomorrow</div>
+  <input class="f-input" id="mitInput" placeholder="What's the one thing that will make tomorrow a win?" maxlength="80" />
+  <div style="margin-top:12px">
+    <div class="field-label">Calendar note <span style="color:#4C724C;font-size:0.68rem;text-transform:none;letter-spacing:0">(optional)</span></div>
+    <input class="f-input" id="calNote" placeholder="Any meetings or commitments that need prep?" maxlength="80" />
+  </div>
+  <div class="err" id="err3"></div>
+  <button class="btn-main" onclick="next(4)">Complete Shutdown →</button>
+</div>
+
+<div id="ph4" class="card" style="display:none">
+  <div class="sc-wrap">
+    <span class="sc-glyph">✦</span>
+    <div class="sc-title">Shutdown Complete</div>
+    <div class="sc-time" id="scTime"></div>
+    <div class="sc-streak" id="scStreak"></div>
+    <div class="sc-mit" id="scMit"></div>
+    <div class="sc-farewell">The work is done. The rest is yours.</div>
+  </div>
+</div>
+
+<div class="card" id="histCard">
+  <div class="card-title" style="margin-bottom:12px">Past Shutdowns</div>
+  <div id="histList"><p class="empty">No previous shutdowns recorded yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const RATINGS = [
+  {v:1,icon:'😞',label:'Rough',    color:'#5AE57A',bg:'#18080820'},
+  {v:2,icon:'😐',label:'Okay',     color:'#5AE57A',bg:'#18100820'},
+  {v:3,icon:'🙂',label:'Solid',    color:'#5AE57A',bg:'#1a150820'},
+  {v:4,icon:'😊',label:'Strong',   color:'#5AE57A',bg:'#0d180820'},
+  {v:5,icon:'🌟',label:'Excellent',color:'#5AE57A',bg:'#08140820'},
+];
+const CHECKLIST = [
+  'Review today\'s task list — mark complete, note what carries over',
+  'Process your inbox or flag anything that needs a reply',
+  'Update your task list and priorities for tomorrow',
+  'Check tomorrow\'s calendar for anything that needs prep',
+  'Clear your desktop, close browser tabs, tidy your workspace',
+  'Take one slow breath and acknowledge what you accomplished',
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+let data = JSON.parse(localStorage.getItem('dsr_'+TODAY)||'null') || {rating:0,wentWell:'',checked:[],openLoops:'',mit:'',calNote:'',completedAt:null};
+let history = JSON.parse(localStorage.getItem('dsr_hist')||'[]');
+let curPhase = 1;
+
+function save() { localStorage.setItem('dsr_'+TODAY, JSON.stringify(data)); }
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmtDate(ts){const d=new Date(ts);const h=d.getHours(),m=d.getMinutes();return d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})+' · '+(h===0?12:h>12?h-12:h)+':'+String(m).padStart(2,'0')+' '+(h<12?'AM':'PM');}
+
+document.getElementById('ratingRow').innerHTML = RATINGS.map(r=>
+  `<div class="r-btn${r.v===data.rating?' sel':''}" style="--rc:${r.color};--rb:${r.bg}" id="rb-${r.v}" onclick="pickRating(${r.v})">
+    <div class="r-icon">${r.icon}</div><div class="r-num">${r.v}</div><div class="r-lbl">${r.label}</div>
+  </div>`).join('');
+
+function pickRating(v) {
+  data.rating=v; save();
+  RATINGS.forEach(r=>document.getElementById('rb-'+r.v).classList.toggle('sel',r.v===v));
+}
+
+function buildChecklist() {
+  document.getElementById('checkWrap').innerHTML = CHECKLIST.map((item,i)=>
+    `<div class="citem${data.checked.includes(i)?' done':''}" id="ci-${i}" onclick="toggleCheck(${i})">
+      <div class="ci-check" id="cc-${i}">${data.checked.includes(i)?'✓':''}</div>
+      <div class="ci-text">${item}</div>
+    </div>`).join('');
+  updatePh2Btn();
+}
+
+function toggleCheck(i) {
+  const idx=data.checked.indexOf(i);
+  if(idx===-1) data.checked.push(i); else data.checked.splice(idx,1);
+  document.getElementById('ci-'+i).classList.toggle('done',data.checked.includes(i));
+  document.getElementById('cc-'+i).textContent=data.checked.includes(i)?'✓':'';
+  save(); updatePh2Btn();
+}
+
+function updatePh2Btn() {
+  const n=data.checked.length, total=CHECKLIST.length;
+  document.getElementById('ph2Btn').textContent = n===total ? 'All Closed — Continue →' : `Continue (${n}/${total} checked) →`;
+}
+
+function goPhase(n) {
+  [1,2,3,4].forEach(i=>document.getElementById('ph'+i).style.display=i===n?'block':'none');
+  document.getElementById('progFill').style.width=(n/4*100)+'%';
+  document.getElementById('progLbl').textContent='Step '+n+' of 4';
+  document.getElementById('progWrap').style.display=n===4?'none':'flex';
+  curPhase=n;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function next(n) {
+  if(curPhase===1){
+    if(!data.rating){document.getElementById('err1').textContent='Rate your day to continue.';return;}
+    document.getElementById('err1').textContent='';
+    data.wentWell=document.getElementById('wentWell').value.trim();
+    save();
+  }
+  if(curPhase===2){
+    data.openLoops=document.getElementById('openLoops').value.trim();
+    save();
+  }
+  if(curPhase===3){
+    const mit=document.getElementById('mitInput').value.trim();
+    if(!mit){document.getElementById('err3').textContent='Set your priority for tomorrow to continue.';return;}
+    document.getElementById('err3').textContent='';
+    data.mit=mit; data.calNote=document.getElementById('calNote').value.trim();
+    data.completedAt=Date.now();
+    save();
+    history=history.filter(h=>h.date!==TODAY);
+    history.push({date:TODAY,rating:data.rating,mit:data.mit});
+    if(history.length>30) history.shift();
+    localStorage.setItem('dsr_hist',JSON.stringify(history));
+    buildComplete();
+    renderHistory();
+  }
+  goPhase(n);
+}
+
+function buildComplete() {
+  document.getElementById('scTime').textContent=fmtDate(data.completedAt);
+  const streak=getStreak();
+  document.getElementById('scStreak').textContent=streak>1?'🔥 '+streak+'-day streak':streak===1?'✦ First shutdown logged':'✦ Shutdown logged';
+  const r=RATINGS.find(r=>r.v===data.rating)||RATINGS[2];
+  const mit=data.mit, cal=data.calNote;
+  document.getElementById('scMit').innerHTML=`<span style="font-size:0.7rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:0.07em">Tomorrow's priority</span><br><span style="color:#FFFFFF">${esc(mit)}</span>`+(cal?`<br><span style="font-size:0.75rem;color:#BFD8BF;margin-top:6px;display:block">${esc(cal)}</span>`:'');
+}
+
+function getStreak() {
+  const sorted=[...history].sort((a,b)=>b.date.localeCompare(a.date));
+  let streak=0, prev=null;
+  for(const e of sorted){
+    if(!prev){prev=e.date;streak=1;continue;}
+    const diff=(new Date(prev+'T12:00:00')-new Date(e.date+'T12:00:00'))/86400000;
+    if(diff<=1){streak++;prev=e.date;}else break;
+  }
+  return streak;
+}
+
+function renderHistory() {
+  const el=document.getElementById('histList');
+  if(!history.length){el.innerHTML='<p class="empty">No previous shutdowns yet.</p>';return;}
+  el.innerHTML=[...history].reverse().map(h=>{
+    const r=RATINGS.find(r=>r.v===h.rating)||RATINGS[2];
+    const d=new Date(h.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="hist-row">
+      <span class="hist-date">${d}</span>
+      <span class="hist-stars" style="color:${r.color}">${r.icon} ${r.label}</span>
+      <span class="hist-mit">${esc(h.mit||'')}</span>
+    </div>`;
+  }).join('');
+}
+
+if(data.wentWell) document.getElementById('wentWell').value=data.wentWell;
+if(data.openLoops) document.getElementById('openLoops').value=data.openLoops;
+if(data.mit) document.getElementById('mitInput').value=data.mit;
+if(data.calNote) document.getElementById('calNote').value=data.calNote;
+buildChecklist();
+renderHistory();
+if(data.completedAt){buildComplete();goPhase(4);}
+</script>
+</body>
+</html>

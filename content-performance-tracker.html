@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Performance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .card {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 22px 20px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #5AE57A;
+    margin-bottom: 14px;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 560px) { .grid, .grid-3 { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 4px;
+    margin-top: 8px;
+    font-weight: 500;
+  }
+  input, select {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  .btn {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 12px 24px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 16px;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 8px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat {
+    background: rgba(240, 235, 224, 0.04);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: #5AE57A;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    opacity: 0.8;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th, td { padding: 8px 6px; text-align: left; border-bottom: 1px solid rgba(240, 235, 224, 0.08); }
+  th { color: #5AE57A; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; }
+  .row-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 6px;
+  }
+  .icon-btn:hover { color: #5AE57A; }
+  .empty {
+    text-align: center;
+    opacity: 0.55;
+    font-style: italic;
+    padding: 30px 10px;
+  }
+  .table-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+  .table-wrap { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content Performance Tracker</h1>
+  <p class="subtitle">Log every post in 30 seconds. See what actually works. Stop guessing what to make next.</p>
+
+  <div class="card">
+    <div class="card-title">Log a Post</div>
+    <div class="grid">
+      <div>
+        <label for="date">Date</label>
+        <input type="date" id="date" />
+      </div>
+      <div>
+        <label for="platform">Platform</label>
+        <select id="platform">
+          <option>Instagram</option><option>LinkedIn</option><option>TikTok</option>
+          <option>YouTube</option><option>Threads</option><option>X</option>
+          <option>Email</option><option>Blog</option><option>Pinterest</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid">
+      <div>
+        <label for="topic">Post Topic / Title</label>
+        <input type="text" id="topic" placeholder="3 mistakes when pricing freelance work" />
+      </div>
+      <div>
+        <label for="format">Format</label>
+        <select id="format">
+          <option>Reel / Short</option><option>Carousel</option><option>Static post</option>
+          <option>Story</option><option>Long-form video</option><option>Live</option>
+          <option>Newsletter</option><option>Article</option><option>Text post</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div>
+        <label for="reach">Reach / Views</label>
+        <input type="number" id="reach" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label for="engage">Engagement (likes + comments + saves + shares)</label>
+        <input type="number" id="engage" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label for="conv">Conversions (clicks, signups, sales)</label>
+        <input type="number" id="conv" placeholder="0" min="0" />
+      </div>
+    </div>
+    <button class="btn" id="addBtn">Add Post</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Performance Snapshot</div>
+    <div class="stats" id="stats"></div>
+    <div id="insights"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your Posts</div>
+    <div class="table-wrap">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>Date</th><th>Platform</th><th>Topic</th><th>Format</th>
+            <th>Reach</th><th>Engage</th><th>Conv</th><th>ER%</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="emptyState" class="empty">No posts logged yet. Add your first above.</div>
+    <div class="table-actions">
+      <button class="secondary-btn" id="exportBtn">Export CSV</button>
+      <button class="secondary-btn" id="clearBtn">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const KEY = 'cpt_v1';
+  let posts = JSON.parse(localStorage.getItem(KEY) || '[]');
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(posts)); }
+
+  function fmt(d) {
+    return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  function er(p) {
+    return p.reach > 0 ? ((p.engage / p.reach) * 100).toFixed(1) : '—';
+  }
+
+  function render() {
+    const tbody = document.getElementById('tbody');
+    const empty = document.getElementById('emptyState');
+    if (!posts.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      document.getElementById('table').style.display = 'none';
+    } else {
+      empty.style.display = 'none';
+      document.getElementById('table').style.display = '';
+      tbody.innerHTML = posts.slice().sort((a,b) => new Date(b.date) - new Date(a.date)).map(p => `
+        <tr>
+          <td>${fmt(p.date)}</td><td>${p.platform}</td>
+          <td>${p.topic}</td><td>${p.format}</td>
+          <td>${p.reach}</td><td>${p.engage}</td><td>${p.conv}</td><td>${er(p)}</td>
+          <td><button class="icon-btn" data-id="${p.id}">✕</button></td>
+        </tr>
+      `).join('');
+      tbody.querySelectorAll('.icon-btn').forEach(b => {
+        b.onclick = () => {
+          posts = posts.filter(x => x.id !== b.dataset.id);
+          save(); render();
+        };
+      });
+    }
+    renderStats();
+  }
+
+  function renderStats() {
+    const s = document.getElementById('stats');
+    const i = document.getElementById('insights');
+    if (!posts.length) { s.innerHTML = ''; i.innerHTML = ''; return; }
+
+    const totalReach = posts.reduce((a,p) => a + p.reach, 0);
+    const totalEngage = posts.reduce((a,p) => a + p.engage, 0);
+    const totalConv = posts.reduce((a,p) => a + p.conv, 0);
+    const avgER = totalReach > 0 ? ((totalEngage / totalReach) * 100).toFixed(1) : 0;
+
+    s.innerHTML = `
+      <div class="stat"><div class="stat-num">${posts.length}</div><div class="stat-label">Posts</div></div>
+      <div class="stat"><div class="stat-num">${totalReach.toLocaleString()}</div><div class="stat-label">Total Reach</div></div>
+      <div class="stat"><div class="stat-num">${totalEngage.toLocaleString()}</div><div class="stat-label">Total Engage</div></div>
+      <div class="stat"><div class="stat-num">${totalConv.toLocaleString()}</div><div class="stat-label">Conversions</div></div>
+      <div class="stat"><div class="stat-num">${avgER}%</div><div class="stat-label">Avg ER</div></div>
+    `;
+
+    const byGroup = (key) => {
+      const g = {};
+      posts.forEach(p => {
+        if (!g[p[key]]) g[p[key]] = { reach: 0, engage: 0, count: 0 };
+        g[p[key]].reach += p.reach;
+        g[p[key]].engage += p.engage;
+        g[p[key]].count++;
+      });
+      return Object.entries(g).map(([k, v]) => ({
+        name: k, er: v.reach > 0 ? (v.engage / v.reach) * 100 : 0, count: v.count
+      })).sort((a,b) => b.er - a.er);
+    };
+
+    const platforms = byGroup('platform');
+    const formats = byGroup('format');
+    const topPost = posts.slice().sort((a,b) => (parseFloat(er(b))||0) - (parseFloat(er(a))||0))[0];
+
+    i.innerHTML = `
+      <p style="margin-top:8px;"><strong style="color:#5AE57A;">Best platform:</strong> ${platforms[0].name} (${platforms[0].er.toFixed(1)}% avg ER over ${platforms[0].count} post${platforms[0].count===1?'':'s'})</p>
+      <p style="margin-top:4px;"><strong style="color:#5AE57A;">Best format:</strong> ${formats[0].name} (${formats[0].er.toFixed(1)}% avg ER)</p>
+      <p style="margin-top:4px;"><strong style="color:#5AE57A;">Top post:</strong> "${topPost.topic}" — ${er(topPost)}% ER</p>
+      <p style="margin-top:10px; font-size:0.88rem; opacity:0.75; font-style:italic;">Make more like the top post on the best platform/format. Cut what's consistently underperforming.</p>
+    `;
+  }
+
+  document.getElementById('addBtn').onclick = () => {
+    const date = document.getElementById('date').value;
+    const topic = document.getElementById('topic').value.trim();
+    if (!date || !topic) { alert('Add a date and topic at minimum.'); return; }
+    posts.push({
+      id: Math.random().toString(36).slice(2),
+      date,
+      platform: document.getElementById('platform').value,
+      topic,
+      format: document.getElementById('format').value,
+      reach: parseInt(document.getElementById('reach').value) || 0,
+      engage: parseInt(document.getElementById('engage').value) || 0,
+      conv: parseInt(document.getElementById('conv').value) || 0
+    });
+    save(); render();
+    document.getElementById('topic').value = '';
+    document.getElementById('reach').value = '';
+    document.getElementById('engage').value = '';
+    document.getElementById('conv').value = '';
+  };
+
+  document.getElementById('exportBtn').onclick = () => {
+    if (!posts.length) return;
+    const header = 'Date,Platform,Topic,Format,Reach,Engagement,Conversions,ER%';
+    const rows = posts.map(p => [p.date, p.platform, `"${p.topic.replace(/"/g,'""')}"`, p.format, p.reach, p.engage, p.conv, er(p)].join(','));
+    const csv = [header, ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'content-performance.csv';
+    a.click();
+  };
+
+  document.getElementById('clearBtn').onclick = () => {
+    if (confirm('Delete all logged posts? This cannot be undone.')) {
+      posts = []; save(); render();
+    }
+  };
+
+  document.getElementById('date').valueAsDate = new Date();
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Intention Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; text-align: center; }
+  .card .int { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.4rem; line-height: 1.3; }
+  .card .anchor { font-size: .9rem; opacity: .8; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Daily Intention Builder</h1>
+  <p class="sub">A single one-line intention beats a to-do list. Build one that actually steers your day.</p>
+
+  <div class="panel">
+    <label for="energy">How you want to feel</label>
+    <select id="energy"><option>calm</option><option>focused</option><option>brave</option><option>generous</option><option>curious</option><option>steady</option><option>playful</option><option>present</option></select>
+    <label for="verb">What you want to practise</label>
+    <select id="verb"><option>do hard things first</option><option>say no without explaining</option><option>be patient with myself</option><option>listen more than I talk</option><option>finish what I start</option><option>slow down before I react</option><option>celebrate the small wins</option><option>speak the truth kindly</option></select>
+    <label for="who">For whom (yourself counts)</label>
+    <input id="who" placeholder="e.g. myself, the team, my kids">
+    <button class="btn" onclick="gen()">Set Today's Intention</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['energy','verb','who'].forEach(k=>{ const s=localStorage.getItem('dib_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('dib_'+k,g(k).value)); });
+  function gen(){
+    const e=g('energy').value, b=g('verb').value, w=v('who')||'myself';
+    const i='Today, I will be <b>'+esc(e)+'</b> and <b>'+esc(b)+'</b> — for <b>'+esc(w)+'</b>.';
+    g('out').innerHTML='<div class="card"><div class="int">'+i+'</div><div class="anchor">Read this once when you sit down. Read it again at lunch. Read it before bed.<br>If today were only this — it would be enough.</div></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Set it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

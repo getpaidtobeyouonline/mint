@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Intention Setter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 560px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  .card-hint { font-size: 0.8rem; color: #BFD8BF; margin-bottom: 14px; font-style: italic; }
+
+  /* Word of the day */
+  .word-wrap { position: relative; }
+  .word-input {
+    width: 100%; background: #325132; border: none; border-bottom: 2px solid #4C724C;
+    color: #5AE57A; padding: 10px 4px; font-family: 'Playfair Display', serif;
+    font-size: 2rem; outline: none; text-align: center; letter-spacing: 0.04em;
+    transition: border-color 0.2s;
+  }
+  .word-input:focus { border-color: #5AE57A; }
+  .word-input::placeholder { color: #4C724C; font-size: 1.6rem; }
+
+  /* Pillars */
+  .pillar { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .pillar-num { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.1rem; width: 20px; flex-shrink: 0; }
+  .pillar-input {
+    flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF;
+    padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; outline: none;
+  }
+  .pillar-input:focus { border-color: #5AE57A; }
+
+  /* Intention textarea */
+  .intention-wrap { position: relative; }
+  .intention-pre {
+    font-size: 0.88rem; color: #F0EBE0aa; font-style: italic;
+    margin-bottom: 8px; padding-left: 2px;
+  }
+  textarea {
+    width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF;
+    padding: 11px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; outline: none; resize: vertical; min-height: 80px; line-height: 1.6;
+  }
+  textarea:focus { border-color: #5AE57A; }
+
+  /* Evening alignment */
+  .align-label { font-size: 0.88rem; color: #F0EBE0aa; margin-bottom: 10px; }
+  .align-btns { display: flex; gap: 8px; margin-bottom: 14px; }
+  .align-btn {
+    flex: 1; background: #325132; border: 2px solid #3C603C; border-radius: 10px;
+    padding: 10px 4px; text-align: center; cursor: pointer; transition: all 0.15s; font-size: 1.3rem;
+  }
+  .align-btn.active { border-color: #5AE57A; background: #C9A84C22; }
+  .align-btn:hover { border-color: #5A845A; }
+
+  /* Save button */
+  .save-row { text-align: center; max-width: 560px; margin: 0 auto 24px; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 12px 48px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+  .saved-note { font-size: 0.8rem; color: #BFD8BF; text-align: center; margin-top: 8px; height: 16px; transition: opacity 0.5s; }
+
+  /* Archive */
+  .archive-item { padding: 12px 0; border-bottom: 1px solid #3C603C; }
+  .archive-item:last-child { border-bottom: none; }
+  .arch-date { font-size: 0.75rem; color: #BFD8BF; margin-bottom: 4px; }
+  .arch-word { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .arch-pillars { font-size: 0.8rem; color: #F0EBE0aa; margin-top: 3px; }
+  .arch-align { font-size: 0.85rem; float: right; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 14px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Daily Intention Setter</h1>
+<p class="subtitle">Begin with purpose. End with reflection.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Today's Word</div>
+  <div class="card-hint">One word that captures how you want to show up today.</div>
+  <div class="word-wrap">
+    <input class="word-input" id="wordInput" placeholder="e.g. Presence" maxlength="30" />
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Three Pillars</div>
+  <div class="card-hint">What three things would make today feel like a success?</div>
+  <div class="pillar"><div class="pillar-num">I.</div><input class="pillar-input" id="p1" placeholder="First priority" maxlength="60" /></div>
+  <div class="pillar"><div class="pillar-num">II.</div><input class="pillar-input" id="p2" placeholder="Second priority" maxlength="60" /></div>
+  <div class="pillar"><div class="pillar-num">III.</div><input class="pillar-input" id="p3" placeholder="Third priority" maxlength="60" /></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Set Your Intention</div>
+  <div class="card-hint">Write it in full — what do you want today to feel like?</div>
+  <div class="intention-pre">Today I want to feel...</div>
+  <textarea id="intentionInput" placeholder="calm and grounded, fully present in my work and with the people I love…" maxlength="300"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">Evening Reflection</div>
+  <div class="align-label">How aligned did you feel with your intention today?</div>
+  <div class="align-btns" id="alignBtns">
+    <div class="align-btn" onclick="setAlign(1)" title="Not at all">😔</div>
+    <div class="align-btn" onclick="setAlign(2)" title="A little">😐</div>
+    <div class="align-btn" onclick="setAlign(3)" title="Somewhat">🙂</div>
+    <div class="align-btn" onclick="setAlign(4)" title="Mostly">😊</div>
+    <div class="align-btn" onclick="setAlign(5)" title="Fully">✨</div>
+  </div>
+  <textarea id="reflectInput" placeholder="What went well? What would you do differently?" maxlength="300" style="min-height:70px"></textarea>
+</div>
+
+<div class="save-row">
+  <button class="btn-gold" onclick="saveDay()">Save Today's Intention</button>
+  <div class="saved-note" id="savedNote"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Past Intentions</div>
+  <div id="archive"><p class="empty">Your saved intentions will appear here.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TODAY = new Date().toISOString().slice(0, 10);
+  let days = JSON.parse(localStorage.getItem('dit_days') || '[]');
+  let alignment = 0;
+
+  function save() { localStorage.setItem('dit_days', JSON.stringify(days)); }
+
+  function setAlign(n) {
+    alignment = n;
+    document.querySelectorAll('.align-btn').forEach((b, i) =>
+      b.classList.toggle('active', i + 1 === n));
+  }
+
+  function saveDay() {
+    const word      = document.getElementById('wordInput').value.trim();
+    const pillars   = [document.getElementById('p1').value.trim(), document.getElementById('p2').value.trim(), document.getElementById('p3').value.trim()].filter(Boolean);
+    const intention = document.getElementById('intentionInput').value.trim();
+    const reflection= document.getElementById('reflectInput').value.trim();
+    if (!word && !pillars.length && !intention) return;
+
+    days = days.filter(d => d.date !== TODAY);
+    days.unshift({ date: TODAY, word, pillars, intention, alignment, reflection });
+    save(); renderArchive();
+
+    const note = document.getElementById('savedNote');
+    note.textContent = 'Saved ✓'; note.style.opacity = 1;
+    setTimeout(() => note.style.opacity = 0, 2000);
+  }
+
+  function loadToday() {
+    document.getElementById('dateLabel').textContent =
+      new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const today = days.find(d => d.date === TODAY);
+    if (!today) return;
+    document.getElementById('wordInput').value = today.word || '';
+    document.getElementById('p1').value = today.pillars[0] || '';
+    document.getElementById('p2').value = today.pillars[1] || '';
+    document.getElementById('p3').value = today.pillars[2] || '';
+    document.getElementById('intentionInput').value = today.intention || '';
+    document.getElementById('reflectInput').value = today.reflection || '';
+    if (today.alignment) setAlign(today.alignment);
+  }
+
+  function fmtDate(d) {
+    return new Date(d + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  const ALIGNS = ['', '😔', '😐', '🙂', '😊', '✨'];
+
+  function renderArchive() {
+    const past = days.filter(d => d.date !== TODAY);
+    const el = document.getElementById('archive');
+    if (!past.length) { el.innerHTML = '<p class="empty">Your saved intentions will appear here.</p>'; return; }
+    el.innerHTML = past.slice(0, 14).map(d => `
+      <div class="archive-item">
+        <div class="arch-date">${fmtDate(d.date)} ${d.alignment ? `<span class="arch-align">${ALIGNS[d.alignment]}</span>` : ''}</div>
+        <div class="arch-word">${esc(d.word) || '<em style="color:#5A845A;font-style:italic;font-size:0.9rem">No word set</em>'}</div>
+        ${d.pillars.length ? `<div class="arch-pillars">${d.pillars.map(esc).join(' · ')}</div>` : ''}
+      </div>`).join('');
+  }
+
+  function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  loadToday();
+  renderArchive();
+</script>
+</body>
+</html>

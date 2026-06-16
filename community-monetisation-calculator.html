@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Monetisation Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=number]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input[type=number]:focus{border-color:#5AE57A}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.hint{font-size:.72rem;opacity:.38;margin-top:.3rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.model-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.model-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem;gap:.5rem}
+.model-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.top-badge{font-size:.65rem;font-weight:600;color:#5AE57A;border:1px solid #C9A84C44;border-radius:4px;padding:.15rem .5rem;background:#C9A84C18;white-space:nowrap;flex-shrink:0}
+.model-desc{font-size:.8rem;opacity:.58;margin-bottom:.45rem;line-height:1.4}
+.model-conv{font-size:.72rem;opacity:.32;margin-bottom:.65rem;padding-bottom:.65rem;border-bottom:1px solid #3C603C;line-height:1.4}
+.model-rev{font-family:'Playfair Display',serif;font-size:1.7rem;display:block;margin-bottom:.15rem}
+.model-yr{font-size:.78rem;opacity:.42}
+.summary-card{background:#325132;border:1px solid #C9A84C33;border-radius:10px;padding:1.4rem 1.5rem;text-align:center;margin-bottom:1.1rem}
+.sum-lbl{font-size:.72rem;opacity:.5;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem}
+.sum-amt{font-family:'Playfair Display',serif;font-size:2.4rem;color:#5AE57A;margin-bottom:.2rem}
+.sum-yr{font-size:.92rem;opacity:.5;margin-bottom:.5rem}
+.sum-note{font-size:.77rem;opacity:.4;font-style:italic}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Community Monetisation Calculator</h1>
+    <p class="subtitle">See exactly how much revenue your community could generate — across five monetisation models — based on your real numbers.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Community</h2>
+    <label>Total Community Size</label>
+    <input type="number" id="inSize" placeholder="e.g. 5000" min="1">
+    <p class="hint">Facebook Group, email list, Discord, Skool, Slack, YouTube, etc.</p>
+    <label>Engagement Level</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickEng('low')"  id="elow">Low (5%)</button>
+      <button class="opt sel" onclick="pickEng('mid')"  id="emid">Medium (15%)</button>
+      <button class="opt"     onclick="pickEng('high')" id="ehigh">High (30%)</button>
+    </div>
+    <label>Revenue Scenario</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickScen('low')"  id="slow">Conservative</button>
+      <button class="opt sel" onclick="pickScen('mid')"  id="smid">Realistic</button>
+      <button class="opt"     onclick="pickScen('high')" id="shigh">Optimistic</button>
+    </div>
+    <button class="btn" onclick="calculate()">Calculate My Revenue Potential →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="modelCards"></div>
+    <div class="summary-card">
+      <div class="sum-lbl">Total Monthly Potential</div>
+      <div class="sum-amt" id="sumAmt"></div>
+      <div class="sum-yr" id="sumYr"></div>
+      <div class="sum-note" id="sumNote"></div>
+    </div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Revenue Breakdown as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const st       = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const fmtM     = n => n < 1000 ? `$${n}` : n < 10000 ? `$${n.toLocaleString()}` : `$${(n/1000).toFixed(1)}k`;
+const fmtN     = n => n >= 1000 ? n.toLocaleString() : String(n);
+
+const models = [
+  {name:'Paid Membership',  col:'#5AE57A', desc:'Monthly subscriptions for exclusive content, community, or coaching access',
+   base:'engaged', price:27,  freq:1, rates:[0.02, 0.05, 0.10]},
+  {name:'Digital Products', col:'#5AE57A', desc:'Ebooks, templates, mini-courses, or resource packs sold to your community',
+   base:'total',   price:47,  freq:1, rates:[0.01, 0.03, 0.07]},
+  {name:'Sponsorships',     col:'#5AE57A', desc:'Brand partnerships and sponsored placements within your community',
+   base:'cpm',     price:1,   freq:1, rates:[150,  500,  1200]},
+  {name:'Paid Events',      col:'#5AE57A', desc:'Workshops, intensives, or live training sessions sold monthly',
+   base:'engaged', price:97,  freq:1, rates:[0.005, 0.015, 0.03]},
+  {name:'Affiliate Income', col:'#5AE57A', desc:'Commissions from two monthly product or service recommendations',
+   base:'engaged', price:35,  freq:2, rates:[0.005, 0.01, 0.02]},
+];
+
+const engRates  = {low:.05, mid:.15, high:.30};
+const engLabel  = {low:'5%', mid:'15%', high:'30%'};
+const scenLabel = {low:'Conservative', mid:'Realistic', high:'Optimistic'};
+const siMap     = {low:0, mid:1, high:2};
+
+let state = {eng:'mid', scen:'mid'};
+
+function pickEng(e) {
+  state.eng = e;
+  ['low','mid','high'].forEach(x => document.getElementById(`e${x}`).classList.toggle('sel', x===e));
+}
+function pickScen(s) {
+  state.scen = s;
+  ['low','mid','high'].forEach(x => document.getElementById(`s${x}`).classList.toggle('sel', x===s));
+}
+
+function calcRev(m, total, engaged, si) {
+  const r = m.rates[si];
+  if (m.base === 'cpm')   return Math.round(engaged / 1000 * r);
+  if (m.base === 'total') return Math.round(total * r * m.price * m.freq);
+  return Math.round(engaged * r * m.price * m.freq);
+}
+
+function convLine(m, total, engaged, si) {
+  const r = m.rates[si];
+  if (m.base === 'cpm') return `$${r.toLocaleString()} effective rate per 1,000 engaged members monthly`;
+  const pool  = m.base === 'total' ? total : engaged;
+  const lbl   = m.base === 'total' ? 'members' : 'engaged';
+  const count = Math.round(pool * r);
+  const pct   = (r * 100).toFixed(r < 0.01 ? 2 : 1);
+  const extra = m.freq > 1 ? ` × ${m.freq} recs/mo` : '';
+  return `${pct}% of ${fmtN(pool)} ${lbl} → ${count} ${count===1?'person':'people'} at $${m.price}${extra}`;
+}
+
+function calculate() {
+  const size = parseInt(document.getElementById('inSize').value);
+  if (!size || size < 1) { alert('Enter your community size to calculate.'); return; }
+  const engaged = Math.round(size * engRates[state.eng]);
+  const si      = siMap[state.scen];
+
+  const revs = models.map(m => ({...m, monthly: calcRev(m, size, engaged, si)}));
+  const total = revs.reduce((s,m) => s + m.monthly, 0);
+  const topM  = revs.reduce((a,b) => a.monthly > b.monthly ? a : b);
+
+  document.getElementById('statsBar').innerHTML =
+    st(fmtN(size),'Community') + st(fmtN(engaged),'Engaged') + st(fmtM(total),'Monthly') + st(fmtM(total*12),'Annual');
+
+  document.getElementById('modelCards').innerHTML = revs.map(m => {
+    const isTop = m.name === topM.name;
+    return `<div class="model-card" style="border-left-color:${m.col}">
+      <div class="model-head">
+        <span class="model-name" style="color:${m.col}">${m.name}</span>
+        ${isTop ? '<span class="top-badge">★ Top Earner</span>' : ''}
+      </div>
+      <div class="model-desc">${m.desc}</div>
+      <div class="model-conv">${convLine(m, size, engaged, si)}</div>
+      <span class="model-rev" style="color:${m.col}">${fmtM(m.monthly)}<span style="font-size:.8rem;opacity:.5">/mo</span></span>
+      <div class="model-yr">${fmtM(m.monthly * 12)} per year</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('sumAmt').textContent = fmtM(total) + '/mo';
+  document.getElementById('sumYr').textContent  = fmtM(total * 12) + ' per year';
+  document.getElementById('sumNote').textContent =
+    `${scenLabel[state.scen]} estimates · ${engLabel[state.eng]} engagement · ${fmtN(size)}-member community`;
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const size    = parseInt(document.getElementById('inSize').value);
+  const engaged = Math.round(size * engRates[state.eng]);
+  const si      = siMap[state.scen];
+  const revs    = models.map(m => ({...m, monthly: calcRev(m, size, engaged, si)}));
+  const total   = revs.reduce((s,m) => s + m.monthly, 0);
+  const topM    = revs.reduce((a,b) => a.monthly > b.monthly ? a : b);
+
+  let text = `COMMUNITY MONETISATION CALCULATOR\n`;
+  text += `Community: ${fmtN(size)} members · ${fmtN(engaged)} engaged (${engLabel[state.eng]}) · ${scenLabel[state.scen]}\n\n`;
+  text += `REVENUE MODEL BREAKDOWN\n${'─'.repeat(40)}\n`;
+  revs.forEach(m => {
+    const star = m.name === topM.name ? '★ ' : '  ';
+    text += `${star}${m.name.padEnd(20)} ${fmtM(m.monthly).padStart(8)}/mo  (${fmtM(m.monthly*12)}/yr)\n`;
+    text += `   ${convLine(m, size, engaged, si)}\n\n`;
+  });
+  text += `${'─'.repeat(40)}\nTOTAL: ${fmtM(total)}/mo · ${fmtM(total*12)}/year\n`;
+  text += `\n---\nCreated with Community Monetisation Calculator by GetPaidToBeYouOnline`;
+
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Revenue Breakdown as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

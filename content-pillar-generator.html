@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Pillar Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .sub { opacity: 0.85; font-size: 1rem; max-width: 540px; margin: 0 auto; }
+  .card {
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #5AE57A;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid rgba(240, 235, 224, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 18px;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #5AE57A;
+  }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: transform 0.15s, opacity 0.15s;
+    letter-spacing: 0.5px;
+  }
+  button:hover { transform: translateY(-1px); opacity: 0.92; }
+  button.ghost {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 12px;
+  }
+  .pillar {
+    background: rgba(201, 168, 76, 0.08);
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+  .pillar h3 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 1.35rem;
+    margin-bottom: 6px;
+  }
+  .pillar .pct { font-size: 0.85rem; opacity: 0.7; margin-bottom: 10px; }
+  .pillar p { margin-bottom: 10px; font-size: 0.95rem; }
+  .pillar ul { padding-left: 18px; font-size: 0.92rem; }
+  .pillar li { margin-bottom: 4px; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Content Pillar Generator</h1>
+    <p class="sub">Stop guessing what to post. Get four signature themes built around your niche, audience, and goal — ready to plug into any platform.</p>
+  </header>
+
+  <div class="card" id="inputCard">
+    <label for="niche">Your niche or expertise</label>
+    <input id="niche" type="text" placeholder="e.g. minimalist home design, vegan baking, AI for marketers" />
+
+    <label for="audience">Who you're talking to</label>
+    <input id="audience" type="text" placeholder="e.g. busy moms, first-time founders, creative freelancers" />
+
+    <label for="goal">Primary business goal</label>
+    <select id="goal">
+      <option value="grow">Grow my audience</option>
+      <option value="sell">Sell digital products</option>
+      <option value="authority">Build authority</option>
+      <option value="community">Build a community</option>
+    </select>
+
+    <label for="platform">Main platform</label>
+    <select id="platform">
+      <option value="Instagram">Instagram</option>
+      <option value="TikTok">TikTok</option>
+      <option value="LinkedIn">LinkedIn</option>
+      <option value="YouTube">YouTube</option>
+      <option value="Twitter / X">Twitter / X</option>
+    </select>
+
+    <button onclick="generate()">Generate My Pillars</button>
+  </div>
+
+  <div id="output" class="hidden"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const PILLARS = {
+    grow: [
+      { name: "Hook & Hot Take", pct: "30%", desc: "Bold, scroll-stopping opinions that spark saves and shares.", ideas: ["Post a contrarian opinion about {{niche}}", "Share a myth {{audience}} still believes", "A 'change my mind' style carousel"] },
+      { name: "Quick Wins", pct: "30%", desc: "Bite-sized tips {{audience}} can use in under 5 minutes.", ideas: ["One tool/tip you swear by", "A 60-second tutorial", "Before & after transformation"] },
+      { name: "Personal Story", pct: "20%", desc: "Behind-the-scenes glimpses that make {{audience}} root for you.", ideas: ["The moment you started {{niche}}", "A mistake that taught you everything", "A day in your life"] },
+      { name: "Community Spotlight", pct: "20%", desc: "Conversation-starters that pull {{audience}} into your world.", ideas: ["Ask a 'this or that' question", "Reply to a DM publicly", "Repost a follower win"] }
+    ],
+    sell: [
+      { name: "Pain-Point Proof", pct: "30%", desc: "Name the exact problem {{audience}} faces — then hint at the fix.", ideas: ["Top 3 frustrations in {{niche}}", "Why the usual advice fails {{audience}}", "What 'stuck' really looks like"] },
+      { name: "Show The Method", pct: "30%", desc: "Teach a piece of your process so they trust you have the full map.", ideas: ["Step 1 of your signature system", "A free mini-framework", "Walkthrough of one client result"] },
+      { name: "Social Proof", pct: "20%", desc: "Testimonials, screenshots, and wins that lower the buy-decision risk.", ideas: ["Before/after client transformation", "Screenshot of a happy DM", "Case study in 3 slides"] },
+      { name: "Offer Spotlight", pct: "20%", desc: "Direct invitations to buy — clear, confident, and consistent.", ideas: ["The 'who this is for' post", "Bonus reveal or limited drop", "Walkthrough of what's inside"] }
+    ],
+    authority: [
+      { name: "Industry Insight", pct: "35%", desc: "Sharp takes on what's changing in {{niche}} right now.", ideas: ["Predict where {{niche}} is heading", "Break down a trend in plain language", "React to recent news in {{niche}}"] },
+      { name: "Teach The Deep Stuff", pct: "30%", desc: "Long-form education that proves you actually know your craft.", ideas: ["A definitive guide to one topic", "The framework you teach clients", "Common myths, debunked with data"] },
+      { name: "Receipts & Results", pct: "20%", desc: "Numbers, case studies, and proof your approach works.", ideas: ["A win you can quantify", "A client transformation breakdown", "What your last experiment proved"] },
+      { name: "Founder POV", pct: "15%", desc: "Your worldview — the reason {{audience}} should follow YOU specifically.", ideas: ["A belief most peers disagree with", "Lessons from your career path", "What you'd tell your past self"] }
+    ],
+    community: [
+      { name: "Ask & Listen", pct: "30%", desc: "Open questions that make {{audience}} feel seen and heard.", ideas: ["Poll: which struggle hits hardest?", "Ask for a one-word reaction", "'Comment with your...' prompt"] },
+      { name: "Shared Identity", pct: "30%", desc: "Posts that say 'this is us' — inside jokes, values, vibes.", ideas: ["A relatable moment in {{niche}}", "The 'you might be one of us if...' post", "Things your audience secretly loves"] },
+      { name: "Spotlight A Member", pct: "20%", desc: "Celebrate {{audience}} — make them the hero of your feed.", ideas: ["Feature a follower's win", "Repost user-generated content", "Highlight a member's story"] },
+      { name: "Rallying Cry", pct: "20%", desc: "Mission-driven content that gives the community something to stand for.", ideas: ["The 'why we exist' post", "A cause you're championing", "What you're fighting against in {{niche}}"] }
+    ]
+  };
+
+  function generate() {
+    const niche = document.getElementById('niche').value.trim();
+    const audience = document.getElementById('audience').value.trim();
+    const goal = document.getElementById('goal').value;
+    const platform = document.getElementById('platform').value;
+
+    if (!niche || !audience) {
+      alert('Please fill in your niche and audience first.');
+      return;
+    }
+
+    const pillars = PILLARS[goal];
+    const out = document.getElementById('output');
+    let html = `<div class="card"><h2 style="font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.5rem;margin-bottom:6px;">Your Content Pillars</h2>
+      <p style="opacity:0.8;margin-bottom:18px;font-size:0.92rem;">Rotate these four themes on ${platform}. Aim for the percentages below across a typical week.</p>`;
+
+    pillars.forEach(p => {
+      const ideas = p.ideas.map(i => `<li>${i.replace(/{{niche}}/g, niche).replace(/{{audience}}/g, audience)}</li>`).join('');
+      html += `<div class="pillar">
+        <h3>${p.name}</h3>
+        <div class="pct">${p.pct} of your content</div>
+        <p>${p.desc.replace(/{{audience}}/g, audience).replace(/{{niche}}/g, niche)}</p>
+        <ul>${ideas}</ul>
+      </div>`;
+    });
+
+    html += `<button class="ghost" onclick="copyPlan()">Copy Plan As Text</button>
+      <button class="ghost" onclick="reset()">Start Over</button></div>`;
+    out.innerHTML = html;
+    out.classList.remove('hidden');
+    document.getElementById('inputCard').classList.add('hidden');
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyPlan() {
+    const text = document.getElementById('output').innerText;
+    navigator.clipboard.writeText(text).then(() => alert('Plan copied to clipboard.'));
+  }
+
+  function reset() {
+    document.getElementById('output').classList.add('hidden');
+    document.getElementById('inputCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

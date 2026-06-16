@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery Call Prep Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:640px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;transition:border .2s;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#5AE57A}
+input::placeholder,textarea::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.btn{width:100%;max-width:640px;display:block;margin:0 auto 20px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#output{max-width:640px;margin:0 auto;display:none}
+.section{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:20px;margin-bottom:14px}
+.sec-title{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec-badge{font-size:.65rem;background:#C9A84C22;border:1px solid #C9A84C44;border-radius:4px;padding:2px 8px;font-family:'DM Sans',sans-serif;font-weight:700;letter-spacing:.04em}
+.agenda-row{display:flex;gap:12px;margin-bottom:8px;align-items:flex-start;font-size:.87rem;line-height:1.5}
+.agenda-time{color:#5AE57A;font-weight:700;min-width:50px;flex-shrink:0;font-size:.78rem;padding-top:2px}
+.q-item{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.q-num{background:#5AE57A;color:#325132;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:2px}
+.q-text{font-size:.87rem;line-height:1.6}
+.script-box{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:14px;font-size:.86rem;line-height:1.8;font-style:italic;color:#FFFFFF}
+.objection{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #3C603C}
+.objection:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.obj-trigger{font-size:.78rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.obj-resp{font-size:.86rem;line-height:1.7;font-style:italic;color:#FFFFFF}
+.checklist li{list-style:none;display:flex;gap:10px;margin-bottom:8px;font-size:.87rem;line-height:1.4}
+.checklist li::before{content:'☐';color:#5AE57A;flex-shrink:0;font-size:1rem}
+.copy-all{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-bottom:10px}
+.copy-all:hover{opacity:.85}
+.restart{width:100%;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer;transition:all .2s}
+.restart:hover{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:500px){.row,.row3{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Discovery Call Prep Tool</h1>
+<p class="sub">Walk into every call prepared, confident, and ready to close</p>
+
+<div id="formArea">
+<div class="card">
+  <div class="card-title">About the Prospect</div>
+  <div class="row">
+    <div><label>Prospect's Name</label><input id="pName" type="text" placeholder="e.g. Sarah"></div>
+    <div><label>Their Business / Niche</label><input id="pBiz" type="text" placeholder="e.g. online boutique, life coach"></div>
+  </div>
+  <label>Problem or goal they mentioned</label>
+  <textarea id="pProblem" rows="2" placeholder="e.g. struggling to get consistent clients, wants to scale to 6 figures, needs a new website"></textarea>
+  <label>How did they find you?</label>
+  <select id="pSource">
+    <option>Instagram / Social media</option>
+    <option>Referral from a client</option>
+    <option>Google / SEO</option>
+    <option>They reached out cold</option>
+    <option>Podcast / Interview</option>
+    <option>Not sure yet</option>
+  </select>
+</div>
+
+<div class="card">
+  <div class="card-title">Your Setup</div>
+  <div class="row">
+    <div>
+      <label>Your Service / Offer</label>
+      <select id="myService">
+        <option value="coaching">1:1 Coaching</option>
+        <option value="consulting">Consulting</option>
+        <option value="design">Brand / Graphic Design</option>
+        <option value="web">Web Design / Dev</option>
+        <option value="copy">Copywriting / Content</option>
+        <option value="social">Social Media Management</option>
+        <option value="va">Virtual Assistant / OBM</option>
+        <option value="marketing">Marketing / Ads</option>
+        <option value="photo">Photography / Video</option>
+      </select>
+    </div>
+    <div>
+      <label>Call Length</label>
+      <select id="callLen">
+        <option value="30">30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60" selected>60 minutes</option>
+      </select>
+    </div>
+  </div>
+  <label>Your Goal for This Call</label>
+  <select id="callGoal">
+    <option value="close">Close them on the spot</option>
+    <option value="present">Present the offer and follow up</option>
+    <option value="qualify">Qualify fit — not ready to pitch yet</option>
+  </select>
+</div>
+</div>
+
+<button class="btn" onclick="generate()">Build My Call Prep Sheet →</button>
+
+<div id="output">
+  <div class="section">
+    <div class="sec-title">Pre-Call Checklist <span class="sec-badge">Do before the call</span></div>
+    <ul class="checklist" id="checklistEl"></ul>
+  </div>
+  <div class="section">
+    <div class="sec-title">Call Agenda <span class="sec-badge" id="agendaBadge"></span></div>
+    <div id="agendaEl"></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Opening Script</div>
+    <div class="script-box" id="openingEl"></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Discovery Questions <span class="sec-badge">Ask in this order</span></div>
+    <div id="questionsEl"></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Transition to Your Offer</div>
+    <div class="script-box" id="transitionEl"></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Objection Responses</div>
+    <div id="objectionsEl"></div>
+  </div>
+  <div class="section">
+    <div class="sec-title">Closing Question</div>
+    <div class="script-box" id="closingEl"></div>
+  </div>
+  <button class="copy-all" onclick="copyAll()">Copy Full Prep Sheet</button>
+  <button class="restart" onclick="restart()">Prep Another Call</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const qBank={
+  coaching:['What does your ideal life or business look like 12 months from now?','What\'s the biggest thing standing between where you are and where you want to be?','What have you already tried, and why do you think it hasn\'t worked yet?','On a scale of 1–10, how urgent is solving this for you right now?','What would it mean for you personally if this problem stays unsolved?','Have you worked with a coach before? What worked — and what didn\'t?','What does success look and feel like to you — specifically?','What would make you say at the end of our time together: "That was 100% worth it"?'],
+  consulting:['Walk me through where the business is right now — what\'s working, what isn\'t?','What does success look like for this project in 90 days?','What have you already tried to solve this, and where did it fall short?','Who else is involved in this decision — or is it yours to make?','What\'s the cost — financial or otherwise — if this doesn\'t get fixed?','What\'s your timeline for wanting this resolved?','Do you have internal resources, or do you need this fully managed externally?','What would make this the best investment you\'ve made this year?'],
+  design:['How would you describe your brand personality in three words?','Who is your ideal customer, and what do they care about most?','What do you love about your current branding — and what needs to change?','Are there brands you admire aesthetically? What draws you to them?','What\'s the one thing you want people to feel when they see your brand?','What\'s your timeline for this project, and is there a hard deadline?','Have you worked with a designer before? What worked — and what didn\'t?','Who has final say on the direction — just you, or does someone else need to approve?'],
+  web:['What\'s the main goal of the website — leads, sales, credibility, or something else?','What do you love and dislike about your current site?','Who is your target audience, and what action do you want them to take?','Are there sites you\'d use as inspiration? What do you like about them?','What integrations do you need — CRM, booking, email, shop?','What\'s your timeline and is there a hard launch date driving it?','Who manages your site currently, and what level of technical comfort do you have?','What would a successful website mean for your business in 6 months?'],
+  copy:['Who is your ideal reader or customer — get specific about them?','What\'s the one thing you want people to DO after reading your copy?','What\'s the biggest misconception people have about your offer?','What objections do your prospects usually raise before buying?','What\'s your brand voice — formal, conversational, bold, nurturing?','What results have your best clients seen? Any specific numbers or stories?','What have you tried before with copy — and what didn\'t land the way you hoped?','What does a win look like for this project — what metric matters most?'],
+  social:['What platforms are you currently on, and where is your audience most active?','What does your content look like right now — and why isn\'t it working?','What\'s the goal — brand awareness, leads, sales, community building?','Who is your ideal follower and what kind of content do they love?','What\'s your content creation style — do you like being on camera?','What\'s your monthly budget for this, including content creation?','Are you willing to appear in content, or do you prefer to stay behind the scenes?','What does success look like — what number or feeling would tell you it\'s working?'],
+  va:['What are the top 3 tasks that drain your time the most every week?','What tools and software do you currently use to run your business?','How many hours per week do you need support — and is that consistent?','What\'s your communication style — do you prefer Slack, email, Voxer, or calls?','Are there any tasks you\'d never hand off? What are your non-negotiables?','What\'s happened before when you\'ve tried to delegate — did it go well?','Do you have documented processes, or would we be building those together?','What would getting this support free you up to do in your business?'],
+  marketing:['What does your current marketing strategy look like — and what\'s actually driving results?','Where do most of your best clients come from right now?','What\'s your monthly marketing budget, including ad spend?','Who is your ideal client — get really specific about one person?','What\'s your average deal size and what does your sales funnel look like?','What have you tried that didn\'t work, and do you know why?','What\'s your timeline for seeing results — what are you expecting in 90 days?','What does success look like — leads, revenue, brand awareness, something else?'],
+  photo:['What\'s the purpose of this shoot — personal brand, product, events, social?','Who is the audience for these images and where will they be used?','Do you have a mood board or visual inspiration we can look at together?','What\'s the vibe you\'re going for — editorial, warm and natural, bold and dramatic?','How many images do you need, and in what format or size?','Is there a specific date, event, or launch driving the timeline?','Have you had professional photos done before? What did you love or want to change?','What would make this shoot feel like a huge success for you?']
+};
+
+const objections=[
+  {t:'I need to think about it',r:'"Totally get that — it\'s a real investment. Can I ask, is there a specific part you\'re unsure about? I\'d rather answer that now than have you sitting with a question I could clear up in two minutes."'},
+  {t:'I can\'t afford it right now',r:'"I hear you. Can I ask — is it a cash flow timing thing, or does the investment genuinely feel out of reach? Because if the first, I have options. If the second, let\'s talk about whether the ROI makes it worth finding a way."'},
+  {t:'I need to ask my partner / team first',r:'"Of course — I\'d expect that for an investment like this. What would help you make the case to them? I can send a summary, get on a call with you both, or answer any questions they might have."'},
+];
+
+function ag(min,desc){return`<div class="agenda-row"><span class="agenda-time">${min}</span><span>${desc}</span></div>`;}
+
+function generate(){
+  const name=document.getElementById('pName').value||'your prospect';
+  const biz=document.getElementById('pBiz').value||'their business';
+  const problem=document.getElementById('pProblem').value||'their main challenge';
+  const source=document.getElementById('pSource').value;
+  const svc=document.getElementById('myService').value;
+  const len=document.getElementById('callLen').value;
+  const goal=document.getElementById('callGoal').value;
+
+  // Checklist
+  const checks=[
+    `Look up ${name} on LinkedIn or Instagram — note one specific detail to reference`,
+    `Check their website or latest posts — what are they actively promoting?`,
+    `Review the notes from how they found you (${source})`,
+    `Know your offer inside out — price, deliverables, timeline, start date`,
+    `Have your calendar open and a start date ready to offer`,
+    `Prepare a quiet space, good lighting, and stable connection`,
+    `Set an intention: enter calm, curious, and genuinely wanting to help`,
+  ];
+  document.getElementById('checklistEl').innerHTML=checks.map(c=>`<li>${c}</li>`).join('');
+
+  // Agenda
+  const l=parseInt(len);
+  let agenda=[];
+  if(l===30){agenda=[['0:00','Warm welcome & frame the call'],['0:03','Their background & current situation'],['0:08','Discovery questions — problem, goals, urgency'],['0:18','Share your offer & how it solves their problem'],['0:24','Handle questions & objections'],['0:28','Next step — close or follow-up']];}
+  else if(l===45){agenda=[['0:00','Warm welcome & permission to take notes'],['0:03','Their world — business, background, what\'s happening'],['0:10','Deep discovery — goals, obstacles, urgency, stakes'],['0:22','Bridge — summarise what you heard'],['0:25','Present your offer & outcome'],['0:33','Questions, objections, investment conversation'],['0:41','Close or clear next step']];}
+  else{agenda=[['0:00','Welcome, rapport, agenda overview'],['0:05','Their current situation — where are they now?'],['0:12','Deep discovery — goals, obstacles, what\'s been tried'],['0:25','Quantify the cost of the problem'],['0:30','Bridge — reflect back what you heard'],['0:33','Present your offer & transformation'],['0:43','Investment & packaging conversation'],['0:50','Objections & questions'],['0:57','Close or clear next step']];}
+  document.getElementById('agendaBadge').textContent=len+' min structure';
+  document.getElementById('agendaEl').innerHTML=agenda.map(a=>ag(a[0],a[1])).join('');
+
+  // Opening
+  document.getElementById('openingEl').textContent=
+    `"Hey ${name}, so good to connect with you! Before we dive in — I just want to say, [something specific you noticed about their work/brand]. Really cool.\n\nSo here's how I'd love to use our ${len} minutes: I want to spend most of the time really understanding where you're at with ${biz} and what you're trying to solve around [${problem}]. Then if it feels like I can genuinely help, I'll walk you through how I work and we can see if it makes sense. Does that work for you?"`;
+
+  // Questions
+  const qs=qBank[svc]||qBank['coaching'];
+  document.getElementById('questionsEl').innerHTML=qs.map((q,i)=>`
+    <div class="q-item">
+      <div class="q-num">${i+1}</div>
+      <div class="q-text">${q}</div>
+    </div>`).join('');
+
+  // Transition
+  document.getElementById('transitionEl').textContent=
+    `"${name}, thank you for sharing all of that — it gives me a really clear picture. What I'm hearing is [restate their problem] and what you really want is [restate their goal]. Does that feel accurate?\n\nI want to show you exactly how I'd help you get there — because what you've described is exactly what I work on with my clients. Can I walk you through it?"`;
+
+  // Objections
+  document.getElementById('objectionsEl').innerHTML=objections.map(o=>`
+    <div class="objection">
+      <div class="obj-trigger">If they say: "${o.t}"</div>
+      <div class="obj-resp">${o.r}</div>
+    </div>`).join('');
+
+  // Closing
+  const closes={
+    close:`"Based on everything we've talked about — does this feel like the right fit for you?\n\n[Pause and wait. Let them speak first.]\n\nIf yes: 'Amazing. Let me pull up the agreement and we can get you a start date right now.'\nIf hesitant: 'What would need to be true for you to feel fully confident moving forward?'"`,
+    present:`"I'd love to send you a full summary of everything we've discussed plus the details of how we'd work together. What's the best email for that?\n\nWhen would be a good time this week to reconnect and answer any questions — Thursday or Friday work?"`,
+    qualify:`"This has been really helpful, ${name}. Based on what you've shared, I think there could be a genuine fit here. I'd love to put together something specific for your situation and jump on a follow-up call. Does that sound like a good next step?"`
+  };
+  document.getElementById('closingEl').textContent=closes[goal];
+
+  document.getElementById('formArea').style.display='none';
+  document.querySelector('.btn').style.display='none';
+  document.getElementById('output').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyAll(){
+  const name=document.getElementById('pName').value||'Prospect';
+  const svc=document.getElementById('myService').options[document.getElementById('myService').selectedIndex].text;
+  const qs=qBank[document.getElementById('myService').value]||[];
+  const lines=[
+    `DISCOVERY CALL PREP — ${name.toUpperCase()}`,
+    `Service: ${svc} | Length: ${document.getElementById('callLen').value} min`,
+    '═'.repeat(44),'',
+    'PRE-CALL CHECKLIST',
+    ...[...document.querySelectorAll('#checklistEl li')].map(l=>'☐ '+l.textContent),'',
+    'DISCOVERY QUESTIONS',
+    ...qs.map((q,i)=>`${i+1}. ${q}`),'',
+    'OBJECTION RESPONSES',
+    ...objections.map(o=>`If they say "${o.t}":\n${o.r}`),'',
+    '═'.repeat(44),
+    'Powered by GetPaidToBeYouOnline',
+  ].join('\n');
+  navigator.clipboard.writeText(lines).then(()=>{
+    const b=document.querySelector('.copy-all');
+    b.textContent='Copied!';setTimeout(()=>b.textContent='Copy Full Prep Sheet',1800);
+  });
+}
+
+function restart(){
+  document.getElementById('formArea').style.display='block';
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('output').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

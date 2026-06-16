@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Work Score Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto 16px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .f-input:focus { border-color: #5AE57A; }
+  select.f-input { cursor: pointer; }
+  .form-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 12px; }
+  .dim-row { margin-bottom: 12px; }
+  .dim-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .dim-icon { font-size: 1rem; }
+  .dim-name { font-size: 0.84rem; font-weight: 500; flex: 1; }
+  .dim-val { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.9rem; }
+  .rstrip { display: flex; gap: 4px; }
+  .rnum { flex: 1; height: 30px; border-radius: 6px; border: 1px solid #3C603C; background: #325132; color: #5A845A; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
+  .rnum.on { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .btn-add { background: #5AE57A; color: #325132; border: none; padding: 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; width: 100%; margin-top: 4px; }
+  .btn-add:hover { background: #5AE57A; }
+  .err { font-size: 0.78rem; color: #5AE57A; min-height: 16px; }
+  .goal-row { display: flex; align-items: center; gap: 10px; max-width: 600px; margin: 0 auto 16px; }
+  .goal-label { font-size: 0.8rem; color: #BFD8BF; }
+  .goal-input { width: 60px; background: #3C603C; border: 1px solid #4C724C; color: #5AE57A; padding: 5px 8px; border-radius: 6px; font-family: 'Playfair Display', serif; font-size: 1rem; text-align: center; outline: none; }
+  .goal-input:focus { border-color: #5AE57A; }
+  .score-big { font-family: 'Playfair Display', serif; font-size: 5.5rem; color: #5AE57A; line-height: 1; text-align: center; }
+  .score-sub { font-size: 0.75rem; color: #5A845A; text-align: center; margin-bottom: 10px; }
+  .grade-wrap { text-align: center; margin-bottom: 16px; }
+  .grade-badge { display: inline-block; font-family: 'Playfair Display', serif; font-size: 0.9rem; padding: 5px 18px; border-radius: 20px; border: 1px solid; }
+  .meta-row { display: flex; justify-content: center; gap: 20px; font-size: 0.8rem; color: #BFD8BF; margin-bottom: 16px; }
+  .meta-val { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .bar-track { background: #325132; border-radius: 5px; height: 7px; overflow: hidden; margin-bottom: 4px; }
+  .bar-fill { height: 100%; border-radius: 5px; transition: width 0.5s ease; }
+  .goal-line { font-size: 0.74rem; text-align: center; margin-bottom: 14px; }
+  .sess-item { background: #325132; border-radius: 9px; padding: 11px 14px; margin-bottom: 8px; }
+  .sess-item:last-child { margin-bottom: 0; }
+  .sess-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .sess-task { font-size: 0.88rem; flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .sess-dur { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #5AE57A; flex-shrink: 0; }
+  .sess-eff { font-size: 0.72rem; color: #BFD8BF; flex-shrink: 0; }
+  .sess-bars { display: flex; gap: 6px; }
+  .mini-bar { flex: 1; }
+  .mini-lbl { font-size: 0.62rem; color: #5A845A; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .mini-track { background: #325132; height: 4px; border-radius: 3px; overflow: hidden; }
+  .mini-fill { height: 100%; border-radius: 3px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.82rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-date { color: #BFD8BF; width: 56px; flex-shrink: 0; }
+  .hist-score { font-family: 'Playfair Display', serif; font-size: 1rem; width: 34px; flex-shrink: 0; }
+  .hist-grade { font-family: 'Playfair Display', serif; width: 18px; flex-shrink: 0; }
+  .hist-label { color: #BFD8BF; font-size: 0.76rem; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Deep Work Score</h1>
+<p class="subtitle">Not all work hours are equal. Score the ones that count.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Log a Deep Work Session</div>
+  <div class="form-row">
+    <div style="flex:1"><div class="field-label">What did you work on?</div>
+      <input class="f-input" id="taskInput" placeholder="Specific task or project name" maxlength="70" />
+    </div>
+    <div style="flex:0 0 130px"><div class="field-label">Duration</div>
+      <select class="f-input" id="durSelect">
+        <option value="15">15 min</option><option value="30">30 min</option>
+        <option value="45">45 min</option><option value="60" selected>1 hour</option>
+        <option value="90">1.5 hours</option><option value="120">2 hours</option>
+        <option value="150">2.5 hours</option><option value="180">3 hours</option>
+      </select>
+    </div>
+  </div>
+  <div id="dimRows"></div>
+  <div class="err" id="errMsg"></div>
+  <button class="btn-add" onclick="addSession()">Add Session</button>
+</div>
+
+<div class="goal-row">
+  <span class="goal-label">Daily deep work goal:</span>
+  <input class="goal-input" id="goalInput" type="number" min="30" max="480" value="120" oninput="updateGoal()" />
+  <span class="goal-label">minutes</span>
+</div>
+
+<div class="card" id="scoreCard" style="display:none">
+  <div class="score-big" id="scoreNum">—</div>
+  <div class="score-sub">deep work score</div>
+  <div class="grade-wrap"><div class="grade-badge" id="gradeBadge">—</div></div>
+  <div class="meta-row">
+    <div><span class="meta-val" id="metaActual">0m</span><br>actual</div>
+    <div><span class="meta-val" id="metaEff">0m</span><br>effective</div>
+    <div><span class="meta-val" id="metaGoalPct">0%</span><br>of goal</div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="scoreFill" style="width:0%"></div></div>
+  <div class="goal-line" id="goalLine"></div>
+</div>
+
+<div class="card" id="sessionsCard" style="display:none">
+  <div class="card-title">Today's Sessions</div>
+  <div id="sessionList"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Past Scores</div>
+  <div id="histList"><p class="empty">No past scores yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const DIMS = [
+  {id:'distract', icon:'🛡', label:'Distraction-Free', desc:'Fully distracted → zero interruptions'},
+  {id:'depth',    icon:'🧠', label:'Cognitive Depth',   desc:'Easy/routine → genuinely demanding'},
+  {id:'flow',     icon:'🌊', label:'Flow State',         desc:'Going through motions → fully absorbed'},
+];
+const GRADES = [
+  {min:90,g:'S',label:'Elite Deep Work',   color:'#5AE57A',bg:'#325132'},
+  {min:75,g:'A',label:'High-Quality Work', color:'#5AE57A',bg:'#325132'},
+  {min:60,g:'B',label:'Strong Session',    color:'#5AE57A',bg:'#325132'},
+  {min:45,g:'C',label:'Moderate Depth',    color:'#5AE57A',bg:'#325132'},
+  {min:30,g:'D',label:'Shallow Work',      color:'#5AE57A',bg:'#325132'},
+  {min:0, g:'F',label:'Minimal Depth',     color:'#5AE57A',bg:'#325132'},
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+let sessions = JSON.parse(localStorage.getItem('dws_'+TODAY)||'[]');
+let history  = JSON.parse(localStorage.getItem('dws_hist')||'[]');
+let goal     = parseInt(localStorage.getItem('dws_goal')||'120');
+let ratings  = {distract:0,depth:0,flow:0};
+
+document.getElementById('goalInput').value = goal;
+
+document.getElementById('dimRows').innerHTML = DIMS.map(d=>`
+  <div class="dim-row">
+    <div class="dim-top">
+      <span class="dim-icon">${d.icon}</span>
+      <span class="dim-name">${d.label}</span>
+      <span class="dim-val" id="dv-${d.id}">—</span>
+    </div>
+    <div class="rstrip">${[1,2,3,4,5].map(v=>`<div class="rnum" id="r-${d.id}-${v}" onclick="rate('${d.id}',${v})">${v}</div>`).join('')}</div>
+  </div>`).join('');
+
+function rate(id,val){
+  ratings[id]=val;
+  document.getElementById('dv-'+id).textContent=val+'/5';
+  for(let v=1;v<=5;v++) document.getElementById(`r-${id}-${v}`).className='rnum'+(v<=val?' on':'');
+}
+
+function fmtMins(m){if(m<60)return m+'m';const h=Math.floor(m/60),r=m%60;return h+'h'+(r?' '+r+'m':'');}
+
+function addSession(){
+  const task=document.getElementById('taskInput').value.trim();
+  const mins=+document.getElementById('durSelect').value;
+  if(!task){document.getElementById('errMsg').textContent='Enter a task name.';return;}
+  if(DIMS.some(d=>ratings[d.id]===0)){document.getElementById('errMsg').textContent='Rate all three dimensions first.';return;}
+  document.getElementById('errMsg').textContent='';
+  const q=(ratings.distract+ratings.depth+ratings.flow)/15;
+  const eff=Math.round(mins*q);
+  sessions.push({id:Date.now(),task,mins,ratings:{...ratings},q,eff});
+  localStorage.setItem('dws_'+TODAY,JSON.stringify(sessions));
+  document.getElementById('taskInput').value='';
+  ratings={distract:0,depth:0,flow:0};
+  DIMS.forEach(d=>{document.getElementById('dv-'+d.id).textContent='—';for(let v=1;v<=5;v++)document.getElementById(`r-${d.id}-${v}`).className='rnum';});
+  render();
+}
+
+function removeSession(id){sessions=sessions.filter(s=>s.id!==id);localStorage.setItem('dws_'+TODAY,JSON.stringify(sessions));render();}
+
+function updateGoal(){
+  const v=parseInt(document.getElementById('goalInput').value);
+  if(v>=30&&v<=480){goal=v;localStorage.setItem('dws_goal',String(goal));render();}
+}
+
+function render(){
+  if(!sessions.length){document.getElementById('scoreCard').style.display='none';document.getElementById('sessionsCard').style.display='none';renderHist();return;}
+
+  const actual=sessions.reduce((s,e)=>s+e.mins,0);
+  const eff=sessions.reduce((s,e)=>s+e.eff,0);
+  const score=Math.min(100,Math.round(eff/goal*100));
+  const g=GRADES.find(g=>score>=g.min);
+
+  document.getElementById('scoreCard').style.display='block';
+  document.getElementById('sessionsCard').style.display='block';
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreNum').style.color=g.color;
+  const badge=document.getElementById('gradeBadge');
+  badge.textContent=`${g.g}  ·  ${g.label}`;
+  badge.style.cssText=`color:${g.color};border-color:${g.color};background:${g.bg}`;
+  document.getElementById('metaActual').textContent=fmtMins(actual);
+  document.getElementById('metaEff').textContent=fmtMins(eff);
+  document.getElementById('metaGoalPct').textContent=Math.round(eff/goal*100)+'%';
+  const barColor=score>=75?'#5AE57A':score>=50?'#5AE57A':'#5AE57A';
+  document.getElementById('scoreFill').style.cssText=`width:${score}%;background:${barColor}`;
+  document.getElementById('goalLine').innerHTML=eff>=goal?`<span style="color:#5AE57A">✦ Goal reached — ${fmtMins(eff)} of ${fmtMins(goal)}</span>`:`<span style="color:#BFD8BF">${fmtMins(goal-eff)} more effective minutes to reach your goal</span>`;
+
+  document.getElementById('sessionList').innerHTML=sessions.map(s=>{
+    const rc=s.q>=0.8?'#5AE57A':s.q>=0.6?'#5AE57A':'#5AE57A';
+    return `<div class="sess-item">
+      <div class="sess-top">
+        <div class="sess-task">${s.task}</div>
+        <div class="sess-dur">${fmtMins(s.mins)}</div>
+        <div class="sess-eff" style="color:${rc}">→ ${fmtMins(s.eff)}</div>
+        <button class="del-btn" onclick="removeSession(${s.id})">✕</button>
+      </div>
+      <div class="sess-bars">
+        ${DIMS.map(d=>`<div class="mini-bar">
+          <div class="mini-lbl"><span>${d.icon} ${d.label}</span><span>${s.ratings[d.id]}/5</span></div>
+          <div class="mini-track"><div class="mini-fill" style="width:${s.ratings[d.id]/5*100}%;background:${s.ratings[d.id]>=4?'#5AE57A':s.ratings[d.id]>=3?'#5AE57A':'#5AE57A'}"></div></div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Update history
+  history=history.filter(h=>h.date!==TODAY);
+  history.unshift({date:TODAY,score,grade:g.g,label:g.label,color:g.color});
+  if(history.length>14) history.pop();
+  localStorage.setItem('dws_hist',JSON.stringify(history));
+  renderHist();
+}
+
+function renderHist(){
+  const el=document.getElementById('histList');
+  if(!history.length){el.innerHTML='<p class="empty">No past scores yet.</p>';return;}
+  el.innerHTML=history.map(h=>{
+    const d=new Date(h.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="hist-item">
+      <span class="hist-date">${d}</span>
+      <span class="hist-score" style="color:${h.color}">${h.score}</span>
+      <span class="hist-grade" style="color:${h.color}">${h.grade}</span>
+      <span class="hist-label">${h.label}</span>
+    </div>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>

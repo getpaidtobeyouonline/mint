@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Wins Journal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Streak bar */
+  .streak-row { display: flex; justify-content: center; gap: 28px; margin-bottom: 24px; max-width: 580px; margin-left: auto; margin-right: auto; }
+  .streak-box { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 24px; text-align: center; flex: 1; }
+  .streak-num { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; line-height: 1; }
+  .streak-label { font-size: 0.72rem; color: #BFD8BF; margin-top: 4px; }
+
+  /* Past win card */
+  .past-card { background: #325132; border: 1px solid #2E4D2E; border-radius: 12px; padding: 18px 20px; max-width: 580px; margin: 0 auto 20px; }
+  .past-eyebrow { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .past-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.05rem; color: #FFFFFF; line-height: 1.5; margin-bottom: 6px; }
+  .past-meta { font-size: 0.75rem; color: #BFD8BF; }
+  .refresh-btn { background: none; border: none; color: #C9A84C44; cursor: pointer; font-size: 0.8rem; float: right; margin-top: -24px; }
+  .refresh-btn:hover { color: #5AE57A; }
+
+  /* Win size selector */
+  .size-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .size-btn { flex: 1; background: #325132; border: 2px solid #3C603C; border-radius: 8px; padding: 8px 6px; text-align: center; cursor: pointer; transition: all 0.15s; font-size: 0.8rem; color: #BFD8BF; }
+  .size-btn .icon { display: block; font-size: 1.1rem; margin-bottom: 2px; }
+  .size-btn.active { border-color: #5AE57A; background: #325132; color: #5AE57A; }
+  .size-btn.active.big { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .size-btn.active.breakthrough { border-color: #FFFFFF; color: #FFFFFF; background: #325132; box-shadow: 0 0 12px #C9A84C33; }
+
+  /* Input */
+  .win-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; margin-bottom: 10px; }
+  .win-input:focus { border-color: #5AE57A; }
+  .btn-gold { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Win items */
+  .win-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #3C603C; align-items: flex-start; }
+  .win-item:last-child { border-bottom: none; }
+  .win-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+  .win-body { flex: 1; }
+  .win-text { font-size: 0.93rem; line-height: 1.4; margin-bottom: 3px; }
+  .win-meta { font-size: 0.72rem; color: #BFD8BF; }
+  .win-size { font-size: 0.68rem; padding: 1px 7px; border-radius: 8px; margin-right: 6px; }
+  .sz-small        { background: #325132; color: #5AE57A; }
+  .sz-big          { background: #2E4D2E; color: #5AE57A; }
+  .sz-breakthrough { background: #325132; color: #FFFFFF; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 18px 0; }
+  .card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid #3C603C; font-size: 0.8rem; color: #BFD8BF; }
+  .btn-ghost { background: none; border: none; color: #BFD8BF; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+  .btn-ghost:hover { color: #5AE57A; }
+
+  /* Week dots */
+  .week-row { display: flex; gap: 6px; }
+  .week-day { flex: 1; background: #325132; border-radius: 8px; padding: 9px 4px; text-align: center; }
+  .wd-label { font-size: 0.68rem; color: #5A845A; margin-bottom: 5px; }
+  .wd-dot { width: 10px; height: 10px; border-radius: 50%; margin: 0 auto; background: #3C603C; }
+  .wd-dot.has-wins { background: #5AE57A; }
+  .wd-dot.today { box-shadow: 0 0 6px #C9A84C88; }
+  .wd-count { font-size: 0.65rem; color: #BFD8BF; margin-top: 4px; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Daily Wins Journal</h1>
+<p class="subtitle">Small wins compound. Write them down before they fade.</p>
+
+<div class="streak-row">
+  <div class="streak-box"><div class="streak-num" id="streakNum">0</div><div class="streak-label">day streak</div></div>
+  <div class="streak-box"><div class="streak-num" id="totalWins">0</div><div class="streak-label">total wins</div></div>
+  <div class="streak-box"><div class="streak-num" id="todayCount">0</div><div class="streak-label">today</div></div>
+</div>
+
+<div class="past-card" id="pastCard" style="display:none">
+  <div class="past-eyebrow">✦ A win from your past</div>
+  <button class="refresh-btn" onclick="showPastWin()" title="Show another">↺</button>
+  <div class="past-text" id="pastText"></div>
+  <div class="past-meta" id="pastMeta"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log a Win</div>
+  <div class="size-row">
+    <div class="size-btn active" id="sz-small" onclick="setSize('small')"><span class="icon">✦</span>Small Win</div>
+    <div class="size-btn big" id="sz-big" onclick="setSize('big')"><span class="icon">★</span>Big Win</div>
+    <div class="size-btn breakthrough" id="sz-breakthrough" onclick="setSize('breakthrough')"><span class="icon">🏆</span>Breakthrough</div>
+  </div>
+  <input class="win-input" id="winInput" placeholder="What did you accomplish, however small?" maxlength="160" />
+  <button class="btn-gold" onclick="addWin()">Add Win</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Wins</div>
+  <div id="todayList"><p class="empty">No wins logged yet today — you've got this!</p></div>
+  <div class="card-foot" id="todayFoot" style="display:none">
+    <span id="todaySummary"></span>
+    <button class="btn-ghost" onclick="clearToday()">Clear today</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Week</div>
+  <div class="week-row" id="weekRow"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TODAY = new Date().toISOString().slice(0,10);
+  const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const ICONS = { small:'✦', big:'★', breakthrough:'🏆' };
+
+  let wins = JSON.parse(localStorage.getItem('dwj_wins') || '[]');
+  let size = 'small';
+
+  function save() { localStorage.setItem('dwj_wins', JSON.stringify(wins)); }
+
+  function setSize(s) {
+    size = s;
+    ['small','big','breakthrough'].forEach(k => {
+      document.getElementById('sz-'+k).classList.toggle('active', k === s);
+    });
+  }
+
+  function addWin() {
+    const input = document.getElementById('winInput');
+    const text = input.value.trim(); if (!text) return;
+    const now = new Date();
+    wins.push({ id: Date.now(), date: TODAY, text, size, time: now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) });
+    save(); render(); input.value = ''; input.focus();
+  }
+
+  function remove(id) { wins = wins.filter(w => w.id !== id); save(); render(); }
+
+  function clearToday() {
+    if (!confirm('Clear today\'s wins?')) return;
+    wins = wins.filter(w => w.date !== TODAY); save(); render();
+  }
+
+  function getStreak() {
+    const days = new Set(wins.map(w => w.date));
+    let streak = 0, d = new Date();
+    if (!days.has(TODAY)) d.setDate(d.getDate() - 1);
+    while (true) {
+      const key = d.toISOString().slice(0,10);
+      if (!days.has(key)) break;
+      streak++; d.setDate(d.getDate()-1);
+    }
+    return streak;
+  }
+
+  function showPastWin() {
+    const past = wins.filter(w => w.date !== TODAY);
+    if (!past.length) { document.getElementById('pastCard').style.display = 'none'; return; }
+    const w = past[Math.floor(Math.random() * past.length)];
+    document.getElementById('pastCard').style.display = 'block';
+    document.getElementById('pastText').textContent = `"${w.text}"`;
+    const d = new Date(w.date+'T12:00:00');
+    document.getElementById('pastMeta').innerHTML =
+      `<span class="win-size sz-${w.size}">${w.size}</span>${d.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}`;
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    const todayWins = wins.filter(w => w.date === TODAY);
+    document.getElementById('streakNum').textContent  = getStreak();
+    document.getElementById('totalWins').textContent  = wins.length;
+    document.getElementById('todayCount').textContent = todayWins.length;
+
+    // Today list
+    const list = document.getElementById('todayList');
+    const foot = document.getElementById('todayFoot');
+    if (!todayWins.length) {
+      list.innerHTML = '<p class="empty">No wins logged yet today — you\'ve got this!</p>';
+      foot.style.display = 'none';
+    } else {
+      list.innerHTML = [...todayWins].reverse().map(w => `
+        <div class="win-item">
+          <div class="win-icon">${ICONS[w.size]}</div>
+          <div class="win-body">
+            <div class="win-text">${esc(w.text)}</div>
+            <div class="win-meta"><span class="win-size sz-${w.size}">${w.size}</span>${w.time}</div>
+          </div>
+          <button class="del-btn" onclick="remove(${w.id})">✕</button>
+        </div>`).join('');
+      foot.style.display = 'flex';
+      const b = todayWins.filter(w=>w.size==='breakthrough').length;
+      const big = todayWins.filter(w=>w.size==='big').length;
+      document.getElementById('todaySummary').textContent =
+        `${todayWins.length} win${todayWins.length!==1?'s':''} logged${b?` · ${b} 🏆`:''}${big?` · ${big} ★`:''}`;
+    }
+
+    // Week row
+    const now = new Date(); const dow = now.getDay();
+    document.getElementById('weekRow').innerHTML = Array.from({length:7},(_,i) => {
+      const d = new Date(now); d.setDate(now.getDate() - dow + i);
+      const key = d.toISOString().slice(0,10);
+      const dayWins = wins.filter(w => w.date === key).length;
+      const isToday = key === TODAY;
+      return `<div class="week-day">
+        <div class="wd-label">${DAYS[i]}</div>
+        <div class="wd-dot ${dayWins?'has-wins':''} ${isToday?'today':''}"></div>
+        <div class="wd-count">${dayWins||''}</div>
+      </div>`;
+    }).join('');
+
+    // Past win card
+    if (wins.filter(w=>w.date!==TODAY).length) showPastWin();
+    else document.getElementById('pastCard').style.display='none';
+  }
+
+  document.getElementById('winInput').addEventListener('keydown', e => { if (e.key==='Enter') addWin(); });
+  render();
+</script>
+</body>
+</html>

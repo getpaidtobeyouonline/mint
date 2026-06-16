@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Currency Budget Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .conv { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; text-align: center; margin-top: 12px; }
+  .conv .big { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .conv .l { font-size: .82rem; opacity: .7; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .ref { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .87rem; gap: 8px; }
+  .ref .x { cursor: pointer; opacity: .5; } .ref .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Currency Budget Tool</h1>
+  <p class="sub">Set the exchange rate once, then convert prices instantly while you travel.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Home currency code</label><input id="home" placeholder="e.g. GBP" oninput="saveCfg()"></div>
+      <div><label>Local currency code</label><input id="local" placeholder="e.g. THB" oninput="saveCfg()"></div>
+    </div>
+    <label>Rate — 1 home unit = how many local?</label>
+    <input id="rate" type="number" step="0.0001" placeholder="e.g. 45" oninput="saveCfg();convert()">
+  </div>
+
+  <div class="panel">
+    <label>Amount in local currency</label>
+    <input id="amt" type="number" step="0.01" placeholder="Type a local price" oninput="convert()">
+    <div class="conv" id="conv"></div>
+    <button class="btn ghost" onclick="saveRef()">Save this as a reference price</button>
+  </div>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:8px">Reference prices</div>
+    <div id="refs"></div>
+    <div class="note">Set the rate from a quick search before your trip — this tool does not fetch live rates.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let refs=JSON.parse(localStorage.getItem('cbt_refs')||'[]');
+  ['home','local','rate'].forEach(k=>{ const s=localStorage.getItem('cbt_'+k); if(s!==null)g(k).value=s; });
+  function saveCfg(){ ['home','local','rate'].forEach(k=>localStorage.setItem('cbt_'+k,g(k).value)); }
+  function convert(){
+    const amt=parseFloat(g('amt').value)||0, rate=parseFloat(g('rate').value)||0;
+    const home=(g('home').value.trim()||'home').toUpperCase(), local=(g('local').value.trim()||'local').toUpperCase();
+    if(!rate){ g('conv').innerHTML='<div class="l">Set an exchange rate above</div>'; return; }
+    const inHome=amt/rate;
+    g('conv').innerHTML='<div class="big">'+inHome.toLocaleString(undefined,{maximumFractionDigits:2})+' '+home+'</div><div class="l">= '+amt.toLocaleString()+' '+local+'</div>';
+  }
+  function saveRef(){
+    const amt=parseFloat(g('amt').value)||0, rate=parseFloat(g('rate').value)||0;
+    if(!amt||!rate){ alert('Enter an amount and rate first.'); return; }
+    refs.push({local:amt,home:amt/rate}); localStorage.setItem('cbt_refs',JSON.stringify(refs)); render();
+  }
+  function del(i){ refs.splice(i,1); localStorage.setItem('cbt_refs',JSON.stringify(refs)); render(); }
+  function render(){
+    const home=(g('home').value.trim()||'home').toUpperCase(), local=(g('local').value.trim()||'local').toUpperCase();
+    const R=g('refs');
+    if(!refs.length){ R.innerHTML='<div class="empty">No reference prices saved yet.</div>'; return; }
+    R.innerHTML=refs.map((x,i)=>'<div class="ref"><span>'+x.local.toLocaleString()+' '+local+'</span><span><b style="color:#5AE57A">'+x.home.toLocaleString(undefined,{maximumFractionDigits:2})+' '+home+'</b> <span class="x" onclick="del('+i+')">✕</span></span></div>').join('');
+  }
+  convert(); render();
+</script>
+</body>
+</html>

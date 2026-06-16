@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Clean Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .count { text-align: center; margin-bottom: 12px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .grp { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 14px 0 6px; font-weight: 500; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .87rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .item.done .lb { text-decoration: line-through; opacity: .5; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-size: .85rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Deep Clean Checklist</h1>
+  <p class="sub">The thorough, top-to-bottom clean — every job most weekly routines skip.</p>
+
+  <div class="panel">
+    <div class="count"><span class="n" id="pct">0%</span><div style="opacity:.7;font-size:.85rem">deep clean done</div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="list"></div>
+    <button class="btn" onclick="resetAll()">Reset for next deep clean</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GROUPS={
+    "Kitchen":["Clean inside the oven &amp; hob","Defrost &amp; clean the fridge/freezer","Descale the kettle &amp; coffee machine","Clean inside cupboards &amp; the microwave","Degrease extractor fan &amp; tiles","Clean the dishwasher filter"],
+    "Bathroom":["Descale taps, showerhead &amp; tiles","Deep clean grout","Clean behind the toilet","Wash the shower curtain / screen","Clear &amp; clean the cabinet"],
+    "Living areas":["Clean behind &amp; under furniture","Wash curtains / blinds","Wipe skirting boards &amp; door frames","Dust light fittings &amp; ceiling corners","Clean windows inside &amp; out","Vacuum sofa cushions &amp; under them"],
+    "Bedrooms":["Flip / rotate the mattress","Wash pillows &amp; duvet","Clear out under the bed","Dust the wardrobe top &amp; clean inside"],
+    "Whole home":["Wipe down all switches &amp; handles","Clean all mirrors","Wash doormats &amp; rugs","Clean the washing machine drum"]
+  };
+  let state=JSON.parse(localStorage.getItem('dcc')||'{}');
+  const save=()=>localStorage.setItem('dcc',JSON.stringify(state));
+  function toggle(k){ state[k]=!state[k]; save(); render(); }
+  function resetAll(){ if(confirm('Reset all checkboxes?')){ state={}; save(); render(); } }
+  function render(){
+    let html='', total=0, done=0;
+    Object.entries(GROUPS).forEach(([grp,items])=>{
+      html+='<div class="grp">'+grp+'</div>';
+      items.forEach(it=>{ const k=grp+'|'+it; const on=!!state[k]; total++; if(on)done++;
+        html+='<div class="item'+(on?' done':'')+'" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(on?' on':'')+'">'+(on?'✓':'')+'</span><span class="lb">'+it+'</span></div>';
+      });
+    });
+    g('list').innerHTML=html;
+    const pct=total?Math.round(done/total*100):0;
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+  }
+  render();
+</script>
+</body>
+</html>

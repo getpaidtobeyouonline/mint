@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Burnout Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .q { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q span { flex: 1; min-width: 200px; font-size: .93rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; margin-top: 5px; }
+  .res .d { opacity: .82; font-size: .92rem; margin-top: 6px; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Creator Burnout Checker</h1>
+  <p class="sub">An honest gut-check on your creative energy — before posting starts to feel like a job you hate.</p>
+
+  <div id="form"></div>
+  <button class="btn" onclick="run()">Check My Energy</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    "I feel dread or resistance before creating content",
+    "I'm comparing myself to others constantly",
+    "Numbers/algorithms affect my mood more than I'd like",
+    "I've lost the joy I used to feel making things",
+    "I'm posting from obligation, not ideas I'm excited about",
+    "I rarely take real time off from being 'on'",
+    "My self-worth is tied to how a post performs",
+    "I feel like I have to post even when I have nothing to say"
+  ];
+  const TIP=[
+    "Batch content so creating and posting aren't daily emotional events.",
+    "Mute or unfollow accounts that trigger comparison — protect your inputs.",
+    "Check analytics once a week on a set day, not in real time.",
+    "Reconnect with why you started: make one thing this week with zero strategy.",
+    "Build a small idea bank so you create from inspiration, not panic.",
+    "Schedule one fully offline day a week and defend it like a client meeting.",
+    "Separate identity from output: you are not your last post's reach.",
+    "Give yourself permission to skip. Consistency ≠ never resting."
+  ];
+  const g=id=>document.getElementById(id);
+  g('form').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q}</span>
+    <select id="q${i}"><option value="0">Rarely</option><option value="1">Sometimes</option><option value="2">Often</option><option value="3">Almost always</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('cbc')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('cbc',JSON.stringify(o)); }); });
+  function run(){
+    const max=Q.length*3;
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0);
+    const pct=Math.round(sc/max*100);
+    const vd= pct>=70?['High burnout risk','Step back now — this is the point creators quit. Rest is the strategy.']
+      : pct>=45?['Warning signs','You\'re running hot. Build in recovery before it tips over.']
+      : pct>=22?['Manageable','Some strain, normal. Tighten the systems below to protect your spark.']
+      : ['Healthy','You\'re in a sustainable place. Keep the boundaries that got you here.'];
+    const top=Q.map((q,i)=>({q,t:TIP[i],v:+g('q'+i).value})).filter(o=>o.v>=2).sort((a,b)=>b.v-a.v).slice(0,3);
+    g('res').innerHTML=`<div class="res"><div class="n">${pct}%</div><div class="vd">${vd[0]}</div><div class="d">${vd[1]}</div></div>`+
+      (top.length?`<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:0 0 10px">Start here</h3>`+
+       top.map(o=>`<div class="fix"><b style="color:#5AE57A">${o.q}</b><br>${o.t}</div>`).join('')
+       :'<div class="fix" style="border-left-color:#5AE57A">Nothing acute — keep protecting your time and inputs.</div>');
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function reset(){ if(confirm('Reset answers?')){ localStorage.removeItem('cbc'); Q.forEach((_,i)=>g('q'+i).value='0'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

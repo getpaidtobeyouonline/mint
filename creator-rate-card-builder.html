@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Rate Card Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+  .card h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .card .who { font-size: .85rem; opacity: .7; margin-bottom: 10px; }
+  .line { display: flex; justify-content: space-between; padding: 7px 0; border-top: 1px solid #4C724C; font-size: .92rem; }
+  .line .x { cursor: pointer; opacity: .5; } .line .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .5; font-size: .86rem; font-style: italic; padding: 8px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Creator Rate Card Builder</h1>
+  <p class="sub">Build a clean, send-ready rate card so brands stop asking "what are your rates?"</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div><label for="hn">Your name / handle</label><input id="hn" placeholder="@yourhandle"></div>
+      <div><label for="stats">Audience snapshot</label><input id="stats" placeholder="12k IG · 3.8% eng"></div>
+    </div>
+    <div class="addrow" style="margin-top:10px">
+      <div style="flex:2"><label for="svc">Deliverable</label><input id="svc" placeholder="e.g. 1 in-feed reel"></div>
+      <div><label for="price">Price ($)</label><input id="price" type="number" min="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div id="card"></div>
+  <button class="btn ghost" onclick="copyCard()">Copy Rate Card</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('crc')||'[]');
+  ['hn','stats'].forEach(k=>{ const s=localStorage.getItem('crc_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>{localStorage.setItem('crc_'+k,g(k).value);render();}); });
+  const save=()=>localStorage.setItem('crc',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const s=v('svc'), p=parseFloat(g('price').value); if(!s||isNaN(p)){alert('Add a deliverable and price.');return;} R.push({s,p}); g('svc').value=''; g('price').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the rate card?')){ R=[]; save(); render(); } }
+  function render(){
+    g('card').innerHTML=`<div class="card"><h3>${esc(v('hn')||'Your Name')} — Rate Card</h3>
+      <div class="who">${esc(v('stats')||'Audience snapshot')}</div>
+      ${R.length?R.map((x,i)=>`<div class="line"><span>${esc(x.s)}</span><span>$${x.p.toLocaleString()} <span class="x" onclick="del(${i})">✕</span></span></div>`).join(''):'<div class="empty">Add deliverables above.</div>'}
+      ${R.length?'<div class="line" style="border-top:1px solid #5AE57A;margin-top:4px"><span>Bundle (all of the above)</span><span style="color:#5AE57A">$'+Math.round(R.reduce((s,x)=>s+x.p,0)*0.85).toLocaleString()+' (save 15%)</span></div>':''}
+      <div style="font-size:.78rem;opacity:.6;margin-top:10px">Rates exclude usage rights & exclusivity. Custom packages on request.</div></div>`;
+  }
+  function copyCard(){
+    if(!R.length){alert('Add deliverables first.');return;}
+    let t=`${v('hn')||'Your Name'} — RATE CARD\n${v('stats')||''}\n\n`+R.map(x=>`- ${x.s}: $${x.p}`).join('\n')+
+      `\n- Bundle (all): $${Math.round(R.reduce((s,x)=>s+x.p,0)*0.85)} (save 15%)\n\nRates exclude usage rights & exclusivity. Custom packages on request.`;
+    navigator.clipboard.writeText(t).then(()=>alert('Rate card copied!'),()=>alert('Copy failed.'));
+  }
+  render();
+</script>
+</body>
+</html>

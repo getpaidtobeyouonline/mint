@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Project Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Creative Project Planner</h1>
+  <p class="sub">Shape a creative project from spark to finish — so it actually gets made.</p>
+
+  <div class="panel">
+    <label for="title">Project title</label>
+    <input id="title" placeholder="What you are making">
+    <label for="vision">Your vision for it</label>
+    <textarea id="vision" placeholder="The feeling, the look, the message"></textarea>
+    <label for="materials">Materials &amp; tools</label>
+    <textarea id="materials" placeholder="What you need to gather"></textarea>
+    <label for="phases">Phases / milestones</label>
+    <textarea id="phases" placeholder="Sketch, rough, refine, finish — one per line"></textarea>
+    <label for="deadline">Deadline / share-by date</label>
+    <input id="deadline" type="date">
+    <label for="block">Likely creative block — and your plan for it</label>
+    <textarea id="block" placeholder="Perfectionism, fear, energy — and how you will meet it kindly"></textarea>
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['title','vision','materials','phases','deadline','block'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('cpp2_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cpp2_'+k,g(k).value)); });
+  function gen(){
+    const ph=v('phases').split('\n').filter(x=>x.trim()).map((x,i)=>'  Phase '+(i+1)+': '+x.trim()).join('\n')||'  [your milestones]';
+    const t='CREATIVE PROJECT PLAN\n\nPROJECT: '+(v('title')||'[your project]')+
+    '\n\nTHE VISION:\n'+(v('vision')||'[feeling, look, message]')+
+    '\n\nMATERIALS & TOOLS:\n'+(v('materials')||'[everything to gather]')+
+    '\n\nPHASES:\n'+ph+
+    (v('deadline')?'\n\nDEADLINE: '+v('deadline'):'')+
+    '\n\nWHEN BLOCKS COME:\n'+(v('block')||'[perfectionism, fear, energy — and a kind plan]')+
+    '\n\n--- Creative project truths ---\nStart before you feel ready. The first draft is for you alone.\nProtect a regular making slot — same time, same day, no debate.\nFinished is better than perfect. You can always make another.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

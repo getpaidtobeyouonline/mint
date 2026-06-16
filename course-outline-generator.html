@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Outline Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.9rem}
+label:first-of-type{margin-top:0}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,select:focus{border-color:#5AE57A}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C9A84C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.9rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.btn-sm{background:transparent;border:1px solid #C9A84C44;color:#5AE57A;border-radius:6px;padding:.35rem .8rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.btn-sm:hover{opacity:.7}
+.results{display:none}
+.results.show{display:block}
+.title-box{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.5rem}
+.course-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:#5AE57A;line-height:1.3;flex:1}
+.promise{font-size:.875rem;opacity:.65;line-height:1.55}
+.mod-card{background:#3C603C;border:1px solid #4C724C;border-left:3px solid #5AE57A;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.mod-num{font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.25rem;font-weight:600}
+.mod-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#FFFFFF;margin-bottom:.3rem;line-height:1.3}
+.mod-desc{font-size:.78rem;opacity:.45;margin-bottom:.75rem;line-height:1.45}
+.lesson{font-size:.875rem;padding:.38rem 0;border-bottom:1px solid #3C603C;display:flex;gap:.6rem;align-items:baseline}
+.lesson:last-child{border-bottom:none;padding-bottom:0}
+.ln{font-size:.72rem;font-weight:600;min-width:1.1rem;opacity:.55}
+.copy-btn{width:100%;background:transparent;border:1px solid #C9A84C55;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.course-title{font-size:1.1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Course Outline Generator</h1>
+    <p class="subtitle">Turn your expertise into a structured course — module titles, lesson plans, and a compelling course promise, ready in seconds.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Course Details</h2>
+    <label>Course Topic</label>
+    <input type="text" id="topic" placeholder="e.g. Instagram growth, meal prep, Notion for freelancers">
+    <label>Target Audience</label>
+    <input type="text" id="audience" placeholder="e.g. busy moms, new coaches, freelance designers">
+    <label>Student Transformation — what will they achieve?</label>
+    <input type="text" id="transform" placeholder="e.g. land 3 clients in 30 days, lose 10 lbs, build passive income">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Number of Modules</label>
+        <select id="mods">
+          <option value="3">3 Modules — Mini-Course</option>
+          <option value="5" selected>5 Modules — Standard</option>
+          <option value="7">7 Modules — Comprehensive</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0">Course Format</label>
+        <select id="format">
+          <option>Video Course</option>
+          <option>Workshop</option>
+          <option>Bootcamp</option>
+          <option>Email Course</option>
+          <option>Live Cohort</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Generate My Course Outline →</button>
+
+  <div class="results" id="results">
+
+    <div class="title-box">
+      <div class="title-row">
+        <div class="course-title" id="courseTitle">—</div>
+        <button class="btn-sm" onclick="regenTitle()">↻ New Title</button>
+      </div>
+      <div class="promise" id="coursePromise">—</div>
+    </div>
+
+    <div id="modules"></div>
+
+    <button class="copy-btn" onclick="copyOutline()">Copy Full Outline as Text</button>
+
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const cap = s => s ? s.replace(/\b\w/g, c => c.toUpperCase()) : s;
+const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+const fill = (str, T, A, X) => str.replace(/\{T\}/g, T).replace(/\{A\}/g, A).replace(/\{X\}/g, X);
+
+const titleForms = [
+  (T) =>        `The ${cap(T)} Blueprint`,
+  (T,A,X) =>   `${cap(X)}: A ${cap(T)} Course for ${cap(A)}`,
+  (T,_,X) =>   `From Zero to ${cap(X)} with ${cap(T)}`,
+  (T,A) =>      `The ${cap(A)}'s Complete Guide to ${cap(T)}`,
+  (T,_,X) =>   `${cap(T)} Mastery: Your Path to ${cap(X)}`,
+  (T,A,X) =>   `${cap(X)} for ${cap(A)}: The ${cap(T)} Method`
+];
+
+const promiseForms = [
+  (T,A,X) => `By the end of this course, ${A} will have a clear, proven system for using ${T} to ${X} — without the overwhelm or guesswork.`,
+  (T,A,X) => `This ${T} course gives ${A} everything they need to ${X} — step by step, module by module.`,
+  (T,A,X) => `Stop struggling with ${T}. This course gives ${A} a complete roadmap to ${X} faster than they thought possible.`
+];
+
+const fw = {
+  3:[
+    {mod:'The {T} Foundation',desc:'Set the context, shift the mindset, and deliver an early win before the real work begins.',lessons:['Why {T} Is the Fastest Path to {X}','The Core Principles Every {A} Must Know','Assessing Where You Are Right Now','Your Quick Win: The First Step to Take Today']},
+    {mod:'The {T} Method',desc:'Walk students step by step through the system that creates real results.',lessons:['The 3-Part Framework Behind {X}','Phase 1 — Building Your Foundation','Phase 2 — Executing the Core Strategy','Phase 3 — Getting Your First Real Results']},
+    {mod:'Results, Momentum & What\'s Next',desc:'Lock in progress, troubleshoot obstacles, and set students up for long-term success.',lessons:['When Things Go Wrong: Troubleshooting Guide','Tracking & Measuring Your Progress Toward {X}','What to Do After You Get Results','Your 30-Day {T} Action Plan']}
+  ],
+  5:[
+    {mod:'Start Here: Your {T} Roadmap',desc:'Orient students, set expectations, and deliver a quick win on day one.',lessons:['How to Use This Course for Maximum Results','The {T} Success Roadmap','Your Starting Point: Baseline Assessment','Quick Win — Do This Before Module 2']},
+    {mod:'The {T} Foundation',desc:'Build the knowledge base and mindset {A} need before results can follow.',lessons:['Why Most {A} Struggle With {T} (And How to Fix It)','The Core Concepts Explained Simply','The {X} Framework Overview','Identifying Your Biggest Leverage Point']},
+    {mod:'The Core {T} System',desc:'The step-by-step method that turns effort into results.',lessons:['Phase 1: Setting the Foundation','Phase 2: Executing the Main Strategy','Phase 3: Putting It All Together','Your First 7-Day Implementation Plan']},
+    {mod:'Advanced Strategies & Optimization',desc:'Fix what isn\'t working and accelerate the path to {X}.',lessons:['Common Roadblocks & How to Overcome Them','Level Up: Optimizing What\'s Already Working','Advanced Techniques for Faster Results','Real Examples: What Success Looks Like']},
+    {mod:'Sustaining Results & What\'s Next',desc:'Turn short-term wins into lasting change and set students up for their next level.',lessons:['Building Systems So Results Stick','How to Know When You\'re Ready for More','Creating Your Long-Term {T} Plan','Your 90-Day Post-Course Action Plan']}
+  ],
+  7:[
+    {mod:'Welcome to {T} Mastery',desc:'Orient students, set the stage, and give them a win before Module 2.',lessons:['The Promise: What {X} Actually Looks Like','How This Course Works — and How to Use It','Your Starting Point Assessment','Quick Win: One Action to Take Right Now']},
+    {mod:'Why {T} Works: The Big Picture',desc:'Give students the context and conviction they need before the how.',lessons:['The Problem With How {A} Usually Approach This','The Core Principle Behind {X}','Mindset Shifts That Make Everything Easier','How to Know When It\'s Working']},
+    {mod:'Core Framework & Concepts',desc:'Introduce the intellectual model students will use throughout the entire course.',lessons:['The {T} Framework Explained','Breaking Down Each Component','How the Pieces Work Together','A Complete Walkthrough: Start to Finish']},
+    {mod:'Implementation: Phase 1',desc:'Roll up their sleeves and execute the first half of the system.',lessons:['Step 1: [First Key Action in Your Process]','Step 2: [Second Key Action in Your Process]','Common Mistakes at This Stage','Checkpoint — Are You on Track?']},
+    {mod:'Implementation: Phase 2',desc:'Complete the system and reach the first real result moment.',lessons:['Step 3: [Third Key Action in Your Process]','Step 4: [Fourth Key Action in Your Process]','Putting It All Together for {X}','Your First Real Result Moment']},
+    {mod:'Optimization & Troubleshooting',desc:'Fix what isn\'t working and double down on what is.',lessons:['Why Results Vary (And What to Do About It)','The Top 5 Sticking Points & Solutions','Advanced Adjustments for Faster Progress','Case Study: From Stuck to Success']},
+    {mod:'Long-Term Results & Graduation',desc:'Set students up for sustained success and their next level of growth.',lessons:['Building Systems to Lock In {X}','What Comes After {T} Mastery','Your 90-Day Post-Course Plan','Celebration: You Did It — Here\'s What\'s Next']}
+  ]
+};
+
+const modColors = ['#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A'];
+
+let state = {}, titleIdx = 0;
+
+function generate() {
+  const T = document.getElementById('topic').value.trim();
+  const A = document.getElementById('audience').value.trim();
+  const X = document.getElementById('transform').value.trim();
+  const mods = parseInt(document.getElementById('mods').value);
+  if (!T) { alert('Please enter a course topic.'); return; }
+  if (!A) { alert('Please enter your target audience.'); return; }
+  if (!X) { alert('Please enter the student transformation.'); return; }
+  titleIdx = Math.floor(Math.random() * titleForms.length);
+  state = {T, A, X, mods};
+  render();
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function render() {
+  const {T, A, X, mods} = state;
+  document.getElementById('courseTitle').textContent = titleForms[titleIdx](T, A, X);
+  document.getElementById('coursePromise').textContent = rnd(promiseForms)(T, A, X);
+  let html = '';
+  fw[mods].forEach((m, i) => {
+    const c = modColors[i % modColors.length];
+    const mT = fill(m.mod, cap(T), cap(A), cap(X));
+    const mD = fill(m.desc, T, A, X);
+    const ls = m.lessons.map((l, li) =>
+      `<div class="lesson"><span class="ln" style="color:${c}">${li+1}.</span><span>${fill(l, cap(T), cap(A), cap(X))}</span></div>`
+    ).join('');
+    html += `<div class="mod-card" style="border-left-color:${c}">
+      <div class="mod-num" style="color:${c}">Module ${i+1}</div>
+      <div class="mod-title">${mT}</div>
+      <div class="mod-desc">${mD}</div>${ls}
+    </div>`;
+  });
+  document.getElementById('modules').innerHTML = html;
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleForms.length;
+  render();
+}
+
+function copyOutline() {
+  const {T, A, X, mods} = state;
+  const fmt = document.getElementById('format').value;
+  const title = titleForms[titleIdx](T, A, X);
+  const promise = document.getElementById('coursePromise').textContent;
+  let text = `COURSE TITLE: ${title}\nFORMAT: ${fmt}\n\nCOURSE PROMISE:\n${promise}\n\n`;
+  fw[mods].forEach((m, i) => {
+    text += `MODULE ${i+1}: ${fill(m.mod, cap(T), cap(A), cap(X))}\n`;
+    m.lessons.forEach((l, li) => { text += `  ${li+1}. ${fill(l, cap(T), cap(A), cap(X))}\n`; });
+    text += '\n';
+  });
+  text += '---\nGenerated by GetPaidToBeYouOnline';
+  const btn = document.querySelector('.copy-btn');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => flash(btn));
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); flash(btn);
+  }
+}
+
+function flash(btn) {
+  const orig = btn.textContent;
+  btn.textContent = 'Copied!';
+  setTimeout(() => btn.textContent = orig, 2200);
+}
+</script>
+</body>
+</html>

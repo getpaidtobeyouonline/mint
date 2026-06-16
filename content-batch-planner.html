@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Batch Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: 0.85; margin-bottom: 24px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { opacity: 0.88; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 540px) { .row { grid-template-columns: 1fr; } }
+  .instructions { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+  .block {
+    background: #325132;
+    border-left: 3px solid #5AE57A;
+    border-radius: 0 10px 10px 0;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .block-name {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .block-time { font-size: 13px; opacity: 0.7; margin-bottom: 10px; }
+  .checklist { list-style: none; padding: 0; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+  .checklist input[type=checkbox] {
+    width: auto;
+    margin: 4px 0 0 0;
+    accent-color: #5AE57A;
+  }
+  .checklist label { color: #FFFFFF; font-weight: 400; margin: 0; cursor: pointer; flex: 1; font-size: 14px; }
+  .summary {
+    background: #C9A84C11;
+    border: 1px solid #C9A84C44;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+    font-size: 14px;
+  }
+  .summary strong { color: #5AE57A; }
+  footer { text-align: center; margin-top: 32px; font-size: 13px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Content Batch Planner</h1>
+  <p class="sub">Stop creating one post at a time. Plan a single focused session that produces 2-4 weeks of content.</p>
+
+  <div class="card">
+    <p class="instructions">Batching saves hours because you stop switching between modes (writing, filming, editing). Tell us how much content you want and we'll build a structured session plan grouped by task type — with time estimates and prep checklists.</p>
+
+    <label>Batch session date</label>
+    <input type="date" id="date">
+
+    <div class="row">
+      <div>
+        <label># of posts to create</label>
+        <select id="count">
+          <option value="6">6 posts (~1 week)</option>
+          <option value="12" selected>12 posts (~2 weeks)</option>
+          <option value="20">20 posts (~1 month)</option>
+          <option value="30">30 posts (full month)</option>
+        </select>
+      </div>
+      <div>
+        <label>Primary format</label>
+        <select id="format">
+          <option>Short-form video (Reels/TikTok)</option>
+          <option>Carousel / image posts</option>
+          <option>Mixed (video + carousels)</option>
+          <option>Text-only (LinkedIn/X)</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Your niche / topic for this batch</label>
+    <input id="topic" placeholder="e.g. Productivity for solopreneurs">
+
+    <button onclick="generate()">Build My Batch Plan</button>
+  </div>
+
+  <div id="output"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+document.getElementById('date').valueAsDate = new Date();
+
+function fmtDate(d) {
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function timeFor(format, count) {
+  const rates = {
+    'Short-form video (Reels/TikTok)': { ideate: 1.5, script: 3, film: 6, edit: 8, caption: 2 },
+    'Carousel / image posts': { ideate: 1.5, script: 3, film: 0, edit: 7, caption: 2.5 },
+    'Mixed (video + carousels)': { ideate: 1.5, script: 3, film: 4, edit: 7, caption: 2.5 },
+    'Text-only (LinkedIn/X)': { ideate: 1.5, script: 0, film: 0, edit: 0, caption: 5 }
+  };
+  const r = rates[format];
+  return {
+    ideate: Math.max(15, Math.round(r.ideate * count)),
+    script: Math.max(0, Math.round(r.script * count)),
+    film: Math.max(0, Math.round(r.film * count)),
+    edit: Math.max(0, Math.round(r.edit * count)),
+    caption: Math.max(15, Math.round(r.caption * count))
+  };
+}
+
+function generate() {
+  const dateStr = document.getElementById('date').value;
+  const count = parseInt(document.getElementById('count').value);
+  const format = document.getElementById('format').value;
+  const topic = document.getElementById('topic').value.trim();
+  const out = document.getElementById('output');
+
+  if (!dateStr || !topic) {
+    out.innerHTML = '<div class="card" style="border-color:#5AE57A">Pick a date and enter your topic.</div>';
+    return;
+  }
+
+  const date = new Date(dateStr + 'T00:00:00');
+  const t = timeFor(format, count);
+  const totalMin = t.ideate + t.script + t.film + t.edit + t.caption;
+  const totalH = Math.floor(totalMin / 60);
+  const totalRem = totalMin % 60;
+  const totalStr = totalH > 0 ? `${totalH}h ${totalRem}m` : `${totalMin}m`;
+
+  const blocks = [];
+
+  blocks.push({
+    name: 'Block 1 — Prep & Ideate',
+    time: t.ideate,
+    items: [
+      `Brain-dump 20 ideas around "${topic}" — no filtering yet`,
+      `Pick the strongest ${count} ideas for this batch`,
+      'Group them across your content pillars (educate / inspire / sell / connect)',
+      'Set up your workspace: water, phone on Do Not Disturb, lighting ready'
+    ]
+  });
+
+  if (t.script > 0) {
+    blocks.push({
+      name: 'Block 2 — Write Hooks & Scripts',
+      time: t.script,
+      items: [
+        `Write ${count} opening hooks first (most important 3 seconds)`,
+        'For each idea, draft 3-5 bullet points — no full sentences yet',
+        'Pick your strongest CTA per post (save, follow, comment, link)',
+        'Group similar tone/style scripts together for the next block'
+      ]
+    });
+  }
+
+  if (t.film > 0) {
+    blocks.push({
+      name: 'Block 3 — Film / Capture',
+      time: t.film,
+      items: [
+        'Outfit + setting change ONCE for the whole batch (or stagger 2-3 outfits)',
+        'Film all hooks back-to-back, then all main content, then all CTAs',
+        'Record extra B-roll while the camera is already set up',
+        'Verify audio after every 3rd take to avoid losing a full batch'
+      ]
+    });
+  }
+
+  if (t.edit > 0) {
+    blocks.push({
+      name: 'Block 4 — Edit / Design',
+      time: t.edit,
+      items: [
+        'Set up ONE template (font, brand colors, transitions) — reuse across all posts',
+        'Edit in passes: cuts first, captions second, music last',
+        'Export at platform-optimal specs (9:16 for vertical, 4:5 for IG carousels)',
+        'Save raw files to a "B-roll" folder for future repurposing'
+      ]
+    });
+  }
+
+  blocks.push({
+    name: `Block ${blocks.length + 1} — Captions, Hashtags & Schedule`,
+    time: t.caption,
+    items: [
+      `Write all ${count} captions in one sitting — your "voice" stays consistent`,
+      'Add hashtag sets (rotate 2-3 sets across the batch)',
+      'Upload to your scheduler (Buffer, Later, Metricool, Planoly)',
+      'Set posting dates spread across the next 1-4 weeks',
+      'Done — close the laptop. The next 2-4 weeks are handled.'
+    ]
+  });
+
+  const summaryHTML = `<div class="summary">
+    <strong>${fmtDate(date)}</strong> · ${count} posts · ${format}<br>
+    Total estimated session time: <strong>${totalStr}</strong><br>
+    <span style="opacity:0.8">Tip: split into 2 days if total &gt; 4 hours. Don't push through fatigue — quality drops fast.</span>
+  </div>`;
+
+  const blocksHTML = blocks.map(b => {
+    const h = Math.floor(b.time / 60);
+    const m = b.time % 60;
+    const tStr = h > 0 ? `${h}h ${m}m` : `${m}m`;
+    return `<div class="block">
+      <div class="block-name">${b.name}</div>
+      <div class="block-time">≈ ${tStr}</div>
+      <ul class="checklist">
+        ${b.items.map((it, i) => `
+          <li>
+            <input type="checkbox" id="chk-${b.name.replace(/\W/g,'')}-${i}">
+            <label for="chk-${b.name.replace(/\W/g,'')}-${i}">${it}</label>
+          </li>`).join('')}
+      </ul>
+    </div>`;
+  }).join('');
+
+  out.innerHTML = `<div class="card">${summaryHTML}${blocksHTML}</div>`;
+}
+</script>
+</body>
+</html>

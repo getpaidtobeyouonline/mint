@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distraction Log Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Capture */
+  .capture-input {
+    width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF;
+    padding: 13px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; outline: none; margin-bottom: 12px;
+  }
+  .capture-input:focus { border-color: #5AE57A; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+  .chip {
+    background: #325132; border: 1px solid #4C724C; color: #F0EBE0aa;
+    padding: 5px 13px; border-radius: 20px; font-size: 0.82rem;
+    cursor: pointer; transition: all 0.15s; user-select: none;
+  }
+  .chip.active { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .btn-gold {
+    width: 100%; background: #5AE57A; color: #325132; border: none;
+    padding: 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.95rem; cursor: pointer;
+  }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 12px; }
+  .stat-box { flex: 1; background: #325132; border-radius: 8px; padding: 14px; text-align: center; }
+  .stat-num { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; line-height: 1; }
+  .stat-label { font-size: 0.78rem; color: #F0EBE0aa; margin-top: 4px; }
+  .top-tag { font-size: 0.82rem; color: #F0EBE0aa; margin-top: 12px; }
+  .top-tag span { color: #5AE57A; }
+
+  /* Log list */
+  .log-item { display: flex; align-items: flex-start; gap: 10px; padding: 11px 0; border-bottom: 1px solid #3C603C; }
+  .log-item:last-child { border-bottom: none; }
+  .log-time { font-size: 0.75rem; color: #BFD8BF; white-space: nowrap; padding-top: 2px; width: 44px; flex-shrink: 0; }
+  .log-badge {
+    font-size: 0.68rem; font-weight: 500; padding: 2px 8px; border-radius: 10px;
+    white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+  }
+  .badge-Social   { background: #2E4D2E; color: #5AE57A; }
+  .badge-Email    { background: #2E4D2E; color: #5AE57A; }
+  .badge-Phone    { background: #2E4D2E; color: #5AE57A; }
+  .badge-Thought  { background: #2E4D2E; color: #5AE57A; }
+  .badge-Task     { background: #2E4D2E; color: #5AE57A; }
+  .badge-Web      { background: #2E4D2E; color: #5AE57A; }
+  .badge-Other    { background: #3C603C; color: #BFD8BF; }
+  .log-text { flex: 1; font-size: 0.92rem; word-break: break-word; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.88rem; padding: 2px 5px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 16px 0; }
+  .log-footer { display: flex; justify-content: flex-end; margin-top: 12px; padding-top: 12px; border-top: 1px solid #3C603C; }
+  .btn-ghost { background: none; border: none; color: #BFD8BF; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+  .btn-ghost:hover { color: #5AE57A; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Distraction Log Tool</h1>
+<p class="subtitle">Catch the urge. Log it. Return to work. Review later.</p>
+
+<div class="card">
+  <div class="card-title">Quick Capture</div>
+  <input class="capture-input" id="captureInput" placeholder="What just distracted you? (Press Enter to log)" maxlength="120" autofocus />
+  <div class="chips" id="chips"></div>
+  <button class="btn-gold" onclick="logIt()">Log Distraction</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Today at a Glance</div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="totalCount">0</div><div class="stat-label">Distractions today</div></div>
+    <div class="stat-box"><div class="stat-num" id="topCount">—</div><div class="stat-label">Most common type</div></div>
+  </div>
+  <div class="top-tag" id="topTag"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Log</div>
+  <div id="logList"><p class="empty">Nothing logged yet — stay focused!</p></div>
+  <div class="log-footer"><button class="btn-ghost" onclick="clearToday()">Clear today's log</button></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = ['Social','Email','Phone','Thought','Task','Web','Other'];
+  const TODAY = new Date().toISOString().slice(0,10);
+  let selected = 'Other';
+  let logs = JSON.parse(localStorage.getItem('dlt_logs') || '[]');
+
+  function save() { localStorage.setItem('dlt_logs', JSON.stringify(logs)); }
+
+  function buildChips() {
+    document.getElementById('chips').innerHTML = CATS.map(c =>
+      `<div class="chip ${c === selected ? 'active' : ''}" onclick="selectCat('${c}')">${c}</div>`
+    ).join('');
+  }
+
+  function selectCat(c) { selected = c; buildChips(); }
+
+  function logIt() {
+    const input = document.getElementById('captureInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const now = new Date();
+    logs.push({
+      id: Date.now(), date: TODAY, cat: selected, text,
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    });
+    save(); render();
+    input.value = '';
+    input.focus();
+  }
+
+  function remove(id) { logs = logs.filter(l => l.id !== id); save(); render(); }
+
+  function clearToday() {
+    if (!logs.filter(l => l.date === TODAY).length) return;
+    if (!confirm('Clear today\'s log?')) return;
+    logs = logs.filter(l => l.date !== TODAY);
+    save(); render();
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    const todayLogs = logs.filter(l => l.date === TODAY);
+
+    // Stats
+    document.getElementById('totalCount').textContent = todayLogs.length;
+    const freq = {};
+    todayLogs.forEach(l => freq[l.cat] = (freq[l.cat] || 0) + 1);
+    const topCat = Object.entries(freq).sort((a,b) => b[1]-a[1])[0];
+    if (topCat) {
+      document.getElementById('topCount').textContent = topCat[1] + 'x';
+      document.getElementById('topTag').innerHTML = `Most frequent: <span>${topCat[0]}</span>`;
+    } else {
+      document.getElementById('topCount').textContent = '—';
+      document.getElementById('topTag').innerHTML = '';
+    }
+
+    // Log list
+    const list = document.getElementById('logList');
+    if (!todayLogs.length) { list.innerHTML = '<p class="empty">Nothing logged yet — stay focused!</p>'; return; }
+    list.innerHTML = [...todayLogs].reverse().map(l => `
+      <div class="log-item">
+        <div class="log-time">${l.time}</div>
+        <div class="log-badge badge-${l.cat}">${l.cat}</div>
+        <div class="log-text">${esc(l.text)}</div>
+        <button class="del-btn" onclick="remove(${l.id})">✕</button>
+      </div>`).join('');
+  }
+
+  document.getElementById('captureInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') logIt();
+  });
+
+  buildChips();
+  render();
+</script>
+</body>
+</html>

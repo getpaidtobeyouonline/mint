@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cross Platform Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; cursor: pointer; padding: 8px 14px; border-radius: 20px; font-size: .86rem; }
+  .chip.on { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; }
+  .blk p { font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cross Platform Planner</h1>
+  <p class="sub">Turn one pillar idea into a coordinated plan across every platform — no duplicate work.</p>
+
+  <div class="panel">
+    <label for="pillar">This week's pillar idea</label>
+    <input id="pillar" placeholder="e.g. how to price your first offer">
+    <label>Platforms in your plan</label>
+    <div class="chips" id="chips"></div>
+    <label for="home" style="margin-top:14px">Home base (where the full version lives)</label>
+    <select id="home"></select>
+    <button class="btn" onclick="plan()">Build Cross-Platform Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const ADAPT = {
+    Instagram:"Carousel breaking the idea into 6–8 slides + a reel teasing the boldest point.",
+    TikTok:"45–60s talking-head: hook in 3s, one core point, fast cuts, CTA to the full version.",
+    'X / Twitter':"A thread: hook tweet, 4–6 point tweets, final tweet links home base.",
+    LinkedIn:"Story-led post: the realisation + the lesson, formatted with short lines.",
+    YouTube:"Long-form deep dive (home base) + a Short clipped from the strongest 30s.",
+    'Email/Newsletter':"The full nuanced take with a personal angle and one clear CTA.",
+    Pinterest:"2–3 keyword-rich pins pointing to the home-base version."
+  };
+  let sel=JSON.parse(localStorage.getItem('cpp2_sel')||'["Instagram","TikTok","X / Twitter"]');
+  g('chips').innerHTML=Object.keys(ADAPT).map(p=>`<span class="chip ${sel.includes(p)?'on':''}" data-p="${p}">${p}</span>`).join('');
+  function refreshHome(){ g('home').innerHTML=sel.map(p=>`<option>${p}</option>`).join(''); }
+  g('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const p=c.dataset.p; sel=sel.includes(p)?sel.filter(x=>x!==p):[...sel,p]; c.classList.toggle('on'); localStorage.setItem('cpp2_sel',JSON.stringify(sel)); refreshHome(); });
+  ['pillar'].forEach(k=>{ const s=localStorage.getItem('cpp2_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cpp2_'+k,g(k).value)); });
+  refreshHome();
+  function plan() {
+    if(!sel.length){ alert('Pick at least one platform.'); return; }
+    const pillar=v('pillar')||'[your pillar idea]', home=g('home').value;
+    g('out').innerHTML=`<div class="blk" style="border-left-color:#BFD8BF"><h4>Workflow</h4><p>1) Create the full version on <b>${home}</b> first. 2) Cut it down for every other platform below. One idea → a week of content.</p></div>`+
+      sel.map(p=>`<div class="blk"><h4>${esc(p)}${p===home?' · home base':''}</h4><p>${esc(ADAPT[p])}</p></div>`).join('')+
+      `<div class="blk" style="border-left-color:#BFD8BF"><h4>Pillar</h4><p>${esc(pillar)}</p></div>`;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Generate first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  plan();
+</script>
+</body>
+</html>

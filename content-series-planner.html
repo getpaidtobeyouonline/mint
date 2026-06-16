@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Series Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 22px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 10px;
+  }
+  .section-body { font-size: 0.98rem; white-space: pre-wrap; }
+  .section-body ul { padding-left: 20px; margin-top: 4px; }
+  .section-body li { margin-bottom: 5px; }
+  .episode {
+    background: rgba(240, 235, 224, 0.04);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .episode-head {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .episode-num {
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+  .episode-date { font-size: 0.8rem; opacity: 0.7; }
+  .episode-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+  .episode-detail { font-size: 0.92rem; opacity: 0.85; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content Series Planner</h1>
+  <p class="subtitle">One-off posts are forgettable. Series build anticipation. Plan yours in 60 seconds — episodes, dates, hooks, and CTAs.</p>
+
+  <label for="topic">Series Topic / Promise</label>
+  <input type="text" id="topic" placeholder="e.g. The 7-day pricing reset for freelance designers" />
+
+  <label for="audience">Who's It For?</label>
+  <input type="text" id="audience" placeholder="e.g. freelance designers stuck under $5k/month" />
+
+  <div class="grid">
+    <div>
+      <label for="platform">Platform</label>
+      <select id="platform">
+        <option>Email</option>
+        <option>Instagram</option>
+        <option>LinkedIn</option>
+        <option>YouTube</option>
+        <option>TikTok</option>
+        <option>Blog</option>
+        <option>Threads</option>
+      </select>
+    </div>
+    <div>
+      <label for="parts">Number of Parts</label>
+      <select id="parts">
+        <option>3</option><option selected>5</option><option>7</option><option>10</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label for="cadence">Cadence</label>
+      <select id="cadence">
+        <option value="1">Daily</option>
+        <option value="2">Every other day</option>
+        <option value="3" selected>Twice a week (every 3 days)</option>
+        <option value="7">Weekly</option>
+      </select>
+    </div>
+    <div>
+      <label for="goal">Series Goal</label>
+      <select id="goal">
+        <option value="sell">Sell a product at the end</option>
+        <option value="list">Grow my email list</option>
+        <option value="authority">Build authority on a topic</option>
+        <option value="launch">Warm up a launch</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="start">Start Date</label>
+  <input type="date" id="start" />
+
+  <button class="build-btn" id="buildBtn">Build My Series</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Series Title Options</div>
+      <div class="section-body" id="titles"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">The Promise (use this in every post)</div>
+      <div class="section-body" id="promise"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Recurring Structure</div>
+      <div class="section-body" id="structure"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Episode-by-Episode</div>
+      <div id="episodes"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">CTA Progression</div>
+      <div class="section-body" id="ctas"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Promo Cadence</div>
+      <div class="section-body" id="promo"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Plan</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const arcs = {
+    3: ['The wake-up call','The reframe','The action step'],
+    5: ['The wake-up call','The reframe','The framework','The proof','The action step'],
+    7: ['The wake-up call','The myth','The reframe','The framework','The pitfall','The proof','The action step'],
+    10: ['The wake-up call','The myth','The cost of staying stuck','The reframe','The framework piece 1','The framework piece 2','The pitfall','The proof','The objection killer','The action step + invitation']
+  };
+
+  function fmtDate(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function build() {
+    const topic = document.getElementById('topic').value.trim() || '[your topic]';
+    const audience = document.getElementById('audience').value.trim() || '[your audience]';
+    const platform = document.getElementById('platform').value;
+    const parts = parseInt(document.getElementById('parts').value);
+    const cadence = parseInt(document.getElementById('cadence').value);
+    const goal = document.getElementById('goal').value;
+    const startStr = document.getElementById('start').value;
+    const start = startStr ? new Date(startStr + 'T12:00:00') : new Date();
+
+    const titles = [
+      `The ${parts}-part ${topic.split(' ').slice(-3).join(' ')} series`,
+      `${parts} ${parts===3?'truths':'lessons'} I wish I'd known about ${topic}`,
+      `${topic}: a ${parts}-${cadence===7?'week':'part'} reset for ${audience.split(' ').slice(0,3).join(' ')}`
+    ];
+    document.getElementById('titles').innerHTML = '<ul>' + titles.map(t=>`<li>${t}</li>`).join('') + '</ul>';
+
+    document.getElementById('promise').textContent =
+`By the end of this series, ${audience} will walk away with a clear shift in how they think about ${topic} — and one specific action they can take this week.
+
+Lead every post with one line of the promise so new readers can drop in mid-series and still know what they're in.`;
+
+    const structureMap = {
+      'Email': `Subject line: episode # of ${parts} — [hook].\nOpener: one-sentence promise.\nBody: one core idea, one story, one tactic.\nClose: the soft CTA + tease of the next email.\nLength: 250-450 words. No more.`,
+      'Instagram': `Carousel format. Slide 1: the bold hook. Slide 2-${Math.min(8,parts+2)}: the core idea broken into bite-size beats. Final slide: CTA. Caption: short story that earned the post.`,
+      'LinkedIn': `Text post, ~150-250 words. Lead with a one-line hook + line break. Body: 3-4 short paragraphs. Close with a question that earns comments. No emojis past line 2.`,
+      'YouTube': `8-12 min episode. Cold open (15 sec hook), title card, intro tying to series, main content with chapters, closing CTA + next episode tease.`,
+      'TikTok': `30-60 sec vertical video. Hook in the first 3 sec. State the episode number on screen. Recurring intro line. End with "next episode drops [day]".`,
+      'Blog': `800-1500 words. SEO-friendly title with the episode number. H2s for scannability. Internal link to the previous episode. CTA box at the end.`,
+      'Threads': `2-4 connected posts. First post is the hook + episode number. Reply chain delivers the content. Final post is the CTA.`
+    };
+    document.getElementById('structure').textContent = structureMap[platform];
+
+    const beats = arcs[parts];
+    const episodesEl = document.getElementById('episodes');
+    episodesEl.innerHTML = '';
+    for (let i = 0; i < parts; i++) {
+      const d = new Date(start);
+      d.setDate(d.getDate() + i * cadence);
+      const beat = beats[i];
+      const div = document.createElement('div');
+      div.className = 'episode';
+      div.innerHTML = `
+        <div class="episode-head">
+          <span class="episode-num">Episode ${i+1} of ${parts} — ${beat}</span>
+          <span class="episode-date">${fmtDate(d)}</span>
+        </div>
+        <div class="episode-title">${episodeTitle(beat, topic, i, parts)}</div>
+        <div class="episode-detail"><strong>Hook:</strong> ${episodeHook(beat, audience, topic)}<br><strong>Takeaway:</strong> ${episodeTakeaway(beat, topic)}</div>
+      `;
+      episodesEl.appendChild(div);
+    }
+
+    const ctaMap = {
+      sell: `Episodes 1 to ${Math.ceil(parts*0.6)}: zero pitch. Pure value.\nEpisode ${Math.ceil(parts*0.6)+1}: mention you've been building something. No link.\nFinal episode: the offer. Specific. Limited. Tied to the series promise.`,
+      list: `Every episode ends with: "If you want all ${parts} in your inbox + the workbook, the link is in my bio." Don't change the line. Repetition converts.`,
+      authority: `No CTA until the final episode. Then: invite a conversation. "Reply with the one piece that hit hardest." Authority compounds in DMs, not link clicks.`,
+      launch: `Episodes 1 to ${parts-2}: drop the problem deeper each time.\nEpisode ${parts-1}: open the waitlist.\nFinal episode: cart opens. Tie every promise from earlier episodes to the offer.`
+    };
+    document.getElementById('ctas').textContent = ctaMap[goal];
+
+    const lastDate = new Date(start);
+    lastDate.setDate(lastDate.getDate() + (parts-1) * cadence);
+    document.getElementById('promo').innerHTML = '<ul>' + [
+      `Day before episode 1 (${fmtDate(new Date(start.getTime()-86400000))}): tease the series. Show the cover/title only.`,
+      `Episode 1 day: post + DM your top 20 supporters with a heads-up.`,
+      `Mid-series (around episode ${Math.ceil(parts/2)}): repost the strongest line from an earlier episode as a teaser.`,
+      `Final episode day (${fmtDate(lastDate)}): post a recap + clear next step.`,
+      `Day after the series ends: package the whole thing as a free PDF or replay link. Use it as a lead magnet for the next 90 days.`
+    ].map(p=>`<li>${p}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function episodeTitle(beat, topic, i, total) {
+    const map = {
+      'The wake-up call': `Why most people get ${topic} wrong`,
+      'The myth': `The biggest myth about ${topic}`,
+      'The cost of staying stuck': `What ignoring ${topic} actually costs you`,
+      'The reframe': `The reframe that changes ${topic}`,
+      'The framework': `The 3-step framework for ${topic}`,
+      'The framework piece 1': `Step 1 of the framework`,
+      'The framework piece 2': `Step 2 of the framework`,
+      'The pitfall': `The mistake to avoid with ${topic}`,
+      'The proof': `What it looks like when ${topic} works`,
+      'The objection killer': `"But what about ${topic.toLowerCase().includes('?')?'this':'this case'}?"`,
+      'The action step': `Your first move on ${topic} this week`,
+      'The action step + invitation': `One thing to do this week + what's next`
+    };
+    return map[beat] || `${beat} on ${topic}`;
+  }
+
+  function episodeHook(beat, audience, topic) {
+    if (beat.includes('wake-up')) return `Most ${audience} are still doing ${topic} the way they were taught five years ago. It's costing them more than they realize.`;
+    if (beat === 'The myth') return `There's one belief about ${topic} that gets repeated everywhere — and it's quietly wrong.`;
+    if (beat === 'The cost of staying stuck') return `Here's what ignoring ${topic} actually costs ${audience} over 12 months.`;
+    if (beat === 'The reframe') return `What if ${topic} isn't the problem — but how you've been framing it is?`;
+    if (beat.includes('framework')) return `One step. One outcome. Here's piece ${beat.slice(-1)} of the framework.`;
+    if (beat === 'The pitfall') return `The shortcut everyone takes on ${topic} that ends up costing the most.`;
+    if (beat === 'The proof') return `Here's what it looks like when ${topic} actually works — a specific story.`;
+    if (beat === 'The objection killer') return `"What if my situation is different?" — let's tackle the most common pushback.`;
+    if (beat.includes('action step')) return `You've seen the reframe. Here's the smallest possible first move you can make this week.`;
+    return `Today: ${beat}.`;
+  }
+
+  function episodeTakeaway(beat, topic) {
+    if (beat.includes('wake-up')) return `Name the problem in a way your audience hasn't heard before.`;
+    if (beat === 'The myth') return `One belief, dismantled with one specific example.`;
+    if (beat === 'The reframe') return `A new lens on ${topic} that makes the rest of the series make sense.`;
+    if (beat.includes('framework')) return `One actionable piece they can apply today.`;
+    if (beat === 'The pitfall') return `The trap to avoid — make the mistake real with a story.`;
+    if (beat === 'The proof') return `A case study, screenshot, or testimonial that makes it real.`;
+    if (beat.includes('action')) return `One specific thing to do this week. No more.`;
+    return `One insight, one story, one takeaway.`;
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const grab = id => document.getElementById(id).innerText;
+    const text = ['CONTENT SERIES PLAN','','TITLE OPTIONS',grab('titles'),'','PROMISE',grab('promise'),'','RECURRING STRUCTURE',grab('structure'),'','EPISODES',grab('episodes'),'','CTA PROGRESSION',grab('ctas'),'','PROMO CADENCE',grab('promo')].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Plan', 1500);
+    });
+  });
+
+  document.getElementById('start').valueAsDate = new Date();
+</script>
+</body>
+</html>

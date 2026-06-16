@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Date Night Idea Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 20px; margin-top: 16px; display: none; }
+  .idea .big { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .idea .meta { font-size: .82rem; opacity: .65; margin-top: 6px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Date Night Idea Generator</h1>
+  <p class="sub">Stuck on what to do? Set the vibe and let it pick a date night for you.</p>
+
+  <div class="panel">
+    <label for="setting">Setting</label>
+    <select id="setting"><option value="any">Surprise me</option><option value="in">At home</option><option value="out">Out and about</option></select>
+    <label for="budget">Budget</label>
+    <select id="budget"><option value="any">Any budget</option><option value="free">Free</option><option value="low">Low cost</option><option value="treat">A treat</option></select>
+    <label for="energy">Energy</label>
+    <select id="energy"><option value="any">Any energy</option><option value="cozy">Low-key &amp; cozy</option><option value="active">Active &amp; fun</option></select>
+    <button class="btn" onclick="gen()">Generate Date Idea</button>
+  </div>
+
+  <div class="idea" id="idea"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const IDEAS=[
+    {t:"Cook a new recipe together from a country you have never visited",s:"in",b:"low",e:"cozy"},
+    {t:"Build a blanket fort and watch a film from your teenage years",s:"in",b:"free",e:"cozy"},
+    {t:"At-home spa night — face masks, music, no phones",s:"in",b:"low",e:"cozy"},
+    {t:"Cook-off challenge: same ingredients, two dishes, taste test",s:"in",b:"low",e:"active"},
+    {t:"Living room dance party with your first-dance songs",s:"in",b:"free",e:"active"},
+    {t:"Do a puzzle or board game with a small prize on the line",s:"in",b:"free",e:"cozy"},
+    {t:"Sunset or sunrise picnic somewhere with a view",s:"out",b:"low",e:"cozy"},
+    {t:"Wander a part of town you have never explored on foot",s:"out",b:"free",e:"active"},
+    {t:"Visit a museum or gallery and rate every piece out of ten",s:"out",b:"low",e:"cozy"},
+    {t:"Try a class together — pottery, dancing, cooking",s:"out",b:"treat",e:"active"},
+    {t:"Farmers market trip, then cook what you found",s:"out",b:"low",e:"active"},
+    {t:"Mini golf, bowling, or an arcade — keep score",s:"out",b:"low",e:"active"},
+    {t:"Coffee shop hop — one drink each, three different places",s:"out",b:"low",e:"cozy"},
+    {t:"Stargazing with a flask of something warm",s:"out",b:"free",e:"cozy"},
+    {t:"Recreate your first date as closely as you can",s:"out",b:"treat",e:"cozy"},
+    {t:"A long walk with a deep-questions list — no small talk allowed",s:"out",b:"free",e:"active"},
+    {t:"Write each other a letter, then read them aloud over dinner",s:"in",b:"free",e:"cozy"},
+    {t:"Plan your dream trip together, even if it is years away",s:"in",b:"free",e:"cozy"},
+    {t:"Themed dinner night — pick a country, dress, cook, decorate",s:"in",b:"low",e:"active"},
+    {t:"Book a fancy meal you have been meaning to try",s:"out",b:"treat",e:"cozy"}
+  ];
+  function gen(){
+    const S=g('setting').value,B=g('budget').value,E=g('energy').value;
+    let pool=IDEAS.filter(x=>(S==='any'||x.s===S)&&(B==='any'||x.b===B)&&(E==='any'||x.e===E));
+    if(!pool.length)pool=IDEAS.filter(x=>(S==='any'||x.s===S));
+    if(!pool.length)pool=IDEAS;
+    const pick=pool[Math.floor(Math.random()*pool.length)];
+    const map={in:'At home',out:'Out',free:'Free',low:'Low cost',treat:'A treat',cozy:'Cozy',active:'Active'};
+    g('idea').style.display='block';
+    g('idea').innerHTML='<div class="big">'+pick.t+'</div><div class="meta">'+map[pick.s]+' · '+map[pick.b]+' · '+map[pick.e]+'</div>';
+  }
+</script>
+</body>
+</html>

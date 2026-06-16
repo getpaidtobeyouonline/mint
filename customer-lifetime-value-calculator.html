@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Lifetime Value Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:660px;margin:0 auto 18px}
+.type-opt{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.type-opt:hover{border-color:#BFD8BF}
+.type-opt.sel{border-color:#5AE57A;background:#C9A84C0D}
+.type-icon{font-size:1.6rem;margin-bottom:6px}
+.type-name{font-size:.8rem;font-weight:600;color:#BFD8BF;transition:color .2s}
+.type-sub{font-size:.68rem;color:#BFD8BF;margin-top:2px}
+.type-opt.sel .type-name{color:#5AE57A}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+.hint{font-size:.72rem;color:#BFD8BF;margin-top:-12px;margin-bottom:14px;line-height:1.4}
+.inp-wrap{position:relative;margin-bottom:18px}
+.inp-wrap .prefix,.inp-wrap .suffix{position:absolute;top:50%;transform:translateY(-50%);color:#BFD8BF;font-size:.85rem;pointer-events:none}
+.inp-wrap .prefix{left:12px}.inp-wrap .suffix{right:12px}
+input{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:11px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;transition:border .2s}
+input:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+.has-prefix input{padding-left:26px}
+.has-suffix input{padding-right:30px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.hero-card{background:#3C603C;border:1px solid #C9A84C44;border-radius:14px;padding:28px;max-width:660px;margin:0 auto 14px;text-align:center}
+.hero-val{font-family:'Playfair Display',serif;font-size:4rem;color:#5AE57A;line-height:1}
+.hero-lbl{font-size:.75rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.07em;margin-top:6px;margin-bottom:16px}
+.hero-sub{font-size:.88rem;opacity:.75;line-height:1.6}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:660px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.whatif-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 14px}
+.wi-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #3C603C;flex-wrap:wrap;gap:8px}
+.wi-row:last-child{border-bottom:none}
+.wi-scenario{font-size:.85rem;flex:1}
+.wi-vals{display:flex;gap:14px;align-items:center;flex-shrink:0}
+.wi-new{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A}
+.wi-delta{font-size:.75rem;color:#5AE57A;font-weight:600}
+.insights-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 14px}
+.insight{display:flex;gap:10px;margin-bottom:10px;font-size:.85rem;line-height:1.6;align-items:flex-start}
+.insight:last-child{margin-bottom:0}
+.ins-icon{flex-shrink:0}
+.ins-text strong{color:#5AE57A}
+.slider-row{margin-bottom:18px}
+.slider-top{display:flex;justify-content:space-between;margin-bottom:6px}
+.slider-val{color:#FFFFFF;font-size:.88rem}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:#4C724C;border:none;padding:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#5AE57A;cursor:pointer}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){.stats{grid-template-columns:1fr 1fr}.row,.row3{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Customer Lifetime Value Calculator</h1>
+<p class="sub">Know what each customer is truly worth — then invest accordingly</p>
+
+<div class="type-grid">
+  <div class="type-opt sel" data-type="service"><div class="type-icon">🤝</div><div class="type-name">Service Business</div><div class="type-sub">Coaching, consulting, freelance</div></div>
+  <div class="type-opt" data-type="product"><div class="type-icon">📦</div><div class="type-name">Product / Shop</div><div class="type-sub">Physical or digital products</div></div>
+  <div class="type-opt" data-type="subscription"><div class="type-icon">🔄</div><div class="type-name">Subscription</div><div class="type-sub">Retainer, membership, SaaS</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title" id="inputTitle">Your Business Metrics</div>
+  <div class="row" id="mainInputs">
+    <div>
+      <label id="lbl1">Average Sale / Project Value</label>
+      <div class="inp-wrap has-prefix"><span class="prefix">$</span><input id="avgVal" type="number" placeholder="500" oninput="calc()"></div>
+    </div>
+    <div>
+      <label id="lbl2">Purchases Per Year</label>
+      <div class="inp-wrap has-suffix"><span class="suffix">×/yr</span><input id="freq" type="number" placeholder="3" step="0.5" oninput="calc()"></div>
+    </div>
+  </div>
+  <div class="slider-row">
+    <div class="slider-top"><label id="lbl3" style="margin:0">Average Customer Lifespan</label><span class="slider-val" id="lifespanVal">2 years</span></div>
+    <input type="range" id="lifespan" min="0.5" max="10" step="0.5" value="2" oninput="document.getElementById('lifespanVal').textContent=this.value+' year'+(this.value==1?'':'s');calc()">
+  </div>
+  <div class="row">
+    <div>
+      <label>Profit Margin (%)</label>
+      <div class="inp-wrap has-suffix"><span class="suffix">%</span><input id="margin" type="number" placeholder="60" max="100" oninput="calc()"></div>
+      <div class="hint" style="margin-top:-10px">Optional — for profit-based CLV</div>
+    </div>
+    <div>
+      <label>Active Customers (approx)</label>
+      <div class="inp-wrap"><input id="custCount" type="number" placeholder="25" oninput="calc()"></div>
+      <div class="hint" style="margin-top:-10px">For total portfolio value</div>
+    </div>
+  </div>
+</div>
+
+<div class="hero-card" id="heroCard">
+  <div class="hero-val" id="heroVal">$—</div>
+  <div class="hero-lbl">Customer Lifetime Value</div>
+  <div class="hero-sub" id="heroSub">Fill in your metrics above to calculate your CLV</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sAnnual">$—</div><div class="stat-lbl">Annual Value Per Customer</div></div>
+  <div class="stat"><div class="stat-val" id="sProfit">$—</div><div class="stat-lbl">Profit CLV</div></div>
+  <div class="stat"><div class="stat-val blue" id="sMaxCAC">$—</div><div class="stat-lbl">Max Healthy CAC</div></div>
+  <div class="stat"><div class="stat-val green" id="sPortfolio">$—</div><div class="stat-lbl">Portfolio Value</div></div>
+</div>
+
+<div class="whatif-card" id="whatifCard" style="display:none">
+  <div class="card-title">What If Scenarios</div>
+  <div class="wi-row">
+    <div class="wi-scenario" id="wi1Label"></div>
+    <div class="wi-vals"><span class="wi-new" id="wi1Val"></span><span class="wi-delta" id="wi1Delta"></span></div>
+  </div>
+  <div class="wi-row">
+    <div class="wi-scenario" id="wi2Label"></div>
+    <div class="wi-vals"><span class="wi-new" id="wi2Val"></span><span class="wi-delta" id="wi2Delta"></span></div>
+  </div>
+  <div class="wi-row">
+    <div class="wi-scenario" id="wi3Label"></div>
+    <div class="wi-vals"><span class="wi-new" id="wi3Val"></span><span class="wi-delta" id="wi3Delta"></span></div>
+  </div>
+</div>
+
+<div class="insights-card" id="insightsCard" style="display:none">
+  <div class="card-title">Insights & Actions</div>
+  <div id="insightsList"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+let bizType='service';
+
+document.querySelectorAll('.type-opt').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.type-opt').forEach(t=>t.classList.remove('sel'));
+    el.classList.add('sel');bizType=el.dataset.type;updateLabels();calc();
+  });
+});
+
+function updateLabels(){
+  const labels={
+    service:{l1:'Average Sale / Project Value',l2:'Projects Per Year',l3:'Avg Client Relationship'},
+    product:{l1:'Average Order Value',l2:'Orders Per Year',l3:'Avg Customer Lifespan'},
+    subscription:{l1:'Monthly Subscription Price',l2:'Months Per Year (usually 12)',l3:'Avg Subscription Length'},
+  };
+  const l=labels[bizType];
+  document.getElementById('lbl1').textContent=l.l1;
+  document.getElementById('lbl2').textContent=l.l2;
+  document.getElementById('lbl3').textContent=l.l3;
+  if(bizType==='subscription'){
+    document.getElementById('freq').placeholder='12';
+    document.getElementById('avgVal').placeholder='97';
+  } else if(bizType==='product'){
+    document.getElementById('freq').placeholder='4';
+    document.getElementById('avgVal').placeholder='75';
+  } else {
+    document.getElementById('freq').placeholder='3';
+    document.getElementById('avgVal').placeholder='500';
+  }
+}
+
+function fmt(n){return'$'+Math.round(n).toLocaleString()}
+function fmtD(n){return(n>=0?'+':'')+fmt(n)}
+
+function calc(){
+  const avg=parseFloat(document.getElementById('avgVal').value)||0;
+  const freq=parseFloat(document.getElementById('freq').value)||0;
+  const lifespan=parseFloat(document.getElementById('lifespan').value)||1;
+  const margin=parseFloat(document.getElementById('margin').value)||0;
+  const custs=parseInt(document.getElementById('custCount').value)||0;
+
+  if(!avg||!freq){
+    document.getElementById('heroVal').textContent='$—';
+    document.getElementById('heroSub').textContent='Fill in your metrics above to calculate your CLV';
+    ['sAnnual','sProfit','sMaxCAC','sPortfolio'].forEach(id=>document.getElementById(id).textContent='$—');
+    document.getElementById('whatifCard').style.display='none';
+    document.getElementById('insightsCard').style.display='none';
+    return;
+  }
+
+  const annual=avg*freq;
+  const clv=annual*lifespan;
+  const profitCLV=margin?clv*(margin/100):0;
+  const maxCAC=clv/3;
+  const portfolio=custs?clv*custs:0;
+
+  document.getElementById('heroVal').textContent=fmt(clv);
+  document.getElementById('heroSub').textContent=`Each customer is worth ${fmt(annual)} per year × ${lifespan} year${lifespan===1?'':'s'} = ${fmt(clv)} over their lifetime`;
+  document.getElementById('sAnnual').textContent=fmt(annual);
+  document.getElementById('sProfit').textContent=margin?fmt(profitCLV):'Add margin →';
+  document.getElementById('sProfit').style.color=margin?'#5AE57A':'#BFD8BF';
+  document.getElementById('sMaxCAC').textContent=fmt(maxCAC);
+  document.getElementById('sPortfolio').textContent=custs?fmt(portfolio):'Add count →';
+  document.getElementById('sPortfolio').style.color=custs?'#5AE57A':'#BFD8BF';
+
+  // What If
+  document.getElementById('whatifCard').style.display='block';
+  const wi1=annual*(lifespan+1);
+  const wi2=(avg*1.2)*freq*lifespan;
+  const wi3=avg*(freq+1)*lifespan;
+  const wis=[
+    {lbl:`Keep customers 1 year longer (${lifespan+1} yr lifespan)`,val:wi1,delta:wi1-clv},
+    {lbl:`Increase average sale by 20% (${fmt(avg*1.2)} per transaction)`,val:wi2,delta:wi2-clv},
+    {lbl:`Increase purchase frequency by 1 (${freq+1}×/yr)`,val:wi3,delta:wi3-clv},
+  ];
+  wis.forEach((w,i)=>{
+    document.getElementById(`wi${i+1}Label`).textContent=w.lbl;
+    document.getElementById(`wi${i+1}Val`).textContent=fmt(w.val);
+    document.getElementById(`wi${i+1}Delta`).textContent='+'+fmt(w.delta)+' per customer';
+  });
+
+  // Insights
+  document.getElementById('insightsCard').style.display='block';
+  const insights=[];
+  insights.push({i:'💡',t:`Your max healthy customer acquisition cost is <strong>${fmt(maxCAC)}</strong> — you can spend up to this amount to acquire each new customer and still be profitable.`});
+  if(margin&&margin<40)insights.push({i:'⚠️',t:`Your profit margin of ${margin}% is on the low side. Raising prices by 10–15% or reducing delivery costs could significantly improve your profit CLV.`});
+  if(lifespan<2)insights.push({i:'🔁',t:`Your average customer stays for only ${lifespan} year${lifespan===1?'':'s'}. A loyalty programme, retainer offer, or ongoing service could dramatically increase this — adding ${fmt(annual)} per customer per extra year.`});
+  if(freq<2&&bizType!=='service')insights.push({i:'📈',t:`Customers buy ${freq}× per year. Even one extra purchase would add <strong>${fmt(avg*lifespan)}</strong> to each customer's lifetime value. Consider a follow-up sequence or second offer.`});
+  if(clv>5000)insights.push({i:'🏆',t:`With a CLV of ${fmt(clv)}, you can afford meaningful marketing. Think paid ads, referral bonuses, or premium outreach — the economics strongly support it.`});
+  else insights.push({i:'💰',t:`To grow revenue without more customers: focus on increasing average sale value, purchase frequency, or customer retention. Each improvement compounds across your entire customer base.`});
+  document.getElementById('insightsList').innerHTML=insights.map(ins=>`<div class="insight"><span class="ins-icon">${ins.i}</span><span class="ins-text">${ins.t}</span></div>`).join('');
+}
+
+updateLabels();calc();
+</script>
+</body>
+</html>

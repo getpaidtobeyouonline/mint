@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cultural Etiquette Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  .q { font-size: .87rem; padding: 6px 0; border-bottom: 1px solid #4C724C; }
+  .q:last-child { border-bottom: none; }
+  .row { display: flex; gap: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 15px; border-radius: 8px; font-family:'DM Sans',sans-serif; flex: none; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 10px; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; font-size: .87rem; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .82rem; font-style: italic; padding: 4px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Cultural Etiquette Checker</h1>
+  <p class="sub">A respectful traveller researches the local norms. Use these prompts to guide what to find out.</p>
+
+  <div class="panel">
+    <h3>Questions to research before you go</h3>
+    <div class="q">▸ Greetings — handshake, bow, cheek kiss, or something else?</div>
+    <div class="q">▸ Tipping — expected, optional, or considered rude?</div>
+    <div class="q">▸ Dress code — especially for religious sites and rural areas</div>
+    <div class="q">▸ Dining manners — utensils, sharing, finishing your plate, who pays</div>
+    <div class="q">▸ Gestures to avoid — common signs can be offensive elsewhere</div>
+    <div class="q">▸ Shoes — removed before entering homes or temples?</div>
+    <div class="q">▸ Photography — when to ask permission, what not to photograph</div>
+    <div class="q">▸ Religious customs — holy days, prayer times, sacred spaces</div>
+    <div class="q">▸ Personal space &amp; touch — norms around closeness and contact</div>
+    <div class="q">▸ Topics to avoid — politics, religion and other sensitive subjects</div>
+    <div class="note">Norms vary within countries too. When unsure, observe locals and follow their lead.</div>
+  </div>
+
+  <div class="panel">
+    <h3>My etiquette notes for this destination</h3>
+    <div class="row"><input id="note" placeholder="e.g. Remove shoes before entering temples" onkeydown="if(event.key==='Enter')add()"><button class="btn" onclick="add()">Add</button></div>
+    <div id="list" style="margin-top:8px"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('cec')||'[]');
+  const save=()=>localStorage.setItem('cec',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const t=g('note').value.trim(); if(!t)return; R.push(t); g('note').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all notes?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No notes added yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="item"><span>'+esc(x)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

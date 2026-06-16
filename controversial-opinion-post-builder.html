@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controversial Opinion Post Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 8px;
+    margin-top: 20px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #5AE57A;
+  }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 70px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .output {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .output.show { display: block; }
+  .output-label {
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .post-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #FFFFFF;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 20px;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  .hint {
+    font-size: 0.8rem;
+    opacity: 0.6;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Controversial Opinion Post Builder</h1>
+  <p class="subtitle">Take a stance without sounding like a hater. Fill in 4 fields and walk away with a sharp, share-worthy post.</p>
+
+  <label for="framework">Hot Take Framework</label>
+  <select id="framework">
+    <option value="unpopular">The Unpopular Truth</option>
+    <option value="industry">Industry Lie Buster</option>
+    <option value="contrarian">The Contrarian Bet</option>
+    <option value="overrated">Overrated / Underrated</option>
+    <option value="stopdoing">Stop Doing This</option>
+  </select>
+  <div class="hint" id="frameworkHint">Best for: calling out something your niche secretly agrees with.</div>
+
+  <label for="topic">Your Niche or Topic</label>
+  <input type="text" id="topic" placeholder="e.g. email marketing, sourdough baking, freelance design" />
+
+  <label for="belief">The Common Belief You're Pushing Against</label>
+  <input type="text" id="belief" placeholder="e.g. you need to post every day to grow" />
+
+  <label for="stance">Your Actual Take (one sentence)</label>
+  <textarea id="stance" placeholder="e.g. posting less but sharper outperforms daily noise"></textarea>
+
+  <label for="reason">Why You're Right (a story, stat, or specific reason)</label>
+  <textarea id="reason" placeholder="e.g. I tested both for 90 days — engagement was 3x higher when I posted twice a week"></textarea>
+
+  <button class="build-btn" id="buildBtn">Build My Post</button>
+
+  <div class="output" id="output">
+    <div class="output-label">Your Post</div>
+    <div class="post-text" id="postText"></div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Post</button>
+      <button class="secondary-btn" id="rebuildBtn">Try Another Framework</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const hints = {
+    unpopular: "Best for: calling out something your niche secretly agrees with.",
+    industry: "Best for: dismantling an outdated rule your industry still preaches.",
+    contrarian: "Best for: betting publicly on the opposite of conventional wisdom.",
+    overrated: "Best for: ranking what's hyped vs. what actually works.",
+    stopdoing: "Best for: a direct, useful 'permission slip' post."
+  };
+
+  const frameworkSelect = document.getElementById('framework');
+  const hintEl = document.getElementById('frameworkHint');
+  frameworkSelect.addEventListener('change', () => {
+    hintEl.textContent = hints[frameworkSelect.value];
+  });
+
+  function build() {
+    const fw = frameworkSelect.value;
+    const topic = document.getElementById('topic').value.trim() || '[your topic]';
+    const belief = document.getElementById('belief').value.trim() || '[the common belief]';
+    const stance = document.getElementById('stance').value.trim() || '[your take]';
+    const reason = document.getElementById('reason').value.trim() || '[your reason or story]';
+
+    let post = '';
+
+    if (fw === 'unpopular') {
+      post = `Unpopular opinion about ${topic}:\n\n` +
+        `Everyone keeps repeating that ${belief}.\n\n` +
+        `I disagree. ${stance}\n\n` +
+        `Here's why: ${reason}\n\n` +
+        `If this makes you uncomfortable, sit with why.`;
+    } else if (fw === 'industry') {
+      post = `The ${topic} industry has been lying to you.\n\n` +
+        `They told you ${belief}.\n\n` +
+        `The truth: ${stance}\n\n` +
+        `${reason}\n\n` +
+        `Stop letting the loudest voice in the room set your standard.`;
+    } else if (fw === 'contrarian') {
+      post = `Most people in ${topic} are betting on ${belief}.\n\n` +
+        `I'm betting the opposite.\n\n` +
+        `My take: ${stance}\n\n` +
+        `${reason}\n\n` +
+        `Time will tell. I'm comfortable being early and wrong-looking.`;
+    } else if (fw === 'overrated') {
+      post = `Overrated in ${topic}: ${belief}.\n\n` +
+        `Underrated: ${stance}\n\n` +
+        `${reason}\n\n` +
+        `Save the hours. Skip the hype.`;
+    } else if (fw === 'stopdoing') {
+      post = `If you work in ${topic}, please stop doing this:\n\n` +
+        `${belief}.\n\n` +
+        `Instead: ${stance}\n\n` +
+        `${reason}\n\n` +
+        `Consider this your permission slip.`;
+    }
+
+    document.getElementById('postText').textContent = post;
+    document.getElementById('output').classList.add('show');
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+  document.getElementById('rebuildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', () => {
+    const text = document.getElementById('postText').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('copyBtn');
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+  });
+</script>
+</body>
+</html>

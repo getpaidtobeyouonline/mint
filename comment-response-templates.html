@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comment Response Templates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .scenarios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+  .chip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { border-color: #5AE57A; }
+  .chip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .scenario-header {
+    background: rgba(201, 168, 76, 0.1);
+    border-left: 3px solid #5AE57A;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-bottom: 18px;
+  }
+  .scenario-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    color: #5AE57A;
+    margin-bottom: 4px;
+  }
+  .scenario-strategy {
+    font-size: 0.92rem;
+    opacity: 0.85;
+    font-style: italic;
+  }
+  .template {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+  }
+  .template-label {
+    color: #5AE57A;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .template-text {
+    font-size: 0.98rem;
+    line-height: 1.55;
+    margin-bottom: 10px;
+    white-space: pre-wrap;
+  }
+  .copy-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  .tips {
+    margin-top: 22px;
+    padding: 16px 18px;
+    background: rgba(240, 235, 224, 0.04);
+    border-radius: 8px;
+    border: 1px dashed rgba(201, 168, 76, 0.25);
+  }
+  .tips-title {
+    color: #5AE57A;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .tips ul { padding-left: 20px; }
+  .tips li { margin-bottom: 5px; font-size: 0.9rem; }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Comment Response Templates</h1>
+  <p class="subtitle">Stop wasting "🙏" replies. Turn comments into conversations, leads, and saves with battle-tested templates.</p>
+
+  <div class="scenarios" id="scenarios"></div>
+  <div id="scenarioContent"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const scenarios = {
+    positive: {
+      name: 'Generic positive ("love this!", "🔥")',
+      strategy: 'Treat every emoji like a door. Most creators waste these — turn them into a follow-up question that earns a real conversation.',
+      templates: [
+        'Thanks [Name]! Curious — what part of it hit hardest for you?',
+        'Appreciate that 🙏 What\'s been your experience with this — does it line up?',
+        'Means a lot, [Name]. Have you tried this yourself yet?',
+        'Glad it landed! What would you add to it from your side?'
+      ],
+      tips: [
+        'Use their first name. It triples the chance they reply.',
+        'Always end with a question. The question is the engagement driver, not the thank-you.',
+        'Skip "🙏" alone. It\'s a dead-end reply.'
+      ]
+    },
+    question: {
+      name: 'Question asked in comments',
+      strategy: 'Answer publicly, then pull the deeper conversation to DMs. Public answer = SEO/social proof. Private follow-up = relationship.',
+      templates: [
+        'Great question. Short version: [the answer]. Longer version with caveats is in my DMs if you want it.',
+        'Honestly the best answer depends on [X]. If you want, DM me with a bit more context and I\'ll give you a real answer.',
+        '[Short, useful answer]. There\'s a longer version that wouldn\'t fit here — happy to share if you\'re curious.',
+        'Yes — and the why matters more than the how. The why: [one sentence]. The how is the easy part once you have that.'
+      ],
+      tips: [
+        'Answer at least the surface of the question. "DM me" without value reads like a tease.',
+        'Don\'t over-answer in comments. Long replies steal the conversation from your own post.',
+        'If 3+ people ask the same thing, make it a post.'
+      ]
+    },
+    pushback: {
+      name: 'Disagreement or pushback',
+      strategy: 'This is gold. Don\'t defend — clarify. Pushback comments drive more engagement than any other type.',
+      templates: [
+        'Fair pushback. Where I\'d still hold the line: [your point, calmly]. Curious what your experience has been.',
+        'I hear you. I\'d separate two things: [X] vs. [Y]. I think we agree on one and not the other.',
+        'Good challenge. Genuinely — what would change your mind on this? Not being snarky, asking because I want to understand the gap.',
+        'You\'re partly right, and that\'s the part I should have made clearer in the post. Where I\'d still disagree: [point].'
+      ],
+      tips: [
+        'Never delete pushback comments unless they\'re actually abusive. The disagreement IS the engagement.',
+        'Match their tone. If they\'re sharp, be sharp back. If they\'re polite, stay polite.',
+        'Never reply emotionally. If you feel a flare, wait 20 minutes and reread your reply before sending.'
+      ]
+    },
+    price: {
+      name: '"How much?" / pricing question',
+      strategy: 'Always answer with a number. Hiding the price kills the lead. Then move it to DM for context.',
+      templates: [
+        '[$X]. Happy to share what\'s included if you want — DM me and I\'ll send the breakdown.',
+        '[$X] right now. If you tell me a bit about your situation in DMs I can tell you whether it\'s the right fit before you buy.',
+        'It\'s [$X]. The link is in my bio. If you\'d rather chat through whether it\'s a fit first, DMs are open.',
+        '[$X] — and worth being honest: it\'s not for everyone. DM me what you\'re trying to solve and I\'ll tell you straight.'
+      ],
+      tips: [
+        'Never say "DM me for the price." It\'s the #1 conversion killer.',
+        'If your price varies, give a range AND a starting point ("from $X").',
+        '"Worth it" is decided by them. Don\'t pre-defend the price.'
+      ]
+    },
+    testimonial: {
+      name: 'Public win / testimonial in comments',
+      strategy: 'Celebrate publicly, capture privately. Ask them in DMs if you can turn the comment into a graphic.',
+      templates: [
+        '[Name] this is SUCH a good result. Genuinely proud of you. DM\'ing you something quick.',
+        'I\'m saving this comment forever. Congratulations [Name] — you did the work.',
+        'This made my whole day. Mind if I share this as a story (with your handle)? Either way, congrats.',
+        'You did the hard part — I just gave you the map. Massive congrats [Name].'
+      ],
+      tips: [
+        'Always ask permission via DM before turning a comment into a testimonial graphic.',
+        'Quote them word-for-word when you share — don\'t polish their voice.',
+        'Reply within 24 hours. Wins decay fast.'
+      ]
+    },
+    negative: {
+      name: 'Criticism or negative comment',
+      strategy: 'Don\'t feed trolls. Distinguish criticism (engage) from contempt (delete or ignore). One is a gift, the other is noise.',
+      templates: [
+        'Thanks for taking the time to say so. I disagree, but I appreciate you naming it.',
+        'I hear you. Genuinely curious — what would have made this post more useful for you?',
+        '[Name], you might be right. I\'m sitting with it.',
+        'Not the response I was hoping for, but I appreciate the honesty.'
+      ],
+      tips: [
+        'Hide or delete comments that are personal attacks. You don\'t owe a response.',
+        'Never argue in the thread. Move it to DM if it\'s worth continuing.',
+        'Screenshot abusive comments before deleting. Document patterns.'
+      ]
+    },
+    newbie: {
+      name: 'New follower or first comment',
+      strategy: 'Make them feel SEEN. The first interaction sets the relationship for the next year.',
+      templates: [
+        'Welcome [Name] — really glad you\'re here. What brought you to the page?',
+        'Hi [Name]! Curious what made you follow — always trying to understand who\'s in this corner of the internet.',
+        '[Name]! Welcome. If you want a fast catch-up, the pinned posts are the best place to start.',
+        'Hey [Name] — appreciate you jumping in. What are you working on right now?'
+      ],
+      tips: [
+        'Reply to first-time commenters within 12 hours. Always.',
+        'Look at their profile before replying. A personal touch ("saw you\'re also a [thing]") turns first comments into DMs.',
+        'New followers who get a personal reply convert ~3x more than ones who don\'t.'
+      ]
+    },
+    spammy: {
+      name: 'Vague compliment from a possible spammer',
+      strategy: 'Probe lightly. Real fans answer specific questions. Bots and engagement-pods don\'t.',
+      templates: [
+        'Thanks! What part specifically?',
+        'Appreciate it 🙏 What stood out for you?',
+        'Glad it landed — what did you take away from it?',
+        '[Name] which line hit hardest? Curious.'
+      ],
+      tips: [
+        'If they don\'t reply with specifics, you\'ve confirmed it\'s engagement-pod traffic. Save your energy.',
+        'Don\'t engage with obvious bots. The algorithm doesn\'t reward it.',
+        'Real fans love being asked follow-up questions.'
+      ]
+    }
+  };
+
+  const scenariosEl = document.getElementById('scenarios');
+  const contentEl = document.getElementById('scenarioContent');
+
+  Object.keys(scenarios).forEach((key, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'chip' + (i === 0 ? ' active' : '');
+    btn.textContent = scenarios[key].name.split('(')[0].trim();
+    btn.dataset.key = key;
+    btn.onclick = () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      render(key);
+    };
+    scenariosEl.appendChild(btn);
+  });
+
+  function render(key) {
+    const s = scenarios[key];
+    contentEl.innerHTML = `
+      <div class="scenario-header">
+        <div class="scenario-name">${s.name}</div>
+        <div class="scenario-strategy">${s.strategy}</div>
+      </div>
+      ${s.templates.map((t, i) => `
+        <div class="template">
+          <div class="template-label">Template ${i+1}</div>
+          <div class="template-text">${t}</div>
+          <button class="copy-btn" data-text="${encodeURIComponent(t)}">Copy</button>
+        </div>
+      `).join('')}
+      <div class="tips">
+        <div class="tips-title">Pro tips</div>
+        <ul>${s.tips.map(t => `<li>${t}</li>`).join('')}</ul>
+      </div>
+    `;
+    contentEl.querySelectorAll('.copy-btn').forEach(b => {
+      b.onclick = () => {
+        navigator.clipboard.writeText(decodeURIComponent(b.dataset.text)).then(() => {
+          const original = b.textContent;
+          b.textContent = 'Copied!';
+          setTimeout(() => b.textContent = original, 1500);
+        });
+      };
+    });
+  }
+
+  render('positive');
+</script>
+</body>
+</html>

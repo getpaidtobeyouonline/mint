@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Schedule Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 620px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .form-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-end; }
+  input[type="time"], .f-input, select {
+    width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF;
+    padding: 9px 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem; outline: none; color-scheme: dark;
+  }
+  input[type="time"]:focus, .f-input:focus, select:focus { border-color: #5AE57A; }
+  .cat-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cat-chip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 5px 13px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+  .cat-chip.sel { border-color: var(--cc); color: var(--cc); }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .btn-gold:hover { background: #5AE57A; }
+  .stats-row { display: flex; gap: 10px; max-width: 620px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; line-height: 1; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .tl-wrap { max-width: 620px; margin: 0 auto; }
+  .tl-item { display: flex; }
+  .tl-time-col { width: 72px; flex-shrink: 0; text-align: right; padding-right: 14px; padding-top: 5px; font-size: 0.74rem; color: #BFD8BF; white-space: nowrap; line-height: 1.3; }
+  .tl-spine { width: 18px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; }
+  .tl-dot { width: 9px; height: 9px; border-radius: 50%; border: 2px solid #5AE57A; background: #325132; flex-shrink: 0; margin-top: 5px; z-index: 1; }
+  .tl-dot.f { border-color: #4C724C; }
+  .tl-line { flex: 1; width: 2px; background: #3C603C; min-height: 10px; }
+  .tl-body { flex: 1; padding: 0 0 12px 14px; }
+  .ev-card { border-radius: 9px; padding: 11px 14px; border-left: 3px solid var(--cc); background: var(--bg); }
+  .ev-top { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 5px; }
+  .ev-title { font-size: 0.92rem; font-weight: 500; flex: 1; }
+  .ev-badge { font-size: 0.62rem; padding: 2px 8px; border-radius: 8px; border: 1px solid var(--cc); color: var(--cc); flex-shrink: 0; margin-top: 2px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .ev-meta { font-size: 0.72rem; color: #BFD8BF; }
+  .tl-free { color: #4C724C; font-size: 0.78rem; font-style: italic; padding: 5px 0; }
+  .tl-empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 32px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Daily Schedule Builder</h1>
+<p class="subtitle">Design your day from morning to night — one block at a time.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Add to Your Day</div>
+  <div class="form-row">
+    <div style="flex:0 0 118px">
+      <div class="field-label">Time</div>
+      <input type="time" id="evTime" value="09:00" />
+    </div>
+    <div style="flex:0 0 120px">
+      <div class="field-label">Duration</div>
+      <select id="evDur">
+        <option value="15">15 min</option><option value="30">30 min</option>
+        <option value="45">45 min</option><option value="60" selected>1 hour</option>
+        <option value="90">1.5 hours</option><option value="120">2 hours</option>
+        <option value="180">3 hours</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-row" style="margin-bottom:12px">
+    <div style="flex:1">
+      <div class="field-label">Activity</div>
+      <input class="f-input" id="evTitle" placeholder="e.g. Deep work, gym, client call…" maxlength="60" />
+    </div>
+    <div style="padding-top:22px">
+      <button class="btn-gold" onclick="addEvent()">Add</button>
+    </div>
+  </div>
+  <div class="field-label" style="margin-bottom:7px">Category</div>
+  <div class="cat-chips" id="catChips"></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statSched">0h</div><div class="stat-l">scheduled</div></div>
+  <div class="stat-box"><div class="stat-n" id="statFree">—</div><div class="stat-l">free time</div></div>
+  <div class="stat-box"><div class="stat-n" id="statCount">0</div><div class="stat-l">activities</div></div>
+</div>
+
+<div class="tl-wrap" id="timeline">
+  <p class="tl-empty">No activities yet — add your first block above.</p>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = [
+    { id:'work',    label:'Work',     color:'#5AE57A', bg:'#325132' },
+    { id:'personal',label:'Personal', color:'#5AE57A', bg:'#325132' },
+    { id:'health',  label:'Health',   color:'#5AE57A', bg:'#325132' },
+    { id:'family',  label:'Family',   color:'#5AE57A', bg:'#325132' },
+    { id:'learning',label:'Learning', color:'#5AE57A', bg:'#325132' },
+    { id:'rest',    label:'Rest',     color:'#BFD8BF', bg:'#325132' },
+  ];
+
+  const TODAY = new Date().toISOString().slice(0,10);
+  document.getElementById('dateLabel').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  let events = JSON.parse(localStorage.getItem('dsb_'+TODAY)||'[]');
+  let selCat = 'work';
+
+  function save() { localStorage.setItem('dsb_'+TODAY, JSON.stringify(events)); }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function toMins(t) { const [h,m]=t.split(':').map(Number); return h*60+m; }
+  function minsTo24(m) { m=Math.min(m,1439); return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'); }
+  function fmt12(t) {
+    const [h,m]=t.split(':').map(Number);
+    return `${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;
+  }
+  function fmtDur(m) { if(m<60) return m+'m'; const h=Math.floor(m/60),r=m%60; return h+'h'+(r?' '+r+'m':''); }
+
+  document.getElementById('catChips').innerHTML = CATS.map(c=>`
+    <div class="cat-chip ${c.id===selCat?'sel':''}" id="cc-${c.id}" style="--cc:${c.color}" onclick="pickCat('${c.id}')">${c.label}</div>`).join('');
+
+  function pickCat(id) {
+    selCat=id;
+    CATS.forEach(c=>document.getElementById('cc-'+c.id).classList.toggle('sel',c.id===id));
+  }
+
+  function addEvent() {
+    const time=document.getElementById('evTime').value;
+    const title=document.getElementById('evTitle').value.trim();
+    const dur=+document.getElementById('evDur').value;
+    if(!time||!title) return;
+    events.push({id:Date.now(),time,dur,title,cat:selCat});
+    document.getElementById('evTitle').value='';
+    save(); render();
+  }
+
+  function removeEvent(id) { events=events.filter(e=>e.id!==id); save(); render(); }
+
+  function render() {
+    const sorted=[...events].sort((a,b)=>toMins(a.time)-toMins(b.time));
+    const tl=document.getElementById('timeline');
+    if(!sorted.length){tl.innerHTML='<p class="tl-empty">No activities yet — add your first block above.</p>';updateStats(0,0,0);return;}
+
+    let html='';
+    for(let i=0;i<sorted.length;i++){
+      const ev=sorted[i];
+      const cat=CATS.find(c=>c.id===ev.cat)||CATS[0];
+      const endMins=toMins(ev.time)+ev.dur;
+      const endStr=fmt12(minsTo24(endMins));
+      html+=`
+        <div class="tl-item">
+          <div class="tl-time-col">${fmt12(ev.time)}</div>
+          <div class="tl-spine"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div class="tl-body">
+            <div class="ev-card" style="--cc:${cat.color};--bg:${cat.bg}">
+              <div class="ev-top">
+                <div class="ev-title">${esc(ev.title)}</div>
+                <div class="ev-badge">${cat.label}</div>
+                <button class="del-btn" onclick="removeEvent(${ev.id})">✕</button>
+              </div>
+              <div class="ev-meta">Ends ${endStr} · ${fmtDur(ev.dur)}</div>
+            </div>
+          </div>
+        </div>`;
+      if(i<sorted.length-1){
+        const gap=toMins(sorted[i+1].time)-endMins;
+        if(gap>0) html+=`
+          <div class="tl-item">
+            <div class="tl-time-col"></div>
+            <div class="tl-spine"><div class="tl-dot f"></div><div class="tl-line"></div></div>
+            <div class="tl-body"><div class="tl-free">${fmtDur(gap)} free</div></div>
+          </div>`;
+      }
+    }
+    tl.innerHTML=html;
+
+    const totalSched=sorted.reduce((s,e)=>s+e.dur,0);
+    const span=toMins(sorted[sorted.length-1].time)+sorted[sorted.length-1].dur-toMins(sorted[0].time);
+    updateStats(totalSched,Math.max(0,span-totalSched),sorted.length);
+  }
+
+  function updateStats(sched,free,count){
+    document.getElementById('statSched').textContent=fmtDur(sched)||'0m';
+    document.getElementById('statFree').textContent=free?fmtDur(free):'—';
+    document.getElementById('statCount').textContent=count;
+  }
+
+  document.getElementById('evTitle').addEventListener('keydown',e=>{if(e.key==='Enter')addEvent();});
+  render();
+</script>
+</body>
+</html>

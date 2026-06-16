@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curriculum Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .add { display: flex; gap: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 15px; border-radius: 8px; font-family:'DM Sans',sans-serif; flex: none; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .module { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .module .mh { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .module .num { background: #5AE57A; color: #325132; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: .8rem; font-weight: 700; flex: none; }
+  .module .nm { color: #5AE57A; font-weight: 500; flex: 1; }
+  .module .ic { cursor: pointer; opacity: .55; font-size: .85rem; } .module .ic:hover { opacity: 1; color: #5AE57A; }
+  .lesson { font-size: .85rem; padding: 4px 0 4px 32px; display: flex; justify-content: space-between; }
+  .lesson .x { cursor: pointer; opacity: .5; } .lesson .x:hover { opacity: 1; color: #5AE57A; }
+  .lessonAdd { display: flex; gap: 6px; padding: 6px 0 2px 32px; }
+  .lessonAdd input { font-size: .85rem; padding: 6px 9px; }
+  .lessonAdd .btn { font-size: .8rem; padding: 6px 11px; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Curriculum Builder</h1>
+  <p class="sub">Design a course or curriculum — modules with lessons, structured and clear.</p>
+
+  <div class="panel">
+    <label>Course title</label>
+    <input id="course" placeholder="e.g. Intro to Digital Marketing">
+    <label>Add a module</label>
+    <div class="add"><input id="module" placeholder="e.g. Module 1 — Foundations" onkeydown="if(event.key==='Enter')addModule()"><button class="btn" onclick="addModule()">+ Module</button></div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('curb')||'[]');
+  const save=()=>localStorage.setItem('curb',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  if(localStorage.getItem('curb_course'))g('course').value=localStorage.getItem('curb_course');
+  g('course').addEventListener('input',()=>localStorage.setItem('curb_course',g('course').value));
+  function addModule(){ const t=g('module').value.trim(); if(!t)return; R.push({n:t,lessons:[]}); g('module').value=''; save(); render(); }
+  function delModule(i){ R.splice(i,1); save(); render(); }
+  function move(i,d){ const j=i+d; if(j<0||j>=R.length)return; [R[i],R[j]]=[R[j],R[i]]; save(); render(); }
+  function addLesson(i){ const inp=document.getElementById('ln_'+i); const t=inp.value.trim(); if(!t)return;
+    R[i].lessons.push(t); save(); render(); }
+  function delLesson(i,j){ R[i].lessons.splice(j,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the whole curriculum?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No modules yet — add your first.</div>'; return; }
+    L.innerHTML=R.map((m,i)=>'<div class="module"><div class="mh"><span class="num">'+(i+1)+'</span><span class="nm">'+esc(m.n)+'</span>'+
+      '<span class="ic" onclick="move('+i+',-1)">▲</span><span class="ic" onclick="move('+i+',1)">▼</span><span class="ic" onclick="delModule('+i+')">✕</span></div>'+
+      m.lessons.map((l,j)=>'<div class="lesson"><span>• '+esc(l)+'</span><span class="x" onclick="delLesson('+i+','+j+')">✕</span></div>').join('')+
+      '<div class="lessonAdd"><input id="ln_'+i+'" placeholder="Add a lesson..." onkeydown="if(event.key===\'Enter\')addLesson('+i+')"><button class="btn" onclick="addLesson('+i+')">Add</button></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

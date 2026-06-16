@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CTA Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .cta-card {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.1s;
+  }
+  .cta-card:hover { border-color: #5AE57A; }
+  .cta-card:active { transform: scale(0.99); }
+  .cta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    background: #5AE57A;
+    color: #325132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .strength {
+    font-size: 12px;
+    color: #5AE57A;
+    opacity: 0.8;
+  }
+  .cta-text { font-size: 15.5px; }
+  .cta-button-style {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #5AE57A;
+    color: #325132;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .copy-hint {
+    font-size: 11px;
+    color: #5AE57A;
+    opacity: 0.5;
+    margin-top: 8px;
+  }
+  .copied { opacity: 1; font-weight: 700; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>CTA Generator</h1>
+  <p class="subtitle">12 high-converting calls-to-action and matching button copy for any offer. Tap to copy.</p>
+
+  <div class="card">
+    <label>What are you asking them to do?</label>
+    <input type="text" id="offer" placeholder="e.g. join my newsletter, book a free call, buy my course">
+    <div class="row">
+      <div>
+        <label>Where will this go?</label>
+        <select id="placement">
+          <option>Landing page</option>
+          <option>Social post</option>
+          <option>Email</option>
+          <option>Sales page</option>
+          <option>Bio link</option>
+        </select>
+      </div>
+      <div>
+        <label>Energy</label>
+        <select id="energy">
+          <option>Confident</option>
+          <option>Friendly</option>
+          <option>Urgent</option>
+          <option>Curious</option>
+          <option>Direct</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Generate 12 CTAs</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Your CTAs — tap any to copy</label>
+      <div id="ctas"></div>
+      <button onclick="generate()" style="margin-top:6px;">Generate 12 More</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const TEMPLATES = [
+  {tag: 'Benefit', t: "Start {offer} — it takes 60 seconds.", btn: "Start now"},
+  {tag: 'Benefit', t: "Get the one thing that makes {offer} actually work.", btn: "Get it"},
+  {tag: 'Curiosity', t: "Find out what most people miss about {offer}.", btn: "Show me"},
+  {tag: 'Curiosity', t: "See what's inside before you decide.", btn: "Take a peek"},
+  {tag: 'Direct', t: "Click below to {offer} now.", btn: "Do it"},
+  {tag: 'Direct', t: "{offer} — no fluff, no waiting.", btn: "Yes, I'm in"},
+  {tag: 'Social', t: "Join the people who've already chosen to {offer}.", btn: "Join us"},
+  {tag: 'Social', t: "Be one of the next people to {offer}.", btn: "Count me in"},
+  {tag: 'Risk-Free', t: "Try it free — keep what works, ditch the rest.", btn: "Try it free"},
+  {tag: 'Risk-Free', t: "Zero risk. Just {offer} and see what happens.", btn: "I'll try it"},
+  {tag: 'Question', t: "Ready to finally {offer}?", btn: "I'm ready"},
+  {tag: 'Question', t: "What's stopping you from choosing to {offer}?", btn: "Nothing — let's go"},
+  {tag: 'Urgent', t: "Don't wait — {offer} before this round closes.", btn: "Grab my spot"},
+  {tag: 'Urgent', t: "This is your sign to {offer} today.", btn: "I'm in"},
+  {tag: 'Soft', t: "If this is for you, you'll know. {offer} here.", btn: "Tell me more"},
+  {tag: 'Soft', t: "Take a quiet step toward {offer}.", btn: "Step inside"},
+  {tag: 'Value', t: "{offer} and get the playbook I wish I had.", btn: "Get the playbook"},
+  {tag: 'Value', t: "Skip the trial and error — {offer} the easy way.", btn: "Skip the work"},
+  {tag: 'Promise', t: "{offer} in 5 minutes. Promise.", btn: "5-minute start"},
+  {tag: 'Promise', t: "Build the habit. {offer} starting today.", btn: "Begin"}
+];
+
+function pickN(arr, n) {
+  return [...arr].sort(() => Math.random() - 0.5).slice(0, n);
+}
+
+function strengthScore(text) {
+  let s = 60;
+  if (text.length < 60) s += 15;
+  if (/[?!]/.test(text)) s += 8;
+  if (/\d/.test(text)) s += 6;
+  if (/today|now|never|finally|free/i.test(text)) s += 10;
+  return Math.min(99, s + Math.floor(Math.random() * 8));
+}
+
+function generate() {
+  const offer = document.getElementById('offer').value.trim();
+  if (!offer) { alert('Tell us what they should do first.'); return; }
+
+  const picks = pickN(TEMPLATES, 12);
+  document.getElementById('ctas').innerHTML = picks.map((p, i) => {
+    let text = p.t.replace(/{offer}/g, offer);
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    const s = strengthScore(text);
+    return `<div class="cta-card" onclick="copyCta(this, ${i})">
+      <div class="cta-top">
+        <span class="tag">${p.tag}</span>
+        <span class="strength">strength ${s}</span>
+      </div>
+      <div class="cta-text" id="cta-${i}">${text}</div>
+      <div class="cta-button-style">${p.btn}</div>
+      <div class="copy-hint">tap to copy</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyCta(el, i) {
+  const text = document.getElementById('cta-' + i).textContent;
+  const btn = el.querySelector('.cta-button-style').textContent;
+  navigator.clipboard.writeText(text + '\n\nButton: ' + btn).then(() => {
+    const hint = el.querySelector('.copy-hint');
+    hint.textContent = 'copied!';
+    hint.classList.add('copied');
+    setTimeout(() => {
+      hint.textContent = 'tap to copy';
+      hint.classList.remove('copied');
+    }, 1400);
+  });
+}
+</script>
+</body>
+</html>

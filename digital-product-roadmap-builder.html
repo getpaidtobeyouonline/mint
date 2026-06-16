@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Product Roadmap Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:720px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.card h2 span{font-family:'DM Sans',sans-serif;font-weight:400}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;appearance:none}
+input:focus,select:focus{border-color:#5AE57A}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}.results.show{display:block}
+.ph-head{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:#5AE57A;font-weight:600;opacity:.65;margin-bottom:.75rem;display:flex;align-items:center;gap:.75rem}
+.ph-head::after{content:'';flex:1;height:1px;background:#4C724C}
+.t-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.t-grid.single{grid-template-columns:1fr}
+.tc{background:#3C603C;border:1px solid #4C724C;border-left:3px solid #5AE57A;border-radius:12px;padding:1.1rem 1.25rem}
+.tc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;gap:.5rem}
+.tc-label{font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+.tc-price{font-size:.7rem;padding:.2rem .6rem;border-radius:4px;font-weight:600;white-space:nowrap}
+.tc-name{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:.5rem;line-height:1.35}
+.tc-tags{display:flex;gap:.45rem;flex-wrap:wrap;margin-bottom:.45rem}
+.tc-tag{font-size:.7rem;opacity:.5;background:#325132;border:1px solid #4C724C;border-radius:4px;padding:.15rem .5rem}
+.tc-why{font-size:.78rem;opacity:.52;line-height:1.5;border-top:1px solid #3C603C;padding-top:.4rem}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.55rem .75rem;text-align:left;font-size:.85rem}
+th{font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:#5AE57A;border-bottom:1px solid #4C724C;font-weight:600}
+tr:not(:last-child) td{border-bottom:1px solid #3C603C}
+tr.tot td{color:#5AE57A;font-weight:700;border-top:1px solid #4C724C}
+.tbl-note{font-size:.72rem;opacity:.35;margin-top:.6rem}
+.rec{background:#325132;border:1px solid #C9A84C33;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.rec-lbl{font-size:.67rem;text-transform:uppercase;letter-spacing:.1em;color:#5AE57A;opacity:.7;margin-bottom:.35rem}
+.rec-text{font-size:.9rem;line-height:1.65}
+.rec-text strong{color:#5AE57A}
+.cbtn{width:100%;background:transparent;border:2px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.8rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:1.25rem}
+.cbtn:hover{background:#5AE57A;color:#325132}.cbtn.done{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:1.5rem;padding-bottom:1rem}
+@media(max-width:540px){h1{font-size:1.75rem}.g3{grid-template-columns:1fr}.t-grid{grid-template-columns:1fr!important}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Product Roadmap Builder</h1>
+    <p class="subtitle">Plan your complete 5-tier product suite — from entry offer to premium — with a phased build plan and full revenue potential.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Business</h2>
+    <div class="g3">
+      <div><label>Your Niche</label>
+        <select id="niche">
+          <option value="health">Health & Wellness</option><option value="finance">Money & Finance</option>
+          <option value="business">Business & Marketing</option><option value="creative">Creative Arts & Design</option>
+          <option value="tech">Tech & Productivity</option><option value="relationships">Relationships</option>
+          <option value="parenting">Parenting & Family</option><option value="lifestyle">Lifestyle & Hobbies</option>
+        </select>
+      </div>
+      <div><label>Target Audience</label><input type="text" id="audience" placeholder="e.g. freelance designers"></div>
+      <div><label>Where Are You Now?</label>
+        <select id="stage">
+          <option value="scratch">Starting from scratch</option>
+          <option value="early">Have 1–2 products already</option>
+          <option value="established">Have an established suite</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Build My Product Roadmap →</button>
+
+  <div class="results" id="results">
+    <div id="roadmap"></div>
+
+    <div class="card">
+      <h2>Full Suite Revenue Potential <span style="opacity:.35;font-size:.8rem">— illustrative example</span></h2>
+      <table><thead><tr><th>Tier</th><th>Avg Price</th><th>Example Buyers/mo</th><th>Monthly Revenue</th></tr></thead>
+      <tbody id="revTable"></tbody></table>
+      <div class="tbl-note">Assumes realistic tier-to-tier conversion ratios. Actual results vary based on your audience size, marketing, and offer quality.</div>
+    </div>
+
+    <div class="rec"><div class="rec-lbl">Your Next Step</div><div class="rec-text" id="recText"></div></div>
+
+    <button class="cbtn" onclick="copyMap(this)">Copy Full Roadmap as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const tiers=[
+  {label:'Tier 1 — Entry Offer',      color:'#5AE57A',time:'2–5 days',   why:'Converts cold browsers into buyers. Gets new customers to experience your work with a small, low-risk investment — building trust before they commit to more.'},
+  {label:'Tier 2 — Core Offer',        color:'#5AE57A',time:'1–3 weeks', why:'Your primary income driver. This is the product that solves your audience\'s core problem and defines what your brand stands for.'},
+  {label:'Tier 3 — Upgrade Offer',     color:'#5AE57A',time:'2–4 weeks', why:'For buyers who want to go deeper. Increases lifetime customer value without needing new traffic, new audience, or cold outreach.'},
+  {label:'Tier 4 — Recurring Revenue', color:'#5AE57A',time:'2–3 weeks', why:'Predictable monthly income that compounds. Even 30–50 paying members significantly stabilises cash flow and funds future product builds.'},
+  {label:'Tier 5 — Premium Offer',     color:'#5AE57A',time:'4–8 weeks', why:'Only 1–3% of buyers will purchase this — but a single premium sale can equal 30–50 entry-level sales in revenue. This is your highest-leverage product.'}
+];
+
+const products={
+  health:  [{n:'7-Day Healthy Habit Starter Kit',f:'PDF Checklist + Template',p:'$7–$17',m:12},{n:'90-Day Health Transformation Guide',f:'Ebook / Workbook',p:'$27–$47',m:37},{n:'Complete Wellness System Toolkit',f:'Template + Tracker Bundle',p:'$67–$97',m:82},{n:'Monthly Wellness Momentum Membership',f:'Recurring Community',p:'$17–$37/mo',m:27},{n:'Health Transformation Intensive',f:'Course + Coaching Access',p:'$197–$497',m:347}],
+  finance: [{n:'Monthly Budget Jumpstart Template',f:'Spreadsheet / Template',p:'$7–$17',m:12},{n:'Financial Freedom Planning Guide',f:'Ebook / Workbook',p:'$27–$47',m:37},{n:'Complete Money Management System',f:'Template + Tracker Bundle',p:'$67–$97',m:82},{n:'Monthly Finance Accountability Club',f:'Group Coaching Membership',p:'$27–$47/mo',m:37},{n:'Wealth Building Coaching Intensive',f:'Course + 1:1 Access',p:'$297–$697',m:497}],
+  business:[{n:'Client Onboarding Template Pack',f:'Email Templates + Checklist',p:'$7–$17',m:12},{n:'Complete Business Systems Guide',f:'Guide + Workbook',p:'$37–$67',m:52},{n:'Business in a Box Toolkit',f:'Template + SOP Bundle',p:'$97–$197',m:147},{n:'Monthly Business Momentum Club',f:'Group Coaching Membership',p:'$37–$97/mo',m:67},{n:'Business Growth Accelerator',f:'Course + Community + Coaching',p:'$297–$997',m:647}],
+  creative:[{n:'Design Starter Template Kit',f:'Canva / Design Templates',p:'$7–$17',m:12},{n:'Brand Identity Template Bundle',f:'Full Template Pack',p:'$27–$67',m:47},{n:'Creative Business System Toolkit',f:'Templates + Guide + Scripts',p:'$97–$197',m:147},{n:'Monthly Creative Templates Club',f:'Monthly New Template Drops',p:'$17–$37/mo',m:27},{n:'Creative Brand Strategy Intensive',f:'Course + 1:1 Sessions',p:'$297–$797',m:547}],
+  tech:    [{n:'Productivity Starter Template Pack',f:'Notion / Tool Templates',p:'$7–$17',m:12},{n:'Complete Automation Workflow Guide',f:'Guide + Templates',p:'$37–$67',m:52},{n:'Full Tech Stack Toolkit',f:'Templates + SOPs + Tutorials',p:'$97–$197',m:147},{n:'Monthly Productivity System Club',f:'Membership + Monthly Releases',p:'$17–$37/mo',m:27},{n:'Tech Systems Build-Out Intensive',f:'Course + Implementation Support',p:'$297–$697',m:497}],
+  relationships:[{n:'Conversation Starter Script Pack',f:'Scripts / Guide',p:'$7–$17',m:12},{n:'Complete Communication Toolkit',f:'Workbook + Scripts',p:'$27–$47',m:37},{n:'Relationship Transformation System',f:'Course + Workbook + Scripts',p:'$67–$127',m:97},{n:'Monthly Connection Community',f:'Group Coaching Membership',p:'$17–$37/mo',m:27},{n:'Relationship Coaching Intensive',f:'Private Coaching Program',p:'$297–$997',m:647}],
+  parenting:[{n:'Family Routine Starter Pack',f:'Checklists + Templates',p:'$5–$17',m:11},{n:'Complete Family Organization System',f:'Planner + Guide',p:'$27–$47',m:37},{n:'Family Life Toolkit Bundle',f:'Template Pack + Activity Sheets',p:'$47–$97',m:72},{n:'Monthly Family Planning Membership',f:'Monthly Template Downloads',p:'$9–$17/mo',m:13},{n:'Family Coaching Support Program',f:'Course + Group Coaching',p:'$97–$297',m:197}],
+  lifestyle:[{n:'Life Reset Starter Checklist',f:'Checklist + Template',p:'$7–$17',m:12},{n:'Complete Life Organization Guide',f:'Planner + Workbook',p:'$27–$47',m:37},{n:'Life by Design Toolkit',f:'Planner + Course + Templates',p:'$67–$127',m:97},{n:'Monthly Life Planning Membership',f:'Templates + Community',p:'$17–$37/mo',m:27},{n:'Life Coaching Intensive Program',f:'1:1 Coaching Program',p:'$297–$797',m:547}]
+};
+
+const buyers=[50,15,4,25,1];
+const phases=[{label:'Phase 1 — Build First',items:[0,1]},{label:'Phase 2 — Build Next',items:[2,3]},{label:'Phase 3 — When Ready',items:[4]}];
+const recs={
+  scratch:'Start with your <strong>Entry Offer</strong> this week and your <strong>Core Offer</strong> within 30 days. Launch with just these two — real buyers will tell you what to build next better than any amount of planning alone.',
+  early:'Your next priority is the <strong>Upgrade Offer</strong> to increase lifetime value from existing buyers. Follow that with <strong>Recurring Revenue</strong> — even 20–30 monthly members creates the predictable income that changes how you operate.',
+  established:'If you don\'t yet have a <strong>Premium Offer</strong>, that\'s your highest-leverage next build — one sale equals 30–50 entry-level sales in revenue. Then audit the connections between your tiers to ensure buyers flow naturally upward.'
+};
+
+let _niche, _audience;
+
+function build(){
+  _niche=document.getElementById('niche').value;
+  _audience=document.getElementById('audience').value.trim()||'your audience';
+  const stage=document.getElementById('stage').value;
+  const prods=products[_niche];
+
+  let html='';
+  phases.forEach(ph=>{
+    html+=`<div class="ph-head">${ph.label}</div><div class="t-grid${ph.items.length===1?' single':''}">`;
+    ph.items.forEach(i=>{
+      const t=tiers[i],p=prods[i],c=t.color;
+      html+=`<div class="tc" style="border-left-color:${c}">
+        <div class="tc-top">
+          <span class="tc-label" style="color:${c}">${t.label}</span>
+          <span class="tc-price" style="color:${c};background:${c}18;border:1px solid ${c}33">${p.p}</span>
+        </div>
+        <div class="tc-name">${p.n}</div>
+        <div class="tc-tags"><span class="tc-tag">${p.f}</span><span class="tc-tag">⏱ ${t.time}</span></div>
+        <div class="tc-why">${t.why}</div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('roadmap').innerHTML=html;
+
+  let rows='', tot=0;
+  tiers.forEach((t,i)=>{const p=prods[i],rev=buyers[i]*p.m;tot+=rev;rows+=`<tr><td>${t.label.split('—')[1].trim()}</td><td>$${p.m}</td><td>${buyers[i]}</td><td>$${rev.toLocaleString()}</td></tr>`;});
+  rows+=`<tr class="tot"><td colspan="3">Full Suite Total</td><td>~$${tot.toLocaleString()}/mo</td></tr>`;
+  document.getElementById('revTable').innerHTML=rows;
+  document.getElementById('recText').innerHTML=recs[stage];
+
+  const res=document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyMap(btn){
+  const prods=products[_niche];
+  const nicheNames={health:'Health & Wellness',finance:'Money & Finance',business:'Business & Marketing',creative:'Creative Arts & Design',tech:'Tech & Productivity',relationships:'Relationships',parenting:'Parenting & Family',lifestyle:'Lifestyle & Hobbies'};
+  const lines=[`== DIGITAL PRODUCT ROADMAP ==`,`Niche: ${nicheNames[_niche]} | Audience: ${_audience}`,``];
+  phases.forEach(ph=>{
+    lines.push(ph.label.toUpperCase(),'');
+    ph.items.forEach(i=>{const t=tiers[i],p=prods[i];lines.push(t.label,`Product: ${p.n}`,`Format: ${p.f}`,`Price: ${p.p}`,`Build time: ${t.time}`,`Why: ${t.why}`,``);});
+  });
+  lines.push('REVENUE POTENTIAL (illustrative):');
+  let tot=0;
+  tiers.forEach((t,i)=>{const p=prods[i],rev=buyers[i]*p.m;tot+=rev;lines.push(`${t.label.split('—')[1].trim()}: $${p.m} × ${buyers[i]} buyers = $${rev.toLocaleString()}/mo`);});
+  lines.push(`Full Suite Total: ~$${tot.toLocaleString()}/month`);
+  const text=lines.join('\n'), orig=btn.textContent;
+  const flash=()=>{btn.textContent='Copied!';btn.classList.add('done');setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},2200);};
+  navigator.clipboard?navigator.clipboard.writeText(text).then(flash):(()=>{const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();})();
+}
+</script>
+</body>
+</html>

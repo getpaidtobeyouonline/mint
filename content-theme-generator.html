@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Theme Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 520px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-left: 3px solid #5AE57A;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .pillar-icon {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .pillar-name {
+    font-family: 'Playfair Display', serif;
+    color: #FFFFFF;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .pillar-desc { font-size: 13px; opacity: 0.8; }
+  .week {
+    background: #325132;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .week-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .week-num {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 17px;
+  }
+  .week-theme {
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .week-ideas { list-style: none; }
+  .week-ideas li {
+    padding: 6px 0 6px 18px;
+    font-size: 14px;
+    position: relative;
+    opacity: 0.9;
+  }
+  .week-ideas li:before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #5AE57A;
+  }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Content Theme Generator</h1>
+  <p class="subtitle">Get 4 content pillars and a full 4-week theme calendar — built for your niche.</p>
+
+  <div class="card">
+    <label>Your niche or main topic</label>
+    <input type="text" id="niche" placeholder="e.g. solo creator income, sleep coaching, freelance design">
+    <label>Who you serve</label>
+    <input type="text" id="audience" placeholder="e.g. burnt-out 9-5ers, new moms, junior designers">
+    <div class="row">
+      <div>
+        <label>Brand vibe</label>
+        <select id="vibe">
+          <option>Educational</option>
+          <option>Inspirational</option>
+          <option>Story-led</option>
+          <option>Practical / How-To</option>
+          <option>Bold / Contrarian</option>
+        </select>
+      </div>
+      <div>
+        <label>Posting cadence</label>
+        <select id="cadence">
+          <option>3x per week</option>
+          <option>5x per week</option>
+          <option>Daily</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Build My Theme Plan</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Your 4 Content Pillars</label>
+      <div class="pillars" id="pillars"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">4-Week Theme Calendar</label>
+      <div id="weeks"></div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyPlan()">Copy Plan</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const PILLAR_SETS = {
+  'Educational': [
+    {name: 'Teach', desc: 'Frameworks, how-tos, breakdowns. The "save this" content.'},
+    {name: 'Myth-bust', desc: 'Common misconceptions about {niche}. Strong opinions.'},
+    {name: 'Personal', desc: 'Behind-the-scenes and lessons from your own work.'},
+    {name: 'Spotlight', desc: 'Case studies, examples, and student wins.'}
+  ],
+  'Inspirational': [
+    {name: 'Mindset', desc: 'Identity shifts and beliefs that change {audience}.'},
+    {name: 'Story', desc: 'Your journey and the people who shaped you.'},
+    {name: 'Vision', desc: 'What {audience} can become — paint the future.'},
+    {name: 'Real talk', desc: 'Honest, unfiltered takes when it gets hard.'}
+  ],
+  'Story-led': [
+    {name: 'Chapters', desc: 'Episodes from your journey, told one scene at a time.'},
+    {name: 'Lessons', desc: 'Hard-won takeaways from your actual experience.'},
+    {name: 'Cast', desc: 'People, mentors, clients who appear in the story.'},
+    {name: 'Receipts', desc: 'Proof, screenshots, and behind-the-scenes glimpses.'}
+  ],
+  'Practical / How-To': [
+    {name: 'Step-by-step', desc: 'Walkthroughs and tactical content for {audience}.'},
+    {name: 'Tools', desc: 'The exact stack, templates, and resources you use.'},
+    {name: 'Mistakes', desc: 'What not to do — saves people from your past errors.'},
+    {name: 'Quick wins', desc: '5-minute things {audience} can do today.'}
+  ],
+  'Bold / Contrarian': [
+    {name: 'Hot takes', desc: 'Strong opinions about {niche} most won\'t say.'},
+    {name: 'Anti-advice', desc: 'Popular advice you disagree with — and why.'},
+    {name: 'Predictions', desc: 'Where {niche} is heading. Stake a claim.'},
+    {name: 'Receipts', desc: 'Back your bold claims with proof and examples.'}
+  ]
+};
+
+const THEMES = {
+  'Educational': ['The Fundamentals', 'Mistakes & Myths', 'Frameworks That Work', 'Case Studies & Examples'],
+  'Inspirational': ['Identity Shifts', 'Stories That Hit', 'Vision & Possibility', 'Real Talk Week'],
+  'Story-led': ['Where It Started', 'The Turning Point', 'What I Learned', 'Where It\'s Going'],
+  'Practical / How-To': ['Quick Wins Week', 'Deep Tactics', 'Tools & Templates', 'Mistakes To Avoid'],
+  'Bold / Contrarian': ['Unpopular Truths', 'Anti-Advice Week', 'Predictions', 'Proof Week']
+};
+
+const IDEA_BANK = {
+  'Teach': ['One framework explained simply', 'A "save this" carousel', 'A teaching reel under 30s'],
+  'Myth-bust': ['"Stop believing this about {niche}"', 'A common mistake corrected', 'A myth you used to believe'],
+  'Personal': ['What you\'re learning this week', 'A behind-the-scenes process', 'A failure you grew from'],
+  'Spotlight': ['A client win or case study', 'Someone you admire in {niche}', 'A real-world example'],
+  'Mindset': ['Belief shift that changed everything', 'The thought that\'s holding {audience} back', 'A reframe for a hard day'],
+  'Story': ['A pivotal moment from your journey', 'The moment things clicked', 'Someone who shaped your path'],
+  'Vision': ['What {audience} could look like in 12 months', 'A "what if" question', 'The future of {niche}'],
+  'Real talk': ['What no one tells you about {niche}', 'A hard truth post', 'A "ranting honestly" piece'],
+  'Chapters': ['Scene from your beginnings', 'A chapter from this year', 'A defining client moment'],
+  'Lessons': ['The lesson you wish you knew at 25', 'A lesson learned the hard way', 'A counterintuitive lesson'],
+  'Cast': ['A mentor\'s lesson', 'A client who changed your view', 'A peer doing it right'],
+  'Receipts': ['Screenshot of a real moment', 'A proof-of-work post', 'A before/after'],
+  'Step-by-step': ['A 3-step walkthrough', 'A 1-minute tutorial', 'A deep-dive guide'],
+  'Tools': ['Your exact tech stack', 'Free vs paid tools breakdown', 'A template you use weekly'],
+  'Mistakes': ['Top 3 mistakes {audience} make', 'A mistake you keep seeing', 'The most expensive mistake'],
+  'Quick wins': ['A 5-minute fix', 'One tweak that 2x\'d a result', 'A "try this today" post'],
+  'Hot takes': ['Your spiciest take on {niche}', 'Why a popular idea is wrong', 'A truth no one says'],
+  'Anti-advice': ['Stop doing this in {niche}', 'The advice you ignore on purpose', 'Why "common wisdom" is broken'],
+  'Predictions': ['Where {niche} is heading', 'A trend you see coming', 'A practice that\'s dying']
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const niche = document.getElementById('niche').value.trim();
+  const audience = document.getElementById('audience').value.trim() || 'your audience';
+  const vibe = document.getElementById('vibe').value;
+  const cadence = document.getElementById('cadence').value;
+  if (!niche) { alert('Add your niche first.'); return; }
+
+  const fill = (str) => str.replace(/{niche}/g, niche).replace(/{audience}/g, audience);
+  const pillars = PILLAR_SETS[vibe];
+  const themes = THEMES[vibe];
+  const ideasPerWeek = cadence === '3x per week' ? 3 : cadence === '5x per week' ? 5 : 7;
+
+  document.getElementById('pillars').innerHTML = pillars.map((p, i) => `
+    <div class="pillar">
+      <div class="pillar-icon">Pillar ${i + 1}</div>
+      <div class="pillar-name">${p.name}</div>
+      <div class="pillar-desc">${fill(p.desc)}</div>
+    </div>
+  `).join('');
+
+  const weeksHtml = themes.map((theme, wi) => {
+    const ideas = [];
+    for (let i = 0; i < ideasPerWeek; i++) {
+      const pillar = pillars[i % pillars.length];
+      const bank = IDEA_BANK[pillar.name] || ['A post in the "' + pillar.name + '" pillar'];
+      ideas.push(`<strong style="color:#5AE57A;font-weight:700;">${pillar.name}:</strong> ${fill(pick(bank))}`);
+    }
+    return `<div class="week">
+      <div class="week-head">
+        <div class="week-num">Week ${wi + 1}</div>
+        <div class="week-theme">${theme}</div>
+      </div>
+      <ul class="week-ideas">${ideas.map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+
+  document.getElementById('weeks').innerHTML = weeksHtml;
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyPlan() {
+  let text = 'CONTENT PILLARS\n\n';
+  document.querySelectorAll('.pillar').forEach(p => {
+    text += '- ' + p.querySelector('.pillar-name').textContent + ': ' + p.querySelector('.pillar-desc').textContent + '\n';
+  });
+  text += '\n4-WEEK CALENDAR\n\n';
+  document.querySelectorAll('.week').forEach(w => {
+    text += w.querySelector('.week-num').textContent + ' — ' + w.querySelector('.week-theme').textContent + '\n';
+    w.querySelectorAll('.week-ideas li').forEach(li => { text += '  • ' + li.textContent + '\n'; });
+    text += '\n';
+  });
+  navigator.clipboard.writeText(text.trim()).then(() => alert('Plan copied. Go execute.'));
+}
+</script>
+</body>
+</html>

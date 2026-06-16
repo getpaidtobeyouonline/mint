@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creator Income Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .stream { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+  .stream label { margin: 0; flex: 1; min-width: 130px; font-size: .85rem; text-transform: none; letter-spacing: 0; opacity: 1; }
+  .stream input { width: 100px; }
+  .stream .sub2 { width: 86px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .res .l { font-size: .85rem; opacity: .7; }
+  .bd { text-align: left; margin-top: 12px; font-size: .86rem; }
+  .bd .r { display: flex; justify-content: space-between; padding: 4px 0; border-top: 1px solid #4C724C; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Creator Income Calculator</h1>
+  <p class="sub">Add up every creator revenue stream and see your real monthly and yearly total.</p>
+
+  <div class="panel" id="streams"></div>
+
+  <div class="res">
+    <div class="n" id="mo">$0</div>
+    <div class="l">estimated monthly · <span id="yr">$0</span>/yr</div>
+    <div class="bd" id="bd"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const S=[
+    ["Brand deals","per deal","deals/mo"],
+    ["Affiliate","per sale","sales/mo"],
+    ["Own product / digital","price","sales/mo"],
+    ["Memberships / subs","price","members"],
+    ["Platform payouts (ad rev/creator fund)","$/mo","×1"],
+    ["Coaching / services","price","clients/mo"],
+    ["Tips / donations","$/mo","×1"]
+  ];
+  const g=id=>document.getElementById(id);
+  g('streams').innerHTML=S.map((s,i)=>`<div class="stream"><label>${s[0]}</label>
+    <input id="a${i}" type="number" min="0" placeholder="${s[1]}" oninput="calc()">
+    <input id="b${i}" class="sub2" type="number" min="0" placeholder="${s[2]}" value="${s[2]==='×1'?1:''}" oninput="calc()"></div>`).join('');
+  S.forEach((_,i)=>{ ['a','b'].forEach(p=>{ const s=localStorage.getItem('cic_'+p+i); if(s!==null)g(p+i).value=s; }); });
+  function calc(){
+    let total=0; const rows=[];
+    S.forEach((s,i)=>{ const a=parseFloat(g('a'+i).value)||0, b=parseFloat(g('b'+i).value)||0; const v=a*b; if(v){ total+=v; rows.push([s[0],v]); } localStorage.setItem('cic_a'+i,g('a'+i).value); localStorage.setItem('cic_b'+i,g('b'+i).value); });
+    g('mo').textContent='$'+Math.round(total).toLocaleString();
+    g('yr').textContent='$'+Math.round(total*12).toLocaleString();
+    g('bd').innerHTML = rows.length?rows.sort((x,y)=>y[1]-x[1]).map(([l,v])=>`<div class="r"><span>${l}</span><span style="color:#5AE57A">$${Math.round(v).toLocaleString()} · ${Math.round(v/total*100)}%</span></div>`).join(''):'<div style="opacity:.5;text-align:center;padding:8px">Fill in any streams above.</div>';
+  }
+  calc();
+</script>
+</body>
+</html>

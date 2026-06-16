@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Detox Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Digital Detox Planner</h1>
+  <p class="sub">Plan a real break from screens — what to switch off, what to do instead.</p>
+
+  <div class="panel">
+    <label for="length">Detox length</label>
+    <select id="length"><option>One evening</option><option>A full day</option><option>A weekend</option><option>One week (lighter version)</option></select>
+    <label for="off">What you will switch off / put away</label>
+    <textarea id="off" placeholder="e.g. Social apps, notifications, phone in a drawer, TV"></textarea>
+    <label for="keep">What stays on (and why)</label>
+    <input id="keep" placeholder="e.g. Phone for emergencies only">
+    <label for="instead">What you will do instead (your replacement list)</label>
+    <textarea id="instead" placeholder="e.g. Read, cook, walk, call a friend, sleep early"></textarea>
+    <label for="trigger">Your plan for the urge to check</label>
+    <textarea id="trigger" placeholder="e.g. When I reach for my phone, I will drink water and look out a window"></textarea>
+    <button class="btn" onclick="gen()">Build Detox Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['length','off','keep','instead','trigger'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('ddp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ddp_'+k,g(k).value)); });
+  g('length').addEventListener('change',()=>localStorage.setItem('ddp_length',g('length').value));
+  function gen(){
+    const t=`MY DIGITAL DETOX PLAN\n\nLENGTH: ${v('length')}\n\nSWITCHING OFF / PUTTING AWAY:\n${v('off')||'[what goes dark]'}\n\nSTAYS ON:\n${v('keep')||'[the bare minimum]'}\n\nWHAT I WILL DO INSTEAD:\n${v('instead')||'[your replacement activities — make this list long]'}\n\nWHEN THE URGE TO CHECK HITS:\n${v('trigger')||'[your if-then plan]'}\n\n--- Set up for success ---\n• Tell people in advance so they are not worried.\n• Turn off notifications, do not just resist them.\n• Keep the phone physically out of reach, not in your pocket.\n• Notice the discomfort in the first hours — it passes, and what is underneath it is rest.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digital Product Profit Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 14px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column}
+label{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600;margin-bottom:5px}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+select option{background:#3C603C}
+input::placeholder{color:#5A845A}
+.hint{font-size:.68rem;color:#BFD8BF;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.35rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.red{color:#5AE57A}.blue{color:#5AE57A}
+.bar-wrap{border-radius:8px;height:28px;overflow:hidden;display:flex;background:#325132;margin-bottom:10px}
+.bar-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#325132;overflow:hidden;white-space:nowrap;transition:width .4s}
+.seg-plat{background:#5AE57A}.seg-proc{background:#5AE57A}.seg-aff{background:#5AE57A}.seg-profit{background:#5AE57A}.seg-loss{background:#5AE57A}
+.legend{display:flex;flex-wrap:wrap;gap:10px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:#BFD8BF}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem}
+th{font-size:.67rem;letter-spacing:.05em;text-transform:uppercase;color:#BFD8BF;padding:8px 10px;text-align:right;border-bottom:1px solid #3C603C;font-weight:600}
+th:first-child{text-align:left}
+td{padding:8px 10px;text-align:right;border-bottom:1px solid #325132}
+td:first-child{text-align:left;color:#BFD8BF}
+tr.hl td{color:#5AE57A;font-weight:600}
+tr:last-child td{border-bottom:none}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.grid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<h1>Digital Product Profit Calculator</h1>
+<p class="sub">Enter your numbers. See exactly where your money goes — and how to keep more of it.</p>
+
+<div class="card">
+  <div class="card-title">Your Product & Platform</div>
+  <div class="grid">
+    <div class="field"><label>Product Price ($)</label><input id="price" type="number" placeholder="27" min="0" step="0.01" oninput="calc()"></div>
+    <div class="field"><label>Monthly Sales (estimate)</label><input id="units" type="number" placeholder="20" min="0" oninput="calc()"></div>
+    <div class="field">
+      <label>Platform</label>
+      <select id="platform" onchange="setPlatform()">
+        <option data-fee="0">No Platform / Direct (0%)</option>
+        <option data-fee="0">Beacons — Pro Plan (0%)</option>
+        <option data-fee="9">Beacons — Free Plan (9%)</option>
+        <option data-fee="0">Stan Store (0%)</option>
+        <option data-fee="10">Gumroad (10%)</option>
+        <option data-fee="5">Payhip — Free Plan (5%)</option>
+        <option data-fee="0">Payhip — Pro Plan (0%)</option>
+        <option data-fee="5">Teachable — Free Plan (5%)</option>
+        <option data-fee="6.5">Etsy (6.5%)</option>
+      </select>
+    </div>
+    <div class="field"><label>Platform Fee (%)</label><input id="platFee" type="number" value="0" min="0" max="100" step="0.1" oninput="calc()"><span class="hint">Auto-fills from platform. Edit to override.</span></div>
+    <div class="field"><label>Processing Fee (%)</label><input id="procPct" type="number" value="2.9" min="0" step="0.1" oninput="calc()"><span class="hint">Stripe / PayPal default: 2.9%</span></div>
+    <div class="field"><label>Processing Flat Fee ($)</label><input id="procFlat" type="number" value="0.30" min="0" step="0.01" oninput="calc()"><span class="hint">Stripe / PayPal default: $0.30</span></div>
+    <div class="field"><label>Monthly Fixed Costs ($)</label><input id="fixed" type="number" placeholder="0" min="0" oninput="calc()"><span class="hint">Tools, subscriptions, software</span></div>
+    <div class="field"><label>Affiliate Commission (%)</label><input id="aff" type="number" placeholder="0" min="0" max="100" step="1" oninput="calc()"><span class="hint">Leave 0 if no affiliate programme</span></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sRev">—</div><div class="stat-lbl">Revenue per Sale</div></div>
+  <div class="stat"><div class="stat-val" id="sProfit">—</div><div class="stat-lbl">You Keep per Sale</div></div>
+  <div class="stat"><div class="stat-val" id="sMargin">—</div><div class="stat-lbl">Profit Margin</div></div>
+  <div class="stat"><div class="stat-val blue" id="sBreak">—</div><div class="stat-lbl">Break-even Sales/mo</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Where Your Money Goes Per Sale</div>
+  <div class="bar-wrap" id="barWrap"><div class="bar-seg seg-profit" style="width:100%;color:#F0EBE033;font-size:.75rem">Enter a price above to see the breakdown</div></div>
+  <div class="legend" id="legend"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Revenue & Profit Projections</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Sales/mo</th><th>Revenue</th><th>You Keep/sale</th><th>Net Profit/mo</th><th>Margin</th><th>Annual Profit</th></tr></thead>
+      <tbody id="projTable">
+        <tr><td colspan="6" style="text-align:center;opacity:.3;padding:20px">Enter a price to see projections</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+function f(n){return'$'+Math.abs(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function s(n){return(n<0?'-':'')+f(n);}
+
+function setPlatform(){
+  const sel=document.getElementById('platform');
+  document.getElementById('platFee').value=sel.options[sel.selectedIndex].dataset.fee||'0';
+  calc();
+}
+
+function calc(){
+  const price=parseFloat(document.getElementById('price').value)||0;
+  const units=parseFloat(document.getElementById('units').value)||0;
+  const platPct=parseFloat(document.getElementById('platFee').value)||0;
+  const procPct=parseFloat(document.getElementById('procPct').value)||0;
+  const procFlat=parseFloat(document.getElementById('procFlat').value)||0;
+  const fixed=parseFloat(document.getElementById('fixed').value)||0;
+  const affPct=parseFloat(document.getElementById('aff').value)||0;
+
+  if(!price){return;}
+
+  const platFee=price*platPct/100;
+  const procFee=price*procPct/100+procFlat;
+  const affFee=price*affPct/100;
+  const netPerSale=price-platFee-procFee-affFee;
+  const fixedPerUnit=units>0?fixed/units:0;
+  const profitPerSale=netPerSale-fixedPerUnit;
+  const margin=profitPerSale/price*100;
+  const breakEven=netPerSale>0?Math.ceil(fixed/netPerSale):null;
+
+  document.getElementById('sRev').textContent=f(price);
+
+  const pe=document.getElementById('sProfit');
+  pe.textContent=s(profitPerSale);
+  pe.className='stat-val '+(profitPerSale>=0?'green':'red');
+
+  const me=document.getElementById('sMargin');
+  me.textContent=margin.toFixed(1)+'%';
+  me.className='stat-val '+(margin>=50?'green':margin>=20?'gold':'red');
+
+  document.getElementById('sBreak').textContent=
+    breakEven!==null?breakEven:fixed>0?'∞':'—';
+
+  // Breakdown bar
+  const pPct=platFee/price*100,prPct=procFee/price*100,aPct=affFee/price*100;
+  const prfPct=Math.max(0,netPerSale/price*100);
+  const lsPct=Math.min(100,Math.max(0,-netPerSale/price*100));
+  document.getElementById('barWrap').innerHTML=
+    (pPct>0?`<div class="bar-seg seg-plat" style="width:${pPct}%">${pPct>7?f(platFee):''}</div>`:'')+
+    (prPct>0?`<div class="bar-seg seg-proc" style="width:${prPct}%">${prPct>7?f(procFee):''}</div>`:'')+
+    (aPct>0?`<div class="bar-seg seg-aff" style="width:${aPct}%">${aPct>7?f(affFee):''}</div>`:'')+
+    (prfPct>0?`<div class="bar-seg seg-profit" style="width:${prfPct}%">${prfPct>9?f(netPerSale):''}</div>`:'')+
+    (lsPct>0?`<div class="bar-seg seg-loss" style="width:${lsPct}%"></div>`:'');
+
+  const legs=[];
+  if(pPct>0)legs.push(`<div class="leg-item"><div class="leg-dot" style="background:#5AE57A"></div>Platform ${f(platFee)}</div>`);
+  legs.push(`<div class="leg-item"><div class="leg-dot" style="background:#5AE57A"></div>Processing ${f(procFee)}</div>`);
+  if(aPct>0)legs.push(`<div class="leg-item"><div class="leg-dot" style="background:#5AE57A"></div>Affiliate ${f(affFee)}</div>`);
+  legs.push(`<div class="leg-item"><div class="leg-dot" style="background:${netPerSale>=0?'#5AE57A':'#5AE57A'}"></div>${netPerSale>=0?'You keep':'Loss'} ${s(netPerSale)}</div>`);
+  document.getElementById('legend').innerHTML=legs.join('');
+
+  // Projections
+  const rows=[10,25,50,100,250];
+  const u=Math.round(units);
+  document.getElementById('projTable').innerHTML=rows.map(n=>{
+    const rev=price*n;
+    const profit=netPerSale*n-fixed;
+    const marg=rev>0?profit/rev*100:0;
+    const hl=n===u;
+    return`<tr${hl?' class="hl"':''}>
+      <td>${n}${hl?' ★':''}</td>
+      <td>${f(rev)}</td>
+      <td>${s(netPerSale)}</td>
+      <td class="${profit>=0?'green':'red'}">${s(profit)}</td>
+      <td class="${marg>=50?'green':marg>=20?'gold':'red'}">${marg.toFixed(1)}%</td>
+      <td class="${profit*12>=0?'green':'red'}">${s(profit*12)}</td>
+    </tr>`;
+  }).join('');
+}
+
+calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Switcher Helper</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .current-ctx { text-align: center; padding: 28px 20px; border-radius: 16px; border: 2px solid var(--cc,#4C724C); background: var(--bg,#325132); max-width: 580px; margin: 0 auto 18px; transition: all 0.4s; }
+  .ctx-icon { font-size: 2.8rem; line-height: 1; margin-bottom: 8px; }
+  .ctx-name { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+  .ctx-since { font-size: 0.75rem; color: #BFD8BF; margin-top: 6px; }
+  .ctx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 8px; }
+  .ctx-btn { background: #325132; border: 1px solid #3C603C; border-radius: 10px; padding: 14px 12px; cursor: pointer; text-align: center; transition: all 0.15s; }
+  .ctx-btn:hover { border-color: var(--cc); background: var(--bg); }
+  .ctx-btn.active { border-color: var(--cc); background: var(--bg); opacity: 0.45; pointer-events: none; }
+  .ctx-btn-icon { font-size: 1.4rem; margin-bottom: 5px; }
+  .ctx-btn-label { font-size: 0.79rem; color: #F0EBE0aa; }
+  .transition-card { display: none; }
+  .transition-card.show { display: block; }
+  .phase-label { text-align: center; font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 5px; }
+  .phase-ctx-name { text-align: center; font-family: 'Playfair Display', serif; font-size: 1.15rem; margin-bottom: 18px; }
+  .ritual-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 9px; background: #325132; border: 1px solid #3C603C; margin-bottom: 8px; cursor: pointer; transition: opacity 0.15s; }
+  .ritual-item.done { opacity: 0.45; }
+  .ritual-check { width: 21px; height: 21px; border-radius: 50%; border: 2px solid #4C724C; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.68rem; transition: all 0.15s; color: #325132; }
+  .ritual-item.done .ritual-check { background: #5AE57A; border-color: #5AE57A; }
+  .ritual-text { font-size: 0.87rem; color: #F0EBE0aa; }
+  .btn-next { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; margin-top: 16px; opacity: 0.3; transition: opacity 0.2s; pointer-events: none; }
+  .btn-next.ready { opacity: 1; pointer-events: auto; }
+  .btn-next.ready:hover { background: #5AE57A; }
+  .log-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #325132; }
+  .log-item:last-child { border-bottom: none; }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .log-name { font-size: 0.85rem; flex: 1; }
+  .log-time { font-size: 0.72rem; color: #BFD8BF; }
+  .log-dur { font-size: 0.71rem; color: #4C724C; background: #325132; border-radius: 6px; padding: 1px 7px; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 10px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Context Switcher</h1>
+<p class="subtitle">A deliberate transition ritual between every mode of work.</p>
+
+<div class="current-ctx" id="currentCtx">
+  <div class="ctx-icon" id="curIcon">⬤</div>
+  <div class="ctx-name" id="curName" style="color:#4C724C">No Active Context</div>
+  <div class="ctx-since" id="curSince"></div>
+</div>
+
+<div class="card">
+  <div class="card-title" id="switchTitle">Start In</div>
+  <div class="ctx-grid" id="ctxGrid"></div>
+</div>
+
+<div class="card transition-card" id="transCard">
+  <div class="phase-label" id="phaseLabel"></div>
+  <div class="phase-ctx-name" id="phaseCtxName"></div>
+  <div id="ritualList"></div>
+  <button class="btn-next" id="btnNext" onclick="nextPhase()"></button>
+</div>
+
+<div class="card" id="logCard">
+  <div class="card-title">Today's Switches</div>
+  <div id="logList"><p class="empty">No context switches yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const CONTEXTS = [
+  { id:'deep',     icon:'🎯', label:'Deep Work',  color:'#5AE57A', bg:'#1a150822',
+    exit:  ['Save your work and note exactly where you left off','Write the very next action for this task','Close all tabs and apps unrelated to this work'],
+    enter: ['Silence all notifications for this session','Set a timer before you start','Open only what this task requires — nothing else'] },
+  { id:'meetings', icon:'💬', label:'Meetings',   color:'#5AE57A', bg:'#080e1822',
+    exit:  ['Capture any follow-ups or open questions','Clear your screen of unrelated work','Update your status if needed'],
+    enter: ['Review the agenda or meeting goal','Open your notes doc and be ready','Mute your mic until you need to speak'] },
+  { id:'email',    icon:'📧', label:'Email',      color:'#5AE57A', bg:'#10081822',
+    exit:  ['Flag anything that still needs a response','Archive or file what you have processed','Note how long you were in your inbox'],
+    enter: ['Set a timer — 20 to 30 minutes max','Process top to bottom, no cherry-picking','Aim for inbox zero before you stop'] },
+  { id:'creative', icon:'✨', label:'Creative',   color:'#5AE57A', bg:'#18100822',
+    exit:  ['Capture any unfinished ideas in a note','Leave a clear breadcrumb for where to pick up','Acknowledge something good you made today'],
+    enter: ['Remove visual clutter from your space','Start with a low-stakes warm-up','Output first — resist the urge to edit'] },
+  { id:'admin',    icon:'📋', label:'Admin',      color:'#5AE57A', bg:'#08141222',
+    exit:  ['File completed items out of your inbox','Note what is still outstanding','Update your task list before you leave'],
+    enter: ['Group similar tasks and batch them together','Set a target for what done looks like','Move quickly — admin does not need to be perfect'] },
+  { id:'break',    icon:'☕', label:'Break',      color:'#5AE57A', bg:'#08140822',
+    exit:  ['Check your energy level — how are you feeling?','Drink a glass of water before you go','Stand up and move before stepping away'],
+    enter: ['Step away from your screen entirely','No work content during this time','Return refreshed, not guilty'] },
+  { id:'personal', icon:'🏠', label:'Personal',   color:'#5AE57A', bg:'#18081022',
+    exit:  ['Close all work tabs and apps completely','Do a quick brain dump of any loose threads','Set your status to offline'],
+    enter: ['You are off the clock — be present','Block work notifications for now','Reconnect with what matters outside of work'] },
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+let log = JSON.parse(localStorage.getItem('csh_'+TODAY)||'[]');
+let current = JSON.parse(localStorage.getItem('csh_cur')||'null');
+let pending = null, phase = 0, checked = [];
+
+function fmtTime(ts) {
+  const d=new Date(ts), h=d.getHours(), m=d.getMinutes();
+  return `${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;
+}
+function fmtDur(ms) {
+  const m=Math.floor(ms/60000);
+  if(m<1) return '<1m';
+  if(m<60) return m+'m';
+  return Math.floor(m/60)+'h'+(m%60?' '+m%60+'m':'');
+}
+
+function renderCurrent() {
+  const box=document.getElementById('currentCtx');
+  if(!current){
+    box.style.cssText='';
+    document.getElementById('curIcon').textContent='⬤';
+    document.getElementById('curName').textContent='No Active Context';
+    document.getElementById('curName').style.color='#4C724C';
+    document.getElementById('curSince').textContent='';
+    return;
+  }
+  const ctx=CONTEXTS.find(c=>c.id===current.id);
+  box.style.setProperty('--cc',ctx.color);
+  box.style.setProperty('--bg',ctx.bg);
+  box.style.border='2px solid '+ctx.color;
+  box.style.background=ctx.bg;
+  document.getElementById('curIcon').textContent=ctx.icon;
+  document.getElementById('curName').textContent=ctx.label;
+  document.getElementById('curName').style.color=ctx.color;
+  document.getElementById('curSince').textContent='Since '+fmtTime(current.since);
+}
+
+function renderGrid() {
+  document.getElementById('ctxGrid').innerHTML=CONTEXTS.map(c=>`
+    <div class="ctx-btn${current&&current.id===c.id?' active':''}" style="--cc:${c.color};--bg:${c.bg}" onclick="beginSwitch('${c.id}')">
+      <div class="ctx-btn-icon">${c.icon}</div>
+      <div class="ctx-btn-label">${c.label}</div>
+    </div>`).join('');
+  document.getElementById('switchTitle').textContent=current?'Switch To':'Start In';
+}
+
+function renderLog() {
+  const el=document.getElementById('logList');
+  if(!log.length){el.innerHTML='<p class="empty">No context switches yet.</p>';return;}
+  const rev=[...log].reverse();
+  el.innerHTML=rev.map((e,i)=>{
+    const ctx=CONTEXTS.find(c=>c.id===e.id);
+    const prev=rev[i+1];
+    const dur=prev?fmtDur(e.since-prev.since):'';
+    return `<div class="log-item">
+      <div class="log-dot" style="background:${ctx.color}"></div>
+      <div class="log-name" style="color:${ctx.color}">${ctx.icon} ${ctx.label}</div>
+      ${dur?`<div class="log-dur">${dur}</div>`:''}
+      <div class="log-time">${fmtTime(e.since)}</div>
+    </div>`;
+  }).join('');
+}
+
+function beginSwitch(id) {
+  pending=CONTEXTS.find(c=>c.id===id);
+  phase=current?0:1;
+  checked=[];
+  document.getElementById('transCard').classList.add('show');
+  showPhase();
+}
+
+function showPhase() {
+  if(phase===0){
+    const from=CONTEXTS.find(c=>c.id===current.id);
+    document.getElementById('phaseLabel').textContent='Closing Out';
+    document.getElementById('phaseCtxName').textContent=from.icon+' '+from.label;
+    document.getElementById('phaseCtxName').style.color=from.color;
+    renderRituals(from.exit);
+    document.getElementById('btnNext').textContent='Ready to Enter '+pending.label;
+  } else {
+    document.getElementById('phaseLabel').textContent='Entering';
+    document.getElementById('phaseCtxName').textContent=pending.icon+' '+pending.label;
+    document.getElementById('phaseCtxName').style.color=pending.color;
+    renderRituals(pending.enter);
+    document.getElementById('btnNext').textContent="I'm In — Let's Go";
+  }
+  updateBtn();
+}
+
+function renderRituals(steps) {
+  document.getElementById('ritualList').innerHTML=steps.map((s,i)=>`
+    <div class="ritual-item" id="ri-${i}" onclick="toggleRitual(${i})">
+      <div class="ritual-check" id="rc-${i}"></div>
+      <div class="ritual-text">${s}</div>
+    </div>`).join('');
+}
+
+function toggleRitual(i) {
+  const idx=checked.indexOf(i);
+  if(idx===-1) checked.push(i); else checked.splice(idx,1);
+  document.getElementById('ri-'+i).classList.toggle('done',checked.includes(i));
+  document.getElementById('rc-'+i).textContent=checked.includes(i)?'✓':'';
+  updateBtn();
+}
+
+function updateBtn() {
+  const total=phase===0?CONTEXTS.find(c=>c.id===current.id).exit.length:pending.enter.length;
+  document.getElementById('btnNext').classList.toggle('ready',checked.length===total);
+}
+
+function nextPhase() {
+  if(phase===0){ phase=1; checked=[]; showPhase(); return; }
+  const now=Date.now();
+  current={id:pending.id,since:now};
+  log.push({id:pending.id,since:now});
+  localStorage.setItem('csh_'+TODAY,JSON.stringify(log));
+  localStorage.setItem('csh_cur',JSON.stringify(current));
+  document.getElementById('transCard').classList.remove('show');
+  pending=null;
+  renderCurrent(); renderGrid(); renderLog();
+}
+
+renderCurrent(); renderGrid(); renderLog();
+</script>
+</body>
+</html>
