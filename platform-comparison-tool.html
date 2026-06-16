@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Comparison Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 10px; }
+  .crit { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid #3C603C; flex-wrap: wrap; }
+  .crit:first-of-type { border-top: none; }
+  .crit span { flex: 1; min-width: 170px; font-size: .92rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .86rem; padding: 6px 8px; border-radius: 6px; }
+  .win { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; font-size: .95rem; }
+  .win b { color: #5AE57A; }
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 480px; }
+  th, td { padding: 9px 8px; text-align: center; border-bottom: 1px solid #4C724C; font-size: .86rem; }
+  th { color: #5AE57A; font-size: .76rem; text-transform: uppercase; }
+  td:first-child, th:first-child { text-align: left; }
+  tr.top td { background: #2E4D2E; }
+  .sc { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Platform Comparison Tool</h1>
+  <p class="sub">Weigh what matters to you and find the social platform that actually fits your goals.</p>
+
+  <div class="panel">
+    <h2>How much do these matter to you? (0–5)</h2>
+    <div id="crits"></div>
+  </div>
+
+  <div class="win" id="win"></div>
+  <div class="panel scroll"><div id="matrix"></div></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  // platform ratings per criterion (1-5, editorial baseline)
+  const CRIT = ['Organic reach potential','Speed to grow','Monetisation options','Low effort per post','Long content shelf-life','B2B fit'];
+  const PLAT = {
+    'Instagram':[4,4,4,2,2,2], 'TikTok':[5,5,3,3,2,1], 'YouTube':[3,2,5,1,5,3],
+    'LinkedIn':[4,3,4,3,3,5], 'X / Twitter':[3,4,2,4,2,4], 'Pinterest':[4,2,3,3,5,2]
+  };
+  let W = JSON.parse(localStorage.getItem('pct_w')||'null') || CRIT.map(()=>3);
+  g('crits').innerHTML = CRIT.map((c,i)=>`<div class="crit"><span>${c}</span>
+    <select data-i="${i}">${[0,1,2,3,4,5].map(v=>`<option value="${v}" ${W[i]===v?'selected':''}>${v}</option>`).join('')}</select></div>`).join('');
+  g('crits').querySelectorAll('select').forEach(s=>s.onchange=()=>{ W[+s.dataset.i]=+s.value; localStorage.setItem('pct_w',JSON.stringify(W)); render(); });
+
+  function render() {
+    const tw = W.reduce((a,b)=>a+b,0);
+    const ranked = Object.entries(PLAT).map(([name,r])=>{
+      const raw = r.reduce((s,v,i)=>s+v*W[i],0);
+      const score = tw>0 ? Math.round(raw/(tw*5)*100) : 0;
+      return { name, r, score };
+    }).sort((a,b)=>b.score-a.score);
+    const top=ranked[0];
+    g('win').innerHTML = tw===0 ? 'Set how much each factor matters to see your best-fit platform.'
+      : `🏆 Best fit for you: <b>${top.name}</b> at <b>${top.score}/100</b> — given what you said matters most.`;
+    let h=`<table><tr><th>Platform</th>${CRIT.map(c=>`<th>${c.split(' ')[0]}</th>`).join('')}<th>Score</th></tr>`;
+    ranked.forEach((x,ri)=>{ h+=`<tr class="${ri===0?'top':''}"><td>${x.name}</td>${x.r.map(v=>`<td>${v}</td>`).join('')}<td class="sc">${x.score}</td></tr>`; });
+    h+=`</table>`;
+    g('matrix').innerHTML=h;
+  }
+  render();
+</script>
+</body>
+</html>

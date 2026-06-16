@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Overwhelm Reset Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 580px; margin: 0 auto 18px; }
+  .pnum { font-size: 0.7rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .ptitle { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.4rem; margin-bottom: 8px; }
+  .psub { font-size: 0.84rem; color: #F0EBE0aa; margin-bottom: 18px; line-height: 1.6; }
+  .add-row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .f-in { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .f-in:focus { border-color: #5AE57A; }
+  .item-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #325132; }
+  .item-row:last-child { border-bottom: none; }
+  .item-text { flex: 1; font-size: 0.88rem; color: #F0EBE0aa; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .breath-ring { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #C9A84C33; background: #C9A84C08; margin: 20px auto; }
+  .breath-ring.go { animation: breathe 16s ease-in-out infinite; }
+  @keyframes breathe {
+    0%,100% { transform: scale(0.65); border-color: #C9A84C33; background: #C9A84C06; }
+    25%,50% { transform: scale(1.25); border-color: #5AE57A; background: #C9A84C22; }
+    75%     { transform: scale(0.65); border-color: #C9A84C33; background: #C9A84C06; }
+  }
+  .breath-lbl { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; min-height: 28px; }
+  .breath-prog { font-size: 0.75rem; color: #BFD8BF; margin-top: 5px; min-height: 18px; }
+  .sort-prog { font-size: 0.75rem; color: #BFD8BF; margin-bottom: 10px; }
+  .sort-box { font-family: 'Playfair Display', serif; font-size: 1.1rem; padding: 20px; background: #325132; border-radius: 10px; border: 1px solid #3C603C; text-align: center; margin: 12px 0; min-height: 64px; display: flex; align-items: center; justify-content: center; line-height: 1.4; }
+  .sort-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sort-btn { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 12px 8px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; cursor: pointer; text-align: center; transition: all 0.15s; }
+  .sort-btn:hover { border-color: #5AE57A; color: #5AE57A; background: #325132; }
+  .focus-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 9px; border: 1px solid #4C724C; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
+  .focus-item:last-child { margin-bottom: 0; }
+  .focus-item:hover { border-color: #C9A84C44; }
+  .focus-item.sel { border-color: #5AE57A; background: #325132; }
+  .focus-dot { width: 8px; height: 8px; border-radius: 50%; background: #5AE57A; flex-shrink: 0; }
+  .chosen-lbl { font-size: 0.7rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .chosen-task { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #FFFFFF; margin-bottom: 20px; line-height: 1.4; }
+  .go-timer { font-family: 'Playfair Display', serif; font-size: 5rem; color: #5AE57A; line-height: 1; letter-spacing: -2px; margin-bottom: 8px; }
+  .go-sub { font-size: 0.82rem; color: #BFD8BF; margin-bottom: 18px; }
+  .btn-main { background: #5AE57A; color: #325132; border: none; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-main:hover { background: #5AE57A; }
+  .btn-main:disabled { background: #3C603C; color: #BFD8BF; cursor: not-allowed; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .empty { text-align: center; color: #BFD8BF; font-size: 0.85rem; padding: 20px; font-style: italic; line-height: 1.6; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Overwhelm Reset</h1>
+<p class="subtitle">When everything feels urgent, nothing gets done. Five steps back to calm and clarity.</p>
+
+<div id="ph1">
+  <div class="card">
+    <div class="pnum">Step 1 of 5</div>
+    <div class="ptitle">Get It Out of Your Head</div>
+    <div class="psub">Don't organize. Don't filter. Write down every single thing that's taking up space in your mind right now.</div>
+    <div class="add-row">
+      <input class="f-in" id="itemIn" placeholder="One thing at a time…" maxlength="100" />
+      <button class="btn-main" onclick="addItem()">Add</button>
+    </div>
+    <div id="itemList"></div>
+    <div style="text-align:center;margin-top:18px">
+      <button class="btn-main" id="nextBtn1" onclick="goPhase(2)" disabled>I've Got It All Out →</button>
+    </div>
+  </div>
+</div>
+
+<div id="ph2" style="display:none">
+  <div class="card" style="text-align:center">
+    <div class="pnum">Step 2 of 5</div>
+    <div class="ptitle">Reset Your Nervous System</div>
+    <div class="psub">Box breathing: 4 counts in, hold, out, rest. Four rounds. Follow the circle.</div>
+    <div class="breath-ring" id="breathRing"></div>
+    <div class="breath-lbl" id="breathLbl">Press Begin when ready</div>
+    <div class="breath-prog" id="breathProg"></div>
+    <div class="btn-row" style="margin-top:20px">
+      <button class="btn-main" id="breathBtn" onclick="startBreath()">Begin</button>
+      <button class="btn-ghost" onclick="goPhase(3)">Skip →</button>
+    </div>
+  </div>
+</div>
+
+<div id="ph3" style="display:none">
+  <div class="card">
+    <div class="pnum">Step 3 of 5</div>
+    <div class="ptitle">Sort Without Overthinking</div>
+    <div class="sort-prog" id="sortProg"></div>
+    <div class="sort-box" id="sortBox"></div>
+    <div class="sort-btns">
+      <button class="sort-btn" onclick="doSort('doNow')">🔥 Do Now</button>
+      <button class="sort-btn" onclick="doSort('schedule')">📅 Schedule</button>
+      <button class="sort-btn" onclick="doSort('drop')">🗑 Drop It</button>
+      <button class="sort-btn" onclick="doSort('noise')">💭 Just Noise</button>
+    </div>
+  </div>
+</div>
+
+<div id="ph4" style="display:none">
+  <div class="card">
+    <div class="pnum">Step 4 of 5</div>
+    <div class="ptitle">Pick Your One Thing</div>
+    <div class="psub" id="ph4sub">These need attention now. Tap one to commit to starting it.</div>
+    <div id="doNowList"></div>
+  </div>
+</div>
+
+<div id="ph5" style="display:none">
+  <div class="card" style="text-align:center">
+    <div class="pnum">Step 5 of 5</div>
+    <div class="ptitle">You're Starting</div>
+    <div class="chosen-lbl">Your one thing right now:</div>
+    <div class="chosen-task" id="chosenTask"></div>
+    <div class="go-timer" id="goTimer">5:00</div>
+    <div class="go-sub">Just 5 minutes. That's all you're committing to.</div>
+    <div class="btn-row">
+      <button class="btn-main" id="goBtn" onclick="startGo()">▶ Start Timer</button>
+      <button class="btn-ghost" onclick="goPhase(4)">← Back</button>
+      <button class="btn-ghost" onclick="resetAll()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let items=[], sortIdx=0, buckets={doNow:[],schedule:[],drop:[],noise:[]};
+  let chosen=null, goSecs=300, goInt=null, breathInt=null;
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function addItem() {
+    const inp=document.getElementById('itemIn'), text=inp.value.trim(); if(!text) return;
+    items.push({id:Date.now(), text}); inp.value=''; inp.focus();
+    renderItems(); document.getElementById('nextBtn1').disabled=false;
+  }
+  function removeItem(id) {
+    items=items.filter(i=>i.id!==id); renderItems();
+    document.getElementById('nextBtn1').disabled=!items.length;
+  }
+  function renderItems() {
+    const el=document.getElementById('itemList');
+    el.innerHTML=items.map(i=>`
+      <div class="item-row">
+        <span class="item-text">${esc(i.text)}</span>
+        <button class="del-btn" onclick="removeItem(${i.id})">✕</button>
+      </div>`).join('');
+  }
+
+  function goPhase(n) {
+    [1,2,3,4,5].forEach(p=>document.getElementById('ph'+p).style.display=p===n?'block':'none');
+    window.scrollTo({top:0,behavior:'smooth'});
+    if(n===3) initSort();
+    else if(n===4) renderFocus();
+    else if(n===5) { goSecs=300; clearInterval(goInt); goInt=null; document.getElementById('goTimer').textContent='5:00'; const b=document.getElementById('goBtn'); b.textContent='▶ Start Timer'; b.onclick=startGo; }
+  }
+
+  function startBreath() {
+    document.getElementById('breathBtn').style.display='none';
+    document.getElementById('breathRing').classList.add('go');
+    const P=['Breathe in...','Hold...','Breathe out...','Rest...'];
+    let s=0;
+    breathInt=setInterval(()=>{
+      s++;
+      document.getElementById('breathLbl').textContent=P[Math.floor((s%16)/4)];
+      document.getElementById('breathProg').textContent=`Round ${Math.min(4,Math.ceil(s/16))} of 4`;
+      if(s>=64){
+        clearInterval(breathInt); breathInt=null;
+        document.getElementById('breathRing').classList.remove('go');
+        document.getElementById('breathLbl').textContent='Well done. Your mind is clearer now.';
+        document.getElementById('breathProg').textContent='';
+        const b=document.getElementById('breathBtn');
+        b.textContent='Start Sorting →'; b.onclick=()=>goPhase(3); b.style.display='inline-block';
+      }
+    },1000);
+  }
+
+  function initSort() {
+    buckets={doNow:[],schedule:[],drop:[],noise:[]}; sortIdx=0; showSortItem();
+  }
+  function showSortItem() {
+    if(sortIdx>=items.length){goPhase(4);return;}
+    document.getElementById('sortProg').textContent=`Item ${sortIdx+1} of ${items.length}`;
+    document.getElementById('sortBox').textContent=items[sortIdx].text;
+  }
+  function doSort(bucket) { buckets[bucket].push(items[sortIdx]); sortIdx++; showSortItem(); }
+
+  function renderFocus() {
+    const el=document.getElementById('doNowList');
+    if(!buckets.doNow.length){
+      document.getElementById('ph4sub').textContent='Good news — nothing needs immediate attention.';
+      el.innerHTML=`<p class="empty">Your list is more manageable than it felt. Take a breath — you're going to be fine. Pick one thing from your scheduled items to start moving forward.</p>
+        <div class="btn-row" style="margin-top:16px"><button class="btn-main" onclick="resetAll()">Start Over</button></div>`;
+      return;
+    }
+    document.getElementById('ph4sub').textContent='These need your attention now. Tap one to commit to starting it.';
+    el.innerHTML=buckets.doNow.map(i=>`
+      <div class="focus-item" id="fi-${i.id}" onclick="chooseFocus(${i.id})">
+        <div class="focus-dot"></div>
+        <span style="flex:1;font-size:0.9rem">${esc(i.text)}</span>
+      </div>`).join('');
+  }
+  function chooseFocus(id) {
+    const item=buckets.doNow.find(i=>i.id===id); if(!item) return;
+    chosen=item;
+    document.querySelectorAll('.focus-item').forEach(el=>el.classList.remove('sel'));
+    document.getElementById('fi-'+id).classList.add('sel');
+    document.getElementById('chosenTask').textContent=item.text;
+    setTimeout(()=>goPhase(5),300);
+  }
+
+  function startGo() {
+    const btn=document.getElementById('goBtn');
+    if(goInt){ clearInterval(goInt); goInt=null; btn.textContent='▶ Resume'; return; }
+    btn.textContent='⏸ Pause';
+    goInt=setInterval(()=>{
+      goSecs--;
+      const m=Math.floor(goSecs/60),s=goSecs%60;
+      document.getElementById('goTimer').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+      if(goSecs<=0){
+        clearInterval(goInt); goInt=null;
+        document.getElementById('goTimer').textContent='Done!';
+        beep(); btn.textContent='Keep Going'; btn.onclick=()=>{goSecs=300;document.getElementById('goTimer').textContent='5:00';btn.textContent='▶ Start Timer';btn.onclick=startGo;};
+      }
+    },1000);
+  }
+  function beep() {
+    try{const ac=new(window.AudioContext||window.webkitAudioContext)();[0,180,360].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=660;g.gain.value=0.3;o.start(ac.currentTime+t/1000);o.stop(ac.currentTime+t/1000+0.1);});}catch(e){}
+  }
+
+  function resetAll() {
+    items=[]; sortIdx=0; buckets={doNow:[],schedule:[],drop:[],noise:[]}; chosen=null; goSecs=300;
+    clearInterval(goInt); clearInterval(breathInt); goInt=null; breathInt=null;
+    document.getElementById('itemList').innerHTML='';
+    document.getElementById('nextBtn1').disabled=true;
+    document.getElementById('breathRing').classList.remove('go');
+    document.getElementById('breathLbl').textContent='Press Begin when ready';
+    document.getElementById('breathProg').textContent='';
+    const bb=document.getElementById('breathBtn'); bb.textContent='Begin'; bb.onclick=startBreath; bb.style.display='inline-block';
+    goPhase(1);
+  }
+
+  document.getElementById('itemIn').addEventListener('keydown',e=>{if(e.key==='Enter')addItem();});
+</script>
+</body>
+</html>

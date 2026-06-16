@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photography Shot List Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Photography Shot List Generator</h1>
+  <p class="sub">Walk into a shoot with a clear plan — and capture every shot you came for.</p>
+
+  <div class="panel">
+    <label for="type">Shoot type</label>
+    <select id="type"><option>Portrait</option><option>Family / lifestyle</option><option>Wedding</option><option>Event</option><option>Product</option><option>Travel / landscape</option><option>Editorial / brand</option></select>
+    <label for="brief">Brief / vibe</label>
+    <textarea id="brief" placeholder="The feeling, the audience, the use"></textarea>
+    <label for="must">Must-have shots (one per line)</label>
+    <textarea id="must" placeholder="The non-negotiable images"></textarea>
+    <label for="nice">Nice-to-have ideas</label>
+    <textarea id="nice" placeholder="Bonus shots if time allows"></textarea>
+    <label for="gear">Gear &amp; kit</label>
+    <input id="gear" placeholder="Body, lenses, lights, backup cards">
+    <button class="btn" onclick="gen()">Build Shot List</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['type','brief','must','nice','gear'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('pslg_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('pslg_'+k,g(k).value)); g(k).addEventListener('change',()=>localStorage.setItem('pslg_'+k,g(k).value)); });
+  const STANDARDS={
+    'Portrait':['wide environmental','medium half-body','close head and shoulders','candid laugh','hands or detail','black and white version'],
+    'Family / lifestyle':['everyone together','parents only','kids only','genuine interaction','close-up of hands','an in-the-moment candid'],
+    'Wedding':['details (rings, invite, shoes)','getting ready','first look','ceremony wide','first kiss','family group shots','first dance','venue overall'],
+    'Event':['venue exterior + signage','speaker / host on stage','audience reactions','key sponsor or branding','group photo of organisers','candid mingling'],
+    'Product':['hero shot on plain background','detail / texture','in-use lifestyle','scale shot (in hand or context)','flat lay','colour variants'],
+    'Travel / landscape':['wide establishing shot','medium with subject','tight detail','sunrise or sunset','local people (with permission)','a sense of scale'],
+    'Editorial / brand':['hero/cover image','wide environment','medium working shot','tight craft detail','team / portrait','lifestyle moment']
+  };
+  function gen(){
+    const t=g('type').value;
+    const std=STANDARDS[t]||[];
+    const must=v('must').split('\n').filter(x=>x.trim());
+    const nice=v('nice').split('\n').filter(x=>x.trim());
+    const out='PHOTOGRAPHY SHOT LIST  ·  '+t+(v('brief')?'\n\nBRIEF:\n'+v('brief'):'')+
+    '\n\nSTANDARD '+t.toUpperCase()+' SHOTS:\n'+std.map(s=>'  ☐  '+s).join('\n')+
+    (must.length?'\n\nMUST-HAVES:\n'+must.map(s=>'  ☐  '+s.trim()).join('\n'):'')+
+    (nice.length?'\n\nNICE-TO-HAVES:\n'+nice.map(s=>'  ☐  '+s.trim()).join('\n'):'')+
+    (v('gear')?'\n\nGEAR:\n'+v('gear'):'')+
+    '\n\n--- Shoot day tips ---\nTick shots off as you go — the list is your friend when adrenaline kicks in.\nGet the must-haves early, then play.\nA few minutes of golden-hour light is worth a whole afternoon.';
+    g('out').textContent=out; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

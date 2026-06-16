@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novel Chapter Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 18px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .total { text-align: center; margin-bottom: 12px; }
+  .total .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .entry .top { display: flex; justify-content: space-between; gap: 8px; font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .entry .meta { font-size: .8rem; opacity: .65; margin-top: 3px; }
+  .entry p { font-size: .89rem; white-space: pre-wrap; margin-top: 5px; }
+  .entry .x { cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Novel Chapter Planner</h1>
+  <p class="sub">A scene-by-scene plan for each chapter — what happens, who changes, what now.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Chapter #</label><input id="num" placeholder="e.g. 4"></div>
+      <div style="flex:2"><label>Title</label><input id="title" placeholder="Chapter title or summary"></div>
+    </div>
+    <label>POV character &amp; setting</label>
+    <input id="pov" placeholder="Whose head are we in? Where?">
+    <label>What happens (scene by scene)</label>
+    <textarea id="what" placeholder="The events, in order"></textarea>
+    <label>The shift / what changes</label>
+    <input id="shift" placeholder="What is different by the end of the chapter">
+    <button class="btn" onclick="add()">+ Add Chapter</button>
+  </div>
+
+  <div class="panel">
+    <div class="total"><span class="n" id="total">0</span><div style="opacity:.7;font-size:.85rem">chapters planned</div></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('ncp')||'[]');
+  const save=()=>localStorage.setItem('ncp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('title')&&!v('what')){ alert('Add a title or what happens.'); return; }
+    R.push({n:v('num'),t:v('title'),p:v('pov'),w:v('what'),s:v('shift')}); ['num','title','pov','what','shift'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all chapters?')){ R=[]; save(); render(); } }
+  function render(){
+    g('total').textContent=R.length;
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No chapters yet. Plot the first beat.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="entry"><div class="top"><span>Ch '+(x.n||(i+1))+(x.t?'  ·  '+esc(x.t):'')+'</span><span class="x" onclick="del('+i+')">✕</span></div>'+(x.p?'<div class="meta">'+esc(x.p)+'</div>':'')+(x.w?'<p>'+esc(x.w)+'</p>':'')+(x.s?'<div class="meta">→ '+esc(x.s)+'</div>':'')+'</div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

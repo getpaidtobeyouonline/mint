@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Action Identifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 620px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .add-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .f-in { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .f-in:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+  .item-row { display: flex; align-items: flex-start; gap: 8px; padding: 10px 0; border-bottom: 1px solid #325132; }
+  .item-row:last-child { border-bottom: none; }
+  .item-row.done .action-text { text-decoration: line-through; color: #5A845A; }
+  .raw-text { flex: 1; font-size: 0.88rem; color: #F0EBE0aa; padding-top: 2px; }
+  .action-body { flex: 1; }
+  .action-text { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; line-height: 1.4; }
+  .action-from { font-size: 0.7rem; color: #4C724C; font-style: italic; margin-bottom: 5px; }
+  .action-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag { font-size: 0.65rem; padding: 2px 8px; border-radius: 8px; background: #325132; border: 1px solid #4C724C; color: #BFD8BF; white-space: nowrap; }
+  .tag-ctx { border-color: #C9A84C55; color: #5AE57A; }
+  .define-btn { background: none; border: 1px solid #C9A84C55; color: #5AE57A; padding: 5px 12px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .define-btn:hover { background: #C9A84C22; }
+  .done-btn { background: none; border: 1px solid #4C724C; color: #BFD8BF; padding: 5px 10px; border-radius: 6px; font-size: 0.82rem; cursor: pointer; flex-shrink: 0; }
+  .done-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 4px 5px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .clarify-form { background: #325132; border: 1px solid #C9A84C33; border-radius: 10px; padding: 16px; margin: 6px 0; }
+  .clarify-raw { font-size: 0.76rem; color: #BFD8BF; margin-bottom: 12px; font-style: italic; }
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 5px 12px; border-radius: 14px; font-size: 0.78rem; cursor: pointer; transition: all 0.12s; }
+  .chip.sel { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .clarify-btns { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .btn-save { background: #5AE57A; color: #325132; border: none; padding: 8px 18px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.85rem; cursor: pointer; }
+  .btn-save:hover { background: #5AE57A; }
+  .btn-minor { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 8px 14px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; }
+  .btn-minor:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .stats-row { display: flex; gap: 10px; max-width: 620px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 11px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; line-height: 1; }
+  .stat-l { font-size: 0.66rem; color: #BFD8BF; margin-top: 3px; }
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .fchip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 5px 13px; border-radius: 14px; font-size: 0.78rem; cursor: pointer; }
+  .fchip.sel { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 16px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Next Action Identifier</h1>
+<p class="subtitle">Clarify what to actually do. Filter by context. Know exactly what's next.</p>
+
+<div class="card">
+  <div class="card-title">What's on your plate?</div>
+  <div class="add-row">
+    <input class="f-in" id="rawIn" placeholder="Project, task, or anything on your mind…" maxlength="100" />
+    <button class="btn-gold" onclick="addRaw()">Add</button>
+  </div>
+  <div id="mainList"><p class="empty">Add something above to get started.</p></div>
+</div>
+
+<div class="stats-row" id="statsRow" style="display:none">
+  <div class="stat-box"><div class="stat-n" id="sPending">0</div><div class="stat-l">pending actions</div></div>
+  <div class="stat-box"><div class="stat-n" id="sUnclear">0</div><div class="stat-l">to clarify</div></div>
+  <div class="stat-box"><div class="stat-n" id="sDone">0</div><div class="stat-l">completed</div></div>
+</div>
+
+<div class="card" id="actionCard" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <div class="card-title" style="margin-bottom:0">Next Actions</div>
+    <button class="btn-minor" id="clearBtn" onclick="clearDone()" style="display:none;font-size:0.78rem;padding:5px 12px">Clear Done</button>
+  </div>
+  <div class="filter-row" id="filterRow"></div>
+  <div id="actionList"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CONTEXTS = [
+    {id:'computer', icon:'🖥', label:'Computer'},
+    {id:'phone',    icon:'📞', label:'Phone'},
+    {id:'anywhere', icon:'⚡', label:'Anywhere'},
+    {id:'home',     icon:'🏠', label:'Home'},
+    {id:'errands',  icon:'🚗', label:'Errands'},
+  ];
+  const TIMES = [
+    {id:'t5',   label:'< 5 min'},
+    {id:'t15',  label:'15 min'},
+    {id:'t30',  label:'30 min'},
+    {id:'t60',  label:'1 hour'},
+    {id:'t120', label:'2+ hrs'},
+  ];
+
+  const KEY = 'nat_items';
+  let items = JSON.parse(localStorage.getItem(KEY)||'[]');
+  let clarifyingId = null, filterCtx = null;
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(items)); }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function addRaw() {
+    const inp=document.getElementById('rawIn'), text=inp.value.trim(); if(!text) return;
+    items.push({id:Date.now(), raw:text, action:'', ctx:'', time:'', done:false, clarified:false});
+    inp.value=''; save(); render();
+  }
+
+  function clarifyItem(id) {
+    clarifyingId=id; render();
+    setTimeout(()=>{ const el=document.getElementById('ac-'+id); if(el) el.focus(); },50);
+  }
+  function cancelClarify() { clarifyingId=null; render(); }
+
+  function setCtx(id, val) {
+    const item=items.find(i=>i.id===id); if(!item) return; item.ctx=val;
+    CONTEXTS.forEach(c=>{ const el=document.getElementById(`cc-${id}-${c.id}`); if(el) el.classList.toggle('sel',c.id===val); });
+  }
+  function setTime(id, val) {
+    const item=items.find(i=>i.id===id); if(!item) return; item.time=val;
+    TIMES.forEach(t=>{ const el=document.getElementById(`ct-${id}-${t.id}`); if(el) el.classList.toggle('sel',t.id===val); });
+  }
+
+  function saveAction(id) {
+    const item=items.find(i=>i.id===id); if(!item) return;
+    const action=(document.getElementById('ac-'+id)||{}).value?.trim(); if(!action) return;
+    item.action=action; item.clarified=true; clarifyingId=null; save(); render();
+  }
+  function dropItem(id) { items=items.filter(i=>i.id!==id); if(clarifyingId===id) clarifyingId=null; save(); render(); }
+  function markDone(id) { const i=items.find(i=>i.id===id); if(i){i.done=true; save(); render();} }
+  function clearDone() { items=items.filter(i=>!i.done); save(); render(); }
+
+  function setFilter(ctxId) {
+    filterCtx=ctxId;
+    document.querySelectorAll('.fchip').forEach(el=>el.classList.toggle('sel',el.dataset.ctx===(ctxId||'')));
+    renderActionList();
+  }
+
+  function render() {
+    const unclarified = items.filter(i=>!i.clarified&&!i.done);
+    const el = document.getElementById('mainList');
+
+    if (!items.length) {
+      el.innerHTML='<p class="empty">Add something above to get started.</p>';
+    } else if (!unclarified.length && !clarifyingId) {
+      el.innerHTML='<p class="empty" style="color:#70c070aa">All items clarified — check your next actions below.</p>';
+    } else {
+      el.innerHTML = unclarified.map(item => {
+        if (clarifyingId===item.id) return `
+          <div class="clarify-form">
+            <div class="clarify-raw">→ ${esc(item.raw)}</div>
+            <div class="field-label">What's the very next physical action?</div>
+            <input class="f-in" id="ac-${item.id}" value="${esc(item.action)}" placeholder="Open the doc and write the first paragraph…" maxlength="120"
+              onkeydown="if(event.key==='Enter')saveAction(${item.id})" style="margin-bottom:12px" />
+            <div class="field-label">Context</div>
+            <div class="chip-row" style="margin-bottom:10px">${CONTEXTS.map(c=>`
+              <div class="chip ${item.ctx===c.id?'sel':''}" id="cc-${item.id}-${c.id}" onclick="setCtx(${item.id},'${c.id}')">${c.icon} ${c.label}</div>`).join('')}</div>
+            <div class="field-label">Time needed</div>
+            <div class="chip-row">${TIMES.map(t=>`
+              <div class="chip ${item.time===t.id?'sel':''}" id="ct-${item.id}-${t.id}" onclick="setTime(${item.id},'${t.id}')">${t.label}</div>`).join('')}</div>
+            <div class="clarify-btns">
+              <button class="btn-save" onclick="saveAction(${item.id})">Save Next Action</button>
+              <button class="btn-minor" onclick="dropItem(${item.id})">Not Actionable</button>
+              <button class="btn-minor" onclick="cancelClarify()">Cancel</button>
+            </div>
+          </div>`;
+        return `<div class="item-row">
+          <span class="raw-text">${esc(item.raw)}</span>
+          <button class="define-btn" onclick="clarifyItem(${item.id})">Define →</button>
+          <button class="del-btn" onclick="dropItem(${item.id})">✕</button>
+        </div>`;
+      }).join('');
+    }
+
+    const pending=items.filter(i=>i.clarified&&!i.done).length;
+    const unclear=items.filter(i=>!i.clarified&&!i.done).length;
+    const done=items.filter(i=>i.done).length;
+    document.getElementById('statsRow').style.display=items.length?'flex':'none';
+    document.getElementById('sPending').textContent=pending;
+    document.getElementById('sUnclear').textContent=unclear;
+    document.getElementById('sDone').textContent=done;
+
+    const hasClarified=items.some(i=>i.clarified);
+    document.getElementById('actionCard').style.display=hasClarified?'block':'none';
+    document.getElementById('clearBtn').style.display=items.some(i=>i.done)?'inline-block':'none';
+
+    const usedCtxs=CONTEXTS.filter(c=>items.some(i=>i.clarified&&!i.done&&i.ctx===c.id));
+    document.getElementById('filterRow').innerHTML=
+      `<div class="fchip ${!filterCtx?'sel':''}" data-ctx="" onclick="setFilter(null)">All</div>`+
+      usedCtxs.map(c=>`<div class="fchip ${filterCtx===c.id?'sel':''}" data-ctx="${c.id}" onclick="setFilter('${c.id}')">${c.icon} ${c.label}</div>`).join('');
+
+    renderActionList();
+  }
+
+  function renderActionList() {
+    const visible=items.filter(i=>i.clarified&&(!filterCtx||i.ctx===filterCtx));
+    const el=document.getElementById('actionList'); if(!el) return;
+    if(!visible.length){el.innerHTML='<p class="empty">No matching next actions.</p>';return;}
+    el.innerHTML=visible.map(item=>{
+      const ctx=CONTEXTS.find(c=>c.id===item.ctx);
+      const time=TIMES.find(t=>t.id===item.time);
+      return `<div class="item-row ${item.done?'done':''}">
+        <div class="action-body">
+          <div class="action-text">${esc(item.action)}</div>
+          ${item.raw!==item.action?`<div class="action-from">from: ${esc(item.raw)}</div>`:''}
+          <div class="action-tags">
+            ${ctx?`<span class="tag tag-ctx">${ctx.icon} ${ctx.label}</span>`:''}
+            ${time?`<span class="tag">${time.label}</span>`:''}
+          </div>
+        </div>
+        ${!item.done
+          ? `<button class="done-btn" onclick="markDone(${item.id})">✓</button>`
+          : `<span style="font-size:0.75rem;color:#5AE57A;padding:4px 6px;flex-shrink:0">Done</span>`}
+        <button class="del-btn" onclick="dropItem(${item.id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('rawIn').addEventListener('keydown',e=>{if(e.key==='Enter')addRaw();});
+  render();
+</script>
+</body>
+</html>

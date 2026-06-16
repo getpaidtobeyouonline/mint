@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Subject Line Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+  input:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .score-block { text-align: center; padding: 14px 0 6px; }
+  .big-score {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 64px;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: #FFFFFF;
+    margin: 6px 0 4px;
+  }
+  .summary { opacity: 0.8; font-size: 14px; margin-bottom: 18px; }
+  .preview {
+    background: #FFFFFF;
+    color: #325132;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    font-size: 15px;
+  }
+  .preview-from { font-weight: 700; margin-bottom: 4px; font-size: 14px; }
+  .preview-subject { font-weight: 600; }
+  .preview-preview-text { font-size: 13px; opacity: 0.6; margin-top: 4px; }
+  .metric {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 11px 0;
+    border-bottom: 1px solid #4C724C;
+    gap: 14px;
+  }
+  .metric:last-child { border-bottom: none; }
+  .metric-name { font-size: 14px; }
+  .bar {
+    flex: 1;
+    height: 8px;
+    background: #4C724C;
+    border-radius: 4px;
+    overflow: hidden;
+    max-width: 200px;
+  }
+  .bar-fill { height: 100%; background: #5AE57A; border-radius: 4px; transition: width 0.6s; }
+  .metric-val { font-weight: 700; color: #5AE57A; min-width: 36px; text-align: right; font-size: 14px; }
+  .tips { list-style: none; margin-top: 6px; }
+  .tips li {
+    padding: 10px 0 10px 26px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .tips li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .tips li:last-child { border-bottom: none; }
+  .flag {
+    background: #2E4D2E;
+    border-left: 3px solid #5AE57A;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 13.5px;
+    margin-top: 12px;
+  }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Newsletter Subject Line Tester</h1>
+  <p class="subtitle">Score any subject line for opens. See the inbox preview. Fix what's hurting you.</p>
+
+  <div class="card">
+    <label>Your subject line</label>
+    <input type="text" id="subject" placeholder="e.g. The 1 thing I'd do differently if I started over" maxlength="120">
+    <label>Sender name (for preview)</label>
+    <input type="text" id="sender" placeholder="e.g. Sara from Studio" value="Your Newsletter">
+    <button onclick="analyse()">Test Subject Line</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="score-block">
+        <div class="big-score" id="score">0</div>
+        <div class="verdict" id="verdict">—</div>
+        <div class="summary" id="summary"></div>
+      </div>
+      <div class="preview">
+        <div class="preview-from" id="p-sender">—</div>
+        <div class="preview-subject" id="p-subject">—</div>
+        <div class="preview-preview-text">This is what your subject looks like in the inbox...</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">Score Breakdown</label>
+      <div id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:6px;">How to Improve</label>
+      <ul class="tips" id="tips"></ul>
+      <div id="flags"></div>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const SPAMMY = ['free','!!','100%','guarantee','act now','limited time','click here','buy now','cheap','winner','urgent','cash','earn','income','make money','$$$'];
+const POWER = ['truth','secret','finally','rare','honest','quietly','actually','wish','almost','nobody','everyone','one','single','really','this'];
+const PERSONAL = ['i','my','me','we','our','you','your','yours'];
+
+function analyse() {
+  const subject = document.getElementById('subject').value.trim();
+  const sender = document.getElementById('sender').value.trim() || 'Your Newsletter';
+  if (!subject) { alert('Add a subject line first.'); return; }
+
+  const len = subject.length;
+  const words = subject.split(/\s+/).filter(Boolean);
+  const lower = subject.toLowerCase();
+
+  let lengthScore;
+  if (len <= 30) lengthScore = 75;
+  else if (len <= 50) lengthScore = 95;
+  else if (len <= 70) lengthScore = 70;
+  else lengthScore = 40;
+
+  const curiosity = (/[?]/.test(subject) ? 30 : 0)
+    + (POWER.filter(w => lower.includes(w)).length * 12)
+    + (/\d/.test(subject) ? 10 : 0)
+    + (/\.\.\./.test(subject) ? 8 : 0);
+  const curiosityScore = Math.min(99, Math.max(20, curiosity + 20));
+
+  const lowerWords = lower.split(/\s+/);
+  const personalCount = lowerWords.filter(w => PERSONAL.includes(w.replace(/[^a-z]/g, ''))).length;
+  const personalScore = Math.min(99, 30 + personalCount * 18);
+
+  const upperWords = words.filter(w => w.length > 2 && w === w.toUpperCase() && /[A-Z]/.test(w)).length;
+  const exclaims = (subject.match(/!/g) || []).length;
+  const spammyHits = SPAMMY.filter(w => lower.includes(w));
+  let spamPenalty = upperWords * 12 + exclaims * 10 + spammyHits.length * 18;
+  const spamScore = Math.max(10, 99 - spamPenalty);
+
+  const clarity = (words.length >= 4 && words.length <= 10) ? 90 : (words.length < 4 ? 50 : 65);
+
+  const overall = Math.round(lengthScore * 0.2 + curiosityScore * 0.3 + personalScore * 0.15 + spamScore * 0.2 + clarity * 0.15);
+
+  let verdict, summary;
+  if (overall >= 80) { verdict = 'Send it'; summary = 'High open potential. Ready for the inbox.'; }
+  else if (overall >= 60) { verdict = 'Solid — tighten it'; summary = 'Strong bones. Small tweaks could lift opens 5-10%.'; }
+  else if (overall >= 40) { verdict = 'Needs work'; summary = 'It will get past spam, but it won\'t earn the click.'; }
+  else { verdict = 'Rewrite it'; summary = 'Risk of low opens or filtering. Start over.'; }
+
+  const tips = [];
+  if (lengthScore < 80) tips.push(len > 70 ? `Cut it down. ${len} chars gets truncated on mobile — aim for 30-50.` : 'Add 2-3 more words for context.');
+  if (curiosityScore < 65) tips.push('Add a curiosity hook: a number, a question, or a hint of something unexpected.');
+  if (personalScore < 60) tips.push('Use "I", "you", or "we" to make it feel personal, not corporate.');
+  if (spamScore < 70) tips.push('Tone down the salesy language. Lose ALL CAPS, exclamation marks, and "free/guarantee" wording.');
+  if (clarity < 70) tips.push(words.length < 4 ? 'Too vague — say what\'s inside.' : 'Trim to 4-10 words for sharper meaning.');
+  if (!tips.length) tips.push('Clean across the board. A/B test this against one variation.');
+
+  document.getElementById('score').textContent = overall;
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('summary').textContent = summary;
+  document.getElementById('p-sender').textContent = sender;
+  document.getElementById('p-subject').textContent = subject;
+
+  const metrics = [
+    {name: `Length (${len} chars)`, val: Math.round(lengthScore)},
+    {name: 'Curiosity Pull', val: Math.round(curiosityScore)},
+    {name: 'Personal Tone', val: Math.round(personalScore)},
+    {name: 'Spam Safety', val: Math.round(spamScore)},
+    {name: 'Clarity', val: Math.round(clarity)}
+  ];
+
+  document.getElementById('metrics').innerHTML = metrics.map(m =>
+    `<div class="metric"><span class="metric-name">${m.name}</span><div class="bar"><div class="bar-fill" style="width:${m.val}%"></div></div><span class="metric-val">${m.val}</span></div>`
+  ).join('');
+  document.getElementById('tips').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+
+  const flagBox = document.getElementById('flags');
+  flagBox.innerHTML = '';
+  if (spammyHits.length) {
+    flagBox.innerHTML += `<div class="flag"><strong>Spam-trigger words found:</strong> ${spammyHits.join(', ')}. Replace these to avoid the promotions tab.</div>`;
+  }
+  if (upperWords) {
+    flagBox.innerHTML += `<div class="flag"><strong>ALL CAPS detected.</strong> Most inboxes flag this as spammy — use sentence case.</div>`;
+  }
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

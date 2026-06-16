@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mortgage Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; } .row>div { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 12px; display: none; }
+  .big { text-align: center; font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  .big .l { font-size: .8rem; opacity: .7; font-family:'DM Sans',sans-serif; }
+  .bd { font-size: .87rem; margin-top: 12px; }
+  .bd div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid #4C724C; }
+  .bd div:last-child { border-bottom: none; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mortgage Calculator</h1>
+  <p class="sub">Estimate your monthly mortgage payment and the total cost over the term.</p>
+
+  <div class="panel">
+    <label>Property price</label>
+    <input id="price" type="number" min="0" placeholder="e.g. 250000">
+    <label>Deposit</label>
+    <input id="deposit" type="number" min="0" placeholder="e.g. 25000">
+    <div class="row">
+      <div><label>Interest rate %</label><input id="rate" type="number" step="0.01" min="0" placeholder="e.g. 5"></div>
+      <div><label>Term (years)</label><input id="years" type="number" min="1" value="25"></div>
+    </div>
+    <button class="btn" onclick="calc()">Calculate</button>
+    <div class="result" id="result"></div>
+    <div class="note">An estimate using a standard repayment formula. Actual offers, fees and rates vary — confirm with a lender or broker.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const fmt=n=>n.toLocaleString(undefined,{maximumFractionDigits:0});
+  function calc(){
+    const price=+g('price').value, dep=+g('deposit').value||0, rate=+g('rate').value, years=+g('years').value;
+    if(!price||!rate||!years){ alert('Fill in price, rate and term.'); return; }
+    const loan=price-dep;
+    const r=rate/100/12, n=years*12;
+    const m=r>0?loan*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1):loan/n;
+    const total=m*n;
+    g('result').style.display='block';
+    g('result').innerHTML='<div class="big">'+fmt(m)+'<div class="l">estimated monthly payment</div></div>'+
+      '<div class="bd"><div><span>Loan amount</span><span>'+fmt(loan)+'</span></div>'+
+      '<div><span>Deposit</span><span>'+fmt(dep)+' ('+Math.round(dep/price*100)+'%)</span></div>'+
+      '<div><span>Total interest</span><span>'+fmt(total-loan)+'</span></div>'+
+      '<div><span>Total repaid</span><span style="color:#5AE57A">'+fmt(total)+'</span></div></div>';
+    g('result').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

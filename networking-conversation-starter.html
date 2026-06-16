@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Networking Conversation Starter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .opener { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px 18px; margin-top: 16px; display: none; }
+  .opener .big { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .opener .tip { font-size: .82rem; opacity: .7; margin-top: 8px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Networking Conversation Starter</h1>
+  <p class="sub">Beat the awkward silence. Get a natural opener for any networking situation.</p>
+
+  <div class="panel">
+    <label for="setting">The setting</label>
+    <select id="setting">
+      <option value="event">A conference or event</option>
+      <option value="online">Online / a virtual room</option>
+      <option value="coffee">A one-on-one coffee chat</option>
+      <option value="reconnect">Reconnecting with someone</option>
+      <option value="group">Joining a group conversation</option>
+    </select>
+    <button class="btn" onclick="gen()">Give Me an Opener</button>
+  </div>
+
+  <div class="opener" id="opener"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const O={
+    event:["What brought you to this event?","Have you been to one of these before — any sessions worth catching?","What are you hoping to get out of today?","What is keeping you busy at work at the moment?","This is a great turnout — do you know many people here?"],
+    online:["Where are you joining from today?","What made you want to be part of this?","What is something you are working on right now?","How has your week been so far?","Curious — what is your connection to this group?"],
+    coffee:["Thanks for making the time — what does a typical week look like for you?","I would love to hear how you got into what you do.","What is something you are excited about right now?","What is a challenge you are wrestling with at the moment?","What made you say yes to this chat?"],
+    reconnect:["It has been too long — what have you been up to?","I was just thinking about you — how are things going?","What is new in your world since we last spoke?","I would love to catch up properly — what is the headline?","What are you focused on these days?"],
+    group:["Mind if I join? What are we talking about?","This sounds interesting — what did I miss?","I could not help overhearing — I would love to hear more.","What is the consensus over here?","You all seem deep in something good — fill me in?"]
+  };
+  const TIPS={
+    event:"Then listen, and ask a follow-up. People remember how you made them feel, not what you said.",
+    online:"Use their name, and keep your camera on if you can — it builds warmth fast.",
+    coffee:"Prepare two or three questions, but let it flow. Curiosity beats a script.",
+    reconnect:"Be warm and genuine. No need to explain the gap — just pick things back up.",
+    group:"Read the energy first, join lightly, and add value before you take the floor."
+  };
+  function gen(){
+    const s=g('setting').value;
+    const pick=O[s][Math.floor(Math.random()*O[s].length)];
+    g('opener').style.display='block';
+    g('opener').innerHTML='<div class="big">"'+pick+'"</div><div class="tip">'+TIPS[s]+'</div>';
+  }
+</script>
+</body>
+</html>

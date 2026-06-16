@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personal Story Prompt Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .chip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { border-color: #5AE57A; }
+  .chip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .generate-btn {
+    display: block;
+    margin: 0 auto 32px;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .prompt-card {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    min-height: 140px;
+  }
+  .category-tag {
+    display: inline-block;
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .prompt-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    color: #FFFFFF;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  .hook {
+    font-size: 0.95rem;
+    color: rgba(240, 235, 224, 0.7);
+    border-left: 2px solid #5AE57A;
+    padding-left: 12px;
+    font-style: italic;
+  }
+  .empty {
+    text-align: center;
+    opacity: 0.6;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Personal Story Prompt Generator</h1>
+  <p class="subtitle">Mine your real life for the stories your audience actually connects to. Pick a theme, hit generate, and start writing.</p>
+
+  <div class="controls">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="origin">Origin</button>
+    <button class="chip" data-cat="turning">Turning Point</button>
+    <button class="chip" data-cat="lesson">Lesson</button>
+    <button class="chip" data-cat="failure">Failure</button>
+    <button class="chip" data-cat="belief">Belief Shift</button>
+  </div>
+
+  <button class="generate-btn" id="generateBtn">Generate Prompt</button>
+
+  <div id="promptContainer">
+    <div class="empty">Pick a theme and tap generate to surface your next story.</div>
+  </div>
+
+  <div class="actions" id="actions" style="display:none;">
+    <button class="secondary-btn" id="copyBtn">Copy Prompt</button>
+    <button class="secondary-btn" id="anotherBtn">Another One</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const prompts = {
+    origin: [
+      { p: "The exact moment you decided your old path wasn't yours anymore.", h: "Open with the sensory detail — where you were, what you were holding." },
+      { p: "The first time someone paid you for something you'd have done for free.", h: "Lead with how much it was. Specifics build trust." },
+      { p: "What you wanted to be at 12 — and how close it is to what you do now.", h: "Connect the kid version to the adult version in one sentence." },
+      { p: "The 'normal' job you walked away from and what it cost you to leave.", h: "Name the salary. Name the fear. Don't sanitize it." },
+      { p: "The person who saw it in you before you did.", h: "Open with a quote they said to you that you still remember." },
+      { p: "The book, podcast, or post that quietly redirected your life.", h: "Tell us where you were when you consumed it." }
+    ],
+    turning: [
+      { p: "The week everything changed — and the small decision that started it.", h: "Zoom in on a Tuesday, not the highlight reel." },
+      { p: "A conversation that lasted ten minutes but rerouted your year.", h: "Write the dialogue. Let us hear them." },
+      { p: "The launch, post, or pitch that finally landed after many that didn't.", h: "Tell us the previous misses first. The win lands harder." },
+      { p: "When you stopped charging what you were 'supposed to' and started charging your real number.", h: "Name both numbers. The gap is the story." },
+      { p: "The moment you realized you weren't the same person you were a year ago.", h: "Use a mirror moment, an old photo, or a recording." }
+    ],
+    lesson: [
+      { p: "Something you used to believe about success that you've completely abandoned.", h: "Old belief → what cracked it → new belief." },
+      { p: "The advice you ignored that turned out to be the most important.", h: "Name the person. Quote them. Then explain why you finally listened." },
+      { p: "A mistake you've now made enough times to teach others to avoid.", h: "Walk us through the pattern, not just one instance." },
+      { p: "The cheapest lesson that saved you the most money or time.", h: "Frame it as a one-line rule, then unpack it." },
+      { p: "What your past clients or customers taught you that no course did.", h: "Pick one specific person, anonymized, and tell their story." }
+    ],
+    failure: [
+      { p: "The launch that flopped and what you learned dismantling it.", h: "Share the actual numbers. Vulnerability with specifics > vague humility." },
+      { p: "A public moment you're still slightly embarrassed about.", h: "If you can laugh at it now, your audience will too." },
+      { p: "The relationship, partnership, or hire that didn't work — and the warning sign you missed.", h: "Don't name names. Name patterns." },
+      { p: "When you tried to be someone you weren't online — and how it backfired.", h: "Compare a post from that era to one from now." },
+      { p: "The 'shortcut' that ended up costing you the most.", h: "Walk us through the math, the time, the recovery." }
+    ],
+    belief: [
+      { p: "A belief about money you grew up with that you've actively unlearned.", h: "Old story → who taught it to you → what replaced it." },
+      { p: "What you used to think 'professional' meant — and what you think now.", h: "Compare a habit you dropped to one you adopted." },
+      { p: "The identity you outgrew to do the work you do now.", h: "Use 'I used to be the kind of person who…' as your opener." },
+      { p: "A piece of conventional wisdom in your industry that you quietly disagree with.", h: "Take a stance. Hedge less. Specifics make it land." },
+      { p: "When you stopped trying to convince the wrong people.", h: "Tell us about one person you stopped chasing." }
+    ]
+  };
+
+  let activeCat = 'all';
+  let lastPrompt = null;
+
+  const chips = document.querySelectorAll('.chip');
+  const generateBtn = document.getElementById('generateBtn');
+  const container = document.getElementById('promptContainer');
+  const actions = document.getElementById('actions');
+  const copyBtn = document.getElementById('copyBtn');
+  const anotherBtn = document.getElementById('anotherBtn');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = chip.dataset.cat;
+    });
+  });
+
+  function pickPrompt() {
+    let pool = [];
+    if (activeCat === 'all') {
+      for (const cat in prompts) prompts[cat].forEach(x => pool.push({ ...x, cat }));
+    } else {
+      prompts[activeCat].forEach(x => pool.push({ ...x, cat: activeCat }));
+    }
+    let pick;
+    do { pick = pool[Math.floor(Math.random() * pool.length)]; }
+    while (pool.length > 1 && pick.p === lastPrompt);
+    lastPrompt = pick.p;
+    return pick;
+  }
+
+  const catLabels = { origin: 'Origin', turning: 'Turning Point', lesson: 'Lesson', failure: 'Failure', belief: 'Belief Shift' };
+
+  function render() {
+    const pick = pickPrompt();
+    container.innerHTML = `
+      <div class="prompt-card">
+        <span class="category-tag">${catLabels[pick.cat]}</span>
+        <div class="prompt-text">${pick.p}</div>
+        <div class="hook">Writing tip: ${pick.h}</div>
+      </div>
+    `;
+    actions.style.display = 'flex';
+  }
+
+  generateBtn.addEventListener('click', render);
+  anotherBtn.addEventListener('click', render);
+
+  copyBtn.addEventListener('click', () => {
+    if (!lastPrompt) return;
+    navigator.clipboard.writeText(lastPrompt).then(() => {
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => copyBtn.textContent = original, 1500);
+    });
+  });
+</script>
+</body>
+</html>

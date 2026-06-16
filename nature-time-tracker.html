@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature Time Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .goal { text-align: center; margin-bottom: 12px; }
+  .goal .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 13px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .85rem; gap: 10px; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nature Time Tracker</h1>
+  <p class="sub">Aim for ~120 minutes of nature a week — the threshold linked to real wellbeing gains.</p>
+
+  <div class="panel goal">
+    <div><span class="n" id="weekN">0</span><span style="opacity:.7"> / <span id="goalN">120</span> min this week</span></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="msg" style="font-size:.88rem;opacity:.85"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Date</label><input id="dt" type="date"></div>
+      <div><label>Minutes outside</label><input id="min" type="number" min="1" placeholder="e.g. 30"></div>
+      <div><label>Where</label><select id="where"><option>Park</option><option>Garden</option><option>Forest / trail</option><option>Beach / water</option><option>Street trees / green walk</option><option>Other</option></select></div>
+    </div>
+    <label>Goal per week (minutes)</label>
+    <input id="goal" type="number" min="1" value="120" oninput="saveGoal();render()">
+    <button class="btn" onclick="add()">+ Log Nature Time</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('ntt')||'[]');
+  const save=()=>localStorage.setItem('ntt',JSON.stringify(R));
+  g('dt').value=new Date().toISOString().slice(0,10);
+  if(localStorage.getItem('ntt_goal'))g('goal').value=localStorage.getItem('ntt_goal');
+  function saveGoal(){ localStorage.setItem('ntt_goal',g('goal').value); }
+  function add(){ const m=parseInt(g('min').value)||0; if(!m){alert('Enter minutes outside.');return;}
+    R.push({d:g('dt').value||new Date().toISOString().slice(0,10),m,w:g('where').value});
+    g('min').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all logs?')){ R=[]; save(); render(); } }
+  function weekStart(){ const d=new Date(); const day=(d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d; }
+  function render(){
+    const goal=+g('goal').value||120;
+    g('goalN').textContent=goal;
+    const ws=weekStart();
+    const wk=R.filter(x=>new Date(x.d)>=ws).reduce((s,x)=>s+x.m,0);
+    g('weekN').textContent=wk;
+    g('bar').style.width=Math.min(100,wk/goal*100)+'%';
+    g('msg').textContent= wk>=goal?'You hit the nature threshold this week — well done 🌿':(goal-wk)+' min to go — even a short walk counts.';
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No nature time logged yet.</div>'; return; }
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.d<b.x.d?1:-1).map(({x,i})=>
+      '<div class="row2"><span><b style="color:#5AE57A">'+x.d+'</b> · '+x.m+' min · '+x.w+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

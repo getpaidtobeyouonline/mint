@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Price Increase Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; }
+  .note { font-size: .87rem; opacity: .82; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Price Increase Calculator</h1>
+  <p class="sub">Raising your price doesn't have to lose money — see exactly how many customers you can afford to lose.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="old">Current price ($)</label><input id="old" type="number" min="0" value="100" oninput="calc()"></div>
+      <div><label for="qty">Current customers / mo</label><input id="qty" type="number" min="0" value="50" oninput="calc()"></div>
+    </div>
+    <label for="inc">Raise by: <span id="iv" style="color:#5AE57A">25%</span></label>
+    <input id="inc" type="range" min="0" max="100" value="25" oninput="document.getElementById('iv').textContent=this.value+'%';calc()">
+  </div>
+
+  <div class="res">
+    <div class="stats">
+      <div class="stat"><div class="v" id="newP">$0</div><div class="l">New price</div></div>
+      <div class="stat"><div class="v" id="newR">$0</div><div class="l">Same revenue at…</div></div>
+      <div class="stat"><div class="v" id="lose">0</div><div class="l">Customers you can lose</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['old','qty','inc'].forEach(k=>{ const s=localStorage.getItem('pic_'+k); if(s!==null)g(k).value=s; });
+  if(localStorage.getItem('pic_inc'))g('iv').textContent=g('inc').value+'%';
+  function calc(){
+    ['old','qty','inc'].forEach(k=>localStorage.setItem('pic_'+k,g(k).value));
+    const op=n('old'), q=n('qty'), inc=n('inc')/100;
+    const np=op*(1+inc);
+    const curRev=op*q, breakEvenQty=np>0?Math.ceil(curRev/np):0;
+    const canLose=q-breakEvenQty;
+    g('newP').textContent='$'+Math.round(np).toLocaleString();
+    g('newR').textContent=breakEvenQty+' customers';
+    g('lose').textContent=canLose;
+    g('note').textContent = canLose>=0
+      ? `Even if ${canLose} of your ${q} customers leave at the new price, you make the same revenue. In practice, most leave fewer than 10–20% of customers behind on a 25% raise — meaning revenue goes UP.`
+      : `Math check: this raise actually drops revenue. Re-check numbers or lower the increase.`;
+  }
+  calc();
+</script>
+</body>
+</html>

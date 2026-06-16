@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Online Course Evaluator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .crit { margin-bottom: 12px; }
+  .crit .top { display: flex; justify-content: space-between; font-size: .89rem; margin-bottom: 3px; }
+  .crit .top b { color: #5AE57A; }
+  .crit .q { font-size: .78rem; opacity: .6; }
+  input[type=range] { width: 100%; accent-color: #5AE57A; padding: 0; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result .score { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Online Course Evaluator</h1>
+  <p class="sub">Before you buy, score the course. Spend money on learning that will actually pay off.</p>
+
+  <div class="panel">
+    <label for="name">Course you are considering</label>
+    <input id="name" placeholder="Course name">
+    <div id="crits" style="margin-top:14px"></div>
+    <button class="btn" onclick="score()">Score This Course</button>
+    <div class="result" id="out"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const C=[
+    {k:'goal',l:'Relevance to my goal',q:'Does it directly teach what I actually need?'},
+    {k:'instructor',l:'Instructor credibility',q:'Have they really done the thing they teach?'},
+    {k:'reviews',l:'Reviews & track record',q:'Do past students report real results?'},
+    {k:'curriculum',l:'Curriculum depth',q:'Is the syllabus thorough and practical?'},
+    {k:'format',l:'Format suits me',q:'Video, pace and structure I will stick with?'},
+    {k:'value',l:'Value for the price',q:'Worth the cost vs free or cheaper options?'},
+    {k:'time',l:'Time I can realistically give',q:'Can I commit the hours it needs?'},
+    {k:'support',l:'Support & community',q:'Help, feedback or a community if I get stuck?'}
+  ];
+  function build(){
+    g('crits').innerHTML=C.map(c=>'<div class="crit"><div class="top"><b>'+c.l+'</b><span id="v_'+c.k+'" style="color:#5AE57A">3</span></div><div class="q">'+c.q+'</div><input type="range" min="1" max="5" value="3" oninput="document.getElementById(\'v_'+c.k+'\').textContent=this.value"></div>').join('');
+  }
+  function score(){
+    let tot=0; C.forEach(c=>tot+=+g('v_'+c.k).textContent);
+    const pct=Math.round(tot/(C.length*5)*100);
+    let verdict;
+    if(pct>=80)verdict='Strong buy — this course looks well worth your time and money.';
+    else if(pct>=60)verdict='Worth considering — solid, but check your weakest-scored areas first.';
+    else if(pct>=40)verdict='Be cautious — too many gaps. Look for a better-fitting option.';
+    else verdict='Skip it — this course is unlikely to pay off. Keep looking.';
+    g('out').style.display='block';
+    g('out').innerHTML='<div class="score">'+pct+'%</div><h3>'+(g('name').value.trim()||'This course')+'</h3><p style="font-size:.9rem;margin-top:4px">'+verdict+'</p>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  build();
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Journal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 18px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .stats { display: flex; gap: 8px; margin-bottom: 12px; }
+  .stat { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; text-transform: uppercase; opacity: .6; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; margin-bottom: 6px; }
+  .entry.answered { border-color: #5AE57A; }
+  .entry .top { display: flex; justify-content: space-between; gap: 8px; }
+  .entry .meta { font-size: .77rem; opacity: .6; }
+  .entry p { font-size: .9rem; white-space: pre-wrap; margin-top: 3px; }
+  .acts { display: flex; gap: 8px; flex: none; }
+  .acts span { cursor: pointer; opacity: .6; font-size: .82rem; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Prayer Journal Builder</h1>
+  <p class="sub">Hold your prayers in one quiet place — and notice them being answered.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Prayer / request</label><input id="prayer" placeholder="What is on your heart"></div>
+      <div><label>For whom</label><input id="who" placeholder="Yourself, a loved one..."></div>
+    </div>
+    <label>Reflection (optional)</label>
+    <textarea id="note" placeholder="Thoughts, scripture, what you are sensing"></textarea>
+    <button class="btn" onclick="add()">Add Prayer</button>
+  </div>
+
+  <div class="panel">
+    <div class="stats" id="stats"></div>
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('pjb')||'[]');
+  const save=()=>localStorage.setItem('pjb',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('prayer')){ alert('Write your prayer.'); return; }
+    R.unshift({p:v('prayer'),who:v('who'),note:v('note'),date:new Date().toLocaleDateString(),answered:false});
+    ['prayer','who','note'].forEach(k=>g(k).value=''); save(); render(); }
+  function toggle(i){ R[i].answered=!R[i].answered; if(R[i].answered)R[i].adate=new Date().toLocaleDateString(); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function render(){
+    g('stats').innerHTML='<div class="stat"><div class="n">'+R.filter(x=>!x.answered).length+'</div><div class="l">Praying</div></div><div class="stat"><div class="n">'+R.filter(x=>x.answered).length+'</div><div class="l">Answered</div></div>';
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">Your prayers will appear here.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="entry'+(x.answered?' answered':'')+'"><div class="top"><span>'+(x.answered?'🙏 ':'')+'<b>'+esc(x.p)+'</b></span><div class="acts"><span onclick="toggle('+i+')">'+(x.answered?'reopen':'answered')+'</span><span onclick="del('+i+')">✕</span></div></div><div class="meta">'+(esc(x.who)?'For '+esc(x.who)+'  ·  ':'')+x.date+(x.answered&&x.adate?'  ·  answered '+x.adate:'')+'</div>'+(x.note?'<p>'+esc(x.note)+'</p>':'')+'</div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

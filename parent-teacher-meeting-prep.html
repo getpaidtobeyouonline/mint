@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parent Teacher Meeting Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Parent Teacher Meeting Prep</h1>
+  <p class="sub">Meetings are short. Walk in with your questions ready so nothing important gets missed.</p>
+
+  <div class="panel">
+    <label for="child">Child &amp; teacher / class</label>
+    <input id="child" placeholder="e.g. Sam — Mr Brooks, Year 4">
+    <label for="going">What seems to be going well</label>
+    <textarea id="going" placeholder="Strengths and positives you have noticed at home"></textarea>
+    <label for="concerns">My concerns or things to raise</label>
+    <textarea id="concerns" placeholder="Be specific — academic, social, emotional"></textarea>
+    <label for="questions">Questions I want to ask (one per line)</label>
+    <textarea id="questions" placeholder="e.g. How is their reading progressing? How are friendships?"></textarea>
+    <label for="home">How we can support at home</label>
+    <textarea id="home" placeholder="What you want to ask the teacher to suggest"></textarea>
+    <label for="notes">Anything the teacher should know about home</label>
+    <input id="notes" placeholder="Changes, context, things affecting your child">
+    <button class="btn" onclick="gen()">Build Prep Sheet</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['child','going','concerns','questions','home','notes'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('ptmp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ptmp_'+k,g(k).value)); });
+  function gen(){
+    const q=v('questions').split('\n').map(s=>s.trim()).filter(Boolean);
+    const t=`PARENT-TEACHER MEETING PREP\n\n${v('child')||'[child & teacher]'}\n\nWHAT IS GOING WELL:\n${v('going')||'[positives to share]'}\n\nMY CONCERNS:\n${v('concerns')||'[things to raise]'}\n\nQUESTIONS TO ASK:\n${q.length?q.map((x,i)=>`  ${i+1}. ${x}`).join('\n'):'  1. [your questions]'}\n\nHOW WE CAN SUPPORT AT HOME:\n${v('home')||'[ask for specific guidance]'}\n\nWHAT THE TEACHER SHOULD KNOW:\n${v('notes')||'[helpful home context]'}\n\n--- During the meeting ---\n• Lead with your most important question — time goes fast.\n• Assume you and the teacher are on the same team.\n• Ask for specific, doable next steps before you leave.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

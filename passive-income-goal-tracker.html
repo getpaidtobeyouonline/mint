@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passive Income Goal Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.setup{display:flex;gap:12px;max-width:700px;margin:0 auto 16px;flex-wrap:wrap}
+.setup-field{flex:1;min-width:140px;background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 16px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.freedom-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 16px}
+.freedom-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+.milestones{display:flex;gap:0;position:relative;margin-bottom:8px}
+.milestone{flex:1;text-align:center;position:relative}
+.ms-dot{width:32px;height:32px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:.9rem;border:2px solid #4C724C;background:#325132;transition:all .3s;position:relative;z-index:1}
+.ms-dot.unlocked{border-color:#5AE57A;background:#C9A84C22}
+.ms-dot.active{border-color:#5AE57A;background:#5AE57A;box-shadow:0 0 12px #C9A84C44}
+.ms-line{position:absolute;top:16px;left:50%;right:-50%;height:2px;background:#4C724C;z-index:0}
+.milestone:last-child .ms-line{display:none}
+.ms-label{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.ms-label.unlocked{color:#5AE57A}
+.ms-amount{font-size:.7rem;color:#5A845A;margin-top:2px}
+.ms-amount.unlocked{color:#BFD8BF}
+.prog-track{background:#325132;border-radius:20px;height:8px;overflow:hidden;margin-top:12px}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .6s}
+.prog-labels{display:flex;justify-content:space-between;font-size:.72rem;color:#BFD8BF;margin-top:6px}
+.prog-labels .gold{color:#5AE57A;font-weight:700}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 14px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:12px}
+.form-row{display:grid;grid-template-columns:2fr 1.2fr 1fr auto;gap:8px;align-items:flex-end}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:9px 14px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;height:38px;white-space:nowrap;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.stream-row{background:#325132;border:1px solid #3C603C;border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.stream-icon{font-size:1.1rem;flex-shrink:0}
+.stream-info{flex:1;min-width:0}
+.stream-name{font-weight:600;font-size:.9rem}
+.stream-type{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.stream-income{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;flex-shrink:0;white-space:nowrap}
+.stream-bar-wrap{width:80px;flex-shrink:0}
+.stream-bar-track{background:#3C603C;border-radius:10px;height:5px;overflow:hidden}
+.stream-bar-fill{height:100%;border-radius:10px;background:#5AE57A}
+.stream-del{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.85rem;padding:3px 6px;transition:color .2s;flex-shrink:0}
+.stream-del:hover{color:#5AE57A}
+.next-card{background:#C9A84C0D;border:1px solid #C9A84C22;border-radius:12px;padding:16px 18px;max-width:700px;margin:0 auto 14px}
+.next-title{font-size:.75rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.next-text{font-size:.88rem;line-height:1.7;opacity:.9}
+.next-text strong{color:#5AE57A}
+.empty{text-align:center;opacity:.35;padding:20px;font-size:.85rem}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){.stats{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr 1fr}.form-row .add-btn{grid-column:1/-1;width:100%}.milestones{flex-wrap:wrap;gap:12px}.ms-line{display:none}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Passive Income Goal Tracker</h1>
+<p class="sub">Track every stream. Know your freedom number. Watch the gap close.</p>
+
+<div class="setup">
+  <div class="setup-field"><label>Monthly Expenses ($)</label><input id="expenses" type="number" placeholder="3,500" oninput="render()"></div>
+  <div class="setup-field"><label>Passive Income Goal ($)</label><input id="goalInput" type="number" placeholder="5,000" oninput="render()"></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sTotal">$0</div><div class="stat-lbl">Monthly Passive Income</div></div>
+  <div class="stat"><div class="stat-val green" id="sAnnual">$0</div><div class="stat-lbl">Annual Equivalent</div></div>
+  <div class="stat"><div class="stat-val blue" id="sStreams">0</div><div class="stat-lbl">Income Streams</div></div>
+  <div class="stat"><div class="stat-val" id="sFreedom">0%</div><div class="stat-lbl">Freedom Score</div></div>
+</div>
+
+<div class="freedom-card">
+  <div class="freedom-title">Freedom Milestones</div>
+  <div class="milestones" id="milestones"></div>
+  <div class="prog-track"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="prog-labels"><span id="progLeft">$0 / month</span><span class="gold" id="progRight">Goal: $0</span></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add Income Stream</div>
+  <div class="form-row">
+    <div><label>Stream Name</label><input id="fName" type="text" placeholder="e.g. Etsy templates, affiliate links"></div>
+    <div><label>Type</label>
+      <select id="fType">
+        <option value="🛍 Digital Products">🛍 Digital Products</option>
+        <option value="🔗 Affiliate">🔗 Affiliate</option>
+        <option value="📹 Ad Revenue">📹 Ad Revenue</option>
+        <option value="📚 Royalties">📚 Royalties</option>
+        <option value="💎 Membership">💎 Membership</option>
+        <option value="📈 Investments">📈 Investments</option>
+        <option value="🏠 Rental">🏠 Rental</option>
+        <option value="⚙️ Other">⚙️ Other</option>
+      </select>
+    </div>
+    <div><label>Monthly ($)</label><input id="fIncome" type="number" placeholder="250" min="0"></div>
+    <button class="add-btn" onclick="addStream()">+ Add</button>
+  </div>
+</div>
+
+<div id="streamList" style="max-width:700px;margin:0 auto 14px"></div>
+
+<div class="next-card" id="nextCard" style="display:none">
+  <div class="next-title">✦ Your Next Step</div>
+  <div class="next-text" id="nextText"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const STORE='passiveIncomeStreams';const GSTORE='passiveIncomeGoals';
+let streams=JSON.parse(localStorage.getItem(STORE)||'[]');
+let savedGoals=JSON.parse(localStorage.getItem(GSTORE)||'{}');
+
+const MS=[
+  {label:'Coffee Money',icon:'☕',amount:100,desc:'First $100/month'},
+  {label:'Side Income',icon:'🌱',amount:500,desc:'$500/month'},
+  {label:'Bill Coverage',icon:'🏠',amount:null,desc:'Covers expenses'},
+  {label:'Salary Replace',icon:'💼',amount:null,desc:'Full salary replaced'},
+  {label:'Wealthy',icon:'🏆',amount:null,desc:'2× your goal'},
+];
+
+function fmt(n){return'$'+Math.round(n).toLocaleString();}
+function save(){localStorage.setItem(STORE,JSON.stringify(streams));}
+
+function addStream(){
+  const name=document.getElementById('fName').value.trim();
+  const type=document.getElementById('fType').value;
+  const income=parseFloat(document.getElementById('fIncome').value)||0;
+  if(!name||income<=0){alert('Please enter a stream name and monthly income.');return;}
+  streams.push({id:Date.now(),name,type,income});
+  save();
+  document.getElementById('fName').value='';document.getElementById('fIncome').value='';
+  render();
+}
+
+function delStream(id){streams=streams.filter(s=>s.id!==id);save();render();}
+
+function render(){
+  const expenses=parseFloat(document.getElementById('expenses').value)||0;
+  const goal=parseFloat(document.getElementById('goalInput').value)||0;
+  const savedG={expenses,goal};localStorage.setItem(GSTORE,JSON.stringify(savedG));
+
+  const total=streams.reduce((s,st)=>s+st.income,0);
+  const annual=total*12;
+  const freedomPct=expenses>0?Math.min(Math.round(total/expenses*100),100):goal>0?Math.min(Math.round(total/goal*100),100):0;
+  const goalPct=goal>0?Math.min(Math.round(total/goal*100),100):0;
+
+  document.getElementById('sTotal').textContent=fmt(total);
+  document.getElementById('sAnnual').textContent=fmt(annual);
+  document.getElementById('sStreams').textContent=streams.length;
+  document.getElementById('sFreedom').textContent=freedomPct+'%';
+  document.getElementById('sFreedom').style.color=freedomPct>=100?'#5AE57A':freedomPct>=50?'#5AE57A':'#5AE57A';
+  document.getElementById('progFill').style.width=(goal>0?goalPct:freedomPct)+'%';
+  document.getElementById('progLeft').textContent=fmt(total)+' / month';
+  document.getElementById('progRight').textContent='Goal: '+fmt(goal||expenses||0);
+
+  // Milestone amounts
+  MS[2].amount=expenses||3500;MS[3].amount=goal||(expenses?expenses*1.5:5000);MS[4].amount=(goal||(expenses*2||10000))*2;
+
+  document.getElementById('milestones').innerHTML=MS.map((m,i)=>{
+    const unlocked=total>=m.amount;
+    const active=total>=m.amount&&(i===MS.length-1||total<MS[Math.min(i+1,MS.length-1)].amount);
+    const isNext=!unlocked&&(i===0||(total>=MS[i-1].amount));
+    return`<div class="milestone">
+      <div class="ms-dot ${unlocked?'unlocked':''} ${active?'active':''}">${unlocked?'✓':isNext?'→':m.icon}</div>
+      ${i<MS.length-1?'<div class="ms-line" style="background:'+(unlocked?'#C9A84C44':'#4C724C')+'"></div>':''}
+      <div class="ms-label ${unlocked?'unlocked':''}">${m.label}</div>
+      <div class="ms-amount ${unlocked?'unlocked':''}">${fmt(m.amount)}/mo</div>
+    </div>`;}).join('');
+
+  // Stream list
+  const maxIncome=streams.length?Math.max(...streams.map(s=>s.income)):1;
+  document.getElementById('streamList').innerHTML=streams.length
+    ?streams.map(s=>`<div class="stream-row">
+        <span class="stream-icon">${s.type.split(' ')[0]}</span>
+        <div class="stream-info">
+          <div class="stream-name">${s.name}</div>
+          <div class="stream-type">${s.type.split(' ').slice(1).join(' ')}</div>
+        </div>
+        <div class="stream-bar-wrap">
+          <div class="stream-bar-track"><div class="stream-bar-fill" style="width:${Math.round(s.income/maxIncome*100)}%"></div></div>
+        </div>
+        <div class="stream-income">${fmt(s.income)}/mo</div>
+        <button class="stream-del" onclick="delStream(${s.id})">✕</button>
+      </div>`).join('')
+    :'<div class="empty">No income streams yet — add your first one above.</div>';
+
+  // Next step card
+  const nextMs=MS.find(m=>total<m.amount);
+  if(nextMs){
+    document.getElementById('nextCard').style.display='block';
+    const gap=nextMs.amount-total;
+    const pct=Math.round(total/nextMs.amount*100);
+    let msg=`You're <strong>${pct}% of the way</strong> to your next milestone: <strong>${nextMs.label} (${fmt(nextMs.amount)}/month)</strong>. You need <strong>${fmt(gap)} more per month</strong> to unlock it. `;
+    if(streams.length===0)msg+='Add your first passive income stream above to start tracking your progress.';
+    else if(gap<200)msg+=`You're almost there — one new product sale, an affiliate campaign, or a small price increase on an existing stream could close this gap.`;
+    else if(gap<1000)msg+=`Consider launching a new digital product, joining an affiliate programme, or adding a recurring offer to your existing business to bridge this gap.`;
+    else msg+=`Focus on building one strong income stream at a time. Start with what you already have — a skill, an audience, or existing content — and productise it.`;
+    document.getElementById('nextText').innerHTML=msg;
+  } else {
+    document.getElementById('nextCard').style.display='block';
+    document.getElementById('nextText').innerHTML=`🏆 <strong>You've unlocked all milestones!</strong> Your passive income of <strong>${fmt(total)}/month</strong> has reached and exceeded your goal. Time to protect it, diversify further, and set a bigger target.`;
+  }
+}
+
+// Init — restore saved goals
+if(savedGoals.expenses)document.getElementById('expenses').value=savedGoals.expenses;
+if(savedGoals.goal)document.getElementById('goalInput').value=savedGoals.goal;
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Bump Revenue Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:660px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.card h2 span{font-family:'DM Sans',sans-serif;font-weight:400}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.g2:last-child{margin-bottom:0}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+label span{font-weight:400;opacity:.7}
+.iw{position:relative}
+.pre,.suf{position:absolute;top:50%;transform:translateY(-50%);color:#5AE57A;font-weight:600;pointer-events:none;font-size:.95rem}
+.pre{left:11px}.suf{right:11px}
+input[type=number]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem .7rem 1.8rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]:focus{border-color:#5AE57A}
+input.no-pre{padding-left:.9rem}
+input.has-suf{padding-right:1.8rem}
+.hint{font-size:.73rem;opacity:.45;margin-top:.35rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.metric{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;text-align:center}
+.m-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;opacity:.5;margin-bottom:.4rem}
+.m-val{font-family:'Playfair Display',serif;font-size:1.6rem;color:#5AE57A;font-weight:700;line-height:1}
+.m-val.sm{font-size:1.25rem}
+.callout{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:.9rem;line-height:1.55}
+.callout strong{color:#5AE57A}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.6rem .75rem;text-align:left;font-size:.875rem}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:#5AE57A;border-bottom:1px solid #4C724C;font-weight:600}
+tr:not(:last-child) td{border-bottom:1px solid #3C603C}
+.best-row td{color:#5AE57A;font-weight:600}
+.user-row td:first-child{color:#FFFFFF}
+.star{color:#5AE57A;font-size:.85rem}
+.pick{font-size:.68rem;background:#C9A84C22;color:#5AE57A;border:1px solid #C9A84C44;border-radius:3px;padding:.1rem .4rem;margin-left:.4rem;vertical-align:middle}
+.tbl-note{font-size:.75rem;opacity:.4;margin-top:.75rem;text-align:center}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.mgrid{grid-template-columns:1fr 1fr}.m-val{font-size:1.3rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Order Bump Calculator</h1>
+    <p class="subtitle">See exactly how much extra revenue a single checkbox offer could add to every checkout — without changing your product.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Numbers</h2>
+    <div class="g2">
+      <div>
+        <label>Monthly Orders</label>
+        <div class="iw"><input type="number" id="sales" class="no-pre" placeholder="e.g. 50" min="0"></div>
+      </div>
+      <div>
+        <label>Core Product Price ($)</label>
+        <div class="iw"><span class="pre">$</span><input type="number" id="core" placeholder="e.g. 27" min="0"></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div>
+        <label>Bump Offer Price ($)</label>
+        <div class="iw"><span class="pre">$</span><input type="number" id="bumpP" placeholder="e.g. 17" min="0"></div>
+      </div>
+      <div>
+        <label>Expected Conversion Rate <span>(%)</span></label>
+        <div class="iw"><input type="number" id="conv" class="no-pre has-suf" placeholder="e.g. 20" min="0" max="100"><span class="suf">%</span></div>
+        <div class="hint">Digital product average: 15–30%</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="calc()">Calculate My Bump Revenue →</button>
+
+  <div class="results" id="results">
+
+    <div class="mgrid">
+      <div class="metric">
+        <div class="m-lbl">Monthly Bump Revenue</div>
+        <div class="m-val" id="mMonthly">—</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Annual Bump Revenue</div>
+        <div class="m-val" id="mAnnual">—</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">Revenue Lift</div>
+        <div class="m-val sm" id="mLift">—</div>
+      </div>
+      <div class="metric">
+        <div class="m-lbl">New Avg Order Value</div>
+        <div class="m-val sm" id="mAOV">—</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      Without an order bump, you're leaving <strong id="leftTable">—</strong> per year in additional revenue unclaimed — from buyers who are already at checkout and already said yes.
+    </div>
+
+    <div class="card">
+      <h2>Price Comparison <span style="opacity:.4;font-size:.8rem">— same sales volume, different bump prices</span></h2>
+      <table>
+        <thead>
+          <tr><th>Bump Price</th><th>Avg Conv</th><th>Monthly Extra</th><th>Annual Extra</th></tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="tbl-note">✦ marks the price point that earns the most revenue at your monthly volume.</div>
+    </div>
+
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const fmt = n => '$' + Math.round(n).toLocaleString();
+
+const benchmarks = [
+  {price:7,  conv:35, label:'Low-ticket'},
+  {price:17, conv:25, label:'Sweet spot'},
+  {price:27, conv:20, label:'Mid-range'},
+  {price:47, conv:12, label:'Premium'}
+];
+
+function calc() {
+  const sales = parseFloat(document.getElementById('sales').value)  || 0;
+  const core  = parseFloat(document.getElementById('core').value)   || 0;
+  const bumpP = parseFloat(document.getElementById('bumpP').value)  || 0;
+  const convR = parseFloat(document.getElementById('conv').value)   || 0;
+
+  if (!sales) { alert('Please enter your monthly order volume.'); return; }
+  if (!bumpP) { alert('Please enter your bump offer price.'); return; }
+
+  const monthly  = sales * (convR / 100) * bumpP;
+  const annual   = monthly * 12;
+  const baseMo   = sales * core;
+  const lift     = baseMo > 0 ? (monthly / baseMo * 100) : null;
+  const aov      = core + (convR / 100) * bumpP;
+
+  document.getElementById('mMonthly').textContent = fmt(monthly);
+  document.getElementById('mAnnual').textContent  = fmt(annual);
+  document.getElementById('mLift').textContent    = lift !== null ? '+' + lift.toFixed(1) + '%' : 'N/A';
+  document.getElementById('mAOV').textContent     = fmt(aov);
+  document.getElementById('leftTable').textContent = fmt(annual);
+
+  // Build comparison rows
+  let rows = benchmarks.map(s => ({...s, mo: sales*(s.conv/100)*s.price, ann: sales*(s.conv/100)*s.price*12}));
+
+  // Add user's custom row if price doesn't match a benchmark
+  const isStandard = benchmarks.some(s => s.price === bumpP);
+  if (!isStandard) rows.unshift({price: bumpP, conv: convR, label: 'Your pick', mo: monthly, ann: annual, custom: true});
+
+  const maxAnn = Math.max(...rows.map(r => r.ann));
+
+  document.getElementById('tbody').innerHTML = rows.map(r => {
+    const best = r.ann === maxAnn;
+    const user = r.price === bumpP;
+    return `<tr class="${best ? 'best-row' : user ? 'user-row' : ''}">
+      <td>$${r.price} <span style="opacity:.4;font-size:.78rem">${r.label}</span>${user ? `<span class="pick">your pick</span>` : ''}</td>
+      <td>${r.conv}%</td>
+      <td>${fmt(r.mo)}</td>
+      <td>${fmt(r.ann)}${best ? ' <span class="star">✦</span>' : ''}</td>
+    </tr>`;
+  }).join('');
+
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+</script>
+</body>
+</html>

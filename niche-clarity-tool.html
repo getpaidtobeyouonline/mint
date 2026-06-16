@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Niche Clarity Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 540px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 16px; }
+    .field { margin-bottom: 16px; }
+    label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; }
+    label span { opacity: 0.4; font-weight: 400; text-transform: none; }
+    input { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.93rem; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #5AE57A; }
+    .hint { font-size: 0.73rem; opacity: 0.35; margin-top: 5px; line-height: 1.4; }
+    .btn-gen { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; padding: 13px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+    .btn-gen:hover { opacity: 0.85; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .score-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .score-lbl { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; }
+    .score-val { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+    .bar { height: 5px; background: #3C603C; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+    .bar-fill { height: 100%; background: #5AE57A; border-radius: 3px; transition: width 0.5s ease; }
+    .score-desc { font-size: 0.78rem; opacity: 0.38; }
+    .stmt-block { margin-bottom: 20px; }
+    .stmt-block:last-of-type { margin-bottom: 0; }
+    .stmt-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.09em; color: #5AE57A; opacity: 0.7; margin-bottom: 7px; }
+    .stmt-text { font-size: 0.95rem; line-height: 1.6; margin-bottom: 10px; color: #FFFFFF; }
+    .btn-copy { background: transparent; border: 1px solid #4C724C; border-radius: 6px; color: #5AE57A; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 600; padding: 5px 12px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-copy:hover { border-color: #5AE57A; }
+    .tip { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid #3C603C; font-size: 0.87rem; line-height: 1.55; }
+    .tip:last-child { border-bottom: none; }
+    .tip-dot { color: #5AE57A; flex-shrink: 0; }
+    .btn-reset { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-reset:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Niche Clarity Tool</h1>
+  <p class="subtitle">Define exactly who you help, what you solve, and why they choose you.</p>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="card-title">Build Your Niche Statement</div>
+      <div class="field">
+        <label>Who do you serve?</label>
+        <input type="text" id="who" placeholder="e.g. burned-out teachers, female entrepreneurs over 40" />
+        <div class="hint">Narrow by role, life stage, or identity — the more specific, the more magnetic.</div>
+      </div>
+      <div class="field">
+        <label>What's their #1 problem or desire?</label>
+        <input type="text" id="problem" placeholder="e.g. build a profitable side income without working more hours" />
+      </div>
+      <div class="field">
+        <label>What's your unique method or approach?</label>
+        <input type="text" id="method" placeholder="e.g. through simple digital products, using a 5-step system" />
+      </div>
+      <div class="field">
+        <label>What outcome or transformation do they get?</label>
+        <input type="text" id="outcome" placeholder="e.g. consistent $5K months, more time with their family" />
+      </div>
+      <div class="field">
+        <label>What do they want to avoid? <span>(optional)</span></label>
+        <input type="text" id="avoid" placeholder="e.g. without paid ads, without showing their face online" />
+      </div>
+      <button class="btn-gen" onclick="generate()">Generate My Niche Statement</button>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let stmts = [];
+
+    function h(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function generate() {
+      const who     = document.getElementById('who').value.trim();
+      const problem = document.getElementById('problem').value.trim();
+      const method  = document.getElementById('method').value.trim();
+      const outcome = document.getElementById('outcome').value.trim();
+      const avoid   = document.getElementById('avoid').value.trim();
+
+      if (!who || !problem || !outcome) {
+        alert('Please fill in Who, Problem, and Outcome to continue.');
+        return;
+      }
+
+      stmts = [
+        `I help ${who} ${problem}${method ? ' ' + method : ''}${avoid ? ' — ' + avoid : ''}, so they can ${outcome}.`,
+        `${cap(who)} who want ${outcome}.`,
+        `I help ${who} achieve ${outcome}${method ? ' through ' + method : ''}.`
+      ];
+
+      const vague = ['people','anyone','everyone','women','men','entrepreneurs','coaches','business owners'];
+      let score = 0;
+      if (who)     { score += who.split(' ').length >= 3 ? 3 : 2; if (vague.includes(who.toLowerCase())) score = Math.max(0, score - 1); }
+      if (problem) score += problem.split(' ').length >= 5 ? 2 : 1;
+      if (method)  score += 2;
+      if (outcome) score += outcome.split(' ').length >= 4 ? 2 : 1;
+      if (avoid)   score += 1;
+      score = Math.min(10, Math.max(2, score));
+
+      const desc = score >= 9 ? 'Crystal clear — highly specific and compelling.'
+        : score >= 7 ? 'Good clarity — a few tweaks will make it sharper.'
+        : score >= 5 ? 'Moderate clarity — review the tips below to tighten it up.'
+        : 'Needs work — make each piece more specific using the tips below.';
+
+      const tips = [];
+      if (who.split(' ').length < 3 || vague.includes(who.toLowerCase()))
+        tips.push('Narrow your WHO — add a pain state, life stage, or qualifier ("entrepreneurs" → "first-generation entrepreneurs rebuilding after burnout").');
+      if (!method)
+        tips.push('Add your unique method — it\'s what sets you apart from every other person solving the same problem.');
+      if (outcome.split(' ').length < 4)
+        tips.push('Make your outcome more concrete — include numbers, a timeframe, or an emotion ("more income" → "an extra $2K/month within 60 days").');
+      if (!avoid)
+        tips.push('Add what clients want to avoid — it addresses objections before they\'re raised and makes your offer feel tailor-made.');
+      if (!tips.length)
+        tips.push('Strong niche statement. Test it with 5 real people in your audience — if they immediately say "that\'s me," you\'ve nailed it.');
+
+      const labels = ['Full Statement', 'Headline Version', 'Bio Version'];
+      document.getElementById('results').innerHTML = `
+        <div class="card">
+          <div class="score-row">
+            <span class="score-lbl">Niche Clarity Score</span>
+            <span class="score-val">${score} / 10</span>
+          </div>
+          <div class="bar"><div class="bar-fill" style="width:${score * 10}%"></div></div>
+          <div class="score-desc">${desc}</div>
+        </div>
+        <div class="card">
+          <div class="card-title">Your Niche Statements</div>
+          ${stmts.map((s, i) => `
+            <div class="stmt-block">
+              <div class="stmt-lbl">${labels[i]}</div>
+              <div class="stmt-text">${h(s)}</div>
+              <button class="btn-copy" onclick="copyStmt(this,${i})">Copy</button>
+            </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-title">Clarity Tips</div>
+          ${tips.map(t => `<div class="tip"><span class="tip-dot">&#9670;</span><span>${t}</span></div>`).join('')}
+        </div>
+        <button class="btn-reset" onclick="reset()">Start Over</button>`;
+
+      document.getElementById('results').classList.add('show');
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function copyStmt(btn, i) {
+      navigator.clipboard.writeText(stmts[i]).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1800);
+      });
+    }
+
+    function reset() {
+      ['who','problem','method','outcome','avoid'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('results').classList.remove('show');
+      document.getElementById('results').innerHTML = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plant Medicine Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 16px; font-size: .95rem; }
+  .warn { background: #325132; border: 1px solid #5AE57A; border-radius: 8px; padding: 10px 13px; font-size: .82rem; opacity: .85; margin-bottom: 16px; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+  .entry .d { font-size: .76rem; color: #5AE57A; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .entry .x { cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; }
+  .entry p { font-size: .9rem; white-space: pre-wrap; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Plant Medicine Journal</h1>
+  <p class="sub">A private space to set intentions and integrate meaningful experiences.</p>
+  <div class="warn">This is a personal reflection journal — not medical, legal or therapeutic advice. Plant medicines carry real risks and are illegal in many places. Only ever work with qualified, legitimate practitioners, follow your local laws, and consult a doctor about your health.</div>
+
+  <div class="panel">
+    <label for="intention">Intention</label>
+    <textarea id="intention" placeholder="What you are seeking, honouring or hoping to understand"></textarea>
+    <label for="experience">The experience</label>
+    <textarea id="experience" placeholder="What you moved through, in your own words"></textarea>
+    <label for="insights">Key insights</label>
+    <textarea id="insights" placeholder="What became clear, what you want to remember"></textarea>
+    <label for="integrate">Integration — one action in daily life</label>
+    <input id="integrate" placeholder="How you will live what you learned">
+    <button class="btn" onclick="save()">Save Entry</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('pmj')||'[]');
+  const save2=()=>localStorage.setItem('pmj',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function save(){
+    if(!v('intention')&&!v('experience')){ alert('Write an intention or reflection first.'); return; }
+    R.unshift({date:new Date().toLocaleDateString(),intention:v('intention'),experience:v('experience'),insights:v('insights'),integrate:v('integrate')});
+    save2(); ['intention','experience','insights','integrate'].forEach(k=>g(k).value=''); render();
+  }
+  function del(i){ R.splice(i,1); save2(); render(); }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">Your entries will appear here.</div>'; return; }
+    L.innerHTML=R.map((e,i)=>'<div class="entry"><div class="d"><span>'+e.date+'</span><span class="x" onclick="del('+i+')">✕</span></div>'+
+      '<p>'+(e.intention?'<b>Intention:</b> '+esc(e.intention)+'\n\n':'')+(e.experience?'<b>Experience:</b> '+esc(e.experience)+'\n\n':'')+(e.insights?'<b>Insights:</b> '+esc(e.insights)+'\n\n':'')+(e.integrate?'<b>Integration:</b> '+esc(e.integrate):'')+'</p></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

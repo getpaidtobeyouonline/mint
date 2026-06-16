@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painting Colour Palette Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input[type=color] { padding: 3px; height: 40px; cursor: pointer; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(140px,1fr)); gap: 10px; margin-top: 10px; }
+  .sw { background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; overflow: hidden; }
+  .sw .col { height: 80px; }
+  .sw .meta { padding: 8px 10px; font-size: .82rem; display: flex; justify-content: space-between; align-items: center; }
+  .sw .nm { font-weight: 500; }
+  .sw .hex { opacity: .65; font-family: monospace; font-size: .8rem; }
+  .sw .x { cursor: pointer; opacity: .5; } .sw .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Painting Colour Palette Builder</h1>
+  <p class="sub">Pick the colours for your next piece — and save the palette as a swatch wall.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:0"><label>Colour</label><input id="hex" type="color" value="#5AE57A"></div>
+      <div style="flex:3"><label>Name</label><input id="name" placeholder="e.g. burnt umber, sage"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="grid" id="grid"></div>
+    <button class="btn ghost" onclick="copyOut()" style="margin-top:12px">Copy Palette</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('pcpb')||'[]');
+  const save=()=>localStorage.setItem('pcpb',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('name')){ alert('Name the colour.'); return; }
+    R.push({h:g('hex').value,n:v('name')}); g('name').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the palette?')){ R=[]; save(); render(); } }
+  function copyOut(){ if(!R.length){ alert('Palette is empty.'); return; }
+    const t='PALETTE\n'+R.map(x=>'- '+x.n+'  '+x.h).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Palette copied!'),()=>alert('Copy failed.'));
+  }
+  function render(){
+    const G=g('grid');
+    if(!R.length){ G.innerHTML='<div class="empty">Tap "+ Add" to begin your palette.</div>'; return; }
+    G.innerHTML=R.map((x,i)=>'<div class="sw"><div class="col" style="background:'+x.h+'"></div><div class="meta"><div><div class="nm">'+esc(x.n)+'</div><div class="hex">'+x.h+'</div></div><span class="x" onclick="del('+i+')">✕</span></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

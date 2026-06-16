@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Picky Eater Meal Helper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .tip { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; font-size: .88rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 15px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.02rem; margin-bottom: 8px; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family:'DM Sans',sans-serif; font-size: .9rem; padding: 8px 10px; border-radius: 7px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .add { display: flex; gap: 8px; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin: 5px 0; display: flex; justify-content: space-between; font-size: .87rem; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .82rem; font-style: italic; padding: 3px 0; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .8; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Picky Eater Meal Helper</h1>
+  <p class="sub">Strategies that help with fussy eating — and a place to track safe foods and small wins.</p>
+
+  <div class="panel">
+    <div class="tip" id="tip"></div>
+    <button class="btn ghost" onclick="newTip()" style="margin-top:10px">Another strategy</button>
+  </div>
+
+  <div class="panel">
+    <h3>Safe foods (always accepted)</h3>
+    <div class="add"><input id="safe" placeholder="Add a safe food" onkeydown="if(event.key==='Enter')add('safe')" style="flex:1"><button class="btn" onclick="add('safe')">Add</button></div>
+    <div id="safeList" style="margin-top:8px"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Foods we are gently trying</h3>
+    <div class="add"><input id="trying" placeholder="Add a food to keep offering" onkeydown="if(event.key==='Enter')add('trying')" style="flex:1"><button class="btn" onclick="add('trying')">Add</button></div>
+    <div id="tryingList" style="margin-top:8px"></div>
+    <div class="note">A child may need to see a new food 10+ times before trying it. Keep offering calmly, with no pressure. For real feeding concerns, see a professional.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const TIPS=["Serve a new food alongside a safe favourite — no pressure to eat it.","Let them help cook or shop — involvement builds curiosity.","Keep portions of new foods tiny. One pea is a win.","Eat the food yourself, happily. Kids copy what they see.","Avoid the food battle — pressure backfires. Stay neutral and calm.","Offer the same new food many times; familiarity wins slowly.","Make it fun: shapes, dips, colours, silly names.","Praise trying, not finishing. Tasting is the goal."];
+  let D=JSON.parse(localStorage.getItem('pemh')||'{"safe":[],"trying":[]}');
+  const save=()=>localStorage.setItem('pemh',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function newTip(){ g('tip').textContent='💡 '+TIPS[Math.floor(Math.random()*TIPS.length)]; }
+  function add(key){ const inp=g(key); const t=inp.value.trim(); if(!t)return; D[key].push(t); inp.value=''; save(); render(); }
+  function del(key,i){ D[key].splice(i,1); save(); render(); }
+  function render(){
+    [['safe','safeList'],['trying','tryingList']].forEach(([k,el])=>{
+      g(el).innerHTML=D[k].length?D[k].map((x,i)=>'<div class="item"><span>'+esc(x)+'</span><span class="x" onclick="del(\''+k+'\','+i+')">✕</span></div>').join(''):'<div class="empty">Nothing added yet.</div>';
+    });
+  }
+  newTip(); render();
+</script>
+</body>
+</html>

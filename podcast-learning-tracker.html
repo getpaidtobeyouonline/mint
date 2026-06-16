@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Podcast Learning Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stat { text-align: center; font-size: .85rem; opacity: .8; margin-bottom: 10px; }
+  .stat b { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+  .ep { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 7px; }
+  .ep .top { display: flex; justify-content: space-between; gap: 10px; }
+  .ep .nm { color: #5AE57A; font-weight: 500; font-size: .9rem; }
+  .ep .x { cursor: pointer; opacity: .5; flex: none; } .ep .x:hover { opacity: 1; color: #5AE57A; }
+  .ep .tk { font-size: .87rem; margin-top: 3px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Podcast Learning Tracker</h1>
+  <p class="sub">Turn podcast hours into real learning — log the one idea worth keeping from each episode.</p>
+
+  <div class="panel">
+    <label>Podcast &amp; episode</label>
+    <input id="ep" placeholder="e.g. The Knowledge Project — ep. 142">
+    <label>The one key takeaway</label>
+    <input id="takeaway" placeholder="The single best idea from this episode">
+    <button class="btn" onclick="add()">+ Log Episode</button>
+  </div>
+
+  <div class="panel">
+    <div class="stat">You have captured <b id="count">0</b> ideas from podcasts</div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('plt')||'[]');
+  const save=()=>localStorage.setItem('plt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('ep')&&!v('takeaway')){ alert('Add an episode and takeaway.'); return; }
+    R.push({e:v('ep'),t:v('takeaway'),d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+    g('ep').value=''; g('takeaway').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function render(){
+    g('count').textContent=R.length;
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No episodes logged yet.</div>'; return; }
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      return '<div class="ep"><div class="top"><span class="nm">'+esc(x.e||'Episode')+' <span style="opacity:.5;font-weight:400;font-size:.76rem">· '+x.d+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>'+(x.t?'<div class="tk">💡 '+esc(x.t)+'</div>':'')+'</div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

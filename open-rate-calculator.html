@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 6px; }
+  .res .d { font-size: .9rem; opacity: .78; margin-top: 6px; }
+  .bench { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .88rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Open Rate Calculator</h1>
+  <p class="sub">Calculate true open rate (on emails delivered, not sent) and see if it beats the benchmark.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="sent">Emails sent</label><input id="sent" type="number" min="0" value="1000" oninput="calc()"></div>
+      <div><label for="bounced">Bounced</label><input id="bounced" type="number" min="0" value="20" oninput="calc()"></div>
+      <div><label for="opens">Unique opens</label><input id="opens" type="number" min="0" value="320" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="rate">0%</div>
+    <div class="vd" id="vd">open rate (of delivered)</div>
+    <div class="d" id="d"></div>
+    <div class="bench" id="bench"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['sent','bounced','opens'].forEach(k=>{ const s=localStorage.getItem('orc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['sent','bounced','opens'].forEach(k=>localStorage.setItem('orc_'+k,g(k).value));
+    const delivered=Math.max(0,n('sent')-n('bounced'));
+    const rate=delivered>0?n('opens')/delivered*100:0;
+    g('rate').textContent=rate.toFixed(1)+'%';
+    g('d').textContent=`${n('opens').toLocaleString()} opens ÷ ${delivered.toLocaleString()} delivered`;
+    let vd;
+    if(rate>=40) vd='Outstanding 🔥';
+    else if(rate>=25) vd='Above average ✅';
+    else if(rate>=15) vd='Around average';
+    else vd='Below average ⚠';
+    g('vd').textContent=vd;
+    g('bench').innerHTML=`Healthy email open rates sit around <b>20–35%</b> (varies by industry & Apple Mail privacy inflation). `+
+      (rate>=25?'You\'re beating it — your subject lines and sender reputation are working. Keep testing subjects to push higher.'
+               :'You\'re under it — the usual fixes: punchier subject lines, send when your list is active, clean inactive subscribers, and warm your sender reputation.');
+  }
+  calc();
+</script>
+</body>
+</html>

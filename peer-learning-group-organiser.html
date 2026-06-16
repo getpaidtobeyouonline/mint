@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peer Learning Group Organiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.02rem; margin-bottom: 6px; }
+  .add { display: flex; gap: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 15px; border-radius: 8px; font-family:'DM Sans',sans-serif; flex: none; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin: 5px 0; display: flex; justify-content: space-between; font-size: .87rem; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .82rem; font-style: italic; padding: 3px 0; }
+  .tip { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; font-size: .85rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Peer Learning Group Organiser</h1>
+  <p class="sub">Run a study or learning group that actually works — members, topics and a clear rhythm.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Group name / subject</label><input id="name" placeholder="e.g. Spanish study circle"></div>
+      <div><label>Meeting rhythm</label><input id="rhythm" placeholder="e.g. Tuesdays 7pm"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Members</h3>
+    <div class="add"><input id="member" placeholder="Add a member's name" onkeydown="if(event.key==='Enter')add('members')" style="flex:1"><button class="btn" onclick="add('members')">Add</button></div>
+    <div id="membersList" style="margin-top:8px"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Topics to cover</h3>
+    <div class="add"><input id="topic" placeholder="Add a topic or session theme" onkeydown="if(event.key==='Enter')add('topics')" style="flex:1"><button class="btn" onclick="add('topics')">Add</button></div>
+    <div id="topicsList" style="margin-top:8px"></div>
+  </div>
+
+  <div class="panel">
+    <div class="tip">💡 Groups that last have: a set time, a rotating facilitator, one topic per session, and a no-prep-no-problem culture so people keep showing up.</div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let D=JSON.parse(localStorage.getItem('plgo')||'{"members":[],"topics":[]}');
+  ['name','rhythm'].forEach(k=>{ const s=localStorage.getItem('plgo_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('plgo_'+k,g(k).value)); });
+  const save=()=>localStorage.setItem('plgo',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(key){ const inp=g(key==='members'?'member':'topic'); const t=inp.value.trim(); if(!t)return;
+    D[key].push(t); inp.value=''; save(); render(); }
+  function del(key,i){ D[key].splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear members and topics?')){ D={members:[],topics:[]}; save(); render(); } }
+  function render(){
+    [['members','membersList'],['topics','topicsList']].forEach(([key,el])=>{
+      g(el).innerHTML=D[key].length?D[key].map((x,i)=>'<div class="item"><span>'+esc(x)+'</span><span class="x" onclick="del(\''+key+'\','+i+')">✕</span></div>').join(''):'<div class="empty">Nothing added yet.</div>';
+    });
+  }
+  render();
+</script>
+</body>
+</html>

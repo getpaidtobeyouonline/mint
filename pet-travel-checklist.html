@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Travel Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .count { text-align: center; margin-bottom: 12px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .grp { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 14px 0 6px; font-weight: 500; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .88rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 20px; height: 20px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .item.done .lb { text-decoration: line-through; opacity: .5; }
+  .add { display: flex; gap: 8px; margin-top: 10px; }
+  input { flex: 1; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family:'DM Sans',sans-serif; font-size: .9rem; padding: 8px 10px; border-radius: 7px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .88rem; padding: 8px 14px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pet Travel Checklist</h1>
+  <p class="sub">Travelling with a pet? Cover the paperwork, the kit and their comfort.</p>
+
+  <div class="panel">
+    <div class="count"><span class="n" id="pct">0%</span><div style="opacity:.7;font-size:.85rem">ready for pet travel</div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="list"></div>
+    <div class="add"><input id="extra" placeholder="Add your own item..." onkeydown="if(event.key==='Enter')addExtra()"><button class="btn" onclick="addExtra()">Add</button></div>
+    <div class="note">Rules vary by country and airline. Check requirements early — pet paperwork can take weeks or months.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GROUPS={
+    "Paperwork & health":["Vet check-up before travel","Vaccinations up to date","Pet passport / health certificate","Microchip details current","Airline / country requirements confirmed"],
+    "Travel kit":["Suitable carrier or crate","Food &amp; water bowls","Enough food for the trip","Lead, harness and ID tag","Poop bags / litter supplies"],
+    "Comfort":["Familiar blanket or bed","A favourite toy","Calming aid if your pet needs one","Towels for accidents"],
+    "On arrival":["Pet-friendly accommodation confirmed","Located the nearest vet at the destination","Plan for walks / exercise","A recent photo in case they get lost"]
+  };
+  let state=JSON.parse(localStorage.getItem('ptc')||'{}');
+  let extra=JSON.parse(localStorage.getItem('ptc_extra')||'[]');
+  const save=()=>{ localStorage.setItem('ptc',JSON.stringify(state)); localStorage.setItem('ptc_extra',JSON.stringify(extra)); };
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function toggle(k){ state[k]=!state[k]; save(); render(); }
+  function addExtra(){ const t=g('extra').value.trim(); if(!t)return; extra.push(t); g('extra').value=''; save(); render(); }
+  function delExtra(i){ delete state['X|'+extra[i]]; extra.splice(i,1); save(); render(); }
+  function render(){
+    let html='', total=0, done=0;
+    Object.entries(GROUPS).forEach(([grp,items])=>{
+      html+='<div class="grp">'+grp+'</div>';
+      items.forEach(it=>{ const k=grp+'|'+it; const on=!!state[k]; total++; if(on)done++;
+        html+='<div class="item'+(on?' done':'')+'" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(on?' on':'')+'">'+(on?'✓':'')+'</span><span class="lb">'+it+'</span></div>';
+      });
+    });
+    if(extra.length){
+      html+='<div class="grp">Your additions</div>';
+      extra.forEach((it,i)=>{ const k='X|'+it; const on=!!state[k]; total++; if(on)done++;
+        html+='<div class="item'+(on?' done':'')+'"><span class="box'+(on?' on':'')+'" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')">'+(on?'✓':'')+'</span><span class="lb" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')">'+esc(it)+'</span><span style="margin-left:auto;cursor:pointer;opacity:.5" onclick="delExtra('+i+')">✕</span></div>';
+      });
+    }
+    g('list').innerHTML=html;
+    const pct=total?Math.round(done/total*100):0;
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+  }
+  render();
+</script>
+</body>
+</html>

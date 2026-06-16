@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Newsletter Knowledge Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .filter { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .fp { background: #2A442A; border: 1px solid #5A845A; border-radius: 16px; padding: 5px 12px; font-size: .8rem; cursor: pointer; }
+  .fp.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; margin-bottom: 6px; }
+  .item .top { display: flex; justify-content: space-between; gap: 10px; }
+  .item .src { color: #5AE57A; font-size: .8rem; font-weight: 500; }
+  .item .x { cursor: pointer; opacity: .5; flex: none; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .item .tx { font-size: .88rem; margin-top: 2px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Newsletter Knowledge Tracker</h1>
+  <p class="sub">Inbox newsletters scroll away forever. Capture the one idea worth keeping from each.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Newsletter / source</label><input id="src" placeholder="e.g. Dense Discovery"></div>
+      <div style="flex:2"><label>The idea worth keeping</label><input id="idea" placeholder="One insight, tip or fact"></div>
+    </div>
+    <button class="btn" onclick="add()">+ Save Idea</button>
+  </div>
+
+  <div class="panel">
+    <div class="filter" id="filter"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('nkt')||'[]'), filter='all';
+  const save=()=>localStorage.setItem('nkt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('idea')){ alert('Enter the idea worth keeping.'); return; }
+    R.push({s:v('src')||'General',i:v('idea'),d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+    g('idea').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function setF(f){ filter=f; render(); }
+  function render(){
+    const srcs=[...new Set(R.map(x=>x.s))];
+    g('filter').innerHTML='<span class="fp'+(filter==='all'?' on':'')+'" onclick="setF(\'all\')">All</span>'+
+      srcs.map(s=>'<span class="fp'+(filter===s?' on':'')+'" onclick="setF(\''+s.replace(/'/g,"\\'")+'\')">'+esc(s)+'</span>').join('');
+    const L=g('list');
+    const shown=R.map((x,i)=>({x,i})).filter(o=>filter==='all'||o.x.s===filter);
+    if(!shown.length){ L.innerHTML='<div class="empty">No ideas saved yet.</div>'; return; }
+    L.innerHTML=[...shown].reverse().map(({x,i})=>
+      '<div class="item"><div class="top"><span class="src">'+esc(x.s)+' · '+x.d+'</span><span class="x" onclick="del('+i+')">✕</span></div><div class="tx">💡 '+esc(x.i)+'</div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

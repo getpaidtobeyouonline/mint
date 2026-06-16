@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding Sequence Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .em h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .em .when { font-size: .78rem; opacity: .6; } .em p { font-size: .9rem; margin-top: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Onboarding Sequence Builder</h1>
+  <p class="sub">A buyer's first 14 days predict refunds, results, and repeat sales. Build the sequence that makes them succeed.</p>
+
+  <div class="panel">
+    <label for="prod">Product / course they bought</label>
+    <input id="prod" placeholder="e.g. The Pricing Toolkit">
+    <label for="first">The single first action they should take</label>
+    <input id="first" placeholder="e.g. open Module 1">
+    <label for="win">A 'fast win' available in the product</label>
+    <input id="win" placeholder="e.g. price one offer using the template">
+    <button class="btn" onclick="gen()">Build Onboarding</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['prod','first','win'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('osb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('osb_'+k,g(k).value)); });
+  function gen(){
+    const p=v('prod')||'your product', f=v('first')||'take the first step', w=v('win')||'get a fast win';
+    const seq=[
+      ["Day 0 — Welcome & access","Immediately","Confirm access. Set ONE first action: "+f+". Make it tiny so they actually do it."],
+      ["Day 1 — Quick-start win","24 hours","Walk them straight to the fastest win in "+p+": "+w+". Engagement now = success later."],
+      ["Day 3 — Address the stuck point","3 days","Pre-empt where most people stall. Give them the workaround before they hit it."],
+      ["Day 7 — Check-in & community","1 week","Ask one specific question (not 'how is it going?'). Invite them to share a win or block — replies build retention."],
+      ["Day 14 — Result + next step","2 weeks","Share a case study of someone who got results from "+p+". Plant the seed for the next thing without hard selling."]
+    ];
+    g('out').innerHTML=seq.map(s=>'<div class="em"><h3>'+s[0]+'</h3><div class="when">'+s[1]+'</div><p>'+s[2]+'</p></div>').join('');
+  }
+  gen();
+</script>
+</body>
+</html>

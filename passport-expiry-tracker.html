@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Passport Expiry Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .doc { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 12px 14px; margin-bottom: 7px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .doc.warn { border-left: 3px solid #5AE57A; }
+  .doc.danger { border-left: 3px solid #5AE57A; }
+  .doc .nm { font-weight: 500; }
+  .doc .st { font-size: .82rem; }
+  .doc .x { cursor: pointer; opacity: .5; flex: none; } .doc .x:hover { opacity: 1; color: #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 10px; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Passport Expiry Tracker</h1>
+  <p class="sub">Many countries need 6 months' validity. Track expiry dates so you are never caught out.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Document (passport / visa / ID)</label><input id="name" placeholder="e.g. UK Passport — Sam"></div>
+      <div><label>Expiry date</label><input id="date" type="date"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+    <div class="note">Tip: many destinations require your passport to be valid for at least 6 months beyond your travel dates.</div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('pet')||'[]');
+  const save=()=>localStorage.setItem('pet',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('name')||!g('date').value){ alert('Enter a document and expiry date.'); return; }
+    R.push({n:v('name'),d:g('date').value}); g('name').value=''; g('date').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all documents?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No documents tracked yet.</div>'; return; }
+    const today=new Date().setHours(0,0,0,0);
+    L.innerHTML=R.map((x,i)=>({x,i,du:Math.ceil((new Date(x.d)-today)/86400000)})).sort((a,b)=>a.du-b.du).map(({x,i,du})=>{
+      let cls='', st;
+      if(du<0){ cls=' danger'; st='⚠ Expired '+(-du)+' days ago'; }
+      else if(du<183){ cls=' danger'; st='⚠ '+du+' days left — under 6 months, renew soon'; }
+      else if(du<365){ cls=' warn'; st=du+' days left — keep an eye on it'; }
+      else st=du+' days left';
+      return '<div class="doc'+cls+'"><span><span class="nm">'+esc(x.n)+'</span><br><span class="st" style="opacity:.8">'+st+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

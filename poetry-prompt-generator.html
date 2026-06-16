@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poetry Prompt Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .prompt { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #FFFFFF; min-height: 110px; display: flex; align-items: center; justify-content: center; padding: 10px; text-align: left; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .prompt { font-size: 1.15rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Poetry Prompt Generator</h1>
+  <p class="sub">A small spark for your next poem — tap and write.</p>
+
+  <div class="panel">
+    <div class="prompt" id="prompt">Tap below to begin.</div>
+    <button class="btn" onclick="next()">New Prompt</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const P=[
+    'Write a poem about the colour of an afternoon you remember.',
+    'A poem to someone you loved before you understood love.',
+    'Write a poem that begins with the word "and".',
+    'Describe rain without using the word "rain".',
+    'Write the poem you wish someone had given you at sixteen.',
+    'A poem in the voice of the thing on your kitchen table.',
+    'Write a poem that ends, but does not finish.',
+    'A short poem about a stranger you noticed today.',
+    'Write a poem to your future self, fifty years from now.',
+    'A poem made entirely of questions.',
+    'Describe a smell from your childhood as a place.',
+    'Write a poem about a small, holy ordinary thing.',
+    'A poem written in the form of a recipe.',
+    'Write a poem you would put inside a stone for someone to find later.',
+    'A poem that begins and ends with the same line, but means different things.',
+    'Write a poem in the second person to the year you were born.',
+    'A poem made of three sentences.',
+    'Write a poem about something you have never told anyone — but make it small.',
+    'A poem about the moment before something happens.',
+    'Write a poem in praise of an ugly word.'
+  ];
+  function next(){ document.getElementById('prompt').textContent='"'+P[Math.floor(Math.random()*P.length)]+'"'; }
+  next();
+</script>
+</body>
+</html>

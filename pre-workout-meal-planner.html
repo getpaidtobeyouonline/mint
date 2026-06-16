@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre Workout Meal Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .89rem; margin-left: 16px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Pre Workout Meal Planner</h1>
+  <p class="sub">What to eat before training depends on how much time you have. Get a plan.</p>
+
+  <div class="panel">
+    <label for="timing">How long before your workout?</label>
+    <select id="timing" onchange="gen()">
+      <option value="3h">2-3 hours before</option>
+      <option value="1h">About 1 hour before</option>
+      <option value="30m">30 minutes or less</option>
+    </select>
+    <label for="type">Type of workout</label>
+    <select id="type" onchange="gen()">
+      <option value="cardio">Cardio / endurance</option>
+      <option value="strength">Strength training</option>
+      <option value="mixed">Mixed / general</option>
+    </select>
+    <button class="btn" onclick="gen()">Get My Pre-Workout Plan</button>
+    <div class="note">General fuelling guidance, not personalised nutrition advice. Everyone digests differently — test what works for you.</div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const TIMING={
+    '3h':{t:"2-3 hours before",foods:["A balanced meal: carbs + protein + a little fat","e.g. Chicken, rice and vegetables","e.g. Oats with fruit and nut butter","Enough to feel fuelled but not heavy"]},
+    '1h':{t:"About 1 hour before",foods:["A smaller, lighter, easy-to-digest snack","Carb-focused with a little protein","e.g. Banana with a spoon of nut butter","e.g. Yogurt with berries, or toast with honey"]},
+    '30m':{t:"30 minutes or less",foods:["Keep it small and simple — fast carbs","e.g. A banana or a piece of fruit","e.g. A handful of dried fruit","Or skip food and just hydrate if you feel fine"]}
+  };
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function gen(){
+    const tm=TIMING[g('timing').value], type=g('type').value;
+    const typeTip={cardio:"For cardio, prioritise carbs for ready energy.",strength:"For strength work, include some protein to support muscles.",mixed:"For a mixed session, a carb-led snack with a little protein works well."}[type];
+    g('out').innerHTML='<div class="panel"><div class="blk"><h4>'+tm.t+'</h4><ul>'+tm.foods.map(f=>'<li>'+esc(f)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>For your workout type</h4><p style="font-size:.89rem">'+typeTip+'</p></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>Always</h4><p style="font-size:.89rem">Hydrate well. Avoid anything new on an important training day, and skip very fatty or high-fibre foods right before — they sit heavy.</p></div></div>';
+  }
+  gen();
+</script>
+</body>
+</html>

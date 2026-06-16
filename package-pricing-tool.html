@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Package Pricing Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 60px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .tiers { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+  .tier { flex: 1; min-width: 220px; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 16px; }
+  .tier.feat { border-left-width: 4px; background: #2E4D2E; }
+  .tier h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .tier .p { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.8rem; margin: 6px 0; }
+  .tier .feats { font-size: .88rem; opacity: .9; }
+  .tier .feats div { padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Package Pricing Tool</h1>
+  <p class="sub">Set a target middle price — get a 3-tier good/better/best structure that anchors buyers to the middle.</p>
+
+  <div class="panel">
+    <label for="svc">Service / offer name</label>
+    <input id="svc" placeholder="e.g. Brand identity package">
+    <label for="middle">Target middle-tier price ($)</label>
+    <input id="middle" type="number" min="0" value="2500" oninput="gen()">
+    <div class="grid">
+      <div><label for="goodF">"Good" tier (1-3 features, one per line)</label><textarea id="goodF" oninput="gen()" placeholder="Logo only&#10;2 revisions"></textarea></div>
+      <div><label for="betF">"Better" tier features</label><textarea id="betF" oninput="gen()" placeholder="Logo + color + typography&#10;Brand guide PDF&#10;4 revisions"></textarea></div>
+      <div><label for="bestF">"Best" tier features</label><textarea id="bestF" oninput="gen()" placeholder="Full identity system&#10;Social templates&#10;Unlimited revisions&#10;Launch support"></textarea></div>
+    </div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['svc','middle','goodF','betF','bestF'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), n=id=>parseFloat(g(id).value)||0;
+  F.forEach(k=>{ const s=localStorage.getItem('ppt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ppt_'+k,g(k).value)); });
+  function lines(id){ return v(id).split('\n').map(s=>s.trim()).filter(Boolean); }
+  function snap(x){ const ladder=[97,197,297,497,697,997,1497,1997,2497,2997,3997,4997,6997,9997]; return ladder.reduce((b,p)=>Math.abs(p-x)<Math.abs(b-x)?p:b,ladder[0]); }
+  function gen(){
+    const m=n('middle');
+    const good=snap(m*0.45), better=snap(m), best=snap(m*2.2);
+    g('out').innerHTML='<div class="panel"><div style="font-family:\'Playfair Display\',serif;color:#5AE57A;margin-bottom:6px">'+esc(v('svc')||'Your offer')+'</div>'+
+      '<div class="tiers">'+
+        tier('Good','$'+good.toLocaleString(),lines('goodF'),false)+
+        tier('Better','$'+better.toLocaleString(),lines('betF'),true)+
+        tier('Best','$'+best.toLocaleString(),lines('bestF'),false)+
+      '</div></div>';
+  }
+  function tier(name,price,feats,feat){ return '<div class="tier '+(feat?'feat':'')+'"><h3>'+name+(feat?' ★ Most popular':'')+'</h3><div class="p">'+price+'</div><div class="feats">'+
+    (feats.length?feats.map(f=>'<div>✓ '+esc(f)+'</div>').join(''):'<div style="opacity:.5">(add features)</div>')+'</div></div>'; }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

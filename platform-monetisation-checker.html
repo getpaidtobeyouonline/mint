@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Monetisation Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 9px; }
+  .opt.lock { border-left-color: #BFD8BF; opacity: .6; }
+  .opt h4 { color: #5AE57A; font-size: .98rem; } .opt.lock h4 { color: #BFD8BF; }
+  .opt p { font-size: .87rem; opacity: .82; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Platform Monetisation Checker</h1>
+  <p class="sub">See which money paths are open to you now — and exactly what unlocks the rest.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="plat">Platform</label><select id="plat" onchange="calc()"><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>X / Twitter</option><option>LinkedIn</option></select></div>
+      <div><label for="fol">Followers</label><input id="fol" type="number" min="0" value="3000" oninput="calc()"></div>
+    </div>
+    <label for="er">Engagement rate (%)</label>
+    <input id="er" type="number" min="0" step="0.1" value="3" oninput="calc()">
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['plat','fol','er'].forEach(k=>{ const s=localStorage.getItem('pmc6_'+k); if(s!==null)g(k).value=s; });
+  // method: [name, minFollowers, desc, unlockTip]
+  const M=[
+    ["Affiliate marketing",0,"Recommend products for commission. Works at any size with a trusting audience.","Already open — pick 1–2 products you genuinely use."],
+    ["Your own digital product",0,"Highest-margin path. Doesn't need a big audience, needs a clear offer.","Already open — solve one specific problem for your niche."],
+    ["Services / coaching",0,"Trade skill for money. The fastest cash path at small size.","Already open — DM your warm audience an offer."],
+    ["Brand deals (micro)",1000,"Small brands pay engaged micro-creators.","Reach ~1k followers + a clear niche to start pitching."],
+    ["Tips / fan funding",1000,"Audience supports you directly.","Most tip features need ~1k and consistent posting."],
+    ["Platform creator payouts",10000,"Ad-rev / creator funds.","Typically needs ~10k followers + watch-time/eligibility — check current platform rules."],
+    ["Memberships / subscriptions",2000,"Recurring income from your truest fans.","Build to ~2k engaged followers and a reason to pay monthly."],
+    ["Premium brand partnerships",25000,"Bigger budgets, retainers, ambassador deals.","Grow toward ~25k with strong engagement and a media kit."]
+  ];
+  function calc(){
+    ['plat','fol','er'].forEach(k=>localStorage.setItem('pmc6_'+k,g(k).value));
+    const f=n('fol');
+    const open=M.filter(m=>f>=m[1]).length;
+    g('out').innerHTML=`<div class="panel" style="text-align:center;font-size:.92rem"><b style="color:#5AE57A">${open}</b> of ${M.length} monetisation paths open at ${f.toLocaleString()} followers</div>`+
+      M.map(m=>{ const ok=f>=m[1];
+        return `<div class="opt ${ok?'':'lock'}"><h4>${ok?'✓ ':'🔒 '}${m[2&&0]||m[0]}</h4><p>${ok?m[2]:m[3]}</p></div>`;
+      }).join('');
+  }
+  calc();
+</script>
+</body>
+</html>

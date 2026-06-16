@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Switch Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .q { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid #3C603C; flex-wrap: wrap; }
+  .q:first-of-type { border-top: none; }
+  .q span { flex: 1; min-width: 200px; font-size: .92rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; margin-top:16px; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .res .d { font-size: .92rem; opacity: .82; margin-top: 6px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-top: 10px; font-size: .9rem; text-align: left; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Platform Switch Planner</h1>
+  <p class="sub">Thinking of jumping platforms? Pressure-test the decision, then get a safe migration plan.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="from">Leaving</label><input id="from" placeholder="e.g. Instagram"></div>
+      <div><label for="to">Considering</label><input id="to" placeholder="e.g. TikTok"></div>
+    </div>
+    <div id="qs" style="margin-top:6px"></div>
+    <button class="btn" onclick="run()">Should I Switch?</button>
+  </div>
+
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    "My audience is genuinely active on the new platform",
+    "I can create the new platform's main format well",
+    "My growth on the current platform is truly stuck (not just slow)",
+    "I can commit 90+ days before judging the new one",
+    "I have a way to bring some current audience with me",
+    "The new platform fits my long-term goals (not just hype)"
+  ];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  g('qs').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q}</span>
+    <select id="q${i}"><option value="0">No</option><option value="0.5">Unsure</option><option value="1">Yes</option></select></div>`).join('');
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0), pct=Math.round(sc/Q.length*100);
+    const F=v('from')||'your current platform', T=v('to')||'the new platform';
+    let vd,d;
+    if(pct>=75){ vd='Switch — but bridge, don\'t burn'; d=`The case for ${T} is strong. Don\'t abandon ${F} cold.`; }
+    else if(pct>=45){ vd='Add, don\'t replace (yet)'; d=`Test ${T} alongside ${F} for 60–90 days before committing fully.`; }
+    else { vd='Stay & fix first'; d=`The grass isn\'t greener yet. Most "stuck" accounts have a content problem that follows you to ${T}.`; }
+    g('res').innerHTML=`<div class="res"><div class="vd">${vd}</div><div class="d">${d}</div></div>
+      <div class="blk"><b style="color:#5AE57A">Safe migration plan</b><br>
+      1. Keep posting on ${esc(F)} (don\'t signal you\'re leaving — repurpose, don\'t abandon).<br>
+      2. Spend 2 weeks consuming ${esc(T)} before posting — learn the native format & culture.<br>
+      3. Repurpose your best ${esc(F)} content as ${esc(T)}-native for 4 weeks.<br>
+      4. Plug ${esc(T)} in your ${esc(F)} bio/stories to cross-pollinate.<br>
+      5. Review at day 90 on inputs done, not vanity numbers — new platforms start slow.</div>`;
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+</script>
+</body>
+</html>

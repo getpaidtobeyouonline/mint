@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Podcast Episode Outline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 70px; }
+  .hint { font-size: 0.78rem; opacity: 0.55; margin-top: 4px; font-style: italic; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 22px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 8px;
+  }
+  .time-tag {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    color: #325132;
+    background: #5AE57A;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+    font-weight: 500;
+  }
+  .section-body { font-size: 0.98rem; white-space: pre-wrap; }
+  .section-body ul { padding-left: 20px; margin-top: 4px; }
+  .section-body li { margin-bottom: 5px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Podcast Episode Outline</h1>
+  <p class="subtitle">Stop hitting record without a plan. Get a timed episode outline, cold open, segments, and show notes draft.</p>
+
+  <div class="grid">
+    <div>
+      <label for="type">Episode Type</label>
+      <select id="type">
+        <option value="solo">Solo</option>
+        <option value="interview">Interview</option>
+        <option value="narrative">Narrative / Story</option>
+        <option value="panel">Panel</option>
+      </select>
+    </div>
+    <div>
+      <label for="length">Target Length</label>
+      <select id="length">
+        <option value="15">15 minutes</option>
+        <option value="30" selected>30 minutes</option>
+        <option value="45">45 minutes</option>
+        <option value="60">60 minutes</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="topic">Episode Topic / Working Title</label>
+  <input type="text" id="topic" placeholder="e.g. why pricing by the hour is killing your business" />
+
+  <label for="guest">Guest Name (interview / panel only — leave blank otherwise)</label>
+  <input type="text" id="guest" placeholder="e.g. Maya Patel" />
+
+  <label for="audience">Who Is Listening?</label>
+  <input type="text" id="audience" placeholder="e.g. freelance designers earning $40-100k" />
+
+  <label for="takeaways">3 Things Listeners Should Walk Away With (one per line)</label>
+  <textarea id="takeaways" placeholder="Why hourly pricing caps your income&#10;How to price by outcome instead&#10;The exact script to use in your next client call"></textarea>
+
+  <label for="cta">CTA / Goal At The End</label>
+  <input type="text" id="cta" placeholder="e.g. download the free pricing guide at sashalee.com/pricing" />
+
+  <button class="build-btn" id="buildBtn">Build My Outline</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Final Title Options</div>
+      <div class="section-body" id="titles"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Cold Open <span class="time-tag" id="t1"></span></div>
+      <div class="section-body" id="coldopen"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Intro Segment <span class="time-tag" id="t2"></span></div>
+      <div class="section-body" id="intro"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Main Content <span class="time-tag" id="t3"></span></div>
+      <div class="section-body" id="main"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Closing & CTA <span class="time-tag" id="t4"></span></div>
+      <div class="section-body" id="closing"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Show Notes Draft</div>
+      <div class="section-body" id="shownotes"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">3 Promo Hooks (for socials)</div>
+      <div class="section-body" id="promo"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Outline</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function build() {
+    const type = document.getElementById('type').value;
+    const length = parseInt(document.getElementById('length').value);
+    const topic = document.getElementById('topic').value.trim() || '[topic]';
+    const guest = document.getElementById('guest').value.trim();
+    const audience = document.getElementById('audience').value.trim() || '[your audience]';
+    const takeawaysRaw = document.getElementById('takeaways').value.trim();
+    const cta = document.getElementById('cta').value.trim() || '[your CTA]';
+    const takeaways = takeawaysRaw ? takeawaysRaw.split('\n').filter(t=>t.trim()).slice(0,3) : ['[takeaway 1]','[takeaway 2]','[takeaway 3]'];
+
+    const t1 = Math.max(0.5, Math.round(length * 0.04));
+    const t2 = Math.max(1, Math.round(length * 0.08));
+    const t4 = Math.max(1, Math.round(length * 0.07));
+    const t3 = length - t1 - t2 - t4;
+    document.getElementById('t1').textContent = `~${t1} min`;
+    document.getElementById('t2').textContent = `~${t2} min`;
+    document.getElementById('t3').textContent = `~${t3} min`;
+    document.getElementById('t4').textContent = `~${t4} min`;
+
+    const titles = [
+      `${topic} — what nobody tells ${audience.split(' ').slice(0,3).join(' ')}`,
+      `The ${topic} conversation I wish I'd had 5 years ago`,
+      type === 'interview' && guest ? `${guest} on ${topic}` : `${topic}: the reframe that changes everything`
+    ];
+    document.getElementById('titles').innerHTML = '<ul>' + titles.map(t=>`<li>${t}</li>`).join('') + '</ul>';
+
+    const coldOpenMap = {
+      solo: `Open with a 30-second hook: a contrarian one-liner about ${topic}, OR a real moment from your week that triggered this episode. End the cold open with: "Today I'm going to tell you exactly why — and what to do instead."`,
+      interview: `Pull a 30-45 second clip from the most surprising moment of the interview with ${guest||'[guest]'}. Lead with the soundbite, then your voice: "That's ${guest||'[guest]'}, and in the next ${length} minutes they're going to..."`,
+      narrative: `Open in the middle of the story. A sensory moment, a specific date, a line of dialogue. No setup. Trust the listener to lean in.`,
+      panel: `Tease the disagreement. Pull the moment where two panelists pushed back on each other. Then your voice: "Three perspectives on ${topic}. Here's what happened when we got them in the same room."`
+    };
+    document.getElementById('coldopen').textContent = coldOpenMap[type];
+
+    const introMap = {
+      solo: `Welcome listeners. Name the audience explicitly: "If you're ${audience}, this is for you." Tease the 3 takeaways without giving them away. Personal sponsor / housekeeping (keep under 60 seconds).`,
+      interview: `Welcome listeners + name the audience. Introduce ${guest||'[guest]'} with one sentence of credibility + one personal detail (humanizes them). Tease the 3 things they'll learn. Hand off to the conversation.`,
+      narrative: `Step out of the story to set context. "I'm telling you this story because..." Connect the story directly to ${audience} and what they'll take away. Step back into the story.`,
+      panel: `Welcome listeners. Introduce each panelist in one sentence each. Set the question on the table. Establish ground rules ("everyone gets ${Math.round(t3/3)} minutes uninterrupted before we open it up").`
+    };
+    document.getElementById('intro').textContent = introMap[type];
+
+    const segLen = Math.round(t3 / 3);
+    const mainSegs = [
+      `Segment 1 (~${segLen} min) — ${takeaways[0]}. Lead with the "wrong" version most ${audience} believe. Then your reframe. Close with one specific example.`,
+      `Segment 2 (~${segLen} min) — ${takeaways[1]}. This is the meat. Slow down. Give one concrete tactic + one short story. ${type==='interview'?'Ask the follow-up: "And what surprised you when you actually tried that?"':'Pause for emphasis after the key line.'}`,
+      `Segment 3 (~${segLen} min) — ${takeaways[2]}. Make it actionable. Give the listener something they could do in the next 24 hours. ${type==='interview' && guest ? `End with: "${guest}, what's the one thing you'd want listeners to walk away believing?"` : 'End with a question for the listener to sit with.'}`
+    ];
+    document.getElementById('main').innerHTML = '<ul>' + mainSegs.map(s=>`<li>${s}</li>`).join('') + '</ul>';
+
+    document.getElementById('closing').textContent =
+`Recap the 3 takeaways in 30 seconds, in plain words.
+
+The CTA: "${cta}"
+
+Sign-off line — keep it consistent across episodes. Listeners' brains anchor on the closer.${type==='interview'&&guest?`\n\nThank ${guest} on-mic. Ask them where listeners can find them. Don't rush this — guests will share the episode harder if the outro felt warm.`:''}`;
+
+    document.getElementById('shownotes').textContent =
+`In this episode:\n• ${takeaways[0]}\n• ${takeaways[1]}\n• ${takeaways[2]}\n\nMentioned in this episode:\n${type==='interview'&&guest?`• ${guest}'s links:\n`:''}• ${cta}\n\nIf this episode helped you, the kindest thing you can do is share it with one person who needs to hear it.`;
+
+    const promo = [
+      `"${topic.charAt(0).toUpperCase()+topic.slice(1)}" — pull the strongest 60 seconds. Add captions. Post as a clip.`,
+      `Quote graphic: the single sharpest line from the episode${type==='interview'&&guest?` (probably from ${guest})`:''}.`,
+      `Text post: "I just recorded an episode about ${topic}. Here's the one thing I want ${audience} to know:" then the punchy version of takeaway #1.`
+    ];
+    document.getElementById('promo').innerHTML = '<ul>' + promo.map(p=>`<li>${p}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const grab = id => document.getElementById(id).innerText;
+    const text = ['EPISODE OUTLINE','','TITLE OPTIONS',grab('titles'),'','COLD OPEN',grab('coldopen'),'','INTRO',grab('intro'),'','MAIN CONTENT',grab('main'),'','CLOSING & CTA',grab('closing'),'','SHOW NOTES',grab('shownotes'),'','PROMO HOOKS',grab('promo')].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Outline', 1500);
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Motivation Level Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 14px; }
+  .stat { font-size: .9rem; opacity: .85; margin-bottom: 10px; } .stat b { color: #5AE57A; }
+  .row { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: .85rem; display: flex; justify-content: space-between; gap: 10px; }
+  .row .x { cursor: pointer; opacity: .5; } .row .x:hover { opacity: 1; color: #5AE57A; }
+  .barwrap { display: flex; align-items: center; gap: 10px; margin-top: 6px; font-size: .82rem; }
+  .barwrap .lb { width: 70px; flex: none; opacity: .8; }
+  .barwrap .tr { flex: 1; background: #3C603C; border-radius: 4px; height: 12px; overflow: hidden; }
+  .barwrap .tr>i { display: block; height: 100%; background: #5AE57A; }
+  .barwrap .pc { width: 30px; text-align: right; flex: none; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Motivation Level Tracker</h1>
+  <p class="sub">Log motivation daily and find the pattern — what gives you energy, what drains it.</p>
+
+  <div class="panel">
+    <label for="lvl">Motivation right now (1-10): <span id="lv" style="color:#5AE57A">5</span></label>
+    <input id="lvl" type="range" min="1" max="10" value="5" oninput="document.getElementById('lv').textContent=this.value">
+    <label for="note">Why? (one line — what is fueling or draining you)</label>
+    <input id="note" placeholder="e.g. nailed the morning workout / slept badly / boring task">
+    <button class="btn" onclick="add()">+ Log</button>
+  </div>
+
+  <div class="stat" id="stat"></div>
+  <div id="chart"></div>
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let L=JSON.parse(localStorage.getItem('mlt')||'[]');
+  const save=()=>localStorage.setItem('mlt',JSON.stringify(L));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ L.push({d:new Date().toISOString().slice(0,10),t:new Date().toLocaleTimeString().slice(0,5),lvl:+g('lvl').value,note:v('note')}); g('note').value=''; save(); render(); }
+  function del(i){ L.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ L=[]; save(); render(); } }
+  function render(){
+    if(!L.length){ g('stat').textContent=''; g('chart').innerHTML=''; g('list').innerHTML='<div class="empty">No logs yet — drop one in.</div>'; return; }
+    const avg=L.reduce((s,x)=>s+x.lvl,0)/L.length;
+    const high=L.filter(x=>x.lvl>=7), low=L.filter(x=>x.lvl<=4);
+    g('stat').innerHTML=`Avg motivation: <b>${avg.toFixed(1)}/10</b> over <b>${L.length}</b> logs. <b>${high.length}</b> high days, <b>${low.length}</b> low days.`;
+    g('chart').innerHTML=L.slice(-14).map(x=>`<div class="barwrap"><span class="lb">${x.d.slice(5)} ${x.t}</span><div class="tr"><i style="width:${x.lvl*10}%"></i></div><span class="pc">${x.lvl}</span></div>`).join('');
+    g('list').innerHTML=[...L].map((x,i)=>({x,i})).reverse().slice(0,10).map(({x,i})=>`<div class="row"><span><b style="color:#5AE57A">${x.lvl}/10</b> · ${x.d}${x.note?' · '+esc(x.note):''}</span><span class="x" onclick="del(${i})">✕</span></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

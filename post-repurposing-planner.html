@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post Repurposing Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 6vw, 44px);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: 0.85; margin-bottom: 24px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { resize: vertical; min-height: 110px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+  }
+  button:hover { opacity: 0.88; }
+  .instructions { font-size: 14px; opacity: 0.85; margin-bottom: 16px; }
+  .repurpose {
+    border-left: 3px solid #5AE57A;
+    padding: 14px 16px;
+    background: #325132;
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 12px;
+  }
+  .platform {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+  .format { font-size: 13px; opacity: 0.7; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .copy-btn {
+    background: transparent;
+    border: 1px solid #5AE57A;
+    color: #5AE57A;
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-top: 8px;
+    width: auto;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .draft { white-space: pre-wrap; font-size: 14px; }
+  footer { text-align: center; margin-top: 32px; font-size: 13px; opacity: 0.6; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post Repurposing Planner</h1>
+  <p class="sub">Stretch one piece of content into a week of posts across every platform you use.</p>
+
+  <div class="card">
+    <p class="instructions">Paste your original post (a tweet, caption, newsletter snippet, video script — anything). Pick your source format and we'll give you 6 platform-specific repurposed drafts so nothing you create gets posted just once.</p>
+
+    <label>Your original content</label>
+    <textarea id="content" placeholder="Paste the post, hook, lesson, or idea you want to repurpose..."></textarea>
+
+    <label>Source format</label>
+    <select id="source">
+      <option>Long-form post (LinkedIn, blog, newsletter)</option>
+      <option>Short post (tweet, IG caption)</option>
+      <option>Video script or transcript</option>
+      <option>Podcast / interview clip</option>
+    </select>
+
+    <label>Main topic / theme (one phrase)</label>
+    <input id="topic" placeholder="e.g. Pricing your first digital product">
+
+    <button onclick="generate()">Generate Repurpose Plan</button>
+  </div>
+
+  <div id="output"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+function firstSentence(text) {
+  const m = text.match(/[^.!?\n]+[.!?]?/);
+  return m ? m[0].trim() : text.trim().slice(0, 120);
+}
+
+function generate() {
+  const content = document.getElementById('content').value.trim();
+  const topic = document.getElementById('topic').value.trim() || 'this topic';
+  const out = document.getElementById('output');
+
+  if (!content) {
+    out.innerHTML = '<div class="card" style="border-color:#5AE57A">Paste some content to repurpose first.</div>';
+    return;
+  }
+
+  const hook = firstSentence(content);
+  const short = content.length > 220 ? content.slice(0, 217) + '...' : content;
+
+  const plans = [
+    {
+      platform: 'Twitter / X Thread',
+      format: '5-7 tweets',
+      draft: `Tweet 1 (hook): ${hook}\n\nTweet 2: The problem most people miss about ${topic}.\n\nTweet 3-5: Break your main points into one tweet each.\n\nTweet 6: The takeaway / mindset shift.\n\nTweet 7 (CTA): If this helped, RT the first tweet + follow for more on ${topic}.`
+    },
+    {
+      platform: 'Instagram Carousel',
+      format: '7 slides',
+      draft: `Slide 1 (cover): ${hook}\nSlide 2: Why ${topic} matters now.\nSlide 3: The mistake everyone makes.\nSlide 4: What to do instead.\nSlide 5: A quick example or story.\nSlide 6: The 1-line summary.\nSlide 7 (CTA): Save this + follow for more.`
+    },
+    {
+      platform: 'LinkedIn Post',
+      format: 'Text post, 1200 chars',
+      draft: `${hook}\n\nHere's what I've learned about ${topic}:\n\n→ [Key insight 1 from your original]\n→ [Key insight 2]\n→ [Key insight 3]\n\nThe takeaway: ${topic} isn't about doing more — it's about doing the right thing first.\n\nWhat's worked for you? Drop it in the comments.`
+    },
+    {
+      platform: 'Short-form Video (Reel / TikTok / Short)',
+      format: '30-45 sec talking head',
+      draft: `HOOK (0-3s): "${hook}"\n\nBODY (3-25s): Walk through your top 2 points in plain language. Use a B-roll or text overlay for each.\n\nPAYOFF (25-35s): The "aha" — what this means for the viewer.\n\nCTA (35-45s): "Follow for more on ${topic}" or "Comment 'GUIDE' for the full breakdown."`
+    },
+    {
+      platform: 'Email / Newsletter',
+      format: 'Short broadcast, 200-300 words',
+      draft: `Subject: ${hook}\n\nHey [first name],\n\nQuick one today on ${topic}.\n\n${short}\n\nThe reason this matters: most people in your spot are still doing it the old way — and it's quietly costing them.\n\nTry the shift this week. Hit reply and tell me what happens.\n\n— [Your name]`
+    },
+    {
+      platform: 'YouTube Short / Pinterest Idea Pin',
+      format: 'Vertical visual, 3 frames',
+      draft: `Frame 1: "${hook}" — large bold text on dark background.\nFrame 2: 3 bullet points covering the core insight on ${topic}.\nFrame 3: CTA — "Save this" or "Tap for the full guide."`
+    }
+  ];
+
+  out.innerHTML = plans.map((p, i) => `
+    <div class="card">
+      <div class="repurpose">
+        <div class="platform">${p.platform}</div>
+        <div class="format">${p.format}</div>
+        <div class="draft" id="draft${i}">${p.draft}</div>
+        <button class="copy-btn" onclick="copyDraft(${i})">Copy</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function copyDraft(i) {
+  const text = document.getElementById('draft' + i).innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btns = document.querySelectorAll('.copy-btn');
+    btns[i].innerText = 'Copied!';
+    setTimeout(() => btns[i].innerText = 'Copy', 1500);
+  });
+}
+</script>
+</body>
+</html>

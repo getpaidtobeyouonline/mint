@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRR Revenue Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:640px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.2rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.05rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.field{margin-bottom:1rem}
+label{display:block;font-size:.875rem;font-weight:500;margin-bottom:.4rem;opacity:.85}
+.input-wrap{position:relative}
+.prefix,.suffix{position:absolute;top:50%;transform:translateY(-50%);color:#5AE57A;font-weight:600;pointer-events:none}
+.prefix{left:12px}
+.suffix{right:12px}
+input[type=number]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.75rem .75rem .75rem 2rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+input[type=number]:focus{border-color:#5AE57A}
+input.no-prefix{padding-left:.75rem}
+input.has-suffix{padding-right:2rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:.5rem}
+.metric{background:#325132;border:1px solid #4C724C;border-radius:10px;padding:1rem;text-align:center}
+.metric-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;opacity:.55;margin-bottom:.4rem}
+.metric-value{font-family:'Playfair Display',serif;font-size:1.5rem;color:#5AE57A;font-weight:700}
+.metric-value.sm{font-size:1.2rem}
+.metric-value.neg{color:#5AE57A}
+table{width:100%;border-collapse:collapse}
+th,td{padding:.6rem .75rem;text-align:left;font-size:.875rem}
+th{color:#5AE57A;font-weight:600;font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #4C724C}
+tr:not(:last-child) td{border-bottom:1px solid #3C603C}
+.hl{color:#5AE57A;font-weight:600}
+.note{font-size:.78rem;opacity:.5;margin-top:.75rem;text-align:center}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2.5rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.metric-value{font-size:1.2rem}.metric-value.sm{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>MRR Calculator</h1>
+    <p class="subtitle">Enter your numbers — see where your recurring revenue is headed.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Business Today</h2>
+    <div class="field">
+      <label>Active Subscribers</label>
+      <div class="input-wrap">
+        <input type="number" id="customers" class="no-prefix" placeholder="e.g. 50" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Monthly Price Per Subscriber ($)</label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="price" placeholder="e.g. 29" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>Monthly Churn Rate (% who cancel)</label>
+      <div class="input-wrap">
+        <input type="number" id="churn" class="no-prefix has-suffix" placeholder="e.g. 5" min="0" max="100">
+        <span class="suffix">%</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>New Subscribers Added Per Month</label>
+      <div class="input-wrap">
+        <input type="number" id="newCust" class="no-prefix" placeholder="e.g. 10" min="0">
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="calculate()">Calculate My MRR →</button>
+
+  <div class="results" id="results">
+    <div class="card">
+      <h2>Current Snapshot</h2>
+      <div class="metric-grid">
+        <div class="metric">
+          <div class="metric-label">Monthly MRR</div>
+          <div class="metric-value" id="mrr">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Annual ARR</div>
+          <div class="metric-value" id="arr">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Churn Loss / mo</div>
+          <div class="metric-value sm" id="churnLoss">—</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Net New MRR</div>
+          <div class="metric-value sm" id="netMrr">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>12-Month Projection</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Month</th>
+            <th>Subscribers</th>
+            <th>MRR</th>
+            <th>ARR Run Rate</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="note">Projection assumes consistent churn rate and new subscriber growth each month.</p>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const fmt = n => '$' + Math.round(n).toLocaleString();
+
+function calculate() {
+  const customers = parseFloat(document.getElementById('customers').value) || 0;
+  const price     = parseFloat(document.getElementById('price').value)     || 0;
+  const churnRate = (parseFloat(document.getElementById('churn').value)    || 0) / 100;
+  const newCust   = parseFloat(document.getElementById('newCust').value)   || 0;
+
+  if (!customers || !price) {
+    alert('Please enter at least your subscriber count and monthly price.');
+    return;
+  }
+
+  const mrr       = customers * price;
+  const arr       = mrr * 12;
+  const churnLoss = mrr * churnRate;
+  const newMrr    = newCust * price;
+  const netMrr    = newMrr - churnLoss;
+
+  document.getElementById('mrr').textContent       = fmt(mrr);
+  document.getElementById('arr').textContent       = fmt(arr);
+  document.getElementById('churnLoss').textContent = fmt(churnLoss);
+
+  const netEl = document.getElementById('netMrr');
+  netEl.textContent = (netMrr >= 0 ? '+' : '') + fmt(netMrr);
+  netEl.classList.toggle('neg', netMrr < 0);
+
+  const show = [1,2,3,6,9,12];
+  let rows = '';
+  let c = customers;
+
+  for (let m = 1; m <= 12; m++) {
+    c = c * (1 - churnRate) + newCust;
+    if (show.includes(m)) {
+      const mMrr = c * price;
+      const mArr = mMrr * 12;
+      const hl   = m === 12 ? ' class="hl"' : '';
+      rows += `<tr>
+        <td${hl}>Month ${m}</td>
+        <td${hl}>${Math.round(c).toLocaleString()}</td>
+        <td${hl}>${fmt(mMrr)}</td>
+        <td${hl}>${fmt(mArr)}</td>
+      </tr>`;
+    }
+  }
+
+  document.getElementById('tbody').innerHTML = rows;
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>

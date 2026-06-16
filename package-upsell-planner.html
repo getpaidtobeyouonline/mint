@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Package Upsell Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Package Upsell Planner</h1>
+  <p class="sub">Plan a natural next step so good clients keep working with you.</p>
+
+  <div class="panel">
+    <label for="current">Your current package</label>
+    <input id="current" placeholder="What clients buy first">
+    <label for="next">The natural next need after it</label>
+    <textarea id="next" placeholder="What clients still want once that package ends"></textarea>
+    <label for="offer">Your upsell offer</label>
+    <textarea id="offer" placeholder="The next package and what it includes"></textarea>
+    <label for="when">When you will present it</label>
+    <input id="when" placeholder="e.g. at the final session, after a milestone">
+    <label for="pitch">How you will frame it</label>
+    <textarea id="pitch" placeholder="The honest, helpful way you raise it"></textarea>
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['current','next','offer','when','pitch'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('pup_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('pup_'+k,g(k).value)); });
+  function gen(){
+    const t='PACKAGE UPSELL PLAN\n\nCURRENT PACKAGE:\n'+(v('current')||'[what they buy first]')+
+    '\n\nTHE NATURAL NEXT NEED:\n'+(v('next')||'[what they want next]')+
+    '\n\nTHE UPSELL OFFER:\n'+(v('offer')||'[the next package]')+
+    '\n\nWHEN TO PRESENT IT:\n'+(v('when')||'[your timing]')+
+    '\n\nHOW TO FRAME IT:\n'+(v('pitch')||'[the honest, helpful framing]')+
+    '\n\n--- Upsell well, not pushy ---\nThe best upsell genuinely serves the result they came for.\nRaise it from a place of "here is what I would recommend next", not a sale.\nAn existing happy client is far easier to serve than a brand-new one.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

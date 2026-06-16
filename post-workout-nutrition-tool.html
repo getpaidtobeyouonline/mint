@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post Workout Nutrition Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .89rem; margin-left: 16px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Post Workout Nutrition Tool</h1>
+  <p class="sub">What to eat after training to refuel and recover well.</p>
+
+  <div class="panel">
+    <label for="type">What did you do?</label>
+    <select id="type" onchange="gen()">
+      <option value="strength">Strength training</option>
+      <option value="cardio">Long cardio / endurance</option>
+      <option value="light">Light session / short workout</option>
+    </select>
+    <label for="goal">Your main goal</label>
+    <select id="goal" onchange="gen()">
+      <option value="muscle">Build muscle</option>
+      <option value="recover">Recover &amp; perform</option>
+      <option value="lean">Stay lean</option>
+    </select>
+    <button class="btn" onclick="gen()">Get My Recovery Plan</button>
+    <div class="note">General recovery guidance, not personalised nutrition advice.</div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function gen(){
+    const type=g('type').value, goal=g('goal').value;
+    const typeNeed={
+      strength:["Protein is the priority — it supports muscle repair.","Include carbs to refill energy stores.","e.g. Chicken &amp; rice, eggs on toast, a protein smoothie with fruit."],
+      cardio:["Carbs are key — you have used a lot of energy.","Add protein to support recovery.","e.g. A big bowl of oats, pasta with lean protein, a recovery smoothie."],
+      light:["A normal balanced meal or snack is plenty.","No need to over-think it after a light session.","e.g. Yogurt with fruit, or just your next regular meal."]
+    }[type];
+    const goalTip={
+      muscle:"Aim for a solid protein hit (20-35g) within a couple of hours.",
+      recover:"Balance carbs and protein, and hydrate well — recovery is the goal.",
+      lean:"Eat enough to recover, but keep portions in line with your overall calories."
+    }[goal];
+    g('out').innerHTML='<div class="panel"><div class="blk"><h4>What your body needs</h4><ul>'+typeNeed.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>For your goal</h4><p style="font-size:.89rem">'+goalTip+'</p></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>Do not forget</h4><p style="font-size:.89rem">Rehydrate — replace fluids lost in sweat. The "30-minute window" is less strict than once thought; eating within a couple of hours is fine for most people.</p></div></div>';
+  }
+  gen();
+</script>
+</body>
+</html>

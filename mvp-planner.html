@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVP Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:680px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:6px}
+.card-hint{font-size:.8rem;opacity:.5;margin-bottom:18px;line-height:1.5}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;resize:none;transition:border .2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#5AE57A}
+input::placeholder,textarea::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.feat-input-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:16px}
+.feat-input-row input{margin:0}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:10px 18px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.sorter{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bucket{background:#325132;border-radius:10px;padding:12px;min-height:120px}
+.bucket-head{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;font-weight:700;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #3C603C}
+.must-head{color:#5AE57A}.nice-head{color:#5AE57A}.later-head{color:#BFD8BF}
+.feat-chip{background:#3C603C;border-radius:7px;padding:8px 10px;margin-bottom:7px;font-size:.8rem;line-height:1.4}
+.feat-chip-name{margin-bottom:6px;word-break:break-word}
+.chip-btns{display:flex;gap:4px;flex-wrap:wrap}
+.chip-btn{border:none;border-radius:4px;padding:3px 7px;font-family:'DM Sans',sans-serif;font-size:.65rem;font-weight:700;cursor:pointer;opacity:.6;transition:all .2s}
+.chip-btn:hover{opacity:1}
+.chip-btn.must{background:#44cc6622;color:#5AE57A;border:1px solid #44cc6640}
+.chip-btn.nice{background:#C9A84C22;color:#5AE57A;border:1px solid #C9A84C40}
+.chip-btn.later{background:#55555522;color:#BFD8BF;border:1px solid #55555540}
+.chip-btn.del{background:#ff444422;color:#5AE57A;border:1px solid #ff444440}
+.chip-btn.active{opacity:1;font-weight:800}
+.unsorted{margin-bottom:12px}
+.unsorted-label{font-size:.72rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.no-feat{font-size:.78rem;color:#5A845A;text-align:center;padding:20px 0}
+.gen-btn{width:100%;max-width:680px;display:block;margin:0 auto 20px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.gen-btn:hover{opacity:.85}
+#output{max-width:680px;margin:0 auto;display:none}
+.brief{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;margin-bottom:14px}
+.brief-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:14px}
+.brief-section{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #3C603C}
+.brief-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.brief-lbl{font-size:.7rem;letter-spacing:.07em;text-transform:uppercase;color:#5AE57A;font-weight:700;margin-bottom:6px}
+.brief-val{font-size:.88rem;line-height:1.7}
+.feature-list{display:flex;flex-direction:column;gap:5px}
+.fl-item{display:flex;gap:8px;font-size:.85rem;align-items:flex-start}
+.fl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.must-dot{background:#5AE57A}.nice-dot{background:#5AE57A}.later-dot{background:#BFD8BF}
+.metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.metric-box{background:#325132;border-radius:8px;padding:12px;text-align:center}
+.metric-val{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:3px}
+.metric-lbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.action-btns{display:flex;gap:10px}
+.copy-btn{flex:1;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.copy-btn:hover{opacity:.85}
+.restart-btn{flex:1;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .2s}
+.restart-btn:hover{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:520px){.row,.row3{grid-template-columns:1fr}.sorter{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>MVP Planner</h1>
+<p class="sub">Minimum Viable Product — strip it down, ship it fast, learn what matters</p>
+
+<div id="formArea">
+<div class="card">
+  <div class="card-title">The Core Idea</div>
+  <div class="card-hint">Define what your MVP is and who it's for before deciding what to build.</div>
+  <div class="row">
+    <div><label>Product / Offer Name</label><input id="pName" type="text" placeholder="e.g. Content Calendar Builder"></div>
+    <div><label>Target Customer</label><input id="pCustomer" type="text" placeholder="e.g. freelance social media managers"></div>
+  </div>
+  <label>The core problem it solves (one sentence)</label>
+  <input id="pProblem" type="text" placeholder="e.g. Spending hours planning content every week with no system">
+  <label>The core promise — what transformation or result does it deliver?</label>
+  <input id="pPromise" type="text" placeholder="e.g. Plan a full month of content in under 2 hours">
+  <div class="row">
+    <div><label>Price Point ($)</label><input id="pPrice" type="number" placeholder="97" min="0"></div>
+    <div><label>Delivery Format</label>
+      <select id="pFormat">
+        <option>Digital download / template</option>
+        <option>Online course / video training</option>
+        <option>Group programme</option>
+        <option>1:1 service or coaching</option>
+        <option>Software / web app</option>
+        <option>Community / membership</option>
+        <option>Physical product</option>
+        <option>Workshop / live training</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Feature Sorter</div>
+  <div class="card-hint">Add every feature or deliverable you're considering — then sort each into Must Have (MVP), Nice to Have, or Save for Later. The MVP rule: if it doesn't directly deliver the core promise, it can wait.</div>
+  <div class="feat-input-row">
+    <input id="featInput" type="text" placeholder="e.g. Video walkthrough, worksheet, bonus templates…">
+    <button class="add-btn" onclick="addFeature()">+ Add</button>
+  </div>
+  <div id="unsortedArea" class="unsorted" style="display:none">
+    <div class="unsorted-label">Unsorted — assign each feature below</div>
+    <div id="unsortedList"></div>
+  </div>
+  <div class="sorter">
+    <div class="bucket"><div class="bucket-head must-head">✓ Must Have</div><div id="mustList"><div class="no-feat">None yet</div></div></div>
+    <div class="bucket"><div class="bucket-head nice-head">◈ Nice to Have</div><div id="niceList"><div class="no-feat">None yet</div></div></div>
+    <div class="bucket"><div class="bucket-head later-head">○ Save for Later</div><div id="laterList"><div class="no-feat">None yet</div></div></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Launch Plan</div>
+  <div class="row3">
+    <div><label>Launch Timeline</label>
+      <select id="lTimeline">
+        <option>1–2 weeks</option><option>1 month</option>
+        <option>2–3 months</option><option>3–6 months</option>
+      </select>
+    </div>
+    <div><label>First Sales Target</label><input id="lSales" type="number" placeholder="10" min="1"></div>
+    <div><label>Test Audience Size</label><input id="lAudience" type="number" placeholder="100" min="1"></div>
+  </div>
+  <label>How will you validate before fully building?</label>
+  <textarea rows="2" id="lValidate" placeholder="e.g. Waitlist page + 10 pre-sales, beta round at 50% off, DM 20 ideal customers"></textarea>
+  <label>What does MVP success look like? (your 30-day goal)</label>
+  <input id="lSuccess" type="text" placeholder="e.g. 10 paying customers, $970 in revenue, 5 testimonials">
+</div>
+</div>
+
+<button class="gen-btn" onclick="generate()">Generate My MVP Brief →</button>
+
+<div id="output">
+  <div class="brief">
+    <div class="brief-title">MVP Brief</div>
+    <div class="brief-section"><div class="brief-lbl">Product</div><div class="brief-val" id="bName"></div></div>
+    <div class="brief-section"><div class="brief-lbl">Customer & Problem</div><div class="brief-val" id="bProblem"></div></div>
+    <div class="brief-section"><div class="brief-lbl">Core Promise</div><div class="brief-val" id="bPromise"></div></div>
+    <div class="brief-section"><div class="brief-lbl">What's In the MVP (Must Have)</div><div class="feature-list" id="bMust"></div></div>
+    <div class="brief-section"><div class="brief-lbl">Excluded from v1 (Nice to Have)</div><div class="feature-list" id="bNice"></div></div>
+    <div class="brief-section"><div class="brief-lbl">Roadmap — Future Versions</div><div class="feature-list" id="bLater"></div></div>
+    <div class="brief-section">
+      <div class="brief-lbl">Launch Targets</div>
+      <div class="metric-row">
+        <div class="metric-box"><div class="metric-val" id="bPrice">$—</div><div class="metric-lbl">Price Point</div></div>
+        <div class="metric-box"><div class="metric-val" id="bSales">—</div><div class="metric-lbl">First Sales Goal</div></div>
+        <div class="metric-box"><div class="metric-val" id="bRevenue">$—</div><div class="metric-lbl">Revenue Target</div></div>
+      </div>
+    </div>
+    <div class="brief-section"><div class="brief-lbl">Validation Strategy</div><div class="brief-val" id="bValidate"></div></div>
+    <div class="brief-section"><div class="brief-lbl">Success in 30 Days</div><div class="brief-val" id="bSuccess"></div></div>
+  </div>
+  <div class="action-btns">
+    <button class="copy-btn" onclick="copyBrief()">Copy MVP Brief</button>
+    <button class="restart-btn" onclick="restart()">Plan Another MVP</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+let features=[];
+let nextId=1;
+
+function v(id){return(document.getElementById(id)||{}).value||''}
+
+function addFeature(){
+  const name=document.getElementById('featInput').value.trim();
+  if(!name)return;
+  features.push({id:nextId++,name,cat:'unsorted'});
+  document.getElementById('featInput').value='';
+  document.getElementById('featInput').focus();
+  renderFeatures();
+}
+
+function assign(id,cat){
+  const f=features.find(f=>f.id===id);
+  if(f)f.cat=cat;
+  renderFeatures();
+}
+
+function delFeature(id){features=features.filter(f=>f.id!==id);renderFeatures();}
+
+function renderFeatures(){
+  const unsorted=features.filter(f=>f.cat==='unsorted');
+  const must=features.filter(f=>f.cat==='must');
+  const nice=features.filter(f=>f.cat==='nice');
+  const later=features.filter(f=>f.cat==='later');
+
+  const uArea=document.getElementById('unsortedArea');
+  uArea.style.display=unsorted.length?'block':'none';
+  document.getElementById('unsortedList').innerHTML=unsorted.map(f=>chip(f,true)).join('');
+
+  ['must','nice','later'].forEach(cat=>{
+    const items=features.filter(f=>f.cat===cat);
+    document.getElementById(cat+'List').innerHTML=items.length
+      ?items.map(f=>chip(f,false)).join('')
+      :'<div class="no-feat">None yet</div>';
+  });
+}
+
+function chip(f,showAssign){
+  return`<div class="feat-chip">
+    <div class="feat-chip-name">${f.name}</div>
+    <div class="chip-btns">
+      ${showAssign||f.cat!=='must'?`<button class="chip-btn must ${f.cat==='must'?'active':''}" onclick="assign(${f.id},'must')">Must Have</button>`:''}
+      ${showAssign||f.cat!=='nice'?`<button class="chip-btn nice ${f.cat==='nice'?'active':''}" onclick="assign(${f.id},'nice')">Nice to Have</button>`:''}
+      ${showAssign||f.cat!=='later'?`<button class="chip-btn later ${f.cat==='later'?'active':''}" onclick="assign(${f.id},'later')">Later</button>`:''}
+      <button class="chip-btn del" onclick="delFeature(${f.id})">✕</button>
+    </div>
+  </div>`;
+}
+
+function featureLines(cat,dot){
+  const items=features.filter(f=>f.cat===cat);
+  if(!items.length)return`<div class="fl-item"><span class="fl-dot ${dot}"></span><span>None specified</span></div>`;
+  return items.map(f=>`<div class="fl-item"><span class="fl-dot ${dot}"></span><span>${f.name}</span></div>`).join('');
+}
+
+function generate(){
+  const price=parseFloat(v('pPrice'))||0;
+  const sales=parseInt(v('lSales'))||0;
+  document.getElementById('bName').textContent=`${v('pName')||'Your MVP'} — ${v('pFormat')}`;
+  document.getElementById('bProblem').textContent=`For ${v('pCustomer')||'your target customer'}: ${v('pProblem')||'solving their core problem'}`;
+  document.getElementById('bPromise').textContent=v('pPromise')||'—';
+  document.getElementById('bMust').innerHTML=featureLines('must','must-dot');
+  document.getElementById('bNice').innerHTML=featureLines('nice','nice-dot');
+  document.getElementById('bLater').innerHTML=featureLines('later','later-dot');
+  document.getElementById('bPrice').textContent=price?'$'+price.toLocaleString():'—';
+  document.getElementById('bSales').textContent=sales||'—';
+  document.getElementById('bRevenue').textContent=price&&sales?'$'+(price*sales).toLocaleString():'—';
+  document.getElementById('bValidate').textContent=v('lValidate')||'—';
+  document.getElementById('bSuccess').textContent=v('lSuccess')||'—';
+
+  document.getElementById('formArea').style.display='none';
+  document.querySelector('.gen-btn').style.display='none';
+  document.getElementById('output').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyBrief(){
+  const must=features.filter(f=>f.cat==='must').map(f=>'• '+f.name);
+  const nice=features.filter(f=>f.cat==='nice').map(f=>'• '+f.name);
+  const later=features.filter(f=>f.cat==='later').map(f=>'• '+f.name);
+  const price=parseFloat(v('pPrice'))||0;const sales=parseInt(v('lSales'))||0;
+  const lines=[
+    'MVP BRIEF — '+(v('pName')||'Product Name'),'═'.repeat(44),'',
+    'CUSTOMER','For: '+v('pCustomer'),'Problem: '+v('pProblem'),'',
+    'CORE PROMISE',v('pPromise'),'',
+    'FORMAT: '+v('pFormat'),'',
+    'MUST HAVE (MVP v1)',...(must.length?must:['• None specified']),'',
+    'NICE TO HAVE (exclude from v1)',...(nice.length?nice:['• None specified']),'',
+    'SAVE FOR LATER (future versions)',...(later.length?later:['• None specified']),'',
+    'LAUNCH PLAN',
+    'Timeline: '+v('lTimeline'),
+    'Price: $'+(price||'—'),
+    'First sales goal: '+(sales||'—'),
+    price&&sales?'Revenue target: $'+(price*sales).toLocaleString():'',
+    'Validation: '+v('lValidate'),
+    '30-Day Success: '+v('lSuccess'),'',
+    '═'.repeat(44),'Powered by GetPaidToBeYouOnline',
+  ].filter(l=>l!==null&&l!==undefined).join('\n');
+  navigator.clipboard.writeText(lines).then(()=>{
+    const b=document.querySelector('.copy-btn');
+    b.textContent='Copied!';setTimeout(()=>b.textContent='Copy MVP Brief',1800);
+  });
+}
+
+function restart(){
+  features=[];nextId=1;
+  document.querySelectorAll('input:not([type=radio]),textarea').forEach(el=>el.value='');
+  document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  renderFeatures();
+  document.getElementById('formArea').style.display='block';
+  document.querySelector('.gen-btn').style.display='block';
+  document.getElementById('output').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.getElementById('featInput').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
+</script>
+</body>
+</html>

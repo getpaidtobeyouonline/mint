@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi Platform Content Adaptor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 100px; }
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .pchip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .pchip:hover { border-color: #5AE57A; }
+  .pchip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .output {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .output.show { display: block; }
+  .platform-block { margin-bottom: 22px; }
+  .platform-block:last-child { margin-bottom: 0; }
+  .platform-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .platform-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+  }
+  .meta { font-size: 0.78rem; opacity: 0.65; }
+  .msg {
+    background: rgba(240, 235, 224, 0.05);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    white-space: pre-wrap;
+    font-size: 0.96rem;
+    line-height: 1.55;
+  }
+  .copy-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Multi Platform Content Adaptor</h1>
+  <p class="subtitle">Write once. Adapt for every platform's native voice. No more "let me just tweak it for LinkedIn real quick."</p>
+
+  <label for="core">Your Core Message (one or two sentences)</label>
+  <textarea id="core" placeholder="e.g. Hourly pricing caps your income no matter how fast you work. Outcome pricing changes the conversation from cost to value."></textarea>
+
+  <label for="cta">CTA / Call To Action</label>
+  <input type="text" id="cta" placeholder="e.g. grab the free pricing workbook in my bio" />
+
+  <label>Pick Platforms To Adapt For</label>
+  <div class="platforms" id="platforms">
+    <div class="pchip active" data-p="instagram">Instagram Caption</div>
+    <div class="pchip active" data-p="linkedin">LinkedIn Post</div>
+    <div class="pchip active" data-p="threads">Threads</div>
+    <div class="pchip active" data-p="x">X / Twitter</div>
+    <div class="pchip" data-p="tiktok">TikTok Script</div>
+    <div class="pchip" data-p="ytshort">YouTube Short</div>
+    <div class="pchip" data-p="email">Email Opener</div>
+    <div class="pchip" data-p="pinterest">Pinterest Description</div>
+  </div>
+
+  <button class="build-btn" id="buildBtn">Adapt For All Platforms</button>
+
+  <div class="output" id="output"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const adapters = {
+    instagram: {
+      name: 'Instagram Caption',
+      meta: 'Limit 2,200 chars · 3-5 hashtags · line breaks earn the scroll',
+      build: (core, cta) => {
+        const [hook, ...rest] = core.split(/(?<=[.!?])\s+/);
+        return `${hook}\n\nHere's the thing nobody tells you:\n\n${rest.join(' ')}\n\nSit with that for a second.\n\n${cta}.\n\n.\n.\n.\n#creatorlife #digitalcreator #onlinebusiness #contentcreator #creatortips`;
+      }
+    },
+    linkedin: {
+      name: 'LinkedIn Post',
+      meta: 'Limit 3,000 chars · no hashtags clutter · line breaks every 1-2 sentences',
+      build: (core, cta) => {
+        const [hook, ...rest] = core.split(/(?<=[.!?])\s+/);
+        return `${hook}\n\nMost of us were taught the opposite.\n\n${rest.join(' ')}\n\nThis isn't a hack. It's a reframe.\n\nAnd it changes everything that follows.\n\n${cta}.\n\nP.S. — agree or disagree, the comment section's open.`;
+      }
+    },
+    threads: {
+      name: 'Threads',
+      meta: 'Limit 500 chars · conversational · low marketing energy',
+      build: (core, cta) => {
+        const text = `${core}\n\n${cta}.`;
+        return text.length > 480 ? text.slice(0, 477) + '...' : text;
+      }
+    },
+    x: {
+      name: 'X / Twitter',
+      meta: 'Limit 280 chars · no hashtags · sharp · standalone',
+      build: (core, cta) => {
+        const first = core.split(/(?<=[.!?])\s+/)[0];
+        const text = `${first}\n\n${cta}.`;
+        return text.length > 270 ? first.slice(0, 270) : text;
+      }
+    },
+    tiktok: {
+      name: 'TikTok Script',
+      meta: '30-60 sec spoken · hook in first 3 sec · plain language',
+      build: (core, cta) => {
+        const [hook, ...rest] = core.split(/(?<=[.!?])\s+/);
+        return `[0-3 sec — on-camera hook]\nWait. Stop scrolling. ${hook}\n\n[3-30 sec — payoff]\n${rest.join(' ')}\n\n[30-45 sec — example]\nHere's what this looks like in practice: [share one specific, fast example].\n\n[45-60 sec — CTA]\nIf this hit, ${cta}. Follow for more.`;
+      }
+    },
+    ytshort: {
+      name: 'YouTube Short Script',
+      meta: '15-60 sec · text-on-screen hook · pattern interrupt at 8 sec',
+      build: (core, cta) => {
+        const [hook, ...rest] = core.split(/(?<=[.!?])\s+/);
+        return `TITLE CARD: ${hook.replace(/[.!?]$/,'')}\n\n[0-3 sec]\n"${hook}"\n\n[3-8 sec — visual cue]\nQuick zoom-in. Speak the contrarian line.\n\n[8-25 sec]\n${rest.join(' ')}\n\n[25-45 sec]\nGive one concrete example. Real, fast.\n\n[45-60 sec]\n${cta}. Comment "more" if you want the full breakdown.`;
+      }
+    },
+    email: {
+      name: 'Email Opener',
+      meta: 'Subject + first 2 lines · personal · low-marketing voice',
+      build: (core, cta) => {
+        const [hook] = core.split(/(?<=[.!?])\s+/);
+        return `SUBJECT: ${hook.replace(/[.!?]$/,'')}\n\nPreview text: A short note on something I've been thinking about all week.\n\n—\n\nHey,\n\n${core}\n\nI've been sitting with this for a week now. It changes how I think about almost everything in this space.\n\nIf you want to take this further, ${cta}.\n\nMore soon,\n[Your name]`;
+      }
+    },
+    pinterest: {
+      name: 'Pinterest Description',
+      meta: 'Limit 500 chars · keyword-rich · save-driven · clean',
+      build: (core, cta) => {
+        const [hook] = core.split(/(?<=[.!?])\s+/);
+        return `${hook} Save this for later — full breakdown inside.\n\n${core}\n\n${cta}.\n\nPerfect for: freelancers, digital creators, online sellers, small business owners. Pricing strategy · content creation · creator economy · digital products.`;
+      }
+    }
+  };
+
+  document.querySelectorAll('.pchip').forEach(chip => {
+    chip.onclick = () => chip.classList.toggle('active');
+  });
+
+  function build() {
+    const core = document.getElementById('core').value.trim() || 'Most advice in this space is wrong. The thing nobody talks about is the one that actually moves the needle.';
+    const cta = document.getElementById('cta').value.trim() || 'the link is in my bio';
+    const selected = Array.from(document.querySelectorAll('.pchip.active')).map(c => c.dataset.p);
+
+    const out = document.getElementById('output');
+    if (!selected.length) {
+      out.innerHTML = '<div style="text-align:center;opacity:0.7;">Pick at least one platform.</div>';
+      out.classList.add('show');
+      return;
+    }
+
+    out.innerHTML = selected.map(p => {
+      const a = adapters[p];
+      const text = a.build(core, cta);
+      const charInfo = `${text.length} chars`;
+      return `
+        <div class="platform-block">
+          <div class="platform-head">
+            <div class="platform-name">${a.name}</div>
+            <div class="meta">${a.meta} · ${charInfo}</div>
+          </div>
+          <div class="msg" id="msg-${p}">${text.replace(/</g,'&lt;')}</div>
+          <button class="copy-btn" data-target="msg-${p}">Copy</button>
+        </div>
+      `;
+    }).join('');
+
+    out.querySelectorAll('.copy-btn').forEach(btn => {
+      btn.onclick = () => {
+        const text = document.getElementById(btn.dataset.target).textContent;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = original, 1500);
+        });
+      };
+    });
+
+    out.classList.add('show');
+    out.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+</script>
+</body>
+</html>

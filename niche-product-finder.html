@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niche Product Finder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.grid{display:grid;gap:.6rem}
+.g2{grid-template-columns:1fr 1fr}
+.g4{grid-template-columns:repeat(4,1fr)}
+.opt{background:#325132;border:2px solid #4C724C;border-radius:8px;padding:.7rem .6rem;cursor:pointer;font-size:.82rem;text-align:center;transition:all .2s;line-height:1.3}
+.opt:hover{border-color:#5AE57A}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.opt .ico{font-size:1.3rem;display:block;margin-bottom:.25rem}
+.opt strong{display:block;font-size:.82rem}
+.opt small{opacity:.5;font-size:.75rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.r-card{background:#3C603C;border:1px solid #4C724C;border-left:3px solid #5AE57A;border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.r-label{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:#5AE57A;opacity:.65;margin-bottom:.25rem}
+.r-name{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:.75rem}
+.tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.6rem}
+.tag{border-radius:4px;padding:.2rem .6rem;font-size:.75rem;border:1px solid #4C724C;opacity:.75}
+.tag.g{border-color:#5AE57A;color:#5AE57A;opacity:1}
+.r-why{font-size:.85rem;opacity:.55;line-height:1.5}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:500px){h1{font-size:1.75rem}.g4{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Niche Product Finder</h1>
+    <p class="subtitle">Answer 4 questions. Get 3 product ideas matched to your skills and audience.</p>
+  </header>
+
+  <div class="card">
+    <h2>1. What's your topic area?</h2>
+    <div class="grid g4" id="topicGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Who is your audience?</h2>
+    <div class="grid g2" id="audienceGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. What transformation do you deliver?</h2>
+    <div class="grid g2" id="transformGrid"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. What format suits you best?</h2>
+    <div class="grid g2" id="formatGrid"></div>
+  </div>
+
+  <button class="btn" onclick="find()">Find My Niche Products →</button>
+
+  <div class="results" id="results">
+    <div class="card" style="border-color:#C9A84C33">
+      <h2>Your Matched Product Ideas</h2>
+      <div id="cards"></div>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const topics = [
+  {id:'health',label:'Health & Wellness',ico:'🌿'},
+  {id:'finance',label:'Money & Finance',ico:'💰'},
+  {id:'business',label:'Business & Marketing',ico:'📈'},
+  {id:'creative',label:'Creative Arts',ico:'🎨'},
+  {id:'tech',label:'Tech & Productivity',ico:'⚡'},
+  {id:'relationships',label:'Relationships',ico:'🤝'},
+  {id:'parenting',label:'Parenting & Family',ico:'👨‍👩‍👧'},
+  {id:'lifestyle',label:'Lifestyle & Hobbies',ico:'✨'}
+];
+const audiences = [
+  {id:'beginners',label:'Complete Beginners',desc:'Just starting out'},
+  {id:'intermediate',label:'Intermediate',desc:'Know basics, want to go deeper'},
+  {id:'professionals',label:'Busy Professionals',desc:'Time-strapped, results-focused'},
+  {id:'entrepreneurs',label:'Business Owners',desc:'Growing or running a business'}
+];
+const transforms = [
+  {id:'time',label:'Save Time',desc:'Get more done faster'},
+  {id:'money',label:'Make or Save Money',desc:'Boost income or cut costs'},
+  {id:'skill',label:'Master a Skill',desc:'Learn something fast and well'},
+  {id:'confidence',label:'Clarity & Confidence',desc:'Reduce overwhelm, feel in control'}
+];
+const formats = [
+  {id:'template',label:'Templates & Swipe Files',desc:'Done-for-you, fill in the blank'},
+  {id:'guide',label:'Step-by-Step Guide',desc:'PDF or ebook walkthrough'},
+  {id:'checklist',label:'Checklist or Toolkit',desc:'Quick wins, action lists'},
+  {id:'planner',label:'Planner or Workbook',desc:'Structured, interactive pages'},
+  {id:'spreadsheet',label:'Spreadsheet / Calculator',desc:'Data, tracking, numbers'},
+  {id:'scripts',label:'Scripts & Done-for-You Copy',desc:'Word-for-word, ready to use'}
+];
+
+const ideas = [
+  {name:"Meal Prep Planning Template Bundle",t:'health',f:'template',a:'beginners',x:'time',price:'$9–$27',where:'Etsy, Gumroad',why:'Massive search volume. Visual, impulse-buy priced, evergreen demand.'},
+  {name:"90-Day Fitness & Habit Planner",t:'health',f:'planner',a:'beginners',x:'confidence',price:'$17–$27',where:'Etsy, Payhip',why:'High perceived value, visual product, strong gift potential.'},
+  {name:"Macro & Calorie Tracker Spreadsheet",t:'health',f:'spreadsheet',a:'intermediate',x:'time',price:'$9–$17',where:'Gumroad, Etsy',why:'Solves a real daily pain. High repeat use drives word-of-mouth.'},
+  {name:"Health Coach Call Scripts",t:'health',f:'scripts',a:'professionals',x:'money',price:'$27–$47',where:'Gumroad, Podia',why:'B2B appeal. Coaches pay more when the ROI is obvious.'},
+  {name:"Anti-Inflammation Quick-Start Guide",t:'health',f:'guide',a:'beginners',x:'confidence',price:'$9–$17',where:'Gumroad, Payhip',why:'Clear outcome, wide audience, low barrier to create.'},
+  {name:"Monthly Budget & Savings Planner",t:'finance',f:'planner',a:'beginners',x:'money',price:'$9–$17',where:'Etsy, Gumroad',why:'Evergreen category, huge search volume, repeat buyer potential.'},
+  {name:"Freelancer Tax Prep Checklist",t:'finance',f:'checklist',a:'professionals',x:'time',price:'$9–$27',where:'Gumroad, Payhip',why:'High-anxiety topic — people gladly pay to reduce tax stress.'},
+  {name:"Net Worth Tracker Spreadsheet",t:'finance',f:'spreadsheet',a:'intermediate',x:'money',price:'$9–$17',where:'Etsy, Gumroad',why:'Functional, recurring use, strong organic search intent.'},
+  {name:"Salary Negotiation Scripts",t:'finance',f:'scripts',a:'professionals',x:'money',price:'$17–$37',where:'Gumroad, Podia',why:'Clear ROI — if it works once, it pays for itself 100x.'},
+  {name:"Side Hustle Starter Guide",t:'finance',f:'guide',a:'beginners',x:'money',price:'$9–$17',where:'Gumroad, Payhip',why:'Massive audience. Money topic = high willingness to pay.'},
+  {name:"Content Calendar Template Bundle",t:'business',f:'template',a:'entrepreneurs',x:'time',price:'$17–$37',where:'Etsy, Gumroad',why:'Every creator needs one. B2B buyers have higher price tolerance.'},
+  {name:"Client Onboarding Email Scripts",t:'business',f:'scripts',a:'entrepreneurs',x:'time',price:'$17–$47',where:'Gumroad, Podia',why:'Direct time savings. Strong ROI, B2B buyers pay more.'},
+  {name:"90-Day Business Launch Planner",t:'business',f:'planner',a:'beginners',x:'confidence',price:'$17–$27',where:'Gumroad, Payhip',why:'Roadmap products have high perceived value and strong impulse buy rates.'},
+  {name:"Pricing Your Services Guide",t:'business',f:'guide',a:'entrepreneurs',x:'money',price:'$17–$37',where:'Gumroad, Podia',why:'Money topic = high willingness to pay. Solves a painful daily question.'},
+  {name:"Revenue & Expense Tracker Spreadsheet",t:'business',f:'spreadsheet',a:'entrepreneurs',x:'money',price:'$9–$27',where:'Etsy, Gumroad',why:'Every business owner needs this. Strong B2B search intent year-round.'},
+  {name:"Brand Identity Canva Template Kit",t:'creative',f:'template',a:'entrepreneurs',x:'confidence',price:'$17–$47',where:'Etsy, Creative Market',why:'Visual tools command premium prices. Massive, growing market.'},
+  {name:"Social Media Graphics Bundle",t:'creative',f:'template',a:'entrepreneurs',x:'time',price:'$17–$37',where:'Etsy, Creative Market',why:'B2B use case, high perceived value, strong repeat purchases.'},
+  {name:"Freelance Creative Pricing Guide",t:'creative',f:'guide',a:'professionals',x:'money',price:'$9–$17',where:'Gumroad, Payhip',why:'Solves a painful daily question for every creative freelancer.'},
+  {name:"Portfolio Launch Checklist",t:'creative',f:'checklist',a:'beginners',x:'confidence',price:'$7–$17',where:'Gumroad, Payhip',why:'Solves a specific creative anxiety. Easy to create, easy to sell.'},
+  {name:"Creative Project Planner & Workbook",t:'creative',f:'planner',a:'intermediate',x:'time',price:'$9–$17',where:'Etsy, Gumroad',why:'Organizes the creative chaos. Strong gift potential.'},
+  {name:"Notion Productivity Dashboard",t:'tech',f:'template',a:'professionals',x:'time',price:'$9–$27',where:'Gumroad, Etsy',why:'Notion templates exploding. Low competition in specific niches.'},
+  {name:"AI Prompt Library for Creators",t:'tech',f:'template',a:'entrepreneurs',x:'time',price:'$17–$47',where:'Gumroad, Podia',why:'Trending category. High demand, easy to update and expand.'},
+  {name:"Tool Comparison & Buying Guide",t:'tech',f:'guide',a:'beginners',x:'confidence',price:'$9–$17',where:'Gumroad, Payhip',why:'People pay to skip hours of research before buying expensive tools.'},
+  {name:"Automation Workflow Starter Kit",t:'tech',f:'template',a:'entrepreneurs',x:'time',price:'$17–$47',where:'Gumroad, Podia',why:'High perceived value. Solves a real ops bottleneck businesses face daily.'},
+  {name:"Content Repurposing Tracker",t:'tech',f:'spreadsheet',a:'professionals',x:'time',price:'$9–$17',where:'Gumroad, Etsy',why:'Creator tool with daily use. Practical recurring value.'},
+  {name:"Couples Communication Workbook",t:'relationships',f:'planner',a:'beginners',x:'confidence',price:'$9–$17',where:'Etsy, Gumroad',why:'Emotional topic drives strong impulse buys. Excellent gift potential.'},
+  {name:"Boundary-Setting Scripts",t:'relationships',f:'scripts',a:'intermediate',x:'confidence',price:'$9–$17',where:'Gumroad, Payhip',why:'Specific pain. Word-for-word solution = high perceived value.'},
+  {name:"First Date Conversation Guide",t:'relationships',f:'guide',a:'beginners',x:'confidence',price:'$7–$17',where:'Gumroad, Payhip',why:'Embarrassment-sensitive topic — people buy quickly and privately.'},
+  {name:"Difficult Conversation Planner",t:'relationships',f:'planner',a:'professionals',x:'confidence',price:'$9–$17',where:'Gumroad, Etsy',why:'Workplace crossover. Broad appeal, high repeat-use potential.'},
+  {name:"Family Meal Planner Template Bundle",t:'parenting',f:'template',a:'beginners',x:'time',price:'$7–$17',where:'Etsy, Gumroad',why:'Evergreen need. Parents are loyal repeat buyers.'},
+  {name:"Kids Chore & Reward Chart Pack",t:'parenting',f:'template',a:'beginners',x:'time',price:'$5–$15',where:'Etsy',why:'High volume, visual, easy to differentiate by age and theme.'},
+  {name:"Back-to-School Family Planner",t:'parenting',f:'planner',a:'beginners',x:'time',price:'$7–$17',where:'Etsy, Gumroad',why:'Strong seasonal demand spike every August.'},
+  {name:"Parenting Conversation Starters Guide",t:'parenting',f:'guide',a:'beginners',x:'confidence',price:'$7–$17',where:'Gumroad, Payhip',why:'Emotional need. Excellent gift product.'},
+  {name:"Travel Packing Checklist Bundle",t:'lifestyle',f:'checklist',a:'beginners',x:'time',price:'$5–$17',where:'Etsy, Gumroad',why:'Perpetual demand. Gift potential. Highly shareable.'},
+  {name:"Home Organization Template Pack",t:'lifestyle',f:'template',a:'beginners',x:'confidence',price:'$9–$17',where:'Etsy, Gumroad',why:'Visual results = high satisfaction, five-star reviews.'},
+  {name:"Weekly Life Planner & Habit Tracker",t:'lifestyle',f:'planner',a:'intermediate',x:'time',price:'$9–$17',where:'Etsy, Gumroad',why:'Popular category. Endless niche variations to stand out.'},
+  {name:"Morning Routine Starter Guide",t:'lifestyle',f:'guide',a:'beginners',x:'time',price:'$7–$17',where:'Gumroad, Payhip',why:'Self-improvement always sells. Easy to create in a weekend.'}
+];
+
+const sel = {topic:null, audience:null, transform:null, format:null};
+
+function buildGrid(id, items, key, hasIco) {
+  document.getElementById(id).innerHTML = items.map(item =>
+    `<div class="opt" id="${key}_${item.id}" onclick="pick('${key}','${item.id}')">
+      ${hasIco ? `<span class="ico">${item.ico}</span>` : ''}
+      <strong>${item.label}</strong>
+      ${item.desc ? `<small>${item.desc}</small>` : ''}
+    </div>`
+  ).join('');
+}
+
+function pick(key, id) {
+  if (sel[key]) {
+    const old = document.getElementById(key + '_' + sel[key]);
+    if (old) old.classList.remove('sel');
+  }
+  sel[key] = id;
+  document.getElementById(key + '_' + id).classList.add('sel');
+}
+
+function find() {
+  if (!sel.topic || !sel.audience || !sel.transform || !sel.format) {
+    alert('Please answer all 4 questions first.');
+    return;
+  }
+  const top3 = ideas
+    .filter(i => i.t === sel.topic)
+    .map(i => ({...i, score: (i.f===sel.format?4:0)+(i.a===sel.audience?3:0)+(i.x===sel.transform?2:0)}))
+    .sort((a,b) => b.score - a.score)
+    .slice(0, 3);
+
+  const labels = ['Top Pick','Runner Up','Also Consider'];
+  document.getElementById('cards').innerHTML = top3.map((idea, i) => `
+    <div class="r-card">
+      <div class="r-label">${labels[i]}</div>
+      <div class="r-name">${idea.name}</div>
+      <div class="tags">
+        <span class="tag g">${idea.price}</span>
+        <span class="tag">Sell on: ${idea.where}</span>
+      </div>
+      <div class="r-why">${idea.why}</div>
+    </div>`).join('');
+
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+buildGrid('topicGrid', topics, 'topic', true);
+buildGrid('audienceGrid', audiences, 'audience', false);
+buildGrid('transformGrid', transforms, 'transform', false);
+buildGrid('formatGrid', formats, 'format', false);
+</script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parenting Style Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { font-size: .92rem; margin-bottom: 8px; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; font-size: .87rem; cursor: pointer; margin-bottom: 6px; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt.on { background: #325132; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 6px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Parenting Style Checker</h1>
+  <p class="sub">A reflection on how you tend to parent — with gentle nudges, not judgement.</p>
+
+  <div class="panel" id="quiz"></div>
+  <div class="result" id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const Q=[
+    {q:"When my child breaks a rule, I usually...",a:[["explain the reason and the consequence calmly","A"],["enforce it firmly, no discussion","T"],["let it slide to avoid a fuss","P"],["barely notice — they manage themselves","N"]]},
+    {q:"On warmth and affection, I am...",a:[["openly warm and also clear on limits","A"],["loving but expect respect and obedience","T"],["very warm, low on limits","P"],["affectionate when we cross paths","N"]]},
+    {q:"When my child is upset, I tend to...",a:[["help them name and work through the feeling","A"],["tell them to settle down","T"],["fix it or give in so they feel better","P"],["give them space to handle it","N"]]},
+    {q:"My rules and expectations are...",a:[["clear, explained, and consistent","A"],["strict and non-negotiable","T"],["loose and flexible","P"],["few — I keep it light","N"]]},
+    {q:"My child's input on decisions is...",a:[["welcomed within limits I set","A"],["not really their place","T"],["often what wins","P"],["theirs to make, mostly","N"]]}
+  ];
+  let ans=Array(Q.length).fill(-1);
+  function draw(){
+    g('quiz').innerHTML=Q.map((o,i)=>'<div class="q">'+(i+1)+'. '+o.q+'</div>'+
+      o.a.map((a,j)=>'<div class="opt'+(ans[i]===j?' on':'')+'" onclick="pick('+i+','+j+')">'+a[0]+'</div>').join('')).join('')+
+      '<button class="btn" onclick="score()">See My Style</button>'+
+      '<div class="note">A reflection tool, not an assessment. Most parents flex between styles — and that is healthy.</div>';
+  }
+  function pick(i,j){ ans[i]=j; draw(); }
+  function score(){
+    if(ans.includes(-1)){ alert('Answer all five questions.'); return; }
+    const c={A:0,T:0,P:0,N:0};
+    ans.forEach((a,i)=>c[Q[i].a[a][1]]++);
+    const top=Object.entries(c).sort((a,b)=>b[1]-a[1])[0][0];
+    const R={
+      A:{t:"Authoritative — warm + firm",d:"High warmth and clear structure. This is the style most linked to confident, secure kids.",tips:["Keep doing this — it works. Stay consistent.","Watch for burnout; warm-and-firm takes energy.","Let consequences teach, not shame."]},
+      T:{t:"Authoritative-leaning strict",d:"You provide strong structure. Adding warmth and explanation makes rules land better.",tips:["Pair every limit with connection and a reason.","Let your child be heard, even when the answer is still no.","Praise effort, not just obedience."]},
+      P:{t:"Permissive — warm, low limits",d:"Lots of love, lighter on boundaries. Kids thrive on warmth AND predictable limits.",tips:["Pick a few non-negotiables and hold them kindly.","Limits are a form of love — they help kids feel safe.","Follow through; consistency beats intensity."]},
+      N:{t:"Hands-off",d:"You give a lot of independence. Some kids need more presence and connection than freedom.",tips:["Build in regular one-on-one connection time.","Be available — not hovering, but reachable.","Check in on feelings, not just logistics."]}
+    }[top];
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>'+R.t+'</h3><p style="font-size:.9rem;margin:6px 0">'+R.d+'</p><p style="color:#5AE57A;font-size:.88rem">Gentle nudges:</p><ul>'+R.tips.map(x=>'<li>'+x+'</li>').join('')+'</ul>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pomodoro Session Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .settings { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 0.78rem; color: #BFD8BF; }
+  select { background: #325132; border: 1px solid #3C603C; color: #5AE57A; padding: 5px 8px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; outline: none; cursor: pointer; }
+  .add-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .add-row input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .add-row input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+  .task-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #325132; }
+  .task-item:last-child { border-bottom: none; }
+  .task-text { flex: 1; font-size: 0.88rem; }
+  .pom-ctrl { display: flex; align-items: center; gap: 5px; }
+  .pom-n { font-family: 'Playfair Display', serif; color: #5AE57A; width: 18px; text-align: center; }
+  .pom-btn { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; width: 22px; height: 22px; border-radius: 5px; cursor: pointer; font-size: 0.78rem; line-height: 1; }
+  .pom-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+  .pom-sm { font-size: 0.7rem; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .map-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #3C603C; background: #325132; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 0.72rem; color: #5A845A; transition: all 0.25s; flex-shrink: 0; }
+  .dot.done { background: #2E4D2E; border-color: #5AE57A; color: #5AE57A; }
+  .dot.active { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .phase-chip { display: inline-block; font-size: 0.7rem; padding: 3px 12px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .pf { background: #C9A84C22; border: 1px solid #5AE57A; color: #5AE57A; }
+  .ps { background: #2E4D2E; border: 1px solid #5AE57A; color: #5AE57A; }
+  .pl { background: #2E4D2E; border: 1px solid #5AE57A; color: #5AE57A; }
+  .pom-count { font-size: 0.78rem; color: #BFD8BF; margin-bottom: 10px; }
+  .countdown { font-family: 'Playfair Display', serif; font-size: 4.5rem; text-align: center; line-height: 1; letter-spacing: -2px; }
+  .prog { background: #325132; border-radius: 4px; height: 5px; margin: 14px 0 12px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 4px; background: #5AE57A; transition: width 0.9s linear; }
+  .cur-task { text-align: center; font-size: 0.85rem; color: #F0EBE0aa; font-style: italic; min-height: 20px; }
+  .btn-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 18px; }
+  .btn-main { flex: 1; background: #5AE57A; color: #325132; border: none; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer; }
+  .btn-main:hover { background: #5AE57A; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 13px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; white-space: nowrap; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .stats { display: flex; gap: 30px; justify-content: center; margin: 14px 0 20px; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #FFFFFF; text-align: center; line-height: 1; }
+  .stat-l { font-size: 0.7rem; color: #BFD8BF; text-align: center; margin-top: 2px; }
+  .arch-item { padding: 8px 0; border-bottom: 1px solid #3C603C; display: flex; gap: 10px; align-items: flex-start; }
+  .arch-item:last-child { border-bottom: none; }
+  .arch-date { color: #5AE57A; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0; }
+  .arch-det { color: #BFD8BF; font-size: 0.8rem; line-height: 1.4; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 10px; }
+  .map-meta { font-size: 0.72rem; color: #BFD8BF; margin-top: 8px; }
+  .start-row { text-align: center; max-width: 580px; margin: 4px auto 24px; }
+  .btn-start { background: #5AE57A; color: #325132; border: none; padding: 14px 60px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1.05rem; cursor: pointer; }
+  .btn-start:hover { background: #5AE57A; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Pomodoro Session Planner</h1>
+<p class="subtitle">Map your tasks to pomodoros before you start. Know exactly what you're doing and when.</p>
+
+<div id="planView">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:10px">Session Durations</div>
+    <div class="settings">
+      <span>Work</span>
+      <select id="workSel">
+        <option value="15">15 min</option><option value="20">20 min</option>
+        <option value="25" selected>25 min</option><option value="30">30 min</option><option value="45">45 min</option>
+      </select>
+      <span>Short break</span>
+      <select id="shortSel"><option value="5" selected>5 min</option><option value="10">10 min</option></select>
+      <span>Long break</span>
+      <select id="longSel"><option value="15" selected>15 min</option><option value="20">20 min</option><option value="30">30 min</option></select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Plan Your Tasks</div>
+    <div class="add-row">
+      <input id="taskIn" placeholder="What do you need to work on?" maxlength="60" />
+      <button class="btn-gold" onclick="addTask()">Add</button>
+    </div>
+    <div id="taskList"><p class="empty">No tasks yet — add one above.</p></div>
+  </div>
+  <div class="card" id="mapCard" style="display:none">
+    <div class="card-title" style="margin-bottom:8px">Session Preview</div>
+    <div class="map-row" id="previewMap"></div>
+    <div class="map-meta" id="mapMeta"></div>
+  </div>
+  <div class="start-row"><button class="btn-start" onclick="startSession()">Start Session →</button></div>
+</div>
+
+<div id="sessionView" style="display:none">
+  <div class="card" style="text-align:center">
+    <div class="phase-chip pf" id="phaseChip">Focus</div>
+    <div class="pom-count" id="pomCount">Pomodoro 1 of 1</div>
+    <div class="countdown" id="countdown">25:00</div>
+    <div class="prog"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="cur-task" id="curTask"></div>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:8px">Session Map</div>
+    <div class="map-row" id="sessionMap"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn-main" id="pauseBtn" onclick="togglePause()">Start</button>
+    <button class="btn-ghost" onclick="skipSlot()">Skip →</button>
+    <button class="btn-ghost" onclick="endSession()">End</button>
+  </div>
+</div>
+
+<div id="summaryView" style="display:none">
+  <div class="card" style="text-align:center">
+    <div class="card-title" style="font-size:1.4rem;margin-bottom:4px">Session Complete 🍅</div>
+    <p style="font-size:0.82rem;color:#BFD8BF">Great work. Here's what you did.</p>
+    <div class="stats">
+      <div><div class="stat-n" id="statPoms">0</div><div class="stat-l">pomodoros</div></div>
+      <div><div class="stat-n" id="statMins">0m</div><div class="stat-l">focused</div></div>
+    </div>
+    <button class="btn-gold" onclick="show('planView')">Plan New Session</button>
+  </div>
+  <div class="card">
+    <div class="card-title" style="margin-bottom:12px">Past Sessions</div>
+    <div id="archiveList"></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TODAY = new Date().toISOString().slice(0,10);
+  let tasks=[], slots=[], cur=0, secsLeft=0, totalSecs=0, running=false, tickId=null;
+  let sessions = JSON.parse(localStorage.getItem('psp_sessions')||'[]');
+  let workMin=25, shortMin=5, longMin=15;
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function addTask() {
+    const inp=document.getElementById('taskIn'), text=inp.value.trim(); if(!text) return;
+    tasks.push({id:Date.now(), text, poms:1}); inp.value=''; renderTasks(); renderPreviewMap();
+  }
+  function removeTask(id) { tasks=tasks.filter(t=>t.id!==id); renderTasks(); renderPreviewMap(); }
+  function changePoms(id,d) {
+    const t=tasks.find(t=>t.id===id); if(!t) return;
+    t.poms=Math.max(1,Math.min(4,t.poms+d)); renderTasks(); renderPreviewMap();
+  }
+  function renderTasks() {
+    const el=document.getElementById('taskList');
+    document.getElementById('mapCard').style.display=tasks.length?'block':'none';
+    if(!tasks.length){el.innerHTML='<p class="empty">No tasks yet — add one above.</p>';return;}
+    el.innerHTML=tasks.map(t=>`
+      <div class="task-item">
+        <span class="task-text">${esc(t.text)}</span>
+        <div class="pom-ctrl">
+          <button class="pom-btn" onclick="changePoms(${t.id},-1)">−</button>
+          <span class="pom-n">${t.poms}</span>
+          <button class="pom-btn" onclick="changePoms(${t.id},1)">+</button>
+          <span class="pom-sm">🍅</span>
+        </div>
+        <button class="del-btn" onclick="removeTask(${t.id})">✕</button>
+      </div>`).join('');
+  }
+  function buildSlots() {
+    slots=[]; let n=0;
+    tasks.forEach(t=>{ for(let p=0;p<t.poms;p++){n++;slots.push({type:'work',text:t.text,n,dur:workMin*60});slots.push({type:'break',dur:(n%4===0?longMin:shortMin)*60,long:n%4===0});} });
+    if(slots.length&&slots[slots.length-1].type==='break') slots.pop();
+  }
+  function workSlots() { return slots.filter(s=>s.type==='work'); }
+  function renderPreviewMap() {
+    buildSlots(); const ws=workSlots();
+    if(!ws.length){document.getElementById('previewMap').innerHTML='';return;}
+    document.getElementById('previewMap').innerHTML=ws.map(s=>`<div class="dot" title="${esc(s.text)}">${s.n}</div>`).join('');
+    document.getElementById('mapMeta').textContent=`${ws.length} pomodoros · ~${ws.length*workMin+Math.max(0,ws.length-1)*shortMin} min of focus time`;
+  }
+  function renderSessionMap() {
+    document.getElementById('sessionMap').innerHTML=workSlots().map(s=>{
+      const i=slots.indexOf(s);
+      return `<div class="dot ${i<cur?'done':i===cur?'active':''}" title="${esc(s.text)}">${s.n}</div>`;
+    }).join('');
+  }
+  function startSession() {
+    if(!tasks.length) return;
+    buildSlots(); cur=0; show('sessionView'); loadSlot();
+  }
+  function loadSlot() {
+    if(cur>=slots.length){endSession();return;}
+    const s=slots[cur]; secsLeft=totalSecs=s.dur; running=false;
+    document.getElementById('pauseBtn').textContent='Start';
+    const isWork=s.type==='work', chip=document.getElementById('phaseChip');
+    chip.className='phase-chip '+(isWork?'pf':s.long?'pl':'ps');
+    chip.textContent=isWork?'Focus':s.long?'Long Break':'Short Break';
+    const ws=workSlots();
+    document.getElementById('pomCount').textContent=isWork?`Pomodoro ${s.n} of ${ws.length}`:(s.long?'Long break — well earned':'Short break');
+    document.getElementById('curTask').textContent=isWork?s.text:'Rest up for the next pomodoro';
+    updateDisplay(); renderSessionMap();
+  }
+  function updateDisplay() {
+    const m=Math.floor(secsLeft/60),s=secsLeft%60;
+    document.getElementById('countdown').textContent=`${m}:${s.toString().padStart(2,'0')}`;
+    document.getElementById('progFill').style.width=(100*(1-secsLeft/totalSecs))+'%';
+  }
+  function togglePause() {
+    running=!running;
+    document.getElementById('pauseBtn').textContent=running?'Pause':'Resume';
+    if(running) tickId=setInterval(tick,1000); else clearInterval(tickId);
+  }
+  function tick() { secsLeft--; updateDisplay(); if(secsLeft<=0){clearInterval(tickId);running=false;beep();cur++;loadSlot();} }
+  function skipSlot() { clearInterval(tickId); running=false; cur++; loadSlot(); }
+  function beep() {
+    try{const ac=new(window.AudioContext||window.webkitAudioContext)();[0,160,320].forEach(t=>{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=660;g.gain.value=0.3;o.start(ac.currentTime+t/1000);o.stop(ac.currentTime+t/1000+0.1);});}catch(e){}
+  }
+  function endSession() {
+    clearInterval(tickId); running=false;
+    const done=slots.slice(0,cur).filter(s=>s.type==='work').length;
+    sessions.unshift({date:TODAY,poms:done,mins:done*workMin,tasks:tasks.map(t=>t.text).join(', ')});
+    if(sessions.length>30) sessions.pop();
+    localStorage.setItem('psp_sessions',JSON.stringify(sessions));
+    document.getElementById('statPoms').textContent=done;
+    document.getElementById('statMins').textContent=(done*workMin)+'m';
+    show('summaryView'); renderArchive();
+  }
+  function show(id) { ['planView','sessionView','summaryView'].forEach(v=>document.getElementById(v).style.display=v===id?'block':'none'); }
+  function renderArchive() {
+    const el=document.getElementById('archiveList');
+    if(!sessions.length){el.innerHTML='<p class="empty">No past sessions yet.</p>';return;}
+    el.innerHTML=sessions.slice(0,10).map(s=>`
+      <div class="arch-item">
+        <span class="arch-date">${new Date(s.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+        <span class="arch-det">${s.poms} 🍅 · ${s.mins}m focused · ${esc(s.tasks)}</span>
+      </div>`).join('');
+  }
+  ['workSel','shortSel','longSel'].forEach(id=>document.getElementById(id).addEventListener('change',()=>{
+    workMin=+document.getElementById('workSel').value;
+    shortMin=+document.getElementById('shortSel').value;
+    longMin=+document.getElementById('longSel').value;
+    if(tasks.length) renderPreviewMap();
+  }));
+  document.getElementById('taskIn').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+  renderTasks(); renderArchive();
+</script>
+</body>
+</html>

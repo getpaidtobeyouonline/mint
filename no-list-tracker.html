@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No List Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+.subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 22px; }
+.score-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 14px; text-align: center; }
+.ring-wrap { width: 130px; height: 130px; border-radius: 50%; background: conic-gradient(var(--rc,#4C724C) var(--prog,0%), #3C603C 0%); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; transition: background 0.4s; }
+.ring-inner { width: 100px; height: 100px; border-radius: 50%; background: #325132; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.ring-pct { font-family: 'Playfair Display', serif; font-size: 1.9rem; line-height: 1; }
+.ring-lbl { font-size: 0.6rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; margin-top: 2px; }
+.score-sub { font-size: 0.82rem; color: #BFD8BF; }
+.add-btn { display: block; max-width: 580px; margin: 0 auto 12px; width: 100%; background: #3C603C; border: 1px dashed #4C724C; color: #5AE57A; border-radius: 10px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
+.add-btn:hover { border-color: #C9A84C55; background: #3C603C; }
+.add-form { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px; max-width: 580px; margin: 0 auto 14px; display: none; }
+.add-form.open { display: block; }
+.form-label { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; margin-top: 13px; }
+.form-label:first-child { margin-top: 0; }
+.cat-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.cchip { padding: 5px 11px; border-radius: 20px; border: 1px solid #4C724C; font-size: 0.79rem; cursor: pointer; background: #325132; color: #BFD8BF; transition: all 0.15s; }
+.cchip.sel { border-color: var(--cc,#5AE57A); color: var(--cc,#5AE57A); }
+textarea { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.87rem; padding: 10px 12px; resize: vertical; min-height: 62px; outline: none; }
+textarea:focus { border-color: #C9A84C55; }
+.form-row { display: flex; gap: 8px; margin-top: 14px; }
+.btn-primary { flex: 1; background: #5AE57A; color: #325132; border: none; border-radius: 8px; padding: 11px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; }
+.btn-ghost { background: #325132; color: #BFD8BF; border: 1px solid #4C724C; border-radius: 8px; padding: 11px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+.ncard { background: #3C603C; border: 1px solid #3C603C; border-left: 3px solid var(--nc,#4C724C); border-radius: 10px; max-width: 580px; margin: 0 auto 8px; overflow: hidden; }
+.ncard-main { padding: 12px 14px; }
+.ncard-top { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+.cat-chip { font-size: 0.71rem; color: var(--nc,#BFD8BF); padding: 3px 8px; border-radius: 10px; background: #325132; flex-shrink: 0; }
+.streak { font-size: 0.75rem; color: #BFD8BF; margin-left: auto; flex-shrink: 0; }
+.expand-btn { font-size: 0.7rem; color: #5A845A; cursor: pointer; padding: 2px 6px; flex-shrink: 0; }
+.ncard-stmt { font-size: 0.9rem; color: #F0EBE0cc; line-height: 1.45; margin-bottom: 10px; }
+.log-btns { display: flex; gap: 6px; }
+.log-btn { flex: 1; border-radius: 7px; border: 1px solid #3C603C; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; padding: 8px 4px; cursor: pointer; transition: all 0.15s; background: #325132; color: #BFD8BF; }
+.log-btn-kept.active { background: #70c07022; color: #5AE57A; border-color: #70c07066; }
+.log-btn-kept:not(.active):hover { border-color: #5AE57A; color: #5AE57A; }
+.log-btn-broke.active { background: #e0707022; color: #5AE57A; border-color: #e0707066; }
+.log-btn-broke:not(.active):hover { border-color: #5AE57A; color: #5AE57A; }
+.ncard-detail { border-top: 1px solid #325132; padding: 13px 14px; display: none; }
+.ncard-detail.open { display: block; }
+.detail-lbl { font-size: 0.69rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; }
+.day-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+.day-dot { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1px; }
+.delete-btn { margin-top: 12px; background: none; border: 1px solid #4C724C; color: #5A845A; border-radius: 6px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+.delete-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+.empty-state { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 36px 0; max-width: 580px; margin: 0 auto; line-height: 1.8; }
+footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>No List</h1>
+<p class="subtitle">The commitments you keep by not doing.</p>
+
+<div class="score-card">
+  <div class="ring-wrap" id="ring">
+    <div class="ring-inner">
+      <div class="ring-pct" id="ringPct" style="color:#5A845A">—</div>
+      <div class="ring-lbl">today</div>
+    </div>
+  </div>
+  <div class="score-sub" id="scoreSub">Add your first No below</div>
+</div>
+
+<button class="add-btn" id="addBtn" onclick="toggleAdd()">+ Add a No</button>
+
+<div class="add-form" id="addForm">
+  <div class="form-label">Category</div>
+  <div class="cat-chips" id="catChips"></div>
+  <div class="form-label">I will not…</div>
+  <textarea id="fStmt" placeholder="e.g. check my phone before 9 am&#10;e.g. say yes to unscheduled calls&#10;e.g. eat lunch at my desk" rows="2"></textarea>
+  <div class="form-row">
+    <button class="btn-ghost" onclick="toggleAdd()">Cancel</button>
+    <button class="btn-primary" onclick="submitAdd()">Add to No List</button>
+  </div>
+</div>
+
+<div id="noList"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const CATS=[
+  {id:'digital',icon:'📱',label:'Digital',  color:'#5AE57A'},
+  {id:'work',   icon:'💼',label:'Work',     color:'#5AE57A'},
+  {id:'health', icon:'🍏',label:'Health',   color:'#5AE57A'},
+  {id:'social', icon:'💬',label:'Social',   color:'#5AE57A'},
+  {id:'mind',   icon:'🧠',label:'Mind',     color:'#5AE57A'},
+  {id:'home',   icon:'🏠',label:'Home',     color:'#5AE57A'},
+];
+const TODAY=new Date().toISOString().slice(0,10);
+let items=JSON.parse(localStorage.getItem('nlt_i')||'[]');
+let logs=JSON.parse(localStorage.getItem('nlt_l')||'[]');
+let selCat='digital', showAdd=false, expandedId=null, deleteTarget=null, deleteTimer=null;
+
+function save(){localStorage.setItem('nlt_i',JSON.stringify(items));localStorage.setItem('nlt_l',JSON.stringify(logs));}
+
+function getStreak(itemId){
+  const keptDates=new Set(logs.filter(l=>l.itemId===itemId&&l.kept).map(l=>l.date));
+  let streak=0; const d=new Date();
+  for(let i=0;i<365;i++){
+    const ds=d.toISOString().slice(0,10);
+    if(keptDates.has(ds)){streak++;d.setDate(d.getDate()-1);}
+    else if(i===0&&!logs.find(l=>l.itemId===itemId&&l.date===TODAY)){d.setDate(d.getDate()-1);}
+    else break;
+  }
+  return streak;
+}
+
+function getTodayLog(itemId){return logs.find(l=>l.itemId===itemId&&l.date===TODAY)||null;}
+
+function logItem(itemId,kept){
+  logs=logs.filter(l=>!(l.itemId===itemId&&l.date===TODAY));
+  logs.unshift({id:'l'+Date.now(),ts:Date.now(),date:TODAY,itemId,kept});
+  save();render();
+}
+
+function toggleAdd(){
+  showAdd=!showAdd;
+  document.getElementById('addForm').classList.toggle('open',showAdd);
+  document.getElementById('addBtn').textContent=showAdd?'− Cancel':'+ Add a No';
+  if(showAdd) setTimeout(()=>document.getElementById('fStmt').focus(),50);
+}
+
+function selectCat(id){
+  selCat=id;
+  document.querySelectorAll('.cchip').forEach(c=>{
+    const a=CATS.find(a=>a.id===c.dataset.id);
+    c.classList.toggle('sel',c.dataset.id===id);
+    if(a) c.style.setProperty('--cc',a.color);
+  });
+}
+
+function submitAdd(){
+  const stmt=document.getElementById('fStmt').value.trim();
+  if(!stmt) return;
+  items.unshift({id:'n'+Date.now(),cat:selCat,statement:stmt,created:TODAY});
+  save();document.getElementById('fStmt').value='';
+  showAdd=false;document.getElementById('addForm').classList.remove('open');
+  document.getElementById('addBtn').textContent='+ Add a No';
+  expandedId=null;render();
+}
+
+function toggleExpand(id){expandedId=expandedId===id?null:id;render();}
+
+function deleteItem(id){
+  if(deleteTarget===id){
+    clearTimeout(deleteTimer);deleteTarget=null;
+    items=items.filter(i=>i.id!==id);logs=logs.filter(l=>l.itemId!==id);
+    if(expandedId===id) expandedId=null;save();render();return;
+  }
+  deleteTarget=id;render();
+  deleteTimer=setTimeout(()=>{deleteTarget=null;render();},3000);
+}
+
+function getLast7(itemId){
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date();d.setDate(d.getDate()-(6-i));
+    const ds=d.toISOString().slice(0,10);
+    return{ds,log:logs.find(l=>l.itemId===itemId&&l.date===ds)||null,day:d.toLocaleDateString('en-US',{weekday:'short'}).slice(0,1)};
+  });
+}
+
+function render(){
+  const todayKept=items.filter(i=>{const l=getTodayLog(i.id);return l&&l.kept;}).length;
+  const total=items.length;
+  const pct=total?Math.round(todayKept/total*100):0;
+  const rc=pct>=80?'#5AE57A':pct>=50?'#5AE57A':'#C9A84C55';
+  const ring=document.getElementById('ring');
+  ring.style.setProperty('--prog',total?pct+'%':'0%');
+  ring.style.setProperty('--rc',total?rc:'#4C724C');
+  document.getElementById('ringPct').textContent=total?pct+'%':'—';
+  document.getElementById('ringPct').style.color=total?rc:'#5A845A';
+  document.getElementById('scoreSub').textContent=total?`${todayKept} of ${total} kept today`:'Add your first No below';
+
+  const el=document.getElementById('noList');
+  if(!items.length){el.innerHTML='<p class="empty-state">Your No List is empty.<br>A strong No protects your best Yes.</p>';return;}
+
+  el.innerHTML=items.map(item=>{
+    const cat=CATS.find(c=>c.id===item.cat)||CATS[0];
+    const todayLog=getTodayLog(item.id);
+    const streak=getStreak(item.id);
+    const isExp=expandedId===item.id;
+    const isDel=deleteTarget===item.id;
+    const last7=getLast7(item.id);
+    return`<div class="ncard" style="--nc:${cat.color}">
+      <div class="ncard-main">
+        <div class="ncard-top">
+          <span class="cat-chip">${cat.icon} ${cat.label}</span>
+          <span class="streak">${streak?`🔥 ${streak}d streak`:'—'}</span>
+          <span class="expand-btn" onclick="toggleExpand('${item.id}')">${isExp?'▴':'▾'}</span>
+        </div>
+        <div class="ncard-stmt">${item.statement}</div>
+        <div class="log-btns">
+          <button class="log-btn log-btn-kept${todayLog&&todayLog.kept?' active':''}" onclick="logItem('${item.id}',true)">✓ Kept it</button>
+          <button class="log-btn log-btn-broke${todayLog&&!todayLog.kept?' active':''}" onclick="logItem('${item.id}',false)">✗ Broke it</button>
+        </div>
+      </div>
+      <div class="ncard-detail${isExp?' open':''}">
+        <div class="detail-lbl">Last 7 days</div>
+        <div class="day-dots">${last7.map(d=>{
+          const bg=!d.log?'#3C603C':d.log.kept?'#70c07033':'#e0707033';
+          const col=!d.log?'#4C724C':d.log.kept?'#5AE57A':'#5AE57A';
+          const sym=!d.log?'·':d.log.kept?'✓':'✗';
+          return`<div class="day-dot" style="background:${bg};color:${col}"><span style="font-size:0.65rem">${sym}</span><span style="font-size:0.52rem;color:#5A845A">${d.day}</span></div>`;
+        }).join('')}</div>
+        <button class="delete-btn" onclick="deleteItem('${item.id}')">${isDel?'Tap again to confirm':'Delete'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('catChips').innerHTML=CATS.map(c=>`<div class="cchip${c.id===selCat?' sel':''}" data-id="${c.id}" style="--cc:${c.color}" onclick="selectCat('${c.id}')">${c.icon} ${c.label}</div>`).join('');
+render();
+</script>
+</body>
+</html>

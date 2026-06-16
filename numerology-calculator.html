@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Numerology Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .res { display: none; text-align: center; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 3.4rem; color: #5AE57A; line-height: 1; }
+  .res .ttl { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #FFFFFF; margin: 4px 0 8px; }
+  .res .ds { font-size: .92rem; opacity: .85; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .72; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Numerology Calculator</h1>
+  <p class="sub">Find your Life Path number — and the energy it carries.</p>
+
+  <div class="panel">
+    <label for="dob">Your date of birth</label>
+    <input id="dob" type="date">
+    <button class="btn" onclick="calc()">Calculate My Life Path</button>
+  </div>
+
+  <div class="panel res" id="res">
+    <div class="n" id="num">—</div>
+    <div class="ttl" id="ttl"></div>
+    <div class="ds" id="ds"></div>
+    <div class="note">Numerology is a tool for reflection and self-understanding, offered for enjoyment — not a prediction of the future.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const DESC={
+    1:['The Leader','Independent, driven and original. You are here to pioneer, to start things, and to trust your own path.'],
+    2:['The Peacemaker','Sensitive, intuitive and diplomatic. You are here to connect, harmonise and bring people together.'],
+    3:['The Creative','Expressive, joyful and imaginative. You are here to create, communicate and uplift others.'],
+    4:['The Builder','Practical, steady and loyal. You are here to build solid foundations through patience and hard work.'],
+    5:['The Free Spirit','Adventurous, curious and adaptable. You are here to embrace change, freedom and experience.'],
+    6:['The Nurturer','Caring, responsible and warm. You are here to love, support and create harmony in home and community.'],
+    7:['The Seeker','Thoughtful, spiritual and analytical. You are here to seek truth, wisdom and deeper understanding.'],
+    8:['The Powerhouse','Ambitious, capable and abundant. You are here to lead, achieve and master the material world with integrity.'],
+    9:['The Humanitarian','Compassionate, wise and giving. You are here to serve, heal and love humanity with an open heart.'],
+    11:['The Intuitive (Master Number)','Highly intuitive and inspiring. A spiritual messenger here to illuminate and uplift — once you trust your sensitivity.'],
+    22:['The Master Builder (Master Number)','Visionary yet practical. You are here to turn big dreams into real, lasting things that serve many.'],
+    33:['The Master Teacher (Master Number)','Deeply compassionate and devoted. You are here to teach, heal and uplift through selfless love.']
+  };
+  function reduce(n){ while(n>9&&n!==11&&n!==22&&n!==33){ n=String(n).split('').reduce((a,b)=>a+ +b,0); } return n; }
+  function calc(){
+    const v=g('dob').value; if(!v){ alert('Please enter your date of birth.'); return; }
+    const digits=v.replace(/\D/g,'').split('').map(Number);
+    const lp=reduce(digits.reduce((a,b)=>a+b,0));
+    const d=DESC[lp];
+    g('num').textContent=lp; g('ttl').textContent=d[0]; g('ds').textContent=d[1];
+    g('res').style.display='block'; g('res').scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

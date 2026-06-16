@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nurture Sequence Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .em h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .em p { font-size: .9rem; margin-top: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nurture Sequence Builder</h1>
+  <p class="sub">Turn a new subscriber into someone who trusts you enough to buy — without hard selling.</p>
+
+  <div class="panel">
+    <label for="topic">Your topic / expertise</label>
+    <input id="topic" placeholder="e.g. email marketing for coaches">
+    <label for="dream">The transformation you help with</label>
+    <input id="dream" placeholder="e.g. emails that sell without feeling sleazy">
+    <label for="offer">Your offer (mentioned, not pushed)</label>
+    <input id="offer" placeholder="e.g. the Email Engine course">
+    <button class="btn" onclick="gen()">Build Nurture Sequence</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['topic','dream','offer'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('nsb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('nsb_'+k,g(k).value)); });
+  function gen(){
+    const t=v('topic')||'your topic', d=v('dream')||'the result they want', o=v('offer')||'your offer';
+    const seq=[
+      ["Email 1 — Reframe the problem","Show them the real reason they are stuck with "+esc(t)+" is not what they think. New perspective = trust."],
+      ["Email 2 — Quick win","One tactical thing they can do today toward "+esc(d)+". Prove you can help before asking anything."],
+      ["Email 3 — Belief shift","Bust the myth that keeps them stuck. Make the path to "+esc(d)+" feel possible for them specifically."],
+      ["Email 4 — Proof / case study","A story of someone like them getting "+esc(d)+". Concrete > claims. Plant the seed for "+esc(o)+"."],
+      ["Email 5 — Address the objection","Name the #1 reason they would not act, and dissolve it honestly."],
+      ["Email 6 — The invitation","Now make the ask. Position "+esc(o)+" as the obvious next step for people serious about "+esc(d)+". One CTA."]
+    ];
+    g('out').innerHTML='<div class="panel" style="font-size:.88rem;opacity:.85">Space these every 2-3 days. Give value 4-5x before any real ask &mdash; trust is the conversion mechanism.</div>'+
+      seq.map(s=>'<div class="em"><h3>'+s[0]+'</h3><p>'+s[1]+'</p></div>').join('');
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Sequence copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

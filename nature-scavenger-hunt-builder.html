@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nature Scavenger Hunt Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Nature Scavenger Hunt Builder</h1>
+  <p class="sub">Pick the place and the season and get a ready-to-print scavenger list.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="place">Where</label><select id="place"><option>Garden</option><option>Park</option><option>Woodland</option><option>Beach</option><option>City street</option></select></div>
+      <div><label for="season">Season</label><select id="season"><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option><option>Any</option></select></div>
+    </div>
+    <button class="btn" onclick="gen()">Build Hunt</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const BASE=['something soft','something rough','something prickly','something tiny','something taller than you','something that moves','something that smells lovely','something that makes a sound','something with a pattern','three different leaves','a stone shaped like a heart','a feather','a fallen petal'];
+  const PLACE={
+    'Garden':['a bee','a daisy','a snail','a worm','a spider web','a bird visiting the bird feeder'],
+    'Park':['a squirrel','a duck or goose','someone walking a dog','a swing in motion','a flowerbed','a tree taller than the lampposts'],
+    'Woodland':['a fern','a moss-covered log','an acorn or conker','a mushroom (look, don\'t touch)','a bird call you do not recognise','tree bark you can rub with paper'],
+    'Beach':['a shell','a smooth pebble','seaweed','a footprint in the sand','a wave that touches your toes','a piece of driftwood'],
+    'City street':['a leaf growing between paving stones','a pigeon','a stone with sparkly bits','a shop window that makes you smile','three different building colours','a sound that makes you stop']
+  };
+  const SEASON={
+    'Spring':['a tiny green shoot','a bird carrying nest material','blossom on a tree','a puddle to jump in'],
+    'Summer':['a butterfly','sunlight through leaves','a daisy chain to make','warm grass on bare feet'],
+    'Autumn':['a red or orange leaf','a conker or acorn','a crunchy leaf to step on','a misty morning sight'],
+    'Winter':['frost on a leaf','a bare tree','a robin or other winter bird','your breath in the cold'],
+    'Any':[]
+  };
+  function gen(){
+    const p=g('place').value, s=g('season').value;
+    const list=[...BASE.slice(0,8),...PLACE[p].slice(0,6),...SEASON[s]];
+    const items=list.slice(0,16).map(x=>'  ☐  '+x).join('\n');
+    const t='NATURE SCAVENGER HUNT\n'+p+'  ·  '+s+
+    '\n\n'+items+
+    '\n\n--- Hunt tips ---\nTake a small bag for treasures it is okay to bring home (stones, leaves).\nLeave living things where they are — look, don\'t touch creatures.\nFinish with a picnic or a treat to reward little explorers.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

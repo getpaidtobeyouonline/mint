@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Niche Authority Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .crit { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .crit span { flex: 1; min-width: 200px; font-size: .93rem; }
+  .crit span small { display: block; opacity: .6; font-size: .8rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .86rem; padding: 7px 9px; border-radius: 7px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; margin-top: 6px; }
+  .res .d { opacity: .8; font-size: .92rem; margin-top: 4px; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .fix h4 { font-size: .78rem; color: #5AE57A; text-transform: uppercase; margin-bottom: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Niche Authority Checker</h1>
+  <p class="sub">Rate yourself on the signals that make people see you as the go-to in your niche.</p>
+
+  <div id="list"></div>
+  <button class="btn" onclick="run()">Check My Authority</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const C = [
+    ["You talk about ONE clear topic, not five","A muddled feed = no authority. Pick a lane.",2,"Define your single topic in one sentence and audit your last 9 posts against it. Cut what doesn't fit."],
+    ["Your bio names the exact problem you solve","Vague bios read as 'hobbyist'.",1.5,"Rewrite your bio as: I help [who] [outcome]. Specificity signals expertise."],
+    ["You post a strong opinion or POV regularly","Authority needs a stance, not just tips.",1.5,"Publish one contrarian-but-true take this week. Safe content is invisible content."],
+    ["You have visible proof (results, work, testimonials)","Claims need evidence.",2,"Pin or highlight your 3 best proof points so new visitors see them in 5 seconds."],
+    ["You consistently show up (no long gaps)","Sporadic posting resets trust.",1.5,"Set a minimum cadence you can hold for 90 days and protect it."],
+    ["You teach things only an insider would know","Surface-level tips don't build authority.",2,"Share one process or 'mistake I made' that beginners couldn't know."],
+    ["People tag you / ask you questions in your niche","Authority shows in how others reference you.",1,"Invite questions explicitly and answer them publicly as content."],
+    ["You're associated with a signature idea or phrase","Memorable beats generic.",1,"Name your method or framework — even a simple acronym sticks."]
+  ];
+  const TW=C.reduce((s,c)=>s+c[2],0);
+  const g=id=>document.getElementById(id);
+  const saved=JSON.parse(localStorage.getItem('nac')||'{}');
+  g('list').innerHTML=C.map((c,i)=>`<div class="crit"><span>${c[0]}<small>${c[1]}</small></span>
+    <select id="c${i}"><option value="1">Not yet</option><option value="2">Somewhat</option><option value="3">Mostly</option><option value="4">Fully</option></select></div>`).join('');
+  C.forEach((_,i)=>{ const e=g('c'+i); if(saved[i])e.value=saved[i]; e.addEventListener('change',()=>{ const o={};C.forEach((_,j)=>o[j]=g('c'+j).value); localStorage.setItem('nac',JSON.stringify(o)); }); });
+
+  function run() {
+    const rated=C.map((c,i)=>({label:c[0],w:c[2],fix:c[3],r:+g('c'+i).value}));
+    const score=Math.round(rated.reduce((s,x)=>s+(x.r/4)*x.w,0)/TW*100);
+    const vd = score>=80?['Recognised authority','You\'re the go-to. Now scale reach and monetise it.']
+      : score>=58?['Emerging authority','People are noticing. Sharpen proof and POV to break through.']
+      : score>=38?['Building','The pieces are forming — focus relentlessly to stand out.']
+      : ['Invisible','Too generic to be remembered. Fix the fundamentals below first.'];
+    const weak=[...rated].sort((a,b)=> a.r-b.r || b.w-a.w).slice(0,3);
+    g('res').innerHTML=`<div class="res"><div class="n">${score}%</div><div class="vd">${vd[0]}</div><div class="d">${vd[1]}</div></div>`+
+      `<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:0 0 10px">Fix these first</h3>`+
+      weak.map(w=>`<div class="fix"><h4>${esc(w.label)}</h4><p style="font-size:.92rem">${esc(w.fix)}</p></div>`).join('');
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function reset(){ if(confirm('Reset answers?')){ localStorage.removeItem('nac'); C.forEach((_,i)=>g('c'+i).value='1'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

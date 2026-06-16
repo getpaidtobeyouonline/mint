@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Algorithm Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid #3C603C; flex-wrap: wrap; }
+  .q:first-of-type { border-top: none; }
+  .q span { flex: 1; min-width: 200px; font-size: .92rem; }
+  .q select { width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 16px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; margin-top: 5px; }
+  .fix { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Platform Algorithm Checker</h1>
+  <p class="sub">Check your habits against what every modern feed algorithm actually rewards.</p>
+
+  <div class="panel">
+    <label for="plat">Platform</label>
+    <select id="plat"><option>Instagram</option><option>TikTok</option><option>YouTube</option><option>LinkedIn</option><option>X / Twitter</option></select>
+    <div id="qs" style="margin-top:6px"></div>
+  </div>
+  <button class="btn" onclick="run()">Check Me</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    ["Strong hook in the first 1–2 seconds / first line","Weak openers tank watch-through and reach. Test 5 hooks; lead with the boldest true one."],
+    ["Content holds attention to the end (watch time / dwell)","Algorithms optimise for completion. Cut every slow second; end with a reason to rewatch or save."],
+    ["You reply to comments fast (first 30–60 min)","Early engagement is a ranking signal. Be present at post time and prompt replies in the caption."],
+    ["You post consistently, no long gaps","Sporadic posting resets momentum. Pick a cadence you can hold and protect it."],
+    ["Content drives saves/shares, not just likes","Saves & shares are weighted heavily. Make it useful or emotional enough to pass on."],
+    ["You use the platform's newest format/feature","Platforms boost what they're pushing. Use the format they're promoting right now."],
+    ["You stay on one clear topic the algorithm can categorise","A scattered feed confuses recommendations. Keep a recognisable lane."],
+    ["No engagement bait or external-link friction in-post","Bait and off-platform links are suppressed. Put links in bio/comments, earn the click."]
+  ];
+  const g=id=>document.getElementById(id);
+  g('qs').innerHTML=Q.map((q,i)=>`<div class="q"><span>${q[0]}</span>
+    <select id="q${i}"><option value="0">No</option><option value="0.5">Sometimes</option><option value="1">Yes</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('pac6')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('pac6',JSON.stringify(o)); }); });
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+parseFloat(g('q'+i).value),0);
+    const pct=Math.round(sc/Q.length*100);
+    const vd= pct>=85?'Algorithm-aligned 🔥':pct>=60?'Mostly aligned':pct>=35?'Fighting the algorithm':'Working against it';
+    const fixes=Q.map((q,i)=>({q,v:parseFloat(g('q'+i).value)})).filter(o=>o.v<1).sort((a,b)=>a.v-b.v).slice(0,3);
+    g('res').innerHTML=`<div class="res"><div class="n">${pct}%</div><div class="vd">${vd}</div></div>`+
+      (fixes.length?`<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:0 0 10px">Fix these first</h3>`+
+      fixes.map(f=>`<div class="fix"><b style="color:#5AE57A">${f.q[0]}</b><br>${f.q[1]}</div>`).join('')
+      :'<div class="fix" style="border-left-color:#5AE57A">You\'re doing the fundamentals — now it\'s a volume + quality game.</div>');
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function reset(){ if(confirm('Reset answers?')){ localStorage.removeItem('pac6'); Q.forEach((_,i)=>g('q'+i).value='0'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>
