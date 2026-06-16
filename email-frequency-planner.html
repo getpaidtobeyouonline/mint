@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Frequency Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; margin-bottom: 12px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .res .d { font-size: .9rem; opacity: .8; margin-top: 6px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; font-size: .9rem; }
+  .blk b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Frequency Planner</h1>
+  <p class="sub">Email too little and they forget you; too much and they leave. Find your sustainable cadence.</p>
+
+  <div class="panel">
+    <label for="goal">Primary goal</label>
+    <select id="goal" onchange="calc()"><option value="nurture">Nurture &amp; build trust</option><option value="sell">Sell regularly</option><option value="brand">Stay top-of-mind</option></select>
+    <label for="cap">Content you can realistically produce</label>
+    <select id="cap" onchange="calc()"><option value="lo">Low — 2-4 emails/month</option><option value="mid" selected>Medium — weekly-ish</option><option value="hi">High — multiple/week</option></select>
+    <label for="warm">Your list is mostly</label>
+    <select id="warm" onchange="calc()"><option value="new">New / unproven (recent sign-ups)</option><option value="warm">Warm &amp; engaged</option><option value="cold">Cold / hasn’t heard from you in a while</option></select>
+    <button class="btn" onclick="calc()">Recommend Cadence</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  ['goal','cap','warm'].forEach(k=>{ const s=localStorage.getItem('efp_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['goal','cap','warm'].forEach(k=>localStorage.setItem('efp_'+k,g(k).value));
+    const cap=g('cap').value, goal=g('goal').value, warm=g('warm').value;
+    let base = cap==='lo'?'1x / week (or every other week)' : cap==='mid'?'1-2x / week' : '2-4x / week';
+    if(goal==='sell'&&cap!=='lo') base='2-3x / week (more during launches)';
+    const note = warm==='cold'
+      ? 'Your list is cold — do NOT jump straight to high frequency. Run a re-engagement first, then ramp up slowly over 3-4 weeks.'
+      : warm==='new'
+      ? 'Newer list: start on the higher end while attention is fresh, then settle. Front-loaded value builds the open habit.'
+      : 'Warm list can handle the upper range — they want to hear from you. The risk here is being too quiet, not too loud.';
+    g('out').innerHTML=`<div class="res"><div class="n">${base}</div><div class="d">recommended sending cadence</div></div>
+      <div class="blk"><b>Why this:</b> ${note}</div>
+      <div class="blk"><b>The real rule:</b> consistency &gt; frequency. A predictable weekly email beats a sporadic daily one. Pick a rhythm you can hold for 6 months.</div>
+      <div class="blk"><b>Watch these signals:</b> rising unsubscribes/spam = too often or off-topic. Falling opens over time = too quiet, they forgot you. Adjust by these, not by guilt.</div>`;
+  }
+  calc();
+</script>
+</body>
+</html>

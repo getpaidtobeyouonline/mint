@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Family Road Trip Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Family Road Trip Planner</h1>
+  <p class="sub">Hit the road well-fed, well-rested and with everyone (mostly) cheerful.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="from">From</label><input id="from" placeholder="Starting point"></div>
+      <div><label for="to">To</label><input id="to" placeholder="Destination"></div>
+      <div><label for="hours">Drive time</label><input id="hours" placeholder="e.g. 5h"></div>
+    </div>
+    <label for="stops">Planned stops &amp; breaks</label>
+    <textarea id="stops" placeholder="Where you will stretch legs and refuel"></textarea>
+    <label for="snacks">Snacks &amp; meals</label>
+    <textarea id="snacks" placeholder="What you are packing to eat in the car"></textarea>
+    <label for="entertain">In-car entertainment</label>
+    <textarea id="entertain" placeholder="Audiobooks, playlists, games, tablets, sticker books"></textarea>
+    <label for="essentials">Essentials (sick bag, wipes, charger, blanket)</label>
+    <textarea id="essentials" placeholder="The little things that save the day"></textarea>
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['from','to','hours','stops','snacks','entertain','essentials'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('frtp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('frtp_'+k,g(k).value)); });
+  function gen(){
+    const t='FAMILY ROAD TRIP PLAN'+(v('from')||v('to')?'\n'+(v('from')||'[from]')+'  →  '+(v('to')||'[to]'):'')+(v('hours')?'  ('+v('hours')+')':'')+
+    '\n\nSTOPS & BREAKS:\n'+(v('stops')||'[where to stretch legs every 90 min or so]')+
+    '\n\nSNACKS & MEALS:\n'+(v('snacks')||'[in-car snacks, easy lunches]')+
+    '\n\nENTERTAINMENT:\n'+(v('entertain')||'[playlists, audiobooks, games, tablets]')+
+    '\n\nESSENTIALS BAG:\n'+(v('essentials')||'[wipes, sick bag, charger, blanket]')+
+    '\n\n--- Road trip tips ---\nLeave 30 minutes earlier than you think you need to.\nBreak every 90 minutes — short, frequent stops beat long, rare ones.\nA new little surprise toy or sticker book every two hours works wonders.\nKeep a calm playlist on standby for the inevitable late-afternoon meltdown.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

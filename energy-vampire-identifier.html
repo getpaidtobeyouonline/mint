@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Vampire Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .v { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .v.bad { border-left-color: #5AE57A; }
+  .v .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .v .nm { font-weight: 500; }
+  .v .lv { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .v .meta { font-size: .8rem; opacity: .65; margin-top: 3px; }
+  .v .x { cursor: pointer; opacity: .5; } .v .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Energy Vampire Identifier</h1>
+  <p class="sub">Track the people, situations, and habits that drain you. Patterns surface fast.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label for="nm">Person / situation / habit</label><input id="nm" placeholder="e.g. Sunday call with X / news scroll / meetings on Mondays"></div>
+      <div><label for="dr">Drain (1-10): <span id="dv" style="color:#5AE57A">5</span></label><input id="dr" type="range" min="1" max="10" value="5" oninput="document.getElementById('dv').textContent=this.value"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let V=JSON.parse(localStorage.getItem('evi')||'[]');
+  const save=()=>localStorage.setItem('evi',JSON.stringify(V));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Name it.');return;} V.push({nm,lvl:+g('dr').value}); g('nm').value=''; save(); render(); }
+  function del(i){ V.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ V=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!V.length){ L.innerHTML='<div class="empty">No drains logged yet.</div>'; return; }
+    L.innerHTML=[...V].map((x,i)=>({x,i})).sort((a,b)=>b.x.lvl-a.x.lvl).map(({x,i})=>{
+      const advice = x.lvl>=8?'Cut, distance, or end. Top of the list.' : x.lvl>=6?'Limit exposure. Cap time and frequency.' : x.lvl>=4?'Manage with a boundary. Pre-plan a recovery after.' : 'Tolerate for now; revisit in 30 days.';
+      return '<div class="v '+(x.lvl>=7?'bad':'')+'"><div class="top"><span class="nm">'+esc(x.nm)+'</span><span class="lv">'+x.lvl+'/10</span></div><div class="meta">'+advice+' <span class="x" onclick="del('+i+')">✕</span></div></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

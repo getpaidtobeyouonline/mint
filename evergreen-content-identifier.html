@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evergreen Content Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 70px; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .result {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .result.show { display: block; }
+  .score-box {
+    text-align: center;
+    margin-bottom: 24px;
+    padding: 20px;
+    border-radius: 10px;
+    background: rgba(201, 168, 76, 0.1);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+  }
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem;
+    color: #5AE57A;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .score-label {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .verdict {
+    margin-top: 10px;
+    font-style: italic;
+    opacity: 0.9;
+  }
+  .section { margin-bottom: 22px; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 10px;
+  }
+  .factor {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: rgba(240, 235, 224, 0.04);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .factor-name { font-weight: 500; }
+  .factor-score {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .pass { background: rgba(80, 200, 120, 0.2); color: #5AE57A; }
+  .fail { background: rgba(255, 120, 100, 0.18); color: #5AE57A; }
+  .factor-note { width: 100%; font-size: 0.85rem; opacity: 0.75; margin-top: 4px; }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; font-size: 0.95rem; }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Evergreen Content Identifier</h1>
+  <p class="subtitle">Score your post idea on how long it'll keep working. Get a fix list — plus 5 truly evergreen ideas for your niche.</p>
+
+  <label for="niche">Your Niche</label>
+  <input type="text" id="niche" placeholder="e.g. freelance design, sourdough baking, home organizing" />
+
+  <label for="audience">Your Audience</label>
+  <input type="text" id="audience" placeholder="e.g. new freelancers in their first year" />
+
+  <label for="idea">Your Post Idea / Topic</label>
+  <textarea id="idea" placeholder="e.g. why ChatGPT just changed everything for designers in 2026"></textarea>
+
+  <button class="build-btn" id="buildBtn">Score My Idea</button>
+
+  <div class="result" id="result">
+    <div class="score-box">
+      <div class="score-num" id="scoreNum">0</div>
+      <div class="score-label">Evergreen Score</div>
+      <div class="verdict" id="verdict"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Factor Breakdown</div>
+      <div id="factors"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">How To Make It More Evergreen</div>
+      <ul id="fixes"></ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">5 Evergreen Ideas For Your Niche</div>
+      <ul id="ideas"></ul>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const timeWords = /\b(today|now|currently|this week|this month|this year|just|recently|breaking|update|trending|viral|hot|2024|2025|2026|2027)\b/i;
+  const trendWords = /\b(chatgpt|gpt|tiktok trend|threads|x\/twitter|algorithm change|update|launch|release|drop|news)\b/i;
+  const beginnerWords = /\b(beginner|new|first|start|started|starting|getting started|how to|guide|basics|fundamentals)\b/i;
+  const frameworkWords = /\b(framework|method|system|process|step|principle|rule|formula|why|reason|mistake|lesson)\b/i;
+  const problemWords = /\b(struggle|stuck|problem|challenge|fix|solve|overcome|avoid|prevent|fear|stop|need)\b/i;
+
+  function score(idea) {
+    const factors = [
+      {
+        name: 'No time-sensitive language',
+        pass: !timeWords.test(idea),
+        note: timeWords.test(idea) ? 'Words like "today", "2026", or "just" tie the post to a moment.' : 'No expiry-date words detected.'
+      },
+      {
+        name: 'Not tied to a current trend or product',
+        pass: !trendWords.test(idea),
+        note: trendWords.test(idea) ? 'References to specific tools or trends decay fast — within 6-12 months.' : 'Topic is durable, not trend-bound.'
+      },
+      {
+        name: 'Solves a recurring problem',
+        pass: problemWords.test(idea),
+        note: problemWords.test(idea) ? 'Frames a real, persistent problem your audience will keep having.' : 'Add language naming a specific recurring pain.'
+      },
+      {
+        name: 'Beginner-accessible',
+        pass: beginnerWords.test(idea),
+        note: beginnerWords.test(idea) ? 'New people enter your niche constantly — they\'ll keep finding this.' : 'Reframe to be welcoming to newcomers — they refresh demand.'
+      },
+      {
+        name: 'Framework or principle-based',
+        pass: frameworkWords.test(idea),
+        note: frameworkWords.test(idea) ? 'Frameworks age well. People keep needing them.' : 'Add a "how" or "why" angle. Principles outlast hot takes.'
+      }
+    ];
+    const passed = factors.filter(f => f.pass).length;
+    return { factors, total: passed * 20 };
+  }
+
+  function verdict(s) {
+    if (s >= 80) return "Strong evergreen. This post can earn for years. Build it into a pillar.";
+    if (s >= 60) return "Good bones. A few tweaks below will extend its shelf life significantly.";
+    if (s >= 40) return "Mixed. It'll have a moment but won't compound. Worth posting, not worth featuring.";
+    return "Currently a sugar rush — short spike, no long tail. Worth reframing before you write it.";
+  }
+
+  function fixes(factors) {
+    const list = [];
+    if (!factors[0].pass) list.push('Strip time markers ("today", "in 2026", "just"). Rewrite around a timeless tension.');
+    if (!factors[1].pass) list.push('Generalize the specific tool/trend into the underlying behavior. ("ChatGPT" → "AI tools" → "fast content tools" → "shortcut culture")');
+    if (!factors[2].pass) list.push('Name the recurring problem in the title. "How to ___ when you keep ___" formats stay relevant for years.');
+    if (!factors[3].pass) list.push('Reframe for someone new to your niche. Beginners enter the topic every week — they\'re your renewable audience.');
+    if (!factors[4].pass) list.push('Turn it into a framework: 3 reasons, 5 steps, 1 principle. Frameworks get bookmarked, hot takes get scrolled past.');
+    if (list.length === 0) list.push('You\'re already at full strength. Build it as a flagship piece and link to it from related posts forever.');
+    return list;
+  }
+
+  function evergreenIdeas(niche, audience) {
+    const n = niche || '[your niche]';
+    const a = audience || '[your audience]';
+    return [
+      `The 3 mistakes ${a} make in their first year of ${n} — and how to avoid each one`,
+      `A beginner's guide to ${n}: what nobody tells you on day one`,
+      `Why most ${a} stay stuck — and the one mindset shift that breaks the cycle`,
+      `The principles of ${n} that don't change, no matter what tool you use`,
+      `How to tell if you're ready to charge for ${n}: a 5-question self-test`
+    ];
+  }
+
+  function build() {
+    const idea = document.getElementById('idea').value.trim();
+    if (!idea) return;
+    const niche = document.getElementById('niche').value.trim();
+    const audience = document.getElementById('audience').value.trim();
+
+    const result = score(idea);
+    document.getElementById('scoreNum').textContent = result.total;
+    document.getElementById('verdict').textContent = verdict(result.total);
+
+    const fEl = document.getElementById('factors');
+    fEl.innerHTML = result.factors.map(f => `
+      <div class="factor">
+        <span class="factor-name">${f.name}</span>
+        <span class="factor-score ${f.pass ? 'pass' : 'fail'}">${f.pass ? '+20' : '0'}</span>
+        <div class="factor-note">${f.note}</div>
+      </div>
+    `).join('');
+
+    const fixesEl = document.getElementById('fixes');
+    fixesEl.innerHTML = fixes(result.factors).map(x => `<li>${x}</li>`).join('');
+
+    const ideasEl = document.getElementById('ideas');
+    ideasEl.innerHTML = evergreenIdeas(niche, audience).map(x => `<li>${x}</li>`).join('');
+
+    document.getElementById('result').classList.add('show');
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+</script>
+</body>
+</html>

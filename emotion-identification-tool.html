@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotion Identification Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(120px,1fr)); gap: 8px; }
+  .face { background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: border-color .2s; }
+  .face:hover, .face.on { border-color: #5AE57A; }
+  .face.on { background: #325132; }
+  .face .em { font-size: 2.1rem; }
+  .face .nm { font-size: .85rem; margin-top: 3px; }
+  .out { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; min-height: 80px; }
+  .out h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .out p { font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Emotion Identification Tool</h1>
+  <p class="sub">Tap the face that fits how you feel — and find the words to go with it.</p>
+
+  <div class="panel">
+    <div class="grid" id="faces"></div>
+  </div>
+
+  <div class="panel out" id="out"><h3>Hello!</h3><p>Tap a face above to start.</p></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const E=[
+    {e:'😊',n:'Happy',d:'Your body feels light and your smile comes easily. Lovely. Notice what made you feel this — that is a clue to what you love.'},
+    {e:'😢',n:'Sad',d:'Tears or a heavy feeling are signs you cared about something. It is okay to be sad. A hug, a cry or a kind grown-up can help.'},
+    {e:'😡',n:'Angry',d:'Your body feels hot and fast. Anger is a "no" inside you. Try big breaths or stomp on the spot — let it out safely.'},
+    {e:'😨',n:'Scared',d:'Your tummy might feel funny or your heart fast. Scared is your body trying to keep you safe. Tell someone you trust.'},
+    {e:'😴',n:'Tired',d:'A heavy, slow feeling. Your brain and body need rest, food or water. A quiet break is the kindest thing right now.'},
+    {e:'😕',n:'Confused',d:'A wobbly, unsure feeling. It is okay not to know yet. Ask a question or say what you are unsure about — talking helps.'},
+    {e:'😳',n:'Embarrassed',d:'A hot, prickly feeling on your face. Most people feel this sometimes — it passes. A deep breath and a soft "oh well" helps.'},
+    {e:'🤩',n:'Excited',d:'Bouncy and buzzy! Excitement is great, and it can also feel a bit big. Wiggle, jump or share the joy with someone.'},
+    {e:'🥱',n:'Bored',d:'A flat, "what now" feeling. Bored is a small invitation to your imagination. What could be fun in the next ten minutes?'},
+    {e:'🥺',n:'Worried',d:'A tight feeling in the chest. Worries can be helpful when they tell us something — and they shrink when we say them out loud.'},
+    {e:'😤',n:'Frustrated',d:'When something is hard or unfair. Try one big breath, then a tiny step. Asking for help is brave.'},
+    {e:'🥰',n:'Loved',d:'A warm, glowing feeling. Notice who or what makes you feel this. Saying "thank you" makes it bigger.'}
+  ];
+  const g=id=>document.getElementById(id);
+  function draw(){
+    g('faces').innerHTML=E.map((x,i)=>'<div class="face" onclick="pick('+i+')"><div class="em">'+x.e+'</div><div class="nm">'+x.n+'</div></div>').join('');
+  }
+  function pick(i){
+    document.querySelectorAll('.face').forEach(f=>f.classList.remove('on'));
+    document.querySelectorAll('.face')[i].classList.add('on');
+    const x=E[i];
+    g('out').innerHTML='<h3>'+x.e+' '+x.n+'</h3><p>'+x.d+'</p>';
+  }
+  draw();
+</script>
+</body>
+</html>

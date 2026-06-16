@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feelings Journal for Kids</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .entry .d { font-size: .76rem; color: #5AE57A; margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .entry .x { cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; }
+  .entry p { font-size: .9rem; white-space: pre-wrap; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Feelings Journal for Kids</h1>
+  <p class="sub">A safe spot to put feelings into words — they get smaller when you say them.</p>
+
+  <div class="panel">
+    <label for="feel">Today I am feeling...</label>
+    <input id="feel" placeholder="A word or two — e.g. happy, frustrated, worried">
+    <label for="why">Because...</label>
+    <textarea id="why" placeholder="What happened, who was there, what is in your head"></textarea>
+    <label for="body">In my body it feels like...</label>
+    <input id="body" placeholder="e.g. wobbly tummy, fast heart, warm face">
+    <label for="help">One thing that would help</label>
+    <input id="help" placeholder="A hug, a quiet space, a chat, a snack, a stretch">
+    <button class="btn" onclick="save()">Save Today's Feeling</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('fjk')||'[]');
+  const save2=()=>localStorage.setItem('fjk',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function save(){
+    if(!v('feel')){ alert('Write a feeling first.'); return; }
+    R.unshift({date:new Date().toLocaleDateString(),feel:v('feel'),why:v('why'),body:v('body'),help:v('help')});
+    save2(); ['feel','why','body','help'].forEach(k=>g(k).value=''); render();
+  }
+  function del(i){ R.splice(i,1); save2(); render(); }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">Your feelings will be saved here, just for you.</div>'; return; }
+    L.innerHTML=R.map((e,i)=>'<div class="entry"><div class="d"><span>'+e.date+' — feeling '+esc(e.feel)+'</span><span class="x" onclick="del('+i+')">✕</span></div>'+
+      '<p>'+(e.why?'Because: '+esc(e.why)+'\n':'')+(e.body?'In my body: '+esc(e.body)+'\n':'')+(e.help?'What helps: '+esc(e.help):'')+'</p></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

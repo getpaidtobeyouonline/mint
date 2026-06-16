@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Brand Voice Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 48px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; cursor: pointer; padding: 7px 13px; border-radius: 20px; font-size: .85rem; }
+  .chip:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Brand Voice Tool</h1>
+  <p class="sub">Define your email voice once so every send sounds like you — and paste it into any AI writer.</p>
+
+  <div class="panel">
+    <label>Pick a voice preset (fills the fields)</label>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="panel">
+    <label for="tone">Three tone words</label>
+    <input id="tone" placeholder="e.g. warm, direct, witty">
+    <label for="sound">How your emails should feel</label>
+    <textarea id="sound" placeholder="e.g. like a smart friend emailing, not a brand broadcasting"></textarea>
+    <label for="use">Words / phrases you use</label>
+    <input id="use" placeholder="signature phrases">
+    <label for="avoid">Words / phrases you never use</label>
+    <input id="avoid" placeholder="e.g. dear subscriber, synergy, don’t miss out">
+    <label for="signoff">Your sign-off</label>
+    <input id="signoff" placeholder="e.g. Talk soon, Jess">
+    <button class="btn" onclick="gen()">Generate Voice Guide</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['tone','sound','use','avoid','signoff'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('ebvt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ebvt_'+k,g(k).value)); });
+  const P={
+    "Warm friend":{tone:"warm, casual, encouraging",sound:"Like emailing a friend who happens to be an expert. Lowercase-ok, contractions, no corporate distance.",avoid:"dear subscriber, kindly, hereby"},
+    "Sharp expert":{tone:"confident, concise, no-fluff",sound:"Authoritative and clear. Short sentences. Says the thing, backs it, moves on.",avoid:"just, maybe, I think, sort of"},
+    "Playful & bold":{tone:"punchy, witty, a little cheeky",sound:"Strong opinions, fun rhythm, breaks a grammar rule for effect. Never boring.",avoid:"utilize, furthermore, please be advised"},
+    "Calm & premium":{tone:"calm, considered, refined",sound:"Unhurried and high-trust. Few words, each one chosen. No hype, no urgency theatre.",avoid:"act now, limited time, hurry"}
+  };
+  g('chips').innerHTML=Object.keys(P).map(k=>`<span class="chip" data-k="${k}">${k}</span>`).join('');
+  g('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const p=P[c.dataset.k]; g('tone').value=p.tone; g('sound').value=p.sound; if(!v('avoid'))g('avoid').value=p.avoid; F.forEach(k=>localStorage.setItem('ebvt_'+k,g(k).value)); });
+  function gen(){
+    const t=`EMAIL BRAND VOICE GUIDE\n\nTone: ${v('tone')||'(not set)'}\nFeel: ${v('sound')||'(not set)'}\nUse: ${v('use')||'(none specified)'}\nNever use: ${v('avoid')||'(none specified)'}\nSign-off: ${v('signoff')||'(not set)'}\n\n--- For the AI ---\nWrite this email in the voice above. Match the tone and feel, use the preferred phrasing, never use the banned words, and end with the sign-off. Re-read the draft and fix anything that sounds like a faceless brand.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ if(g('out').style.display==='none'){alert('Generate it first.');return;} navigator.clipboard.writeText(g('out').textContent).then(()=>alert('Voice guide copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evening Wind Down Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .bedtime-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .bedtime-row label { font-size: 0.9rem; color: #F0EBE0aa; }
+  input[type="time"] {
+    background: #325132; border: 1px solid #4C724C; color: #5AE57A;
+    padding: 9px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem; font-weight: 500; outline: none; cursor: pointer;
+  }
+  input[type="time"]:focus { border-color: #5AE57A; }
+  .start-banner {
+    font-size: 0.88rem; color: #F0EBE0aa; margin-left: auto;
+  }
+  .start-banner span { color: #5AE57A; font-weight: 500; }
+  .input-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .input-row input[type="text"] {
+    flex: 1; min-width: 140px; background: #325132; border: 1px solid #4C724C;
+    color: #FFFFFF; padding: 10px 14px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none;
+  }
+  .input-row input[type="text"]:focus { border-color: #5AE57A; }
+  .input-row input[type="number"] {
+    width: 70px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF;
+    padding: 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; outline: none; text-align: center;
+  }
+  .input-row input[type="number"]:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Timeline */
+  .timeline { position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 56px; top: 0; bottom: 0; width: 1px; background: #4C724C; }
+  .tl-item { display: flex; align-items: flex-start; gap: 0; padding: 10px 0; position: relative; }
+  .tl-time { width: 56px; font-size: 0.78rem; color: #5AE57A; font-weight: 500; padding-top: 2px; flex-shrink: 0; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #4C724C; border: 2px solid #5A845A; margin: 3px 10px 0 -4px; flex-shrink: 0; position: relative; z-index: 1; transition: background 0.2s; }
+  .tl-dot.checked { background: #5AE57A; border-color: #5AE57A; }
+  .tl-dot.bedtime-dot { background: #3C603C; border-color: #5AE57A; width: 12px; height: 12px; margin-top: 2px; }
+  .tl-body { flex: 1; display: flex; align-items: center; gap: 8px; }
+  .tl-name { flex: 1; font-size: 0.93rem; }
+  .tl-name.checked { text-decoration: line-through; color: #BFD8BF; }
+  .tl-dur { font-size: 0.8rem; color: #F0EBE0aa; white-space: nowrap; }
+  .tl-name.bedtime-label { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.95rem; }
+  .tl-check { width: 18px; height: 18px; accent-color: #5AE57A; cursor: pointer; flex-shrink: 0; }
+  .icon-btn { background: none; border: none; color: #5A845A; cursor: pointer; font-size: 0.88rem; padding: 3px 5px; border-radius: 4px; }
+  .icon-btn:hover { color: #FFFFFF; }
+  .icon-btn.del:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 16px 0; }
+  .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid #3C603C; }
+  .total-label { font-size: 0.83rem; color: #F0EBE0aa; }
+  .total-label span { color: #5AE57A; }
+  .btn-ghost { background: none; border: none; color: #BFD8BF; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+  .btn-ghost:hover { color: #5AE57A; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Evening Wind Down Planner</h1>
+<p class="subtitle">Set your bedtime. Build your ritual. Know exactly when to start.</p>
+
+<div class="card">
+  <div class="bedtime-row">
+    <label for="bedtime">🌙 Bedtime</label>
+    <input type="time" id="bedtime" value="22:30" onchange="render()" />
+    <div class="start-banner" id="startBanner"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add an Activity</div>
+  <div class="input-row">
+    <input type="text" id="actName" placeholder="e.g. Journal, Read, Stretch, Skincare…" maxlength="60" />
+    <input type="number" id="actMins" value="10" min="1" max="120" />
+    <button class="btn-gold" onclick="addAct()">Add</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Tonight's Timeline</div>
+  <div id="timeline"><p class="empty">Add activities above to build your wind-down.</p></div>
+  <div class="card-footer" id="cardFooter" style="display:none">
+    <div class="total-label" id="totalLabel"></div>
+    <button class="btn-ghost" onclick="resetDone()">Reset tonight</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let acts = JSON.parse(localStorage.getItem('ewd_acts') || '[]');
+
+  function save() { localStorage.setItem('ewd_acts', JSON.stringify(acts)); }
+
+  function addAct() {
+    const name = document.getElementById('actName').value.trim();
+    const mins = parseInt(document.getElementById('actMins').value) || 1;
+    if (!name) return;
+    acts.push({ id: Date.now(), name, mins, done: false });
+    save(); render();
+    document.getElementById('actName').value = '';
+    document.getElementById('actName').focus();
+  }
+
+  function toggle(id) {
+    const a = acts.find(a => a.id === id);
+    if (a) { a.done = !a.done; save(); render(); }
+  }
+
+  function move(id, dir) {
+    const i = acts.findIndex(a => a.id === id);
+    const j = i + dir;
+    if (j < 0 || j >= acts.length) return;
+    [acts[i], acts[j]] = [acts[j], acts[i]];
+    save(); render();
+  }
+
+  function remove(id) { acts = acts.filter(a => a.id !== id); save(); render(); }
+
+  function resetDone() { acts.forEach(a => a.done = false); save(); render(); }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function minsToTime(baseMinutes) {
+    const h = Math.floor(((baseMinutes % 1440) + 1440) % 1440 / 60);
+    const m = ((baseMinutes % 1440) + 1440) % 1440 % 60;
+    const ampm = h < 12 ? 'AM' : 'PM';
+    const h12 = h % 12 === 0 ? 12 : h % 12;
+    return `${h12}:${m.toString().padStart(2,'0')} ${ampm}`;
+  }
+
+  function getBedtimeMins() {
+    const val = document.getElementById('bedtime').value || '22:30';
+    const [h, m] = val.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function render() {
+    const bedMins = getBedtimeMins();
+    const totalMins = acts.reduce((s, a) => s + a.mins, 0);
+    const startMins = bedMins - totalMins;
+
+    document.getElementById('startBanner').innerHTML = acts.length
+      ? `Begin wind-down at <span>${minsToTime(startMins)}</span>` : '';
+
+    const tl = document.getElementById('timeline');
+    const footer = document.getElementById('cardFooter');
+
+    if (!acts.length) {
+      tl.innerHTML = '<p class="empty">Add activities above to build your wind-down.</p>';
+      footer.style.display = 'none';
+      return;
+    }
+
+    footer.style.display = 'flex';
+    const done = acts.filter(a => a.done).length;
+    document.getElementById('totalLabel').innerHTML =
+      `<span>${totalMins}</span> min total &nbsp;·&nbsp; <span>${done}/${acts.length}</span> done`;
+
+    let cursor = startMins;
+    let rows = acts.map((a, i) => {
+      const timeStr = minsToTime(cursor);
+      cursor += a.mins;
+      return `
+        <div class="tl-item">
+          <div class="tl-time">${timeStr}</div>
+          <div class="tl-dot ${a.done ? 'checked' : ''}"></div>
+          <div class="tl-body">
+            <span class="tl-name ${a.done ? 'checked' : ''}">${esc(a.name)}</span>
+            <span class="tl-dur">${a.mins} min</span>
+            <input class="tl-check" type="checkbox" ${a.done ? 'checked' : ''} onchange="toggle(${a.id})" />
+            <button class="icon-btn" onclick="move(${a.id},-1)" ${i===0?'disabled':''}>↑</button>
+            <button class="icon-btn" onclick="move(${a.id},1)"  ${i===acts.length-1?'disabled':''}>↓</button>
+            <button class="icon-btn del" onclick="remove(${a.id})">✕</button>
+          </div>
+        </div>`;
+    });
+
+    rows.push(`
+      <div class="tl-item">
+        <div class="tl-time">${minsToTime(bedMins)}</div>
+        <div class="tl-dot bedtime-dot"></div>
+        <div class="tl-body"><span class="tl-name bedtime-label">🌙 Bedtime</span></div>
+      </div>`);
+
+    tl.innerHTML = `<div class="timeline">${rows.join('')}</div>`;
+  }
+
+  document.getElementById('actName').addEventListener('keydown', e => { if (e.key === 'Enter') addAct(); });
+  render();
+</script>
+</body>
+</html>

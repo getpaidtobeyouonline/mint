@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Content Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .day { font-family: 'Playfair Display', serif; color: #5AE57A; margin: 14px 0 6px; border-bottom: 1px solid #4C724C; padding-bottom: 4px; font-size: .98rem; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 7px; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .em .tag { font-size: .7rem; padding: 1px 8px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; cursor: pointer; }
+  .em .x { cursor: pointer; opacity: .5; } .em .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Content Calendar</h1>
+  <p class="sub">Plan a month of emails in one sitting and stop dreading send day.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+      <div style="flex:2"><label for="subj">Subject / angle</label><input id="subj" placeholder="e.g. The pricing mistake costing you clients"></div>
+      <div><label for="type">Type</label><select id="type"><option>Value</option><option>Story</option><option>Engagement</option><option>Sell</option><option>Sequence</option></select></div>
+      <div><label for="st">Status</label><select id="st"><option>Idea</option><option>Drafting</option><option>Scheduled</option><option>Sent</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sN">0</div><div class="l">Planned</div></div>
+    <div class="stat"><div class="v" id="sSch">0</div><div class="l">Scheduled</div></div>
+    <div class="stat"><div class="v" id="sSent">0</div><div class="l">Sent</div></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="exportTxt()">Export</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const STAGES=['Idea','Drafting','Scheduled','Sent'];
+  let E=JSON.parse(localStorage.getItem('ecc7')||'[]');
+  g('date').value=new Date().toISOString().slice(0,10);
+  const save=()=>localStorage.setItem('ecc7',JSON.stringify(E));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const s=v('subj'); if(!s){alert('Add a subject.');return;} E.push({date:g('date').value||new Date().toISOString().slice(0,10),subj:s,type:g('type').value,st:g('st').value}); g('subj').value=''; save(); render(); }
+  function cyc(i){ E[i].st=STAGES[(STAGES.indexOf(E[i].st)+1)%STAGES.length]; save(); render(); }
+  function del(i){ E.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ E=[]; save(); render(); } }
+  function render(){
+    g('sN').textContent=E.length;
+    g('sSch').textContent=E.filter(x=>x.st==='Scheduled').length;
+    g('sSent').textContent=E.filter(x=>x.st==='Sent').length;
+    const L=g('list');
+    if(!E.length){ L.innerHTML='<div class="empty">No emails planned yet.</div>'; return; }
+    const sorted=[...E].map((x,i)=>({x,i})).sort((a,b)=>a.x.date<b.x.date?-1:a.x.date>b.x.date?1:0);
+    let html='', cur='';
+    sorted.forEach(({x,i})=>{ if(x.date!==cur){cur=x.date; html+=`<div class="day">${x.date}</div>`;}
+      html+=`<div class="em"><span><b style="color:#5AE57A">${esc(x.type)}</b> · ${esc(x.subj)}</span><span><span class="tag" onclick="cyc(${i})">${x.st}</span> <span class="x" onclick="del(${i})">✕</span></span></div>`;
+    });
+    L.innerHTML=html;
+  }
+  function exportTxt(){ if(!E.length){alert('Add emails first.');return;}
+    let t='EMAIL CONTENT CALENDAR\n\n';
+    const sorted=[...E].sort((a,b)=>a.date<b.date?-1:1);
+    sorted.forEach(x=>t+=`${x.date} [${x.st}] (${x.type}) ${x.subj}\n`);
+    const b=new Blob([t],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='email-calendar.txt'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  render();
+</script>
+</body>
+</html>

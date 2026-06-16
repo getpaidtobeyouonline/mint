@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entrepreneurship Readiness Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 14px; }
+  .qt { font-size: .93rem; margin-bottom: 6px; }
+  .scale { display: flex; gap: 6px; }
+  .scale label { flex: 1; }
+  .scale input { display: none; }
+  .scale span { display: block; text-align: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 0; cursor: pointer; font-size: .9rem; }
+  .scale input:checked + span { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; opacity: .55; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  .score { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Entrepreneurship Readiness Checker</h1>
+  <p class="sub">Rate each statement 1 (not yet) to 5 (definitely) to see how ready you are.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">Check My Readiness</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    'I have a clear idea of the problem my business would solve.',
+    'I understand who my customers are and what they would pay.',
+    'I have, or can build, a financial runway to get started.',
+    'I am comfortable with uncertainty and irregular income.',
+    'I can sell and promote my own work.',
+    'I have tested the idea with real potential customers.',
+    'I am self-motivated without a boss or fixed hours.',
+    'I have the core skills to deliver — or a plan to get them.',
+    'The people around me support this move.',
+    'I know the first three steps I would take to launch.'
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((q,i)=>{
+    let h='<div class="q"><p class="qt">'+(i+1)+'. '+q+'</p><div class="scale">';
+    for(let n=1;n<=5;n++) h+='<label><input type="radio" name="q'+i+'" value="'+n+'"><span>'+n+'</span></label>';
+    h+='</div><div class="ends"><span>Not yet</span><span>Definitely</span></div></div>';
+    g('quiz').insertAdjacentHTML('beforeend',h);
+  });
+  function result(){
+    let total=0;
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please rate all statements.'); return; } total+=+s.value; }
+    const max=Q.length*5, pct=Math.round(total/max*100);
+    let band,msg;
+    if(pct>=80){ band='Ready to Launch'; msg='You have the idea, the validation and the mindset. Start small, start now — momentum will teach you the rest.'; }
+    else if(pct>=60){ band='Nearly There'; msg='Strong foundations. Close your weakest one or two areas, then begin testing in the real world.'; }
+    else if(pct>=40){ band='Build the Foundations'; msg='The drive is there but key pieces are missing. Validate the idea and shore up your runway before leaping.'; }
+    else { band='Explore First'; msg='Use this as a starting map. Begin with a side project to test the idea and grow the skills before any big commitment.'; }
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<div class="score">'+total+' / '+max+'</div><h2>'+band+'</h2><p>'+msg+'</p><p style="opacity:.7;font-size:.86rem;margin-top:8px">Your lowest-scoring statements are your to-do list before launch.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

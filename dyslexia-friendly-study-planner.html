@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dyslexia Friendly Study Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.7; padding: 24px; letter-spacing: .01em; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .8; margin: 8px 0 22px; font-size: .98rem; }
+  label { display: block; font-size: .82rem; letter-spacing: .03em; opacity: .85; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 10px 12px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 11px 18px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .task { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 7px; display: flex; align-items: center; gap: 12px; font-size: .98rem; }
+  .box { width: 24px; height: 24px; border: 2px solid #5AE57A; border-radius: 6px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .8rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .task.done .lb { opacity: .5; }
+  .task .x { margin-left: auto; cursor: pointer; opacity: .5; font-size: 1.1rem; } .task .x:hover { opacity: 1; color: #5AE57A; }
+  .tip { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; font-size: .92rem; margin-bottom: 7px; }
+  .tip b { color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .92rem; padding: 12px 0; }
+  footer { text-align: center; opacity: .55; font-size: .85rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Dyslexia Friendly Study Planner</h1>
+  <p class="sub">Plan study in short, clear chunks — with methods that play to dyslexic strengths.</p>
+
+  <div class="panel">
+    <label>Add a study task — keep it short and one thing only</label>
+    <input id="task" placeholder="e.g. Watch the video on volcanoes" onkeydown="if(event.key==='Enter')add()">
+    <button class="btn" onclick="add()">Add task</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear all</button>
+  </div>
+
+  <div class="panel">
+    <div class="tip"><b>Use your ears</b><br>Audiobooks, text-to-speech and watching videos count as real study.</div>
+    <div class="tip"><b>Short bursts</b><br>Study for 15-20 minutes, then take a proper break. Little and often wins.</div>
+    <div class="tip"><b>Show it, do not just read it</b><br>Mind maps, diagrams and colour beat dense blocks of text.</div>
+    <div class="tip"><b>Say it out loud</b><br>Explaining a topic aloud locks it in better than re-reading.</div>
+    <div class="tip"><b>One thing at a time</b><br>One short task per line. Finishing small tasks builds momentum.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('dfsp')||'[]');
+  const save=()=>localStorage.setItem('dfsp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const t=g('task').value.trim(); if(!t)return; R.push({t,done:false}); g('task').value=''; save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all tasks?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No tasks yet. Add one short task above.</div>'; return; }
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.done-b.x.done).map(({x,i})=>
+      '<div class="task'+(x.done?' done':'')+'"><span class="box'+(x.done?' on':'')+'" onclick="toggle('+i+')">'+(x.done?'✓':'')+'</span><span class="lb">'+esc(x.t)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

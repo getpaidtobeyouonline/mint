@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Split Test Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .76rem; text-transform: uppercase; margin-bottom: 4px; } .blk p, .blk li { font-size: .92rem; } .blk ol { margin-left: 18px; }
+  .warn { color: #5AE57A; font-size: .85rem; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Split Test Planner</h1>
+  <p class="sub">A/B testing emails badly is worse than not testing. Plan one clean test that actually tells you something.</p>
+
+  <div class="panel">
+    <label for="what">What you are testing (one thing only)</label>
+    <select id="what" onchange="calc()">
+      <option value="subj">Subject line</option><option value="preview">Preview text</option>
+      <option value="cta">CTA copy / button</option><option value="open">Email opener</option>
+      <option value="from">From-name</option><option value="length">Length / structure</option>
+    </select>
+    <div class="grid">
+      <div><label for="size">List size for this test</label><input id="size" type="number" min="0" value="2000" oninput="calc()"></div>
+      <div><label for="goal">Goal metric</label><select id="goal" onchange="calc()"><option value="open">Open rate</option><option value="click">Click rate</option><option value="rev">Revenue</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="a">Variant A (control)</label><input id="a" placeholder="Your current version"></div>
+      <div><label for="b">Variant B (challenger)</label><input id="b" placeholder="The change you are testing"></div>
+    </div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['what','size','goal','a','b'].forEach(k=>{ const s=localStorage.getItem('estp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('estp_'+k,g(k).value)); });
+  function calc(){
+    ['what','size','goal','a','b'].forEach(k=>localStorage.setItem('estp_'+k,g(k).value));
+    const min=2000;
+    const size=n('size');
+    const w=g('what').selectedOptions[0].text;
+    const goal=g('goal').selectedOptions[0].text;
+    const sig=size<min;
+    g('out').innerHTML=`<div class="blk"><h4>Your test</h4><p>Change <b>${w.toLowerCase()}</b> only. Measure <b>${goal.toLowerCase()}</b>.</p>${sig?`<div class="warn">⚠ With only ${size.toLocaleString()} on this test, results will be noisy. Aim for ~${min.toLocaleString()}+ per variant, or run a longer test.</div>`:''}</div>
+      <div class="blk"><h4>Run-of-show</h4><ol>
+        <li>Split list 50/50 randomly. Send at the same time.</li>
+        <li>Change ONE thing. Everything else identical.</li>
+        <li>Pick the winner by ${goal.toLowerCase()}, not gut feel.</li>
+        <li>Need a meaningful lift (e.g. 15%+ relative) before calling it a win — small differences are usually noise.</li>
+      </ol></div>
+      <div class="blk"><h4>If A wins</h4><p>Keep the control. Test a bolder change next round — small variants don't move the needle.</p></div>
+      <div class="blk"><h4>If B wins</h4><p>Make B the new control. Then test a different element next — never stack changes.</p></div>`;
+  }
+  calc();
+</script>
+</body>
+</html>

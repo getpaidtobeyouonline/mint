@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Environment Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 16px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .ring-wrap { width: 156px; height: 156px; border-radius: 50%; background: conic-gradient(var(--rc,#C9A84C44) var(--prog,0%), #3C603C 0%); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; transition: background 0.4s; }
+  .ring-inner { width: 122px; height: 122px; border-radius: 50%; background: #325132; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+  .ring-pct { font-family: 'Playfair Display', serif; font-size: 2.4rem; line-height: 1; }
+  .ring-lbl { font-size: 0.65rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; margin-top: 3px; }
+  .ready-msg { text-align: center; font-size: 0.82rem; color: #BFD8BF; margin-bottom: 4px; min-height: 1.2em; }
+  .cat-section { max-width: 580px; margin: 0 auto 6px; }
+  .cat-header { display: flex; align-items: center; gap: 8px; padding: 0 4px; margin-bottom: 8px; }
+  .cat-icon { font-size: 1rem; }
+  .cat-name { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; flex: 1; }
+  .cat-prog { font-size: 0.72rem; color: #5A845A; }
+  .items-grid { display: flex; flex-direction: column; gap: 6px; }
+  .item { display: flex; align-items: flex-start; gap: 11px; padding: 10px 14px; border-radius: 9px; background: #3C603C; border: 1px solid #3C603C; cursor: pointer; transition: all 0.15s; }
+  .item:hover { border-color: #4C724C; background: #3C603C; }
+  .item.checked { background: #325132; border-color: #3C603C; }
+  .item.checked .item-text { color: #5A845A; text-decoration: line-through; }
+  .item-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #4C724C; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; transition: all 0.15s; color: #325132; margin-top: 1px; }
+  .item.checked .item-check { background: #5AE57A; border-color: #5AE57A; }
+  .item-text { font-size: 0.87rem; color: #F0EBE0cc; line-height: 1.45; }
+  .launch-wrap { max-width: 580px; margin: 20px auto 18px; }
+  .btn-launch { width: 100%; border: none; padding: 15px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer; transition: all 0.3s; }
+  .btn-low  { background: #3C603C; color: #BFD8BF; border: 1px solid #4C724C; }
+  .btn-med  { background: #3C603C; color: #5AE57A; border: 1px solid #C9A84C44; }
+  .btn-high { background: #C9A84C22; color: #5AE57A; border: 1px solid #5AE57A; }
+  .btn-full { background: #5AE57A; color: #325132; box-shadow: 0 0 24px #C9A84C44; animation: btnpulse 2.5s ease-in-out infinite; }
+  @keyframes btnpulse { 0%,100%{box-shadow:0 0 12px #C9A84C33}50%{box-shadow:0 0 30px #C9A84C88} }
+  .toast { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); background: #3C603C; border: 1px solid #C9A84C44; color: #5AE57A; padding: 10px 24px; border-radius: 8px; font-size: 0.85rem; opacity: 0; transition: opacity 0.3s; pointer-events: none; white-space: nowrap; }
+  .toast.show { opacity: 1; }
+  .stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 16px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .log-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #325132; font-size: 0.81rem; }
+  .log-item:last-child { border-bottom: none; }
+  .log-time { color: #BFD8BF; flex-shrink: 0; width: 72px; }
+  .log-score { font-family: 'Playfair Display', serif; color: #5AE57A; flex-shrink: 0; }
+  .log-bar { flex: 1; background: #325132; height: 5px; border-radius: 3px; overflow: hidden; }
+  .log-bar-fill { height: 100%; border-radius: 3px; background: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Focus Environment</h1>
+<p class="subtitle">Two minutes of setup. Hours of unbroken focus.</p>
+
+<div class="card" style="text-align:center">
+  <div class="ring-wrap" id="ringWrap">
+    <div class="ring-inner">
+      <div class="ring-pct" id="ringPct" style="color:#5A845A">0%</div>
+      <div class="ring-lbl">ready</div>
+    </div>
+  </div>
+  <div class="ready-msg" id="readyMsg">Check off each item to prepare your focus environment.</div>
+</div>
+
+<div id="catList"></div>
+
+<div class="launch-wrap">
+  <button class="btn-launch btn-low" id="launchBtn" onclick="startSession()">Set up your environment first</button>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statSessions">0</div><div class="stat-l">sessions today</div></div>
+  <div class="stat-box"><div class="stat-n" id="statAvgReady">—</div><div class="stat-l">avg readiness</div></div>
+  <div class="stat-box"><div class="stat-n" id="statBest">—</div><div class="stat-l">best score today</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Session History</div>
+  <div id="sessionLog"><p class="empty">No sessions yet today.</p></div>
+</div>
+
+<div class="toast" id="toast">✓ Session logged — go do great work</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const CATS = [
+  {id:'space', icon:'🏠', label:'Clear the Space', color:'#5AE57A', items:[
+    'Clear your desk — only materials for this task stay',
+    'Fill your water bottle or grab a glass of water',
+    'Silence your phone or switch it to Do Not Disturb',
+    'Adjust lighting so it\'s comfortable for your eyes',
+    'Close your door or put on headphones to signal focus',
+  ]},
+  {id:'digital', icon:'💻', label:'Digital Setup', color:'#5AE57A', items:[
+    'Close all tabs except what this task actually requires',
+    'Quit email and every messaging app (Slack, iMessage, Teams)',
+    'Enable Do Not Disturb on your computer',
+    'Open only the files and tools this session needs',
+    'Set your focus audio — music, ambient noise, or silence',
+  ]},
+  {id:'task', icon:'🎯', label:'Define the Work', color:'#5AE57A', items:[
+    'Name exactly what you\'re working on — no vague labels',
+    'Know what "done" looks like for this session',
+    'Estimate how long this task will realistically take',
+    'Do a quick brain dump of unrelated thoughts to clear your head',
+  ]},
+  {id:'body', icon:'💪', label:'Body Ready', color:'#5AE57A', items:[
+    'Use the bathroom before you sit down — don\'t wait',
+    'Stand up and stretch for at least 60 seconds',
+    'Take three slow, full breaths before you begin',
+    'Have a snack ready if you\'ll be working 90+ minutes',
+  ]},
+];
+
+const TOTAL = CATS.reduce((s,c)=>s+c.items.length,0);
+const TODAY = new Date().toISOString().slice(0,10);
+
+let checked = new Set();
+let sessions = JSON.parse(localStorage.getItem('fec_'+TODAY)||'[]');
+
+function fmtTime(ts){const d=new Date(ts),h=d.getHours(),m=d.getMinutes();return`${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;}
+
+function toggleItem(catId, idx) {
+  const key=catId+'_'+idx;
+  if(checked.has(key)) checked.delete(key); else checked.add(key);
+  const el=document.getElementById('ci-'+catId+'-'+idx);
+  const chk=document.getElementById('ck-'+catId+'-'+idx);
+  const isChk=checked.has(key);
+  el.classList.toggle('checked',isChk);
+  chk.textContent=isChk?'✓':'';
+  const cat=CATS.find(c=>c.id===catId);
+  const catDone=cat.items.filter((_,i)=>checked.has(catId+'_'+i)).length;
+  document.getElementById('cpr-'+catId).textContent=catDone+'/'+cat.items.length;
+  updateRing();
+}
+
+function updateRing() {
+  const n=checked.size, pct=Math.round(n/TOTAL*100);
+  const rc=pct>=100?'#5AE57A':pct>=50?'#5AE57A':'#C9A84C55';
+  const ring=document.getElementById('ringWrap');
+  ring.style.setProperty('--prog',pct+'%');
+  ring.style.setProperty('--rc',rc);
+  const rp=document.getElementById('ringPct');
+  rp.textContent=pct+'%';
+  rp.style.color=rc;
+  const msgs={
+    100:'Your environment is set. Enter the work.',
+    80:'Almost there — finish the last few steps.',
+    50:'Good progress — a little more setup goes a long way.',
+    0:'Check off each item to prepare your focus environment.',
+  };
+  const threshold=[100,80,50,0].find(t=>pct>=t);
+  document.getElementById('readyMsg').textContent=msgs[threshold];
+  const btn=document.getElementById('launchBtn');
+  if(pct>=100){btn.className='btn-launch btn-full';btn.textContent='✦ Enter Focus — You\'re Ready';}
+  else if(pct>=80){btn.className='btn-launch btn-high';btn.textContent='Begin Focus Session →';}
+  else if(pct>=50){btn.className='btn-launch btn-med';btn.textContent='Begin Session ('+pct+'% ready)';}
+  else{btn.className='btn-launch btn-low';btn.textContent='Set up your environment first ('+pct+'% ready)';}
+}
+
+function startSession() {
+  const pct=Math.round(checked.size/TOTAL*100);
+  sessions.push({ts:Date.now(),score:pct,count:checked.size,total:TOTAL});
+  localStorage.setItem('fec_'+TODAY,JSON.stringify(sessions));
+  checked=new Set();
+  CATS.forEach(cat=>{
+    cat.items.forEach((_,i)=>{
+      const el=document.getElementById('ci-'+cat.id+'-'+i);
+      const chk=document.getElementById('ck-'+cat.id+'-'+i);
+      el.classList.remove('checked');
+      chk.textContent='';
+    });
+    document.getElementById('cpr-'+cat.id).textContent='0/'+cat.items.length;
+  });
+  updateRing();
+  renderStats();
+  const toast=document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),2500);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderStats() {
+  document.getElementById('statSessions').textContent=sessions.length;
+  if(sessions.length){
+    const avg=Math.round(sessions.reduce((s,e)=>s+e.score,0)/sessions.length);
+    const best=Math.max(...sessions.map(e=>e.score));
+    document.getElementById('statAvgReady').textContent=avg+'%';
+    document.getElementById('statBest').textContent=best+'%';
+  } else {
+    document.getElementById('statAvgReady').textContent='—';
+    document.getElementById('statBest').textContent='—';
+  }
+  const el=document.getElementById('sessionLog');
+  if(!sessions.length){el.innerHTML='<p class="empty">No sessions yet today.</p>';return;}
+  el.innerHTML=[...sessions].reverse().map(s=>`
+    <div class="log-item">
+      <span class="log-time">${fmtTime(s.ts)}</span>
+      <span class="log-score" style="color:${s.score>=100?'#5AE57A':s.score>=50?'#5AE57A':'#5AE57A'}">${s.score}%</span>
+      <div class="log-bar"><div class="log-bar-fill" style="width:${s.score}%;background:${s.score>=100?'#5AE57A':'#5AE57A'}"></div></div>
+    </div>`).join('');
+}
+
+document.getElementById('catList').innerHTML = CATS.map(cat=>`
+  <div class="cat-section">
+    <div class="cat-header">
+      <span class="cat-icon">${cat.icon}</span>
+      <span class="cat-name">${cat.label}</span>
+      <span class="cat-prog" id="cpr-${cat.id}">0/${cat.items.length}</span>
+    </div>
+    <div class="items-grid">
+      ${cat.items.map((item,i)=>`
+        <div class="item" id="ci-${cat.id}-${i}" onclick="toggleItem('${cat.id}',${i})">
+          <div class="item-check" id="ck-${cat.id}-${i}"></div>
+          <div class="item-text">${item}</div>
+        </div>`).join('')}
+    </div>
+  </div>`).join('');
+
+renderStats();
+updateRing();
+</script>
+</body>
+</html>

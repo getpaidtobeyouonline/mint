@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engagement Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row, .row3 { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .result-top { text-align: center; padding: 8px 0 16px; }
+  .big-rate {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    line-height: 1;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .rate-label { font-size: 13px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .verdict {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    margin-top: 8px;
+  }
+  .summary { opacity: 0.85; font-size: 14px; margin-top: 4px; }
+  .bench {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 14px;
+  }
+  .bench-bar {
+    position: relative;
+    height: 14px;
+    background: linear-gradient(to right, #4C724C 0%, #4C724C 25%, #2E4D2E 25%, #2E4D2E 50%, #5AE57A 50%, #5AE57A 75%, #4F8A55 75%, #4F8A55 100%);
+    border-radius: 8px;
+    margin: 12px 0 6px;
+  }
+  .bench-marker {
+    position: absolute;
+    top: -4px;
+    width: 4px;
+    height: 22px;
+    background: #5AE57A;
+    border-radius: 2px;
+    transition: left 0.6s;
+  }
+  .bench-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 520px) { .metric-grid { grid-template-columns: 1fr; } }
+  .metric {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .metric-name {
+    font-size: 12px;
+    opacity: 0.75;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .metric-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .tips { list-style: none; }
+  .tips li {
+    padding: 10px 0 10px 26px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .tips li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .tips li:last-child { border-bottom: none; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Engagement Rate Calculator</h1>
+  <p class="subtitle">Calculate your real engagement rate, see how you stack up, and learn what to fix.</p>
+
+  <div class="card">
+    <label>Platform</label>
+    <select id="platform">
+      <option value="instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="twitter">Twitter / X</option>
+      <option value="linkedin">LinkedIn</option>
+      <option value="youtube">YouTube</option>
+    </select>
+    <div class="row">
+      <div>
+        <label>Followers</label>
+        <input type="number" id="followers" min="1" placeholder="e.g. 5000">
+      </div>
+      <div>
+        <label>Reach / Views</label>
+        <input type="number" id="reach" min="0" placeholder="e.g. 2400">
+      </div>
+    </div>
+    <div class="row3">
+      <div>
+        <label>Likes</label>
+        <input type="number" id="likes" min="0" placeholder="0">
+      </div>
+      <div>
+        <label>Comments</label>
+        <input type="number" id="comments" min="0" placeholder="0">
+      </div>
+      <div>
+        <label>Shares / Saves</label>
+        <input type="number" id="shares" min="0" placeholder="0">
+      </div>
+    </div>
+    <button onclick="calc()">Calculate Engagement</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="result-top">
+        <div class="rate-label">Engagement rate (by reach)</div>
+        <div class="big-rate" id="rate">0%</div>
+        <div class="verdict" id="verdict">—</div>
+        <div class="summary" id="summary"></div>
+      </div>
+      <div class="bench">
+        <div class="rate-label" style="margin:0;">Where you stand</div>
+        <div class="bench-bar"><div class="bench-marker" id="marker"></div></div>
+        <div class="bench-labels">
+          <span>Low</span><span>Below avg</span><span>Average</span><span>Good</span><span>Top</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">The Breakdown</label>
+      <div class="metric-grid" id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:6px;">How to Improve</label>
+      <ul class="tips" id="tips"></ul>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const BENCHMARKS = {
+  instagram: {low: 1.0, avg: 2.5, good: 4.0, top: 6.0},
+  tiktok: {low: 3.0, avg: 5.5, good: 9.0, top: 15.0},
+  twitter: {low: 0.3, avg: 0.7, good: 1.5, top: 3.0},
+  linkedin: {low: 1.0, avg: 2.0, good: 3.5, top: 5.5},
+  youtube: {low: 1.5, avg: 4.0, good: 7.0, top: 12.0}
+};
+
+const NAMES = {
+  instagram: 'Instagram', tiktok: 'TikTok', twitter: 'Twitter/X', linkedin: 'LinkedIn', youtube: 'YouTube'
+};
+
+function calc() {
+  const platform = document.getElementById('platform').value;
+  const followers = parseInt(document.getElementById('followers').value) || 0;
+  const reach = parseInt(document.getElementById('reach').value) || 0;
+  const likes = parseInt(document.getElementById('likes').value) || 0;
+  const comments = parseInt(document.getElementById('comments').value) || 0;
+  const shares = parseInt(document.getElementById('shares').value) || 0;
+
+  if (!followers) { alert('Enter your follower count.'); return; }
+
+  const interactions = likes + comments + shares;
+  const denom = reach > 0 ? reach : followers;
+  const rate = (interactions / denom) * 100;
+  const followerRate = (interactions / followers) * 100;
+  const commentRatio = interactions ? (comments / interactions) * 100 : 0;
+  const shareRatio = interactions ? (shares / interactions) * 100 : 0;
+
+  const b = BENCHMARKS[platform];
+  let verdict, summary, position;
+  if (rate < b.low) { verdict = 'Below average'; summary = `Lower than typical ${NAMES[platform]} accounts. Big opportunity here.`; position = 8; }
+  else if (rate < b.avg) { verdict = 'Building'; summary = `Approaching the ${NAMES[platform]} average — you're on the path.`; position = 28; }
+  else if (rate < b.good) { verdict = 'Average'; summary = `Right around the ${NAMES[platform]} norm. Solid but not standout.`; position = 50; }
+  else if (rate < b.top) { verdict = 'Strong'; summary = `Above average for ${NAMES[platform]}. Your audience is engaged.`; position = 72; }
+  else { verdict = 'Top performer'; summary = `Top-tier engagement for ${NAMES[platform]}. Keep doing what you're doing.`; position = 92; }
+
+  document.getElementById('rate').textContent = rate.toFixed(2) + '%';
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('summary').textContent = summary;
+  document.getElementById('marker').style.left = position + '%';
+
+  const metrics = [
+    {name: 'Rate by reach', val: rate.toFixed(2) + '%'},
+    {name: 'Rate by followers', val: followerRate.toFixed(2) + '%'},
+    {name: 'Total interactions', val: interactions.toLocaleString()},
+    {name: 'Comment ratio', val: commentRatio.toFixed(1) + '%'},
+    {name: 'Share / save ratio', val: shareRatio.toFixed(1) + '%'},
+    {name: 'Avg benchmark', val: b.avg + '%'}
+  ];
+  document.getElementById('metrics').innerHTML = metrics.map(m => `
+    <div class="metric">
+      <div class="metric-name">${m.name}</div>
+      <div class="metric-val">${m.val}</div>
+    </div>
+  `).join('');
+
+  const tips = [];
+  if (rate < b.avg) tips.push('Post less, but post stronger — fewer high-quality pieces beat a flood of average ones.');
+  if (commentRatio < 10) tips.push('Ask one direct question in every caption — comments boost the algorithm more than likes.');
+  if (shareRatio < 10) tips.push('Add a "save this" or "share with a friend" cue — shares signal high value to every platform.');
+  if (reach > 0 && reach < followers * 0.15) tips.push('Reach is low vs. follower count — your hook isn\'t holding the first 3 seconds.');
+  if (rate >= b.good) tips.push('You\'re winning on engagement — consider doubling posting frequency to grow faster.');
+  if (rate >= b.top) tips.push('Document what made this post hit and templatize it.');
+  if (!tips.length) tips.push('Solid post. Test against a variation to keep learning.');
+
+  document.getElementById('tips').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

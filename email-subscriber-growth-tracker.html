@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email List Growth Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .big { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; line-height: 1; }
+  .track { background: #3C603C; border-radius: 5px; height: 10px; overflow: hidden; margin-top: 12px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .log { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; margin-bottom: 7px; display: flex; justify-content: space-between; gap: 10px; font-size: .88rem; }
+  .log .x { cursor: pointer; opacity: .5; } .log .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 18px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email List Growth Tracker</h1>
+  <p class="sub">Track subscriber growth, net of unsubscribes, and the pace you need to hit your list goal.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="start">Starting subscribers</label><input id="start" type="number" min="0" value="200" oninput="calc()"></div>
+      <div><label for="goal">Goal subscribers</label><input id="goal" type="number" min="0" value="5000" oninput="calc()"></div>
+      <div><label for="date">Target date</label><input id="date" type="date" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="big">
+    <div class="n" id="cur">200</div>
+    <div style="font-size:.85rem;opacity:.7">current subscribers</div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div style="font-size:.82rem;opacity:.7;margin-top:6px" id="pct">0% to goal</div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="need">0</div><div class="l">To go</div></div>
+    <div class="stat"><div class="v" id="perWk">—</div><div class="l">Net adds / wk needed</div></div>
+    <div class="stat"><div class="v" id="pace">—</div><div class="l">On pace?</div></div>
+  </div>
+
+  <div class="panel">
+    <label>Log a check-in (gained &amp; lost since last)</label>
+    <div class="grid">
+      <div><label for="add">Subscribed</label><input id="add" type="number" min="0" placeholder="+ gained"></div>
+      <div><label for="lost">Unsubscribed</label><input id="lost" type="number" min="0" placeholder="- lost"></div>
+      <div style="flex:0;align-self:flex-end"><button class="btn" onclick="addLog()" style="margin-top:0">+ Log</button></div>
+    </div>
+    <div id="logs" style="margin-top:14px"></div>
+  </div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const F=['start','goal','date'];
+  let logs=JSON.parse(localStorage.getItem('elgt_logs')||'[]');
+  F.forEach(k=>{ const s=localStorage.getItem('elgt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('elgt_'+k,g(k).value)); });
+  function current(){ return n('start')+logs.reduce((s,l)=>s+l.a-l.r,0); }
+  function calc(){
+    F.forEach(k=>localStorage.setItem('elgt_'+k,g(k).value));
+    const cur=current(), st=n('start'), goal=n('goal');
+    g('cur').textContent=cur.toLocaleString();
+    const prog=goal>st?Math.min(100,Math.max(0,(cur-st)/(goal-st)*100)):(cur>=goal?100:0);
+    g('bar').style.width=prog+'%'; g('pct').textContent=Math.round(prog)+'% to goal';
+    const need=Math.max(0,goal-cur); g('need').textContent=need.toLocaleString();
+    const d=g('date').value;
+    if(d){ const wks=Math.max(0,(new Date(d)-new Date(new Date().toISOString().slice(0,10)))/6048e5);
+      g('perWk').textContent= wks>0?Math.ceil(need/wks).toLocaleString():need.toLocaleString();
+      let pace='—';
+      if(logs.length>=2){ const net=logs.reduce((s,l)=>s+l.a-l.r,0)/logs.length; pace= net*1>=(wks>0?need/wks/1:0)?'✅ Yes':'⚠ Behind'; }
+      g('pace').textContent=need===0?'🎉 Hit!':pace;
+    } else { g('perWk').textContent='—'; g('pace').textContent='—'; }
+    renderLogs();
+  }
+  function addLog(){ const a=parseFloat(g('add').value)||0, r=parseFloat(g('lost').value)||0; if(!a&&!r){alert('Enter gained and/or lost.');return;}
+    logs.push({d:new Date().toISOString().slice(0,10),a,r}); g('add').value=''; g('lost').value=''; localStorage.setItem('elgt_logs',JSON.stringify(logs)); calc(); }
+  function delLog(i){ logs.splice(i,1); localStorage.setItem('elgt_logs',JSON.stringify(logs)); calc(); }
+  function clearAll(){ if(confirm('Clear all check-ins?')){ logs=[]; localStorage.setItem('elgt_logs','[]'); calc(); } }
+  function renderLogs(){ const L=g('logs');
+    if(!logs.length){ L.innerHTML='<div class="empty">No check-ins yet — log your gains & losses to see the real trend.</div>'; return; }
+    L.innerHTML=[...logs].map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="log"><span>${x.d}</span><span><span style="color:#5AE57A">+${x.a}</span> / <span style="color:#5AE57A">-${x.r}</span> = ${x.a-x.r>=0?'+':''}${x.a-x.r} net <span class="x" onclick="delLog(${i})">✕</span></span></div>`).join('');
+  }
+  calc();
+</script>
+</body>
+</html>

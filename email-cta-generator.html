@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email CTA Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .cta { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 15px; margin-bottom: 8px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .cta .t { font-size: .98rem; } .cta .cp { cursor:pointer; color:#5AE57A; font-size:.82rem; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email CTA Generator</h1>
+  <p class="sub">"Click here" leaks clicks. Generate specific, benefit-led calls to action that convert.</p>
+
+  <div class="panel">
+    <label for="action">What you want them to do</label>
+    <select id="action"><option value="read">Read / learn something</option><option value="buy">Buy / start checkout</option><option value="book">Book a call</option><option value="download">Download a freebie</option><option value="reply">Reply to you</option><option value="watch">Watch something</option></select>
+    <label for="thing">The thing / outcome</label>
+    <input id="thing" placeholder="e.g. the pricing guide / fix your offer">
+    <button class="btn" onclick="gen()">Generate CTAs</button>
+    <button class="btn ghost" onclick="gen()">↻ More</button>
+  </div>
+
+  <div class="note">Best practice: one CTA per email, repeated 2-3x, written as the benefit they get — not the action they take.</div>
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['action','thing'].forEach(k=>{ const s=localStorage.getItem('ecg_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ecg_'+k,g(k).value)); });
+  const T={
+    read:["Show me {x}","Take me to {x}","Yes, I want {x}","Read {x} now","Give me {x}"],
+    buy:["I want {x} — let me in","Get {x} now","Yes, start my {x}","Count me in","Claim my spot"],
+    book:["Book my {x} call","Grab a time for {x}","Yes, let’s talk about {x}","Save my spot"],
+    download:["Send me {x}","Download {x} free","Yes, I want {x}","Get the {x}"],
+    reply:["Just hit reply and tell me {x}","Reply with {x}","Send me your {x}"],
+    watch:["Watch {x}","Show me how {x} works","Play the {x}"]
+  };
+  function gen(){
+    const a=g('action').value, x=v('thing')||'this';
+    const pool=(T[a]||T.read).map(s=>s.replace(/\{x\}/g,x));
+    g('out').innerHTML=pool.map((c,i)=>`<div class="cta"><span class="t">${esc(c)}</span><span class="cp" onclick="cp(${i})">⧉</span></div>`).join('');
+    window._c=pool;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function cp(i){ navigator.clipboard.writeText(window._c[i]).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

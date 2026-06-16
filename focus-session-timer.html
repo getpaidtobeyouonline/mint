@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focus Session Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px 60px;
+    text-align: center;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 2rem;
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    color: #F0EBE0aa;
+    font-size: 0.88rem;
+    margin-bottom: 28px;
+  }
+  .modes {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .mode-btn {
+    background: #3C603C;
+    border: 1px solid #4C724C;
+    color: #F0EBE0aa;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mode-btn.active {
+    background: #C9A84C22;
+    border-color: #5AE57A;
+    color: #5AE57A;
+  }
+  .timer-ring {
+    position: relative;
+    width: 240px;
+    height: 240px;
+    margin-bottom: 32px;
+  }
+  .timer-ring svg { transform: rotate(-90deg); }
+  .ring-bg    { fill: none; stroke: #3C603C; stroke-width: 8; }
+  .ring-arc   { fill: none; stroke: #5AE57A; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .timer-display {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .digits {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.4rem;
+    color: #FFFFFF;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .mode-label {
+    font-size: 0.75rem;
+    color: #5AE57A;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 6px;
+  }
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .btn-gold {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 12px 40px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    min-width: 120px;
+  }
+  .btn-gold:hover { background: #5AE57A; }
+  .btn-ghost {
+    background: none;
+    border: 1px solid #4C724C;
+    color: #F0EBE0aa;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .sessions {
+    font-size: 0.88rem;
+    color: #F0EBE0aa;
+  }
+  .sessions span { color: #5AE57A; font-weight: 500; }
+  footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    text-align: center;
+    color: #5A845A;
+    font-size: 0.78rem;
+    padding: 10px;
+    background: #325132;
+    border-top: 1px solid #3C603C;
+  }
+</style>
+</head>
+<body>
+
+<h1>Focus Session Timer</h1>
+<p class="subtitle">Work in focused sprints. Rest with intention. Get more done.</p>
+
+<div class="modes">
+  <button class="mode-btn active" onclick="setMode('focus')">Focus — 25 min</button>
+  <button class="mode-btn" onclick="setMode('short')">Short Break — 5 min</button>
+  <button class="mode-btn" onclick="setMode('long')">Long Break — 15 min</button>
+</div>
+
+<div class="timer-ring">
+  <svg width="240" height="240" viewBox="0 0 240 240">
+    <circle class="ring-bg"  cx="120" cy="120" r="108" />
+    <circle class="ring-arc" cx="120" cy="120" r="108" id="arc"
+      stroke-dasharray="678.6" stroke-dashoffset="0" />
+  </svg>
+  <div class="timer-display">
+    <div class="digits" id="digits">25:00</div>
+    <div class="mode-label" id="modeLabel">Focus</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn-gold" id="startBtn" onclick="toggle()">Start</button>
+  <button class="btn-ghost" onclick="reset()">Reset</button>
+</div>
+
+<div class="sessions">Sessions completed today: <span id="count">0</span></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const MODES = {
+    focus: { label: 'Focus',       mins: 25 },
+    short: { label: 'Short Break', mins: 5  },
+    long:  { label: 'Long Break',  mins: 15 },
+  };
+  const C = 2 * Math.PI * 108; // circumference ~678.6
+
+  let mode = 'focus', total = 1500, remaining = 1500;
+  let running = false, ticker = null;
+  let sessions = parseInt(localStorage.getItem('fst_sessions') || '0');
+
+  const arc      = document.getElementById('arc');
+  const digits   = document.getElementById('digits');
+  const label    = document.getElementById('modeLabel');
+  const startBtn = document.getElementById('startBtn');
+  const countEl  = document.getElementById('count');
+
+  arc.style.strokeDasharray = C;
+  countEl.textContent = sessions;
+
+  function setMode(m) {
+    if (running) return;
+    mode = m;
+    document.querySelectorAll('.mode-btn').forEach((b, i) =>
+      b.classList.toggle('active', ['focus','short','long'][i] === m));
+    total = MODES[m].mins * 60;
+    remaining = total;
+    label.textContent = MODES[m].label;
+    render();
+  }
+
+  function toggle() {
+    if (running) {
+      clearInterval(ticker);
+      running = false;
+      startBtn.textContent = 'Resume';
+    } else {
+      running = true;
+      startBtn.textContent = 'Pause';
+      ticker = setInterval(tick, 1000);
+    }
+  }
+
+  function tick() {
+    if (remaining <= 0) {
+      clearInterval(ticker);
+      running = false;
+      startBtn.textContent = 'Start';
+      if (mode === 'focus') {
+        sessions++;
+        localStorage.setItem('fst_sessions', sessions);
+        countEl.textContent = sessions;
+      }
+      beep();
+      return;
+    }
+    remaining--;
+    render();
+  }
+
+  function reset() {
+    clearInterval(ticker);
+    running = false;
+    remaining = total;
+    startBtn.textContent = 'Start';
+    render();
+  }
+
+  function render() {
+    const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+    const s = (remaining % 60).toString().padStart(2, '0');
+    digits.textContent = `${m}:${s}`;
+    document.title = `${m}:${s} — Focus Session Timer`;
+    arc.style.strokeDashoffset = C * (1 - remaining / total);
+  }
+
+  function beep() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 0.28, 0.56].forEach(t => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 660;
+        gain.gain.setValueAtTime(0.4, ctx.currentTime + t);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.35);
+        osc.start(ctx.currentTime + t);
+        osc.stop(ctx.currentTime + t + 0.35);
+      });
+    } catch(e) {}
+  }
+
+  render();
+</script>
+</body>
+</html>

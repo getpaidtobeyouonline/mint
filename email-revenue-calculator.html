@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Revenue Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .l { font-size: .85rem; opacity: .7; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .85rem; opacity: .78; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Revenue Calculator</h1>
+  <p class="sub">Project what a single send earns — and the revenue per subscriber you should be optimising.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="list">List size</label><input id="list" type="number" min="0" value="2000" oninput="calc()"></div>
+      <div><label for="open">Open rate (%)</label><input id="open" type="number" min="0" step="0.1" value="30" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="ctr">Click rate of opens (%)</label><input id="ctr" type="number" min="0" step="0.1" value="12" oninput="calc()"></div>
+      <div><label for="cvr">Sales conversion of clicks (%)</label><input id="cvr" type="number" min="0" step="0.1" value="4" oninput="calc()"></div>
+    </div>
+    <label for="price">Average order value ($)</label>
+    <input id="price" type="number" min="0" value="47" oninput="calc()">
+  </div>
+
+  <div class="res">
+    <div class="n" id="rev">$0</div>
+    <div class="l">projected revenue per send</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="opens">0</div><div class="l">Opens</div></div>
+      <div class="stat"><div class="v" id="clicks">0</div><div class="l">Clicks</div></div>
+      <div class="stat"><div class="v" id="sales">0</div><div class="l">Sales</div></div>
+      <div class="stat"><div class="v" id="eps">$0</div><div class="l">Per subscriber</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['list','open','ctr','cvr','price'].forEach(k=>{ const s=localStorage.getItem('emrc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['list','open','ctr','cvr','price'].forEach(k=>localStorage.setItem('emrc_'+k,g(k).value));
+    const opens=n('list')*n('open')/100;
+    const clicks=opens*n('ctr')/100;
+    const sales=clicks*n('cvr')/100;
+    const rev=sales*n('price');
+    g('opens').textContent=Math.round(opens).toLocaleString();
+    g('clicks').textContent=Math.round(clicks).toLocaleString();
+    g('sales').textContent=Math.round(sales*10)/10;
+    g('rev').textContent='$'+Math.round(rev).toLocaleString();
+    g('eps').textContent='$'+(n('list')>0?(rev/n('list')).toFixed(2):'0');
+    const eps=n('list')>0?rev/n('list'):0;
+    g('note').textContent= eps>=1?'Strong: over $1 revenue per subscriber per send is excellent. Email at this rate every week and the math compounds fast.'
+      : eps>=0.3?'Solid. The biggest lever is usually conversion (offer/landing page), then click rate (CTA), not list size.'
+      : 'Low per-subscriber value. Before chasing more subscribers, fix the funnel: a sharper offer and CTA beat a bigger list every time.';
+  }
+  calc();
+</script>
+</body>
+</html>

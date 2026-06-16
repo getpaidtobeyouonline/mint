@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Opener Formula Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .op { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .op b { color: #5AE57A; } .op p { font-size:.93rem; margin-top:3px; } .op .cp { cursor:pointer; color:#5AE57A; font-size:.78rem; float:right; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Opener Formula Tool</h1>
+  <p class="sub">The first line earns the read. Plug in your topic and get 6 proven opener formulas.</p>
+
+  <div class="panel">
+    <label for="topic">What this email is about</label>
+    <input id="topic" placeholder="e.g. pricing your offer">
+    <label for="who">Your reader / audience</label>
+    <input id="who" placeholder="e.g. coaches who undercharge">
+    <button class="btn" onclick="gen()">Generate Openers</button>
+    <button class="btn ghost" onclick="gen()">↻ More</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['topic','who'].forEach(k=>{ const s=localStorage.getItem('eof_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('eof_'+k,g(k).value)); });
+  const FORMS=[
+    ["The unspoken truth","Quick truth about {t}: most people {w} ignore it."],
+    ["The mistake","Hot take — the #1 mistake {w} make with {t} is hiding in plain sight."],
+    ["The story drop","Yesterday a client asked me about {t}. My answer surprised both of us."],
+    ["The pattern interrupt","Stop scrolling. This is the only {t} email you need this week."],
+    ["The question","Quick question: when was the last time you really sat with {t}?"],
+    ["The confession","I used to be terrible at {t}. Here is what changed."],
+    ["The contrarian","Everyone says {t} works one way. They are mostly wrong."],
+    ["The you-shaped","If you are a {w} who keeps avoiding {t} — this is for you."]
+  ];
+  function gen(){
+    const t=v('topic')||'this', w=v('who')||'people in your niche';
+    // shuffle, pick 6
+    const sh=[...FORMS].sort(()=>Math.random()-0.5).slice(0,6).map(f=>[f[0], f[1].replace(/\{t\}/g,t).replace(/\{w\}/g,w)]);
+    g('out').innerHTML=sh.map((f,i)=>`<div class="op"><span class="cp" onclick="cp(${i})">⧉</span><b>${f[0]}</b><p>${esc(f[1])}</p></div>`).join('');
+    window._p=sh.map(f=>f[1]);
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function cp(i){ navigator.clipboard.writeText(window._p[i]).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

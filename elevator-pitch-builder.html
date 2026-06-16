@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elevator Pitch Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:32px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;text-align:center;margin-bottom:8px}
+.sub{text-align:center;opacity:.65;margin-bottom:32px;font-size:.95rem;line-height:1.5}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:26px;max-width:600px;margin:0 auto 24px}
+label{display:block;margin-bottom:5px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:11px 14px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.93rem;margin-bottom:18px;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#BFD8BF}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+.results{max-width:600px;margin:0 auto}
+.pitch-card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:24px;margin-bottom:16px}
+.pitch-label{font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#5AE57A;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.pitch-label span{background:#C9A84C22;border:1px solid #C9A84C44;border-radius:4px;padding:2px 8px}
+.pitch-text{font-size:.98rem;line-height:1.8;color:#FFFFFF;margin-bottom:16px}
+.pitch-text em{color:#5AE57A;font-style:normal;font-weight:600}
+.pitch-footer{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #4C724C;padding-top:14px}
+.duration{font-size:.78rem;color:#BFD8BF}
+.copy-btn{background:transparent;border:1px solid #5AE57A;color:#5AE57A;padding:7px 18px;border-radius:6px;font-size:.8rem;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;transition:all .2s}
+.copy-btn:hover,.copy-btn.done{background:#5AE57A;color:#325132}
+footer{text-align:center;margin-top:48px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Elevator Pitch Builder</h1>
+<p class="sub">Fill in 5 fields — get 3 ready-to-use pitches in under a minute</p>
+
+<div class="card">
+  <label>Your name or business name</label>
+  <input id="name" type="text" placeholder="e.g. Maya or Bloom Coaching">
+
+  <label>What do you do / sell?</label>
+  <input id="offer" type="text" placeholder="e.g. 1:1 business coaching, organic skincare, online courses">
+
+  <label>Who do you help?</label>
+  <input id="audience" type="text" placeholder="e.g. new female entrepreneurs, women over 40, busy parents">
+
+  <label>What problem do you solve?</label>
+  <input id="problem" type="text" placeholder="e.g. feeling stuck, lack of confidence, no clear strategy">
+
+  <label>What result do you create?</label>
+  <input id="result" type="text" placeholder="e.g. land their first client, feel confident, build a 6-figure brand">
+
+  <div class="row">
+    <div>
+      <label>Your edge / differentiator</label>
+      <input id="edge" type="text" placeholder="e.g. no fluff, proven system">
+    </div>
+    <div>
+      <label>Tone</label>
+      <select id="tone">
+        <option value="confident">Confident</option>
+        <option value="warm">Warm &amp; Friendly</option>
+        <option value="bold">Bold &amp; Direct</option>
+        <option value="luxury">Premium &amp; Polished</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn" onclick="generate()">Build My Pitches →</button>
+</div>
+
+<div class="results" id="results"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const openers = {
+  confident:["You know how","Have you ever noticed how","Here's something most people don't talk about —"],
+  warm:["I work with people who","So many of the people I meet","One thing I hear all the time is"],
+  bold:["Most people are leaving money on the table.","The old way isn't working anymore.","Here's the truth no one tells you —"],
+  luxury:["The most discerning entrepreneurs know that","There's a better way to do this.","Not everyone gets access to this level of support —"]
+};
+const bridges = {
+  confident:["That's exactly where I come in.","That's the gap I fill.","I built something specifically for that."],
+  warm:["That's why I created what I do.","I really get that — it's why I do this work.","I've been there too, which is why I help with this."],
+  bold:["That's why I exist.","I built the solution.","I fix that — specifically."],
+  luxury:["That's precisely why I created this.","My work exists to change that.","That's the problem my clients never have to face again."]
+};
+const closes = {
+  confident:["Would love to connect if that resonates.","If that sounds like you, let's talk.","Happy to share more if you'd like."],
+  warm:["I'd love to chat if you think I can help.","Feel free to reach out — I'd love to connect.","Would love to hear more about where you're at."],
+  bold:["Let's talk if you're ready to change that.","Reach out — results speak for themselves.","If you're serious about this, I'm your person."],
+  luxury:["I'd love to explore if we're a fit.","Selective spots available — happy to have a conversation.","This level of work isn't for everyone — but for the right person, it's everything."]
+};
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function v(id){return document.getElementById(id).value.trim()}
+function or(val,fallback){return val||fallback}
+
+function pitchShort(n,o,a,p,r,e,t){
+  const opener = pick(openers[t]);
+  return `${or(n,'I')} help ${or(a,'people')} who struggle with ${or(p,'getting results')} to ${or(r,'reach their goals')} — through ${or(o,'my work')}${e?', '+e:''}. ${pick(closes[t])}`;
+}
+
+function pitchMedium(n,o,a,p,r,e,t){
+  const opener = pick(openers[t]);
+  const bridge = pick(bridges[t]);
+  return `${opener} ${or(a,'people')} deal with ${or(p,'challenges that hold them back')}? ${bridge} My name is ${or(n,'[your name]')} and I offer ${or(o,'a service')} designed to help ${or(a,'you')} ${or(r,'get results')}${e?' — '+e:''}. ${pick(closes[t])}`;
+}
+
+function pitchNetworking(n,o,a,p,r,e,t){
+  return `I'm ${or(n,'[your name]')} — I work with ${or(a,'people')} who are tired of ${or(p,'being stuck')} and are ready to ${or(r,'level up')}. I do that through ${or(o,'my work')}${e?', and what sets me apart is '+e:''}. The people I work with usually come to me when they've tried everything else and need something that actually works. ${pick(closes[t])}`;
+}
+
+function highlight(text){
+  return text.replace(/\[your name\]/g,'<em>[your name]</em>');
+}
+
+function generate(){
+  const n=v('name'),o=v('offer'),a=v('audience'),p=v('problem'),r=v('result'),e=v('edge'),t=v('tone');
+
+  if(!o&&!a&&!r){
+    document.getElementById('results').innerHTML=
+      '<p style="text-align:center;opacity:.5;padding:20px">Fill in at least a few fields to build your pitch.</p>';
+    return;
+  }
+
+  const pitches = [
+    {label:'30-Second Pitch',sub:'Perfect for quick intros',duration:'~30 sec · 40–60 words',text:pitchShort(n,o,a,p,r,e,t)},
+    {label:'60-Second Pitch',sub:'Ideal for networking events',duration:'~60 sec · 80–100 words',text:pitchMedium(n,o,a,p,r,e,t)},
+    {label:'Networking Story Pitch',sub:'Great for "tell me about yourself"',duration:'~75 sec · 90–110 words',text:pitchNetworking(n,o,a,p,r,e,t)},
+  ];
+
+  document.getElementById('results').innerHTML = pitches.map(p=>`
+    <div class="pitch-card">
+      <div class="pitch-label">${p.label} <span>${p.sub}</span></div>
+      <div class="pitch-text">${highlight(p.text)}</div>
+      <div class="pitch-footer">
+        <span class="duration">${p.duration}</span>
+        <button class="copy-btn" onclick="doCopy(this,\`${p.text.replace(/`/g,"'").replace(/\n/g,' ')}\`)">Copy Pitch</button>
+      </div>
+    </div>`).join('');
+}
+
+function doCopy(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy Pitch';btn.classList.remove('done')},1600);
+  });
+}
+</script>
+</body>
+</html>

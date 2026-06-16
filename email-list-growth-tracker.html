@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email List Growth Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.goal-bar{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px 22px;max-width:680px;margin:0 auto 14px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.goal-field{flex:1;min-width:130px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:680px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.prog-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:16px 20px;max-width:680px;margin:0 auto 14px}
+.prog-top{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:7px}
+.prog-pct{color:#5AE57A;font-weight:700}
+.track{background:#325132;border-radius:20px;height:10px;overflow:hidden}
+.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .6s}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:680px;margin:0 auto 14px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1.5fr auto;gap:8px;align-items:flex-end}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;height:38px;transition:opacity .2s;white-space:nowrap}
+.add-btn:hover{opacity:.85}
+.chart-wrap{max-width:680px;margin:0 auto 14px;background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px}
+.chart-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+svg.chart{width:100%;height:200px;overflow:visible}
+.entry-list{max-width:680px;margin:0 auto}
+.entry-row{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px}
+.entry-date{font-size:.78rem;color:#BFD8BF;min-width:80px;flex-shrink:0}
+.entry-count{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;flex-shrink:0}
+.entry-gained{font-size:.75rem;border-radius:12px;padding:2px 8px;font-weight:700;flex-shrink:0}
+.pos{background:#44cc6622;color:#5AE57A}.neg{background:#ff444422;color:#5AE57A}.zero{background:#55555522;color:#BFD8BF}
+.entry-note{font-size:.78rem;color:#BFD8BF;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry-del{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.85rem;padding:3px 6px;border-radius:4px;transition:color .2s;flex-shrink:0}
+.entry-del:hover{color:#5AE57A}
+.proj-card{background:#C9A84C0D;border:1px solid #C9A84C22;border-radius:14px;padding:18px 20px;max-width:680px;margin:0 auto 14px}
+.proj-title{font-size:.75rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.proj-text{font-size:.88rem;line-height:1.7;opacity:.9}
+.proj-text strong{color:#5AE57A}
+.empty{text-align:center;opacity:.35;padding:24px;font-size:.85rem}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){.stats{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr 1fr}.form-row .add-btn{grid-column:1/-1;width:100%}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Email List Growth Tracker</h1>
+<p class="sub">Log your subscriber count over time — know your growth rate and when you'll hit your goal</p>
+
+<div class="goal-bar">
+  <div class="goal-field"><label>Subscriber Goal</label><input id="goalInput" type="number" placeholder="10,000" oninput="saveGoal();render()"></div>
+  <div class="goal-field"><label>Goal Date (optional)</label><input id="goalDate" type="date" onchange="saveGoal();render()"></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sCurrent">—</div><div class="stat-lbl">Current Subscribers</div></div>
+  <div class="stat"><div class="stat-val green" id="sGained">—</div><div class="stat-lbl">Gained Last Period</div></div>
+  <div class="stat"><div class="stat-val" id="sRate">—</div><div class="stat-lbl">Growth Rate</div></div>
+  <div class="stat"><div class="stat-val blue" id="sAvg">—</div><div class="stat-lbl">Avg / Month</div></div>
+</div>
+
+<div class="prog-card" id="progCard" style="display:none">
+  <div class="prog-top"><span id="progLabel">Progress to goal</span><span class="prog-pct" id="progPct">0%</span></div>
+  <div class="track"><div class="fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log a Snapshot</div>
+  <div class="form-row">
+    <div><label>Date</label><input id="fDate" type="date"></div>
+    <div><label>Subscribers</label><input id="fCount" type="number" placeholder="1,250"></div>
+    <div><label>Source / Note (optional)</label><input id="fNote" type="text" placeholder="e.g. freebie launch, reel went viral"></div>
+    <button class="add-btn" onclick="addEntry()">+ Log</button>
+  </div>
+</div>
+
+<div class="chart-wrap" id="chartWrap" style="display:none">
+  <div class="chart-title">Subscriber Growth</div>
+  <svg class="chart" id="chartSvg" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+</div>
+
+<div class="proj-card" id="projCard" style="display:none">
+  <div class="proj-title">✦ Projection</div>
+  <div class="proj-text" id="projText"></div>
+</div>
+
+<div class="entry-list" id="entryList"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const STORE='emailListTracker';const GSTORE='emailListGoal';
+let entries=JSON.parse(localStorage.getItem(STORE)||'[]');
+let goalData=JSON.parse(localStorage.getItem(GSTORE)||'{}');
+
+function fmtN(n){return Math.round(n).toLocaleString()}
+function saveGoal(){goalData={goal:document.getElementById('goalInput').value,date:document.getElementById('goalDate').value};localStorage.setItem(GSTORE,JSON.stringify(goalData));}
+function saveEntries(){localStorage.setItem(STORE,JSON.stringify(entries));}
+
+function addEntry(){
+  const date=document.getElementById('fDate').value;
+  const count=parseInt(document.getElementById('fCount').value);
+  const note=document.getElementById('fNote').value.trim();
+  if(!date||!count||count<0){alert('Please enter a date and subscriber count.');return;}
+  entries.push({id:Date.now(),date,count,note});
+  entries.sort((a,b)=>a.date.localeCompare(b.date));
+  saveEntries();
+  document.getElementById('fCount').value='';document.getElementById('fNote').value='';
+  render();
+}
+
+function delEntry(id){
+  if(!confirm('Remove this snapshot?'))return;
+  entries=entries.filter(e=>e.id!==id);saveEntries();render();
+}
+
+function render(){
+  const goal=parseInt(goalData.goal)||0;
+  const goalDate=goalData.date;
+  if(goal)document.getElementById('goalInput').value=goal;
+  if(goalDate)document.getElementById('goalDate').value=goalDate;
+
+  const sorted=[...entries].sort((a,b)=>a.date.localeCompare(b.date));
+  const n=sorted.length;
+  const current=n?sorted[n-1].count:0;
+  const prev=n>1?sorted[n-2].count:0;
+  const gained=n>1?current-prev:0;
+  const rate=prev>0?((gained/prev)*100).toFixed(1):0;
+
+  // Avg monthly growth
+  let avgMonthly=0;
+  if(n>1){
+    const first=sorted[0];const last=sorted[n-1];
+    const months=(new Date(last.date)-new Date(first.date))/(1000*60*60*24*30.4);
+    avgMonthly=months>0?(last.count-first.count)/months:gained;
+  }
+
+  document.getElementById('sCurrent').textContent=current?fmtN(current):'—';
+  const gainedEl=document.getElementById('sGained');
+  gainedEl.textContent=n>1?(gained>=0?'+':'')+fmtN(gained):'—';
+  gainedEl.style.color=gained>0?'#5AE57A':gained<0?'#5AE57A':'#5AE57A';
+  document.getElementById('sRate').textContent=n>1?rate+'%':'—';
+  document.getElementById('sRate').style.color=rate>0?'#5AE57A':rate<0?'#5AE57A':'#BFD8BF';
+  document.getElementById('sAvg').textContent=avgMonthly?fmtN(avgMonthly)+'/mo':'—';
+
+  // Progress
+  if(goal&&current){
+    document.getElementById('progCard').style.display='block';
+    const pct=Math.min(Math.round(current/goal*100),100);
+    document.getElementById('progFill').style.width=pct+'%';
+    document.getElementById('progPct').textContent=pct+'%';
+    document.getElementById('progLabel').textContent=fmtN(current)+' of '+fmtN(goal)+' goal';
+  } else document.getElementById('progCard').style.display='none';
+
+  // Chart
+  if(n>1){
+    document.getElementById('chartWrap').style.display='block';
+    drawChart(sorted,goal);
+  } else document.getElementById('chartWrap').style.display='none';
+
+  // Projection
+  if(goal&&avgMonthly>0&&current<goal){
+    document.getElementById('projCard').style.display='block';
+    const monthsLeft=Math.ceil((goal-current)/avgMonthly);
+    const projDate=new Date();projDate.setMonth(projDate.getMonth()+monthsLeft);
+    const projStr=projDate.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    let msg=`At your current average growth of <strong>${fmtN(avgMonthly)} subscribers/month</strong>, you'll reach your goal of <strong>${fmtN(goal)}</strong> subscribers in approximately <strong>${monthsLeft} month${monthsLeft===1?'':'s'}</strong> — around <strong>${projStr}</strong>.`;
+    if(goalDate){
+      const deadline=new Date(goalDate);
+      const mToDeadline=Math.round((deadline-new Date())/(1000*60*60*24*30.4));
+      if(monthsLeft>mToDeadline)msg+=` ⚠️ To hit your goal by <strong>${deadline.toLocaleDateString('en-GB',{month:'long',year:'numeric'})}</strong>, you'd need to grow by <strong>${fmtN(Math.ceil((goal-current)/Math.max(mToDeadline,1)))}/month</strong>.`;
+      else msg+=` You're on track to hit your goal deadline.`;
+    }
+    document.getElementById('projText').innerHTML=msg;
+  } else document.getElementById('projCard').style.display='none';
+
+  // Entry list
+  const rev=[...sorted].reverse();
+  document.getElementById('entryList').innerHTML=rev.length
+    ?rev.map((e,i)=>{
+      const idx=sorted.indexOf(e);
+      const diff=idx>0?e.count-sorted[idx-1].count:null;
+      const cls=diff===null?'zero':diff>0?'pos':diff<0?'neg':'zero';
+      const diffStr=diff===null?'First entry':diff===0?'No change':(diff>0?'+':'')+fmtN(diff)+' subs';
+      return`<div class="entry-row">
+        <span class="entry-date">${new Date(e.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'})}</span>
+        <span class="entry-count">${fmtN(e.count)}</span>
+        <span class="entry-gained ${cls}">${diffStr}</span>
+        <span class="entry-note">${e.note||''}</span>
+        <button class="entry-del" onclick="delEntry(${e.id})">✕</button>
+      </div>`;}).join('')
+    :'<div class="empty">No snapshots yet — log your first subscriber count above.</div>';
+}
+
+function drawChart(sorted,goal){
+  const W=600,H=180,pad={t:16,b:28,l:8,r:8};
+  const counts=sorted.map(e=>e.count);
+  const minC=Math.min(...counts)*0.95;
+  const maxC=goal?Math.max(...counts,goal)*1.05:Math.max(...counts)*1.1;
+  const n=sorted.length;
+  const xScale=(W-pad.l-pad.r)/(n-1||1);
+  const yScale=(H-pad.t-pad.b)/(maxC-minC||1);
+  const xp=i=>pad.l+i*xScale;
+  const yp=v=>H-pad.b-(v-minC)*yScale;
+
+  const pts=sorted.map((e,i)=>`${xp(i)},${yp(e.count)}`).join(' ');
+  const area=`${xp(0)},${H-pad.b} `+pts+` ${xp(n-1)},${H-pad.b}`;
+
+  let goalLine='';
+  if(goal&&goal>=minC&&goal<=maxC){
+    const gy=yp(goal);
+    goalLine=`<line x1="${pad.l}" y1="${gy}" x2="${W-pad.r}" y2="${gy}" stroke="#5AE57A" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+    <text x="${W-pad.r-2}" y="${gy-4}" fill="#5AE57A" font-size="9" text-anchor="end" font-family="DM Sans" opacity="0.7">Goal ${fmtN(goal)}</text>`;
+  }
+
+  const dots=sorted.map((e,i)=>`<circle cx="${xp(i)}" cy="${yp(e.count)}" r="4" fill="#5AE57A" stroke="#325132" stroke-width="2">
+    <title>${new Date(e.date+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'})} — ${fmtN(e.count)}</title></circle>`).join('');
+
+  const xlabels=sorted.filter((_,i)=>i===0||i===n-1||i===Math.floor(n/2)).map((_,li,arr)=>{
+    const orig=arr[li];const oi=sorted.indexOf(orig);
+    return`<text x="${xp(oi)}" y="${H-4}" fill="#BFD8BF" font-size="9" text-anchor="middle" font-family="DM Sans">${new Date(orig.date+'T00:00:00').toLocaleDateString('en-GB',{month:'short',year:'2-digit'})}</text>`;
+  }).join('');
+
+  document.getElementById('chartSvg').innerHTML=`
+    <defs><linearGradient id="ag" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#5AE57A" stop-opacity="0.25"/><stop offset="100%" stop-color="#5AE57A" stop-opacity="0"/></linearGradient></defs>
+    ${goalLine}
+    <polygon points="${area}" fill="url(#ag)"/>
+    <polyline points="${pts}" fill="none" stroke="#5AE57A" stroke-width="2.5" stroke-linejoin="round"/>
+    ${dots}${xlabels}`;
+}
+
+// Init
+const now=new Date();
+document.getElementById('fDate').value=now.toISOString().split('T')[0];
+render();
+</script>
+</body>
+</html>

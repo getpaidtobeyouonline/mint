@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Level Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Energy picker */
+  .levels { display: flex; gap: 8px; margin-bottom: 14px; }
+  .level-btn {
+    flex: 1; background: #325132; border: 2px solid #3C603C; border-radius: 10px;
+    padding: 12px 4px; text-align: center; cursor: pointer; transition: all 0.15s;
+  }
+  .level-btn .emoji { font-size: 1.5rem; display: block; margin-bottom: 4px; }
+  .level-btn .lbl { font-size: 0.68rem; color: #BFD8BF; display: block; }
+  .level-btn.active { border-color: var(--ec); background: var(--eb); }
+  .level-btn.active .lbl { color: var(--ec); }
+  .level-btn:hover { border-color: #5A845A; }
+
+  .note-input {
+    width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF;
+    padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem; outline: none; margin-bottom: 12px;
+  }
+  .note-input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Stats */
+  .stats-row { display: flex; gap: 12px; margin-bottom: 16px; }
+  .stat-box { flex: 1; background: #325132; border-radius: 8px; padding: 14px; text-align: center; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.8rem; line-height: 1; margin-bottom: 4px; }
+  .stat-label { font-size: 0.75rem; color: #F0EBE0aa; }
+
+  /* Day timeline */
+  .day-track { display: flex; align-items: flex-end; gap: 4px; height: 60px; margin-bottom: 6px; }
+  .day-bar { flex: 1; border-radius: 4px 4px 0 0; min-width: 6px; transition: height 0.3s; }
+  .day-times { display: flex; justify-content: space-between; }
+  .day-times span { font-size: 0.7rem; color: #5A845A; }
+
+  /* Week row */
+  .week-row { display: flex; gap: 6px; }
+  .week-day { flex: 1; background: #325132; border-radius: 8px; padding: 10px 4px; text-align: center; }
+  .wd-label { font-size: 0.7rem; color: #F0EBE0aa; margin-bottom: 6px; }
+  .wd-emoji { font-size: 1.2rem; display: block; margin-bottom: 2px; }
+  .wd-num { font-size: 0.72rem; color: #BFD8BF; }
+  .wd-num.today { color: #5AE57A; }
+
+  /* Log list */
+  .log-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #3C603C; }
+  .log-item:last-child { border-bottom: none; }
+  .log-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+  .log-body { flex: 1; }
+  .log-meta { font-size: 0.78rem; color: #BFD8BF; margin-top: 2px; }
+  .log-note { font-size: 0.88rem; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.88rem; padding: 3px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 16px 0; }
+  .card-foot { text-align: right; margin-top: 12px; padding-top: 12px; border-top: 1px solid #3C603C; }
+  .btn-ghost { background: none; border: none; color: #BFD8BF; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; text-decoration: underline; }
+  .btn-ghost:hover { color: #5AE57A; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Energy Level Tracker</h1>
+<p class="subtitle">Check in with your energy. Find your peak hours. Work with your body.</p>
+
+<div class="card">
+  <div class="card-title">How's Your Energy Right Now?</div>
+  <div class="levels" id="levelPicker"></div>
+  <input class="note-input" id="noteInput" placeholder="Optional note — what might be affecting your energy?" maxlength="100" />
+  <button class="btn-gold" onclick="logEnergy()">Log Energy</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Pattern</div>
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-val" id="todayAvgVal">—</div>
+      <div class="stat-label">Today's average</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val" id="peakVal">—</div>
+      <div class="stat-label">Peak time today</div>
+    </div>
+  </div>
+  <div class="day-track" id="dayTrack"></div>
+  <div class="day-times"><span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>Now</span></div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Week</div>
+  <div class="week-row" id="weekRow"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Log</div>
+  <div id="logList"><p class="empty">No entries yet — log your first check-in above.</p></div>
+  <div class="card-foot"><button class="btn-ghost" onclick="clearToday()">Clear today</button></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const LEVELS = [
+    { emoji: '💀', label: 'Drained', color: '#5AE57A', bg: '#3d1a1a22' },
+    { emoji: '😔', label: 'Low',     color: '#5AE57A', bg: '#2d1f1022' },
+    { emoji: '😐', label: 'Okay',    color: '#5AE57A', bg: '#2a251022' },
+    { emoji: '⚡', label: 'Good',    color: '#5AE57A', bg: '#1a2d2022' },
+    { emoji: '🔥', label: 'Peak',    color: '#5AE57A', bg: '#1f2d1022' },
+  ];
+  const TODAY = new Date().toISOString().slice(0, 10);
+  const DAYS  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let selected = 2;
+  let logs = JSON.parse(localStorage.getItem('elt_logs') || '[]');
+
+  function save() { localStorage.setItem('elt_logs', JSON.stringify(logs)); }
+
+  function buildPicker() {
+    document.getElementById('levelPicker').innerHTML = LEVELS.map((l, i) => `
+      <div class="level-btn ${i === selected ? 'active' : ''}"
+        style="--ec:${l.color};--eb:${l.bg}"
+        onclick="selectLevel(${i})">
+        <span class="emoji">${l.emoji}</span>
+        <span class="lbl">${l.label}</span>
+      </div>`).join('');
+  }
+
+  function selectLevel(i) { selected = i; buildPicker(); }
+
+  function logEnergy() {
+    const note = document.getElementById('noteInput').value.trim();
+    const now = new Date();
+    logs.push({
+      id: Date.now(), date: TODAY, level: selected + 1,
+      emoji: LEVELS[selected].emoji, label: LEVELS[selected].label,
+      color: LEVELS[selected].color,
+      time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      hour: now.getHours() + now.getMinutes() / 60,
+      note
+    });
+    save(); render();
+    document.getElementById('noteInput').value = '';
+  }
+
+  function remove(id) { logs = logs.filter(l => l.id !== id); save(); render(); }
+  function clearToday() {
+    if (!logs.filter(l => l.date === TODAY).length) return;
+    if (!confirm('Clear today\'s entries?')) return;
+    logs = logs.filter(l => l.date !== TODAY); save(); render();
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function avg(arr) { return arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : null; }
+
+  function render() {
+    const todayLogs = logs.filter(l => l.date === TODAY);
+    const todayLevels = todayLogs.map(l => l.level);
+    const todayAvg = avg(todayLevels);
+
+    // Stats
+    const avgEl = document.getElementById('todayAvgVal');
+    if (todayAvg) {
+      const i = Math.round(todayAvg) - 1;
+      avgEl.textContent = LEVELS[i].emoji;
+      avgEl.style.color = LEVELS[i].color;
+    } else { avgEl.textContent = '—'; avgEl.style.color = '#5A845A'; }
+
+    const peakEl = document.getElementById('peakVal');
+    if (todayLogs.length) {
+      const peak = todayLogs.reduce((a, b) => b.level > a.level ? b : a);
+      peakEl.textContent = peak.time;
+      peakEl.style.color = peak.color;
+    } else { peakEl.textContent = '—'; peakEl.style.color = '#5A845A'; }
+
+    // Day timeline bars (24 buckets, 1hr each)
+    const buckets = Array(24).fill(null);
+    todayLogs.forEach(l => {
+      const h = Math.floor(l.hour);
+      if (buckets[h] === null || l.level > buckets[h].level) buckets[h] = l;
+    });
+    const nowHour = new Date().getHours();
+    document.getElementById('dayTrack').innerHTML = buckets.slice(0, nowHour + 1).map((b, h) => {
+      if (!b) return `<div class="day-bar" style="height:8px;background:#3C603C;opacity:0.5"></div>`;
+      const ht = Math.round((b.level / 5) * 55) + 5;
+      return `<div class="day-bar" style="height:${ht}px;background:${b.color}22;border:1px solid ${b.color}55" title="${b.time}: ${b.label}"></div>`;
+    }).join('') || '<div style="color:#5A845A;font-size:0.82rem;padding:18px 0">Log entries to see your pattern</div>';
+
+    // Week row
+    const now = new Date(); const dow = now.getDay();
+    document.getElementById('weekRow').innerHTML = Array.from({length: 7}, (_, i) => {
+      const d = new Date(now); d.setDate(now.getDate() - dow + i);
+      const key = d.toISOString().slice(0,10);
+      const dayLogs = logs.filter(l => l.date === key);
+      const dayAvg = avg(dayLogs.map(l => l.level));
+      const isToday = key === TODAY;
+      const idx = dayAvg ? Math.round(dayAvg) - 1 : -1;
+      return `<div class="week-day">
+        <div class="wd-label">${DAYS[i]}</div>
+        <span class="wd-emoji">${idx >= 0 ? LEVELS[idx].emoji : '·'}</span>
+        <div class="wd-num ${isToday ? 'today' : ''}">${dayAvg ? dayAvg.toFixed(1) : '—'}</div>
+      </div>`;
+    }).join('');
+
+    // Log list
+    const list = document.getElementById('logList');
+    if (!todayLogs.length) { list.innerHTML = '<p class="empty">No entries yet — log your first check-in above.</p>'; return; }
+    list.innerHTML = [...todayLogs].reverse().map(l => `
+      <div class="log-item">
+        <div class="log-badge" style="background:${l.color}22">${l.emoji}</div>
+        <div class="log-body">
+          <div class="log-note" style="color:${l.color}">${l.label}${l.note ? ` — <span style="color:#F0EBE0aa">${esc(l.note)}</span>` : ''}</div>
+          <div class="log-meta">${l.time}</div>
+        </div>
+        <button class="del-btn" onclick="remove(${l.id})">✕</button>
+      </div>`).join('');
+  }
+
+  document.getElementById('noteInput').addEventListener('keydown', e => { if (e.key === 'Enter') logEnergy(); });
+  buildPicker(); render();
+</script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Empire Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .prog { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px; margin-bottom: 14px; position: sticky; top: 12px; }
+  .prog .n { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 8px; overflow: hidden; margin-top: 8px; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .phase { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 15px 17px; margin-bottom: 12px; }
+  .phase h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .phase .f { font-size: .85rem; opacity: .75; margin: 2px 0 8px; }
+  .step { display: flex; gap: 10px; padding: 6px 0; cursor: pointer; }
+  .box { flex: none; width: 19px; height: 19px; border: 1px solid #BFD8BF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .76rem; margin-top: 2px; }
+  .step.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .step.on .x { opacity: .5; text-decoration: line-through; }
+  .x { font-size: .9rem; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-size: .9rem; padding: 10px 18px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Empire Roadmap</h1>
+  <p class="sub">From first 100 subscribers to a real email engine — five phases, checkable, anchored in what actually moves money.</p>
+
+  <div class="prog"><div class="n" id="pct">0%</div><div style="font-size:.82rem;opacity:.7" id="lbl"></div><div class="track"><i id="bar" style="width:0%"></i></div></div>
+  <div id="list"></div>
+  <button class="btn" onclick="reset()">Reset Progress</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const PH=[
+    ["Phase 1 · Foundations","Get the basics right before anything else.",
+     ["Choose an email platform and authenticate your domain (SPF/DKIM/DMARC)","Create one focused lead magnet that solves one problem","Build a 5-email welcome sequence","Reach 100 real subscribers"]],
+    ["Phase 2 · Engagement","Make sure people open you, before you sell.",
+     ["Publish on a consistent cadence for 4 weeks straight","Ask one question per email — reply to every response","Track your open / click rate per email","Remove or run a re-engagement on cold subs"]],
+    ["Phase 3 · First sale","Convert subscribers into customers.",
+     ["Define your first paid offer for your audience","Write a sales sequence (problem → promise → proof → pitch)","Run your first launch or evergreen funnel","Get your first 10 sales from email"]],
+    ["Phase 4 · Systems","Move from hustling to a real machine.",
+     ["Segment by buyer / non-buyer and engagement","Automate welcome + nurture + post-purchase sequences","Run a re-engagement and win-back regularly","Track revenue per subscriber monthly"]],
+    ["Phase 5 · Empire","Compound it.",
+     ["Add a second offer (upsell/downsell) and bridge sequence","Run quarterly launches plus consistent broadcasts","Hit $1/sub/month or higher","Treat the list as your most valuable business asset"]]
+  ];
+  const flat=[]; PH.forEach(([t,f,st],pi)=>st.forEach((s,si)=>flat.push(pi+'-'+si)));
+  let done=JSON.parse(localStorage.getItem('eer')||'{}');
+  const g=id=>document.getElementById(id);
+  function render(){
+    g('list').innerHTML=PH.map(([t,f,st],pi)=>'<div class="phase"><h3>'+t+'</h3><div class="f">'+f+'</div>'+
+      st.map((s,si)=>{ const k=pi+'-'+si, on=!!done[k];
+        return '<div class="step '+(on?'on':'')+'" data-k="'+k+'"><div class="box">'+(on?'✓':'')+'</div><div class="x">'+s+'</div></div>';
+      }).join('')+'</div>').join('');
+    g('list').querySelectorAll('.step').forEach(e=>e.onclick=()=>{ const k=e.dataset.k; done[k]=!done[k]; localStorage.setItem('eer',JSON.stringify(done)); render(); });
+    const c=flat.filter(k=>done[k]).length, p=Math.round(c/flat.length*100);
+    g('pct').textContent=p+'%'; g('bar').style.width=p+'%';
+    g('lbl').textContent=c+'/'+flat.length+' steps · '+(p>=80?'empire mode':p>=40?'building momentum':'foundations');
+  }
+  function reset(){ if(confirm('Reset progress?')){ done={}; localStorage.setItem('eer','{}'); render(); } }
+  render();
+</script>
+</body>
+</html>

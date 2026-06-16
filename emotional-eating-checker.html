@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emotional Eating Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .q { font-size: .95rem; margin-bottom: 8px; }
+  .q b { color: #5AE57A; }
+  .opts { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 14px; font-size: .85rem; cursor: pointer; }
+  .opt.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .result li { font-size: .9rem; margin-left: 16px; margin-top: 3px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 14px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Emotional Eating Checker</h1>
+  <p class="sub">Before you reach for food, pause here. A few questions tell you what you actually need.</p>
+
+  <div class="panel" id="quiz"></div>
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const Q=[
+    {q:"Did this urge come on <b>suddenly</b>, or build gradually?",a:["Suddenly",["Gradually"]],e:1},
+    {q:"Are you craving <b>a specific food</b>, or would anything filling do?",a:["A specific food","Anything would do"],e:0},
+    {q:"Is your <b>stomach</b> actually signalling hunger?",a:["No physical signal","Yes, stomach hunger"],e:0},
+    {q:"Did a <b>feeling or situation</b> just trigger this?",a:["Yes — stress, boredom, etc.","No, just regular hunger"],e:0},
+    {q:"After eating, do you expect to feel <b>satisfied</b> or <b>guilty</b>?",a:["Probably guilty","Probably satisfied"],e:0}
+  ];
+  let ans=Array(Q.length).fill(-1);
+  function draw(){
+    g('quiz').innerHTML=Q.map((o,i)=>'<div class="q">'+(i+1)+'. '+o.q+'</div><div class="opts">'+
+      o.a.map((t,j)=>'<span class="opt'+(ans[i]===j?' on':'')+'" onclick="pick('+i+','+j+')">'+(Array.isArray(t)?t[0]:t)+'</span>').join('')+'</div>').join('')+
+      '<button class="btn" onclick="score()">See What You Need</button>'+
+      '<div class="note">Not a diagnosis — a pause tool. Emotional eating is human; the goal is awareness, not guilt.</div>';
+  }
+  function pick(i,j){ ans[i]=j; draw(); }
+  function score(){
+    if(ans.includes(-1)){ alert('Answer all five questions.'); return; }
+    let emo=0;
+    ans.forEach((a,i)=>{ if(a===Q[i].e)emo++; });
+    let title,body;
+    if(emo>=4){ title="Likely emotional hunger";
+      body=["Name the feeling out loud: stressed, bored, lonely, tired?","Wait 10 minutes — set a timer and do one small thing.","If the feeling is the real need, try a walk, water, a message to someone, or rest.","If you still want to eat after, eat — with attention, not on autopilot."]; }
+    else if(emo>=2){ title="Mixed signals";
+      body=["It could be both — a little hungry and a little emotional.","Drink a glass of water and check again in a few minutes.","If you eat, choose something nourishing and sit down for it.","Notice without judging — this is data, not a failure."]; }
+    else { title="Likely physical hunger";
+      body=["This reads as genuine hunger — your body needs fuel.","Eat a real, balanced meal or snack.","Eat slowly enough to notice when you are satisfied.","No guilt required — feeding yourself is the whole point."]; }
+    g('out').innerHTML='<div class="result"><h3>'+title+'</h3><ul>'+body.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  draw();
+</script>
+</body>
+</html>

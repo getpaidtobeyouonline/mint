@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Joy Ratio Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; } .row>div { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 12px; }
+  .result .big { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  .result .l { font-size: .82rem; opacity: .75; }
+  .result .msg { font-size: .88rem; margin-top: 6px; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .85rem; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Food Joy Ratio Calculator</h1>
+  <p class="sub">Healthy eating should still have joy in it. Log meals as "nourishing" or "pure joy" and see your balance.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Meal</label><input id="meal" placeholder="What you ate"></div>
+      <div><label>Type</label><select id="type"><option value="nourish">Nourishing</option><option value="joy">Pure joy</option><option value="both">Both!</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div class="result" id="result"></div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('fjrc')||'[]');
+  const save=()=>localStorage.setItem('fjrc',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const LBL={nourish:'Nourishing',joy:'Pure joy',both:'Both'};
+  function add(){ if(!v('meal')){ alert('Enter a meal.'); return; }
+    R.push({m:v('meal'),t:g('type').value}); g('meal').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ R=[]; save(); render(); } }
+  function render(){
+    const res=g('result');
+    if(!R.length){ res.innerHTML='<div class="l">Log meals to see your joy ratio</div>'; }
+    else {
+      const joy=R.filter(x=>x.t==='joy').length;
+      const both=R.filter(x=>x.t==='both').length;
+      const nourish=R.filter(x=>x.t==='nourish').length;
+      const joyShare=Math.round((joy+both)/R.length*100);
+      let msg;
+      if(joyShare>=20&&joyShare<=55) msg='A lovely balance — nourishing your body and enjoying your food.';
+      else if(joyShare<20) msg='Plenty of nourishment. Make sure some meals are pure pleasure too — joy is part of a healthy relationship with food.';
+      else msg='Lots of joy! If you want, gently weave in more nourishing meals — without losing the fun.';
+      res.innerHTML='<div class="big">'+joyShare+'%</div><div class="l">of your meals had joy in them ('+nourish+' nourishing · '+joy+' joy · '+both+' both)</div><div class="msg">'+msg+'</div>';
+    }
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No meals logged yet.</div>'; return; }
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      return '<div class="row2"><span>'+esc(x.m)+' <span style="opacity:.6">· '+LBL[x.t]+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follower Growth Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .result {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .result.show { display: block; }
+  .headline {
+    text-align: center;
+    margin-bottom: 22px;
+    padding: 18px;
+    border-radius: 10px;
+    background: rgba(201, 168, 76, 0.1);
+    border: 1px solid rgba(201, 168, 76, 0.3);
+  }
+  .headline-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.6rem;
+    color: #5AE57A;
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .headline-label { font-size: 0.95rem; opacity: 0.9; }
+  .progress-wrap {
+    background: rgba(240, 235, 224, 0.08);
+    border-radius: 999px;
+    height: 18px;
+    overflow: hidden;
+    margin: 18px 0;
+    position: relative;
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #5AE57A, #5AE57A);
+    height: 100%;
+    transition: width 0.6s ease;
+  }
+  .progress-label {
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.8;
+    margin-top: -4px;
+  }
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .stat {
+    background: rgba(240, 235, 224, 0.04);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: #5AE57A;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+    opacity: 0.8;
+  }
+  .section { margin-bottom: 20px; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 8px;
+  }
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; font-size: 0.95rem; }
+  .verdict {
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+  .verdict.realistic { background: rgba(80, 200, 120, 0.12); border: 1px solid rgba(80,200,120,0.3); }
+  .verdict.stretch { background: rgba(201, 168, 76, 0.12); border: 1px solid rgba(201,168,76,0.4); }
+  .verdict.unrealistic { background: rgba(255, 120, 100, 0.12); border: 1px solid rgba(255,120,100,0.3); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Follower Growth Calculator</h1>
+  <p class="subtitle">See exactly when you'll hit your follower goal at your current pace — and what you'd need to change to get there faster.</p>
+
+  <div class="grid">
+    <div>
+      <label for="current">Current Followers</label>
+      <input type="number" id="current" placeholder="1200" min="0" />
+    </div>
+    <div>
+      <label for="goal">Goal Followers</label>
+      <input type="number" id="goal" placeholder="10000" min="0" />
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <label for="gained">Followers Gained Recently</label>
+      <input type="number" id="gained" placeholder="120" min="0" />
+    </div>
+    <div>
+      <label for="period">Over How Long</label>
+      <select id="period">
+        <option value="7">Past 7 days</option>
+        <option value="30" selected>Past 30 days</option>
+        <option value="90">Past 90 days</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="target">Target Date (optional — when you want to hit your goal)</label>
+  <input type="date" id="target" />
+
+  <button class="build-btn" id="buildBtn">Calculate My Path</button>
+
+  <div class="result" id="result">
+    <div class="headline">
+      <div class="headline-num" id="hNum"></div>
+      <div class="headline-label" id="hLabel"></div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="pBar"></div></div>
+    <div class="progress-label" id="pLabel"></div>
+
+    <div class="stats" id="stats"></div>
+
+    <div id="targetBlock" class="section" style="display:none;">
+      <div class="section-title">Hitting Your Target Date</div>
+      <div class="verdict" id="verdict"></div>
+      <ul id="verdictList"></ul>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Where Growth Actually Comes From</div>
+      <ul>
+        <li>Existing followers don't grow your account — new reach does. Audit your last 5 posts: how many were optimized for reach vs. nurture?</li>
+        <li>One viral post can equal 90 days of average growth. Build for spikes, not steady drip.</li>
+        <li>Collaboration (lives, swaps, guest spots) outperforms paid ads for most creators under 50k.</li>
+        <li>Hooks > hashtags. Rework the first 3 seconds / first line of every post for the next 30 days.</li>
+        <li>Track which posts actually convert to follows. Make 3x more of those. Cut the rest.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function fmt(n) { return Math.round(n).toLocaleString(); }
+  function fmtDate(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
+
+  function calculate() {
+    const current = parseInt(document.getElementById('current').value) || 0;
+    const goal = parseInt(document.getElementById('goal').value) || 0;
+    const gained = parseInt(document.getElementById('gained').value) || 0;
+    const period = parseInt(document.getElementById('period').value);
+    const targetStr = document.getElementById('target').value;
+
+    if (goal <= current) {
+      document.getElementById('hNum').textContent = 'Goal already passed';
+      document.getElementById('hLabel').textContent = 'Set a higher goal to see growth projections.';
+      document.getElementById('pBar').style.width = '100%';
+      document.getElementById('pLabel').textContent = '';
+      document.getElementById('stats').innerHTML = '';
+      document.getElementById('targetBlock').style.display = 'none';
+      document.getElementById('result').classList.add('show');
+      return;
+    }
+
+    const dailyRate = gained / period;
+    const needed = goal - current;
+    const daysToGoal = dailyRate > 0 ? Math.ceil(needed / dailyRate) : Infinity;
+    const reachDate = dailyRate > 0 ? new Date(Date.now() + daysToGoal * 86400000) : null;
+
+    const progressPct = Math.min(100, (current / goal) * 100);
+    document.getElementById('pBar').style.width = progressPct + '%';
+    document.getElementById('pLabel').textContent = `${fmt(current)} / ${fmt(goal)} (${progressPct.toFixed(1)}%)`;
+
+    if (!isFinite(daysToGoal)) {
+      document.getElementById('hNum').textContent = 'No growth detected';
+      document.getElementById('hLabel').textContent = 'Log at least a few new followers to project a timeline.';
+    } else if (daysToGoal < 60) {
+      document.getElementById('hNum').textContent = `${daysToGoal} days`;
+      document.getElementById('hLabel').textContent = `to hit ${fmt(goal)} — around ${fmtDate(reachDate)}`;
+    } else if (daysToGoal < 730) {
+      document.getElementById('hNum').textContent = `${Math.round(daysToGoal/30)} months`;
+      document.getElementById('hLabel').textContent = `to hit ${fmt(goal)} — around ${fmtDate(reachDate)}`;
+    } else {
+      document.getElementById('hNum').textContent = `${(daysToGoal/365).toFixed(1)} years`;
+      document.getElementById('hLabel').textContent = `to hit ${fmt(goal)} at your current pace`;
+    }
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat"><div class="stat-num">${dailyRate.toFixed(1)}</div><div class="stat-label">Per Day</div></div>
+      <div class="stat"><div class="stat-num">${fmt(dailyRate * 7)}</div><div class="stat-label">Per Week</div></div>
+      <div class="stat"><div class="stat-num">${fmt(dailyRate * 30)}</div><div class="stat-label">Per Month</div></div>
+      <div class="stat"><div class="stat-num">${fmt(needed)}</div><div class="stat-label">Still Needed</div></div>
+    `;
+
+    if (targetStr) {
+      const target = new Date(targetStr + 'T12:00:00');
+      const daysToTarget = Math.ceil((target - new Date()) / 86400000);
+      const block = document.getElementById('targetBlock');
+      const v = document.getElementById('verdict');
+      const list = document.getElementById('verdictList');
+      block.style.display = 'block';
+
+      if (daysToTarget <= 0) {
+        v.className = 'verdict unrealistic';
+        v.textContent = 'Your target date has passed. Pick a new one based on the projection above.';
+        list.innerHTML = '';
+      } else {
+        const requiredDaily = needed / daysToTarget;
+        const ratio = requiredDaily / Math.max(dailyRate, 0.1);
+        let cls, msg;
+        if (ratio <= 1.2) { cls = 'realistic'; msg = 'Realistic. You\'re tracking close to your target.'; }
+        else if (ratio <= 2.5) { cls = 'stretch'; msg = 'Stretch goal. Doable with a content push.'; }
+        else { cls = 'unrealistic'; msg = 'Aggressive. Either extend the date or expect to spike via collabs/viral content.'; }
+        v.className = 'verdict ' + cls;
+        v.textContent = `${msg} You need ~${requiredDaily.toFixed(1)} new followers/day (you're at ${dailyRate.toFixed(1)}/day — a ${ratio.toFixed(1)}x increase).`;
+
+        const fixes = [];
+        if (ratio > 1.2) fixes.push(`Add ${Math.ceil(requiredDaily - dailyRate)} new followers/day. That's roughly ${Math.ceil((requiredDaily - dailyRate) * 30)} per month above current pace.`);
+        if (ratio > 1.5) fixes.push('Schedule 2-3 collaborations (lives, podcast guesting, swaps) in the next 30 days. This is the single biggest lever under 50k.');
+        if (ratio > 2) fixes.push('Run a focused 7-day content series. Series posts compound; one-offs don\'t.');
+        if (ratio > 3) fixes.push('Honestly: consider extending your target by 30-90 days. Aggressive goals burn creators out faster than they grow accounts.');
+        if (ratio <= 1.2) fixes.push('Don\'t change much. Stay consistent. Compounding works.');
+        list.innerHTML = fixes.map(x=>`<li>${x}</li>`).join('');
+      }
+    } else {
+      document.getElementById('targetBlock').style.display = 'none';
+    }
+
+    document.getElementById('result').classList.add('show');
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', calculate);
+</script>
+</body>
+</html>

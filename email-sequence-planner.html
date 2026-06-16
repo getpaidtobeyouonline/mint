@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Sequence Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .grid { display: flex; gap: 8px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; margin: 12px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .em h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .em .when { font-size: .78rem; opacity: .6; }
+  .em .goal { font-size: .9rem; margin-top: 4px; } .em .goal b { color:#5AE57A; }
+  .acts { display: flex; gap: 13px; margin-top: 7px; font-size: .78rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 16px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Sequence Planner</h1>
+  <p class="sub">Map any email sequence email-by-email — purpose, timing, and CTA — then export the plan.</p>
+
+  <div class="panel">
+    <label for="sname">Sequence name &amp; goal</label>
+    <input id="sname" placeholder="e.g. Free guide → first sale">
+    <div class="grid" style="margin-top:8px">
+      <div style="flex:2"><label for="subject">Email subject / angle</label><input id="subject" placeholder="e.g. Your guide + the #1 mistake"></div>
+      <div><label for="day">Send on day</label><input id="day" type="number" min="0" value="0"></div>
+    </div>
+    <label for="goal">This email's job</label>
+    <select id="goal"><option>Deliver / welcome</option><option>Build trust (story)</option><option>Teach / give value</option><option>Handle objection</option><option>Soft pitch</option><option>Hard CTA / offer</option><option>Last chance</option></select>
+    <label for="cta">Primary CTA</label>
+    <input id="cta" placeholder="e.g. read the guide / book a call">
+    <button class="btn" onclick="add()" id="btn">+ Add Email</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cx" style="display:none">Cancel</button>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="exportTxt()">Export Sequence</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let E=JSON.parse(localStorage.getItem('esp')||'[]'); let ed=-1;
+  const nm=()=>{ const s=localStorage.getItem('esp_nm'); if(s)g('sname').value=s; };
+  nm(); g('sname').addEventListener('input',()=>localStorage.setItem('esp_nm',g('sname').value));
+  const save=()=>localStorage.setItem('esp',JSON.stringify(E));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const s=v('subject'); if(!s){alert('Add a subject/angle.');return;}
+    const o={s,day:parseInt(g('day').value)||0,goal:g('goal').value,cta:v('cta')};
+    if(ed>=0){E[ed]=o;ed=-1;g('btn').textContent='+ Add Email';g('cx').style.display='none';} else E.push(o);
+    g('subject').value='';g('cta').value=''; save(); render(); }
+  function edit(i){ const x=E[i]; g('subject').value=x.s;g('day').value=x.day;g('goal').value=x.goal;g('cta').value=x.cta;ed=i;g('btn').textContent='✓ Update';g('cx').style.display='inline-block'; window.scrollTo({top:0,behavior:'smooth'}); }
+  function cancelEdit(){ ed=-1;g('btn').textContent='+ Add Email';g('cx').style.display='none';g('subject').value='';g('cta').value=''; }
+  function del(i){ E.splice(i,1); if(ed===i)cancelEdit(); save(); render(); }
+  function clearAll(){ if(confirm('Clear the sequence?')){ E=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!E.length){ L.innerHTML='<div class="empty">No emails yet — add the first one.</div>'; return; }
+    L.innerHTML=[...E].map((x,i)=>({x,i})).sort((a,b)=>a.x.day-b.x.day).map(({x,i})=>`
+      <div class="em"><h3>Day ${x.day}: ${esc(x.s)}</h3>
+      <div class="goal"><b>Job:</b> ${esc(x.goal)}${x.cta?` · <b>CTA:</b> ${esc(x.cta)}`:''}</div>
+      <div class="acts"><span onclick="edit(${i})">✎ Edit</span><span onclick="del(${i})">✕ Delete</span></div></div>`).join('');
+  }
+  function exportTxt(){ if(!E.length){alert('Add emails first.');return;}
+    let t=`EMAIL SEQUENCE: ${v('sname')||'Untitled'}\n\n`+[...E].sort((a,b)=>a.day-b.day).map(x=>`Day ${x.day} — ${x.s}\n  Job: ${x.goal}${x.cta?`\n  CTA: ${x.cta}`:''}`).join('\n\n');
+    const b=new Blob([t],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='email-sequence.txt'; a.click(); URL.revokeObjectURL(a.href); }
+  render();
+</script>
+</body>
+</html>

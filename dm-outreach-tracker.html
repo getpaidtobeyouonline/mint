@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DM Outreach Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .row { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 7px; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .row .nm { font-weight: 500; font-size: .9rem; }
+  .pill { font-size: .72rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; cursor: pointer; }
+  .row .x { cursor: pointer; opacity: .5; } .row .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>DM Outreach Tracker</h1>
+  <p class="sub">Track every cold DM by stage and watch your real reply and conversion rate.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Who</label><input id="nm" placeholder="@handle / name"></div>
+      <div><label for="purpose">Purpose</label><select id="purpose"><option>Collab</option><option>Pitch / sale</option><option>Network</option><option>Feedback</option></select></div>
+      <div><label for="st">Stage</label><select id="st"><option>Sent</option><option>Opened</option><option>Replied</option><option>In convo</option><option>Won</option><option>No</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sN">0</div><div class="l">Sent</div></div>
+    <div class="stat"><div class="v" id="sR">—</div><div class="l">Reply rate</div></div>
+    <div class="stat"><div class="v" id="sW">—</div><div class="l">Win rate</div></div>
+    <div class="stat"><div class="v" id="sOpen">0</div><div class="l">Open / active</div></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const ST=['Sent','Opened','Replied','In convo','Won','No'];
+  let D=JSON.parse(localStorage.getItem('dot')||'[]');
+  const save=()=>localStorage.setItem('dot',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Add a name/handle.');return;} D.push({nm,p:g('purpose').value,s:g('st').value}); g('nm').value=''; save(); render(); }
+  function cyc(i){ D[i].s=ST[(ST.indexOf(D[i].s)+1)%ST.length]; save(); render(); }
+  function del(i){ D.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ D=[]; save(); render(); } }
+  function render(){
+    const sent=D.length;
+    const replied=D.filter(d=>['Replied','In convo','Won'].includes(d.s)).length;
+    const won=D.filter(d=>d.s==='Won').length;
+    const active=D.filter(d=>['Opened','Replied','In convo'].includes(d.s)).length;
+    g('sN').textContent=sent;
+    g('sR').textContent=sent?Math.round(replied/sent*100)+'%':'—';
+    g('sW').textContent=sent?Math.round(won/sent*100)+'%':'—';
+    g('sOpen').textContent=active;
+    const L=g('list');
+    if(!D.length){ L.innerHTML='<div class="empty">No outreach logged yet.</div>'; return; }
+    L.innerHTML=D.map((d,i)=>`<div class="row"><span class="nm">${esc(d.nm)} <span style="opacity:.55;font-weight:400">· ${esc(d.p)}</span></span>
+      <span><span class="pill" onclick="cyc(${i})">${d.s}</span> <span class="x" onclick="del(${i})">✕</span></span></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

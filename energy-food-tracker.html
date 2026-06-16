@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Food Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .insight { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; font-size: .85rem; margin-bottom: 12px; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 9px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Energy Food Tracker</h1>
+  <p class="sub">Log meals and your energy 1-2 hours later. Find the foods that fuel you — and the ones that flatten you.</p>
+
+  <div class="panel">
+    <label>What you ate</label>
+    <input id="food" placeholder="The meal or snack">
+    <div class="row">
+      <div><label>Meal</label><select id="meal"><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option></select></div>
+      <div><label>Energy after</label><select id="energy"><option value="high">High &amp; steady</option><option value="ok">Okay</option><option value="low">Low / crashed</option></select></div>
+    </div>
+    <button class="btn" onclick="add()">+ Log Entry</button>
+  </div>
+
+  <div class="panel">
+    <div id="insight"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('eft2')||'[]');
+  const save=()=>localStorage.setItem('eft2',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const COL={high:'#5AE57A',ok:'#5AE57A',low:'#5AE57A'};
+  const ELBL={high:'High',ok:'Okay',low:'Low/crash'};
+  function add(){ if(!v('food')){ alert('Enter what you ate.'); return; }
+    R.push({f:v('food'),m:g('meal').value,e:g('energy').value,d:new Date().toLocaleDateString(undefined,{month:'short',day:'numeric'})});
+    g('food').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all entries?')){ R=[]; save(); render(); } }
+  function render(){
+    const I=g('insight'), L=g('list');
+    if(!R.length){ I.innerHTML=''; L.innerHTML='<div class="empty">No entries yet — log your next meal.</div>'; return; }
+    const high=R.filter(x=>x.e==='high').length, low=R.filter(x=>x.e==='low').length;
+    I.innerHTML='<div class="insight">'+R.length+' logged · '+high+' high-energy · '+low+' crash'+(low===1?'':'es')+'. Look at the foods next to each — repeat the winners.</div>';
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      return '<div class="row2"><span><span class="dot" style="background:'+COL[x.e]+'"></span><b style="color:#5AE57A">'+x.m+'</b> · '+esc(x.f)+' <span style="opacity:.6">('+ELBL[x.e]+', '+x.d+')</span></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

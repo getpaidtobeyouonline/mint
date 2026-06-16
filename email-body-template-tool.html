@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Body Template Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .email-preview {
+    background: #FFFFFF;
+    color: #325132;
+    border-radius: 10px;
+    padding: 22px;
+    font-size: 15px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .email-subject {
+    font-weight: 700;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid #FFFFFF;
+    font-size: 16px;
+  }
+  .stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 14px;
+    font-size: 13px;
+    opacity: 0.7;
+    flex-wrap: wrap;
+  }
+  .stats span { display: inline-flex; align-items: center; gap: 6px; }
+  .stats .dot { color: #5AE57A; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Email Body Template Tool</h1>
+  <p class="subtitle">Generate a complete, ready-to-send email body in seconds — built around proven structures.</p>
+
+  <div class="card">
+    <div class="row">
+      <div>
+        <label>Email type</label>
+        <select id="type">
+          <option>Welcome Email</option>
+          <option>Story / Value Email</option>
+          <option>Soft Pitch</option>
+          <option>Launch / Sales</option>
+          <option>Re-Engagement</option>
+          <option>Cold Outreach</option>
+        </select>
+      </div>
+      <div>
+        <label>Tone</label>
+        <select id="tone">
+          <option>Warm & Personal</option>
+          <option>Direct & Punchy</option>
+          <option>Story-Driven</option>
+          <option>Expert / Authoritative</option>
+        </select>
+      </div>
+    </div>
+    <label>Your name</label>
+    <input type="text" id="sender" placeholder="e.g. Sara" value="Sara">
+    <label>Topic / what this email is about</label>
+    <textarea id="topic" placeholder="e.g. introducing my new newsletter on creative freedom"></textarea>
+    <label>Key benefit / promise for the reader</label>
+    <input type="text" id="benefit" placeholder="e.g. one practical tactic every Sunday">
+    <label>Call to action (optional)</label>
+    <input type="text" id="cta" placeholder="e.g. reply with your biggest creative roadblock">
+    <button onclick="generate()">Build My Email</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Your Email</label>
+      <div class="email-preview" id="emailBody">
+        <div class="email-subject" id="subjectLine"></div>
+        <div id="bodyText"></div>
+      </div>
+      <div class="stats">
+        <span><span class="dot">●</span> <span id="wordCount">0</span> words</span>
+        <span><span class="dot">●</span> <span id="readTime">0</span> read</span>
+        <span><span class="dot">●</span> <span id="emailType">—</span></span>
+      </div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyEmail()">Copy Email</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const SUBJECTS = {
+  'Welcome Email': ["You're in — here's what's next", "Welcome (and a quick note from me)", "Start here"],
+  'Story / Value Email': ["The one thing I almost didn't share", "I learned this the hard way", "A small shift that changed everything"],
+  'Soft Pitch': ["Something I've been working on", "If you've been waiting for this...", "A quiet invitation"],
+  'Launch / Sales': ["It's live.", "The doors are open", "Quick — this just dropped"],
+  'Re-Engagement': ["Still want these?", "Long time, no email", "A clean slate"],
+  'Cold Outreach': ["Quick question, {sender}", "Worth a 2-min read?", "An idea for you"]
+};
+
+const OPENERS = {
+  'Warm & Personal': ["Hey friend,\n\nI'm so glad you're here.", "Hi —\n\nFirst off, thank you. Genuinely.", "Hey,\n\nI wanted to write you a real note today."],
+  'Direct & Punchy': ["Quick one.", "Straight to it.", "No fluff today —"],
+  'Story-Driven': ["Last week something happened that I have to share.", "There's a moment I keep coming back to.", "Years ago, I sat in a coffee shop and made a decision."],
+  'Expert / Authoritative': ["Most people get this wrong.", "Here's what the data actually shows.", "Three things you should know about this."]
+};
+
+const BODIES = {
+  'Welcome Email': "Here's what to expect from me: {benefit}.\n\nI promise to keep it short, useful, and honest. No fluff. No 47-link mega-newsletters.\n\nWhile you're here, the best thing you can do is hit reply and tell me what you're working on — I read every email.",
+  'Story / Value Email': "A few weeks ago, I was struggling with {topic}.\n\nI tried the obvious things. None of them worked. Then I stumbled onto one small change that flipped it.\n\nThe lesson? {benefit}.\n\nIf you take one thing from this email, let it be that.",
+  'Soft Pitch': "I've been quietly building something around {topic}.\n\nIt's the thing I wish I had a few years ago. Designed to give you {benefit} without the noise.\n\nI'm not pushing it hard. If it's for you, you'll know.",
+  'Launch / Sales': "After months of work, {topic} is officially live.\n\nThis is for you if you want {benefit} — without piecing it together yourself.\n\nI built it the way I'd want to receive it: focused, useful, no padding.",
+  'Re-Engagement': "It's been a while. I get it — inboxes are crowded.\n\nI'm cleaning my list this month, and I want to make sure I'm only writing to people who actually want these emails.\n\nIf you still want {benefit}, no action needed. If not, no hard feelings — and thanks for being here.",
+  'Cold Outreach': "I came across your work and wanted to send a quick note.\n\nI noticed you're focused on {topic}. I work with people in that exact space and have a small idea that could help you with {benefit}.\n\nWorth a quick chat?"
+};
+
+const CTAS = {
+  'Welcome Email': "Hit reply and tell me one thing you're working on.",
+  'Story / Value Email': "Reply and let me know if this resonated.",
+  'Soft Pitch': "If you want details, just reply with the word \"info\".",
+  'Launch / Sales': "Tap below to see what's inside.",
+  'Re-Engagement': "Reply \"in\" if you want to stay on the list.",
+  'Cold Outreach': "Open to a 10-min call this week?"
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const type = document.getElementById('type').value;
+  const tone = document.getElementById('tone').value;
+  const sender = document.getElementById('sender').value.trim() || 'me';
+  const topic = document.getElementById('topic').value.trim();
+  const benefit = document.getElementById('benefit').value.trim() || 'something useful';
+  const userCta = document.getElementById('cta').value.trim();
+  if (!topic) { alert('Tell us what the email is about first.'); return; }
+
+  const subject = pick(SUBJECTS[type]).replace(/{sender}/g, sender);
+  const opener = pick(OPENERS[tone]);
+  const body = BODIES[type].replace(/{topic}/g, topic).replace(/{benefit}/g, benefit);
+  const cta = userCta || CTAS[type];
+
+  const full = `${opener}\n\n${body}\n\n${cta}\n\n— ${sender}`;
+  const wordCount = full.split(/\s+/).filter(Boolean).length;
+  const readTime = Math.max(1, Math.round(wordCount / 200)) + ' min';
+
+  document.getElementById('subjectLine').textContent = 'Subject: ' + subject;
+  document.getElementById('bodyText').textContent = full;
+  document.getElementById('wordCount').textContent = wordCount;
+  document.getElementById('readTime').textContent = readTime;
+  document.getElementById('emailType').textContent = type;
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyEmail() {
+  const subject = document.getElementById('subjectLine').textContent;
+  const body = document.getElementById('bodyText').textContent;
+  navigator.clipboard.writeText(subject + '\n\n' + body).then(() => alert('Email copied. Ready to paste.'));
+}
+</script>
+</body>
+</html>

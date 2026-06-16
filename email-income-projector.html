@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Income Projector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 130px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 14px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat .l { font-size: .72rem; opacity: .65; text-transform: uppercase; }
+  .note { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 8px; padding: 12px 15px; font-size: .9rem; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Income Projector</h1>
+  <p class="sub">Project realistic email revenue at 6 / 12 / 24 months — given your real list growth and per-subscriber value.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="size">List size now</label><input id="size" type="number" min="0" value="1500" oninput="calc()"></div>
+      <div><label for="growth">Net subs added / month</label><input id="growth" type="number" min="0" value="150" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="rps">Revenue per subscriber / month ($)</label><input id="rps" type="number" min="0" step="0.01" value="0.50" oninput="calc()"></div>
+      <div><label for="lift">Yearly value-per-sub improvement (%)</label><input id="lift" type="number" min="0" value="20" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="m6">$0</div><div class="l">Month 6 / mo</div></div>
+    <div class="stat"><div class="v" id="m12">$0</div><div class="l">Month 12 / mo</div></div>
+    <div class="stat"><div class="v" id="m24">$0</div><div class="l">Month 24 / mo</div></div>
+  </div>
+
+  <div class="stats" style="margin-top:10px">
+    <div class="stat"><div class="v" id="y1">$0</div><div class="l">Year 1 total</div></div>
+    <div class="stat"><div class="v" id="y2">$0</div><div class="l">Year 2 total</div></div>
+  </div>
+
+  <div class="note" id="note"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['size','growth','rps','lift'].forEach(k=>{ const s=localStorage.getItem('eip_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['size','growth','rps','lift'].forEach(k=>localStorage.setItem('eip_'+k,g(k).value));
+    const lift=1+n('lift')/100;
+    let size=n('size'), rps=n('rps'), total=0, y1=0, y2=0;
+    const m=[];
+    for(let i=1;i<=24;i++){
+      size += n('growth');
+      // rps lifts continuously over 12 months
+      const cur=rps*Math.pow(lift,i/12);
+      const rev=size*cur;
+      m.push(rev); total+=rev;
+      if(i<=12) y1+=rev; else y2+=rev;
+    }
+    g('m6').textContent='$'+Math.round(m[5]).toLocaleString();
+    g('m12').textContent='$'+Math.round(m[11]).toLocaleString();
+    g('m24').textContent='$'+Math.round(m[23]).toLocaleString();
+    g('y1').textContent='$'+Math.round(y1).toLocaleString();
+    g('y2').textContent='$'+Math.round(y2).toLocaleString();
+    g('note').textContent='Email compounds: a small per-subscriber improvement (offer, copy, segmentation) multiplied by a growing list is where the real money is — not just bigger numbers on the list size.';
+  }
+  calc();
+</script>
+</body>
+</html>

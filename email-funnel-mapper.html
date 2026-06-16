@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Funnel Mapper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .stage { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .stage h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .stage input { margin-top: 6px; }
+  .arrow { text-align: center; color: #5AE57A; opacity: .6; margin: 2px 0; }
+  .res { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 8px; padding: 14px 16px; font-size: .92rem; margin-top: 14px; }
+  .res b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Funnel Mapper</h1>
+  <p class="sub">Map your subscriber-to-sale funnel, see the conversion at each step, and find the leak.</p>
+
+  <div class="panel">
+    <div class="stage"><h3>1 · Traffic to opt-in page</h3><input id="s0" type="number" min="0" placeholder="visitors" value="1000" oninput="calc()"></div>
+    <div class="arrow">▼</div>
+    <div class="stage"><h3>2 · Subscribed</h3><input id="s1" type="number" min="0" placeholder="subscribers" value="350" oninput="calc()"></div>
+    <div class="arrow">▼</div>
+    <div class="stage"><h3>3 · Engaged (opened sequence)</h3><input id="s2" type="number" min="0" placeholder="engaged" value="230" oninput="calc()"></div>
+    <div class="arrow">▼</div>
+    <div class="stage"><h3>4 · Clicked the offer</h3><input id="s3" type="number" min="0" placeholder="clicked" value="60" oninput="calc()"></div>
+    <div class="arrow">▼</div>
+    <div class="stage"><h3>5 · Bought</h3><input id="s4" type="number" min="0" placeholder="buyers" value="9" oninput="calc()"></div>
+
+    <div class="res" id="res"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const L=["Opt-in","Activation","Click","Purchase"];
+  [0,1,2,3,4].forEach(i=>{ const s=localStorage.getItem('efm_s'+i); if(s!==null)g('s'+i).value=s; });
+  function calc(){
+    [0,1,2,3,4].forEach(i=>localStorage.setItem('efm_s'+i,g('s'+i).value));
+    const v=[n('s0'),n('s1'),n('s2'),n('s3'),n('s4')];
+    const rates=[]; for(let i=1;i<5;i++) rates.push(v[i-1]>0?v[i]/v[i-1]*100:0);
+    const overall=v[0]>0?v[4]/v[0]*100:0;
+    let worst=0; rates.forEach((r,i)=>{ if(r<rates[worst]) worst=i; });
+    g('res').innerHTML=`Step conversions: `+rates.map((r,i)=>`<b>${L[i]} ${r.toFixed(1)}%</b>`).join(' → ')+
+      `<br>Overall visitor→buyer: <b>${overall.toFixed(2)}%</b><br><br>`+
+      (v[0]>0?`🔧 Biggest leak: <b>${L[worst]}</b> at ${rates[worst].toFixed(1)}%. `+
+       (worst===0?'The opt-in page or offer mismatch. Fix the page before driving more traffic.'
+        :worst===1?'They subscribe but never open. Strengthen email 1 and your subject lines.'
+        :worst===2?'They open but do not click. Your CTA or offer framing is weak.'
+        :'They click but do not buy. The sales page or price/offer is the problem.')
+       :'Enter your funnel numbers above.');
+  }
+  calc();
+</script>
+</body>
+</html>

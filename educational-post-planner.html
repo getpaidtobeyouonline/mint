@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Educational Post Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .post-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .post-meta {
+    font-size: 13px;
+    opacity: 0.75;
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .post-meta .dot { color: #5AE57A; }
+  .block {
+    background: #325132;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .block-num {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .block-name {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  .block-purpose {
+    font-size: 13px;
+    opacity: 0.75;
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .block-content {
+    font-size: 15px;
+    white-space: pre-line;
+  }
+  .block-content strong { color: #5AE57A; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Educational Post Planner</h1>
+  <p class="subtitle">Turn one teaching topic into a fully-structured educational post with hook, lesson, and CTA.</p>
+
+  <div class="card">
+    <label>What are you teaching?</label>
+    <input type="text" id="topic" placeholder="e.g. how to write hooks that stop the scroll">
+    <label>The 1 thing they'll know after reading</label>
+    <textarea id="takeaway" placeholder="e.g. how to structure a 3-line hook using the curiosity gap"></textarea>
+    <div class="row">
+      <div>
+        <label>Format</label>
+        <select id="format">
+          <option>Carousel (slides)</option>
+          <option>Single long-form post</option>
+          <option>Twitter / X thread</option>
+          <option>LinkedIn post</option>
+          <option>Short reel script</option>
+        </select>
+      </div>
+      <div>
+        <label>Depth</label>
+        <select id="depth">
+          <option>Quick lesson (3 points)</option>
+          <option>Standard (5 points)</option>
+          <option>Deep dive (7 points)</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Plan My Post</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="post-header">
+        <div>
+          <div style="font-family:'Playfair Display',serif;color:#FFFFFF;font-size:22px;" id="postTitle">—</div>
+        </div>
+      </div>
+      <div class="post-meta" id="postMeta"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">The Post, Block by Block</label>
+      <div id="blocks"></div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyPost()">Copy Post Plan</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const HOOKS = [
+  "Most people get {topic} completely wrong. Here's what actually works.",
+  "If you're struggling with {topic}, read this. It might be the missing piece.",
+  "I used to overthink {topic}. Then I learned this one thing.",
+  "Stop guessing at {topic}. There's a simple system — and it's below.",
+  "{topic} isn't hard. It's just rarely taught the right way.",
+  "The truth about {topic} that nobody on your feed is sharing."
+];
+
+const POINT_LABELS = ['Foundation', 'The Mechanism', 'The Move', 'The Example', 'The Mistake', 'The Tweak', 'The Test'];
+
+const POINT_PROMPTS = {
+  'Foundation': 'State the core principle in one clear sentence.',
+  'The Mechanism': 'Explain why it works — the deeper "because".',
+  'The Move': 'Give a specific, doable action they can take.',
+  'The Example': 'Show a quick example, before/after, or mini case.',
+  'The Mistake': 'Name the most common mistake and how to dodge it.',
+  'The Tweak': 'Share the small optimization that 2x\'s results.',
+  'The Test': 'Give them a way to test what they just learned.'
+};
+
+const POINT_CONTENT = {
+  'Foundation': '**Start here:** {takeaway} is built on one idea most people skip.',
+  'The Mechanism': '**Why it works:** when you do this, you change the underlying pattern — not just the surface symptom.',
+  'The Move': '**Do this:** Step 1 — observe what you currently do. Step 2 — replace it with the smaller, sharper version.',
+  'The Example': '**Example:** before — vague, generic, no edge. After — specific, sharp, undeniable. Same effort, completely different result.',
+  'The Mistake': '**Avoid this:** trying to do all of it at once. Pick one piece. Lock it in. Then expand.',
+  'The Tweak': '**Small upgrade:** after the basics work, add this — and most people skip it. It compounds fast.',
+  'The Test': '**Test it:** try this on your next post and compare engagement. If it works, keep it. If not, drop it.'
+};
+
+const CLOSERS = {
+  'Carousel (slides)': 'Save this slide if you want to come back to it. Share with someone who needs the reminder.',
+  'Single long-form post': 'If this resonated, save it. Comment "yes" if you\'ll try the framework this week.',
+  'Twitter / X thread': 'If this thread helped: like the first tweet so more people see it. Follow for more like this.',
+  'LinkedIn post': 'If you found this useful, a quick reaction or repost helps me reach more people like you.',
+  'Short reel script': 'Follow for more like this. Save if you don\'t want to forget.'
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  const takeaway = document.getElementById('takeaway').value.trim();
+  const format = document.getElementById('format').value;
+  const depth = document.getElementById('depth').value;
+  if (!topic) { alert('Add what you\'re teaching first.'); return; }
+  if (!takeaway) { alert('Add the takeaway so we know what to anchor the post around.'); return; }
+
+  const pointCount = depth.includes('3') ? 3 : depth.includes('5') ? 5 : 7;
+  const hook = pick(HOOKS).replace(/{topic}/g, topic);
+
+  const blocks = [{
+    name: 'Hook',
+    purpose: 'Stop the scroll in under 3 seconds. Promise the value.',
+    content: hook
+  }];
+
+  blocks.push({
+    name: 'Promise',
+    purpose: 'Tell them exactly what they\'ll know by the end.',
+    content: `By the end of this post, you'll know: **${takeaway}**.\n\nNo fluff. Just what works.`
+  });
+
+  for (let i = 0; i < pointCount; i++) {
+    const label = POINT_LABELS[i % POINT_LABELS.length];
+    blocks.push({
+      name: `Point ${i + 1}: ${label}`,
+      purpose: POINT_PROMPTS[label],
+      content: POINT_CONTENT[label].replace(/{takeaway}/g, takeaway)
+    });
+  }
+
+  blocks.push({
+    name: 'Recap',
+    purpose: 'Lock in the lesson in one tight summary.',
+    content: `**The whole thing in one line:** ${takeaway} — but only if you do the work above in order.`
+  });
+
+  blocks.push({
+    name: 'CTA',
+    purpose: 'Tell them exactly what to do next.',
+    content: CLOSERS[format]
+  });
+
+  const minutes = Math.max(1, Math.ceil(blocks.length * 0.4));
+  const slides = format.includes('Carousel') ? `${blocks.length} slides` : null;
+
+  document.getElementById('postTitle').textContent = topic;
+  const meta = [
+    `<span><span class="dot">●</span> ${format}</span>`,
+    `<span><span class="dot">●</span> ${depth}</span>`,
+    slides ? `<span><span class="dot">●</span> ${slides}</span>` : '',
+    `<span><span class="dot">●</span> ~${minutes} min to write</span>`
+  ].filter(Boolean).join('');
+  document.getElementById('postMeta').innerHTML = meta;
+
+  document.getElementById('blocks').innerHTML = blocks.map((b, i) => `
+    <div class="block">
+      <div class="block-num">${i === 0 ? 'Slide / Block 1' : 'Block ' + (i + 1)}</div>
+      <div class="block-name">${b.name}</div>
+      <div class="block-purpose">${b.purpose}</div>
+      <div class="block-content">${b.content}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyPost() {
+  let text = document.getElementById('postTitle').textContent + '\n\n';
+  document.querySelectorAll('.block').forEach(b => {
+    text += b.querySelector('.block-name').textContent + '\n';
+    text += b.querySelector('.block-content').textContent.replace(/\*\*/g, '') + '\n\n';
+  });
+  navigator.clipboard.writeText(text.trim()).then(() => alert('Post plan copied. Go publish.'));
+}
+</script>
+</body>
+</html>

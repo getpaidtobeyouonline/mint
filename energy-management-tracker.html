@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Energy Management Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
+  .e-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 7px; margin-bottom: 18px; }
+  .e-btn { background: #325132; border: 2px solid #3C603C; border-radius: 10px; padding: 12px 6px 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .e-btn:hover { border-color: var(--ec); }
+  .e-btn.sel { border-color: var(--ec); background: var(--eb); }
+  .e-icon { font-size: 1.3rem; margin-bottom: 4px; }
+  .e-num { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--ec,#5A845A); }
+  .e-lbl { font-size: 0.6rem; color: #BFD8BF; margin-top: 2px; }
+  .act-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .achip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 5px 12px; border-radius: 16px; font-size: 0.79rem; cursor: pointer; transition: all 0.15s; }
+  .achip.sel { border-color: #5AE57A; color: #5AE57A; background: #1a150820; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; margin-bottom: 12px; }
+  .f-input:focus { border-color: #5AE57A; }
+  .btn-log { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; opacity: 0.35; pointer-events: none; }
+  .btn-log.ready { opacity: 1; pointer-events: auto; }
+  .btn-log.ready:hover { background: #5AE57A; }
+  .chart-wrap { padding: 4px 0 0; }
+  .stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .insight-box { background: #325132; border-left: 3px solid #5AE57A; padding: 11px 14px; border-radius: 0 8px 8px 0; font-size: 0.84rem; color: #F0EBE0aa; line-height: 1.6; margin-bottom: 18px; }
+  .log-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid #325132; }
+  .log-item:last-child { border-bottom: none; }
+  .log-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .log-time { font-size: 0.72rem; color: #BFD8BF; white-space: nowrap; padding-top: 1px; }
+  .log-body { flex: 1; }
+  .log-level { font-size: 0.88rem; font-weight: 500; }
+  .log-meta { font-size: 0.74rem; color: #BFD8BF; margin-top: 2px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 20px 10px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Energy Tracker</h1>
+<p class="subtitle">Map your energy. Schedule your life around it.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Log a Check-In</div>
+  <div class="field-label">How's your energy right now?</div>
+  <div class="e-grid" id="eGrid"></div>
+  <div class="field-label">What are you doing? <span style="color:#4C724C;font-size:0.68rem;text-transform:none;letter-spacing:0">(optional)</span></div>
+  <div class="act-chips" id="actChips"></div>
+  <input class="f-input" id="noteInput" placeholder="Optional note…" maxlength="60" />
+  <button class="btn-log" id="btnLog" onclick="logEntry()">Log Energy Check-In</button>
+</div>
+
+<div class="card">
+  <div class="card-title">Today's Energy Curve</div>
+  <div class="chart-wrap" id="chartWrap"><p class="empty">Check in a few times to see your energy curve.</p></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statAvg">—</div><div class="stat-l">avg energy</div></div>
+  <div class="stat-box"><div class="stat-n" id="statPeak">—</div><div class="stat-l">peak time</div></div>
+  <div class="stat-box"><div class="stat-n" id="statCount">0</div><div class="stat-l">check-ins today</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Insight</div>
+  <div class="insight-box" id="insightBox">Log check-ins throughout the day to discover your natural energy rhythm.</div>
+  <div class="card-title" style="margin-top:18px">Today's Log</div>
+  <div id="logList"><p class="empty">No check-ins yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const LEVELS = [
+  {v:1,icon:'😴',label:'Drained', color:'#5AE57A',bg:'#18080818'},
+  {v:2,icon:'😐',label:'Low',     color:'#5AE57A',bg:'#18100818'},
+  {v:3,icon:'〜', label:'Steady',  color:'#5AE57A',bg:'#1a150818'},
+  {v:4,icon:'⚡', label:'High',   color:'#5AE57A',bg:'#0d180818'},
+  {v:5,icon:'🔥', label:'Peak',   color:'#5AE57A',bg:'#08140818'},
+];
+const ACTS = [
+  {id:'deep',     icon:'🎯', label:'Deep Work'},
+  {id:'meetings', icon:'💬', label:'Meetings'},
+  {id:'admin',    icon:'📧', label:'Admin'},
+  {id:'break',    icon:'☕', label:'Break'},
+  {id:'exercise', icon:'💪', label:'Exercise'},
+  {id:'eating',   icon:'🍽', label:'Eating'},
+  {id:'social',   icon:'👥', label:'Social'},
+];
+
+const TODAY = new Date().toISOString().slice(0,10);
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+let entries = JSON.parse(localStorage.getItem('emt_'+TODAY)||'[]');
+let selLevel = 0, selAct = '';
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function save(){localStorage.setItem('emt_'+TODAY,JSON.stringify(entries));}
+function fmtTime(ts){const d=new Date(ts),h=d.getHours(),m=d.getMinutes();return`${h===0?12:h>12?h-12:h}:${String(m).padStart(2,'0')} ${h<12?'AM':'PM'}`;}
+
+document.getElementById('eGrid').innerHTML = LEVELS.map(l=>
+  `<div class="e-btn" style="--ec:${l.color};--eb:${l.bg}" id="eb-${l.v}" onclick="pickLevel(${l.v})">
+    <div class="e-icon">${l.icon}</div>
+    <div class="e-num">${l.v}</div>
+    <div class="e-lbl">${l.label}</div>
+  </div>`).join('');
+
+document.getElementById('actChips').innerHTML = ACTS.map(a=>
+  `<div class="achip" id="ac-${a.id}" onclick="pickAct('${a.id}')">${a.icon} ${a.label}</div>`).join('');
+
+function pickLevel(v) {
+  selLevel=v;
+  LEVELS.forEach(l=>document.getElementById('eb-'+l.v).classList.toggle('sel',l.v===v));
+  document.getElementById('btnLog').classList.toggle('ready',v>0);
+}
+function pickAct(id) {
+  selAct=selAct===id?'':id;
+  ACTS.forEach(a=>document.getElementById('ac-'+a.id).classList.toggle('sel',a.id===selAct));
+}
+
+function logEntry() {
+  if(!selLevel) return;
+  const note=document.getElementById('noteInput').value.trim();
+  entries.push({id:Date.now(),ts:Date.now(),level:selLevel,act:selAct,note});
+  document.getElementById('noteInput').value='';
+  selLevel=0; selAct='';
+  LEVELS.forEach(l=>document.getElementById('eb-'+l.v).classList.remove('sel'));
+  ACTS.forEach(a=>document.getElementById('ac-'+a.id).classList.remove('sel'));
+  document.getElementById('btnLog').classList.remove('ready');
+  save(); render();
+}
+
+function makeChart(ents) {
+  if(ents.length<2) return '<p class="empty">Log at least 2 check-ins to see your curve.</p>';
+  const W=540,H=108,PL=26,PR=14,PT=8,PB=20,pw=W-PL-PR,ph=H-PT-PB;
+  const tMin=5*60,tMax=23*60;
+  const tx=ts=>{const d=new Date(ts);return PL+Math.max(0,Math.min(1,(d.getHours()*60+d.getMinutes()-tMin)/(tMax-tMin)))*pw;};
+  const ty=v=>PT+ph-((v-1)/4)*ph;
+  const cols=LEVELS.map(l=>l.color);
+  const grid=[1,2,3,4,5].map(v=>`<line x1="${PL}" y1="${ty(v)}" x2="${W-PR}" y2="${ty(v)}" stroke="#3C603C" stroke-width="1"/><text x="${PL-5}" y="${ty(v)+4}" font-size="9" fill="#4C724C" text-anchor="end">${v}</text>`).join('');
+  const hrs=[6,9,12,15,18,21].map(h=>{const x=PL+(h*60-tMin)/(tMax-tMin)*pw;return`<line x1="${x}" y1="${PT}" x2="${x}" y2="${H-PB}" stroke="#325132" stroke-width="1"/><text x="${x}" y="${H-3}" font-size="8" fill="#4C724C" text-anchor="middle">${h>12?h-12:h}${h<12?'a':'p'}</text>`;}).join('');
+  const pts=ents.map(e=>({x:tx(e.ts),y:ty(e.level),c:cols[e.level-1]}));
+  const line=`<polyline points="${pts.map(p=>p.x+','+p.y).join(' ')}" fill="none" stroke="#C9A84C33" stroke-width="2.5" stroke-linejoin="round"/>`;
+  const dots=pts.map(p=>`<circle cx="${p.x}" cy="${p.y}" r="5.5" fill="${p.c}" stroke="#325132" stroke-width="2"/>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">${grid}${hrs}${line}${dots}</svg>`;
+}
+
+function render() {
+  document.getElementById('chartWrap').innerHTML = makeChart(entries);
+  const count=entries.length;
+  document.getElementById('statCount').textContent=count;
+  if(!count){
+    document.getElementById('statAvg').textContent='—';
+    document.getElementById('statPeak').textContent='—';
+    document.getElementById('insightBox').textContent='Log check-ins throughout the day to discover your natural energy rhythm.';
+    document.getElementById('logList').innerHTML='<p class="empty">No check-ins yet.</p>';
+    return;
+  }
+  const avg=entries.reduce((s,e)=>s+e.level,0)/count;
+  const peak=entries.reduce((a,b)=>b.level>a.level?b:a);
+  document.getElementById('statAvg').textContent=avg.toFixed(1)+'/5';
+  document.getElementById('statPeak').textContent=fmtTime(peak.ts);
+  const lv=LEVELS.find(l=>l.v===Math.round(avg));
+  const messages={
+    5:'Elite energy day. This is your day to do the work that scares you most.',
+    4:'High-energy day. Push into challenging work — you have the fuel.',
+    3:'Steady day. Protect your best window for your most important task.',
+    2:'Low-energy day. Batch easy tasks and prioritize recovery.',
+    1:'Drained. Protect your rest — recovery is productive too.',
+  };
+  const peakAct=entries.filter(e=>e.level>=4).map(e=>ACTS.find(a=>a.id===e.act)).filter(Boolean);
+  const actMsg=peakAct.length?` Your energy peaks during ${peakAct[0].label}.`:'';
+  document.getElementById('insightBox').textContent=(messages[lv?lv.v:3]||messages[3])+actMsg;
+  document.getElementById('logList').innerHTML=[...entries].reverse().map(e=>{
+    const l=LEVELS.find(l=>l.v===e.level);
+    const a=ACTS.find(a=>a.id===e.act);
+    return `<div class="log-item">
+      <div class="log-dot" style="background:${l.color}"></div>
+      <div class="log-time">${fmtTime(e.ts)}</div>
+      <div class="log-body">
+        <div class="log-level" style="color:${l.color}">${l.icon} ${l.label} · ${e.level}/5</div>
+        <div class="log-meta">${a?a.icon+' '+a.label:''}${a&&e.note?' · ':''}${esc(e.note)}</div>
+      </div>
+      <button class="del-btn" onclick="delEntry(${e.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function delEntry(id){entries=entries.filter(e=>e.id!==id);save();render();}
+render();
+</script>
+</body>
+</html>

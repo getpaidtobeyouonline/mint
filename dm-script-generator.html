@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DM Script Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .hint { font-size: 0.78rem; opacity: 0.55; margin-top: 4px; font-style: italic; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .output {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .output.show { display: block; }
+  .variant { margin-bottom: 22px; }
+  .variant:last-child { margin-bottom: 0; }
+  .variant-label {
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .char-count { opacity: 0.6; font-size: 0.72rem; }
+  .msg {
+    background: rgba(240, 235, 224, 0.05);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.98rem;
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+  .actions { display: flex; gap: 8px; margin-top: 8px; }
+  .copy-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>DM Script Generator</h1>
+  <p class="subtitle">Stop staring at the message box. Get a DM that sounds like a person — not a sales bot — in 30 seconds.</p>
+
+  <label for="scenario">Scenario</label>
+  <select id="scenario">
+    <option value="cold">Cold outreach to someone in my niche</option>
+    <option value="story">Replying to someone who responded to my story</option>
+    <option value="leadmag">Following up after they downloaded my free thing</option>
+    <option value="sale">Moving a warm conversation toward a sale</option>
+    <option value="comment">Replying to a comment to take it private</option>
+    <option value="testimonial">Asking a happy customer for a testimonial</option>
+    <option value="reconnect">Reconnecting with someone who went quiet</option>
+  </select>
+  <div class="hint" id="scenarioHint"></div>
+
+  <label for="name">Recipient's First Name</label>
+  <input type="text" id="name" placeholder="Maya" />
+
+  <label for="specific" id="specificLabel">One Specific Thing</label>
+  <textarea id="specific" placeholder=""></textarea>
+  <div class="hint" id="specificHint">Reference something real — a post, a comment, a download. Generic flattery kills DMs.</div>
+
+  <label for="me">Who You Are / What You Offer (one line)</label>
+  <input type="text" id="me" placeholder="I help freelance designers raise their rates" />
+
+  <label for="cta">Your Specific Next Step</label>
+  <input type="text" id="cta" placeholder="e.g. send them the free pricing workbook, book a 15-min call, share the offer" />
+
+  <button class="build-btn" id="buildBtn">Generate DM</button>
+
+  <div class="output" id="output">
+    <div class="variant">
+      <div class="variant-label">Full Version <span class="char-count" id="fullCount"></span></div>
+      <div class="msg" id="fullMsg"></div>
+      <div class="actions"><button class="copy-btn" data-target="fullMsg">Copy</button></div>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Short Version (for IG / tight platforms) <span class="char-count" id="shortCount"></span></div>
+      <div class="msg" id="shortMsg"></div>
+      <div class="actions"><button class="copy-btn" data-target="shortMsg">Copy</button></div>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const scenarioMeta = {
+    cold: { hint: 'Hardest mode. Lean heavy on the specific thing — no generic flattery.', specLabel: 'Specific Thing You Genuinely Admire About Their Work', specPh: 'Your post about niching down — the line about "boring is profitable" stuck with me.' },
+    story: { hint: 'They opened the door. Keep it light and human.', specLabel: 'What They Reacted To / Said', specPh: 'Reacted with 🔥 to my story about pricing pushback.' },
+    leadmag: { hint: 'They\'re warm. Don\'t sell yet — start a conversation.', specLabel: 'What They Downloaded', specPh: 'They grabbed the free pricing workbook this morning.' },
+    sale: { hint: 'They\'ve been engaging. Move the conversation, don\'t pitch.', specLabel: 'What They\'ve Said / Asked', specPh: 'Asked in the last DM whether the framework would work for branding designers.' },
+    comment: { hint: 'You\'re moving a comment thread to DM. Reference what they wrote.', specLabel: 'Their Comment', specPh: 'Commented "I struggle with this exactly — what would you charge?"' },
+    testimonial: { hint: 'They had a win. Make it stupid-easy for them to say something useful.', specLabel: 'Specific Result They Got', specPh: 'Booked her first $4k project two weeks after going through the course.' },
+    reconnect: { hint: 'Don\'t apologize for the silence — just bring value.', specLabel: 'Last Thing You Talked About / Where You Left Off', specPh: 'We last chatted about her client who kept pushing back on scope.' }
+  };
+
+  function updateHints() {
+    const s = document.getElementById('scenario').value;
+    const m = scenarioMeta[s];
+    document.getElementById('scenarioHint').textContent = m.hint;
+    document.getElementById('specificLabel').textContent = m.specLabel;
+    document.getElementById('specific').placeholder = m.specPh;
+  }
+  document.getElementById('scenario').addEventListener('change', updateHints);
+  updateHints();
+
+  function build() {
+    const s = document.getElementById('scenario').value;
+    const name = document.getElementById('name').value.trim() || '[Name]';
+    const specific = document.getElementById('specific').value.trim() || '[specific thing]';
+    const me = document.getElementById('me').value.trim() || '[what you offer]';
+    const cta = document.getElementById('cta').value.trim() || '[your next step]';
+
+    let full, short;
+
+    if (s === 'cold') {
+      full = `Hey ${name} — not pitching, promise. ${specific}\n\nI'm someone who ${me}, and your work crossed my feed in the best way. No ask here — just wanted to say it.\n\nIf it ever feels right: ${cta}.`;
+      short = `Hey ${name} — ${specific.split('.')[0]}. Not pitching, just wanted to say it. If it ever feels right, ${cta}.`;
+    } else if (s === 'story') {
+      full = `${name}! Thanks for reacting to that story — ${specific}\n\nQuick question while we're here: what's the bigger thing you're working through on this? Always curious what made it land.\n\n(And if it's useful: ${cta}.)`;
+      short = `${name}! Saw your reaction — what's the bigger thing you're working through on this? Curious what made it land.`;
+    } else if (s === 'leadmag') {
+      full = `Hey ${name} — quick note, since you just grabbed the workbook. ${specific}\n\nNo pressure to reply, but I'm curious: what made you download it today? What were you hoping it'd help with?\n\nI read every answer. And if it would help: ${cta}.`;
+      short = `${name} — quick one. What made you grab the workbook today? I read every reply and it shapes what I make next.`;
+    } else if (s === 'sale') {
+      full = `${name} — picking back up on what you mentioned: ${specific}\n\nHonestly that's the exact thing I built ${me.toLowerCase().includes('i ')?me.toLowerCase().replace('i ', 'my work around. '):'my work around. '+me}.\n\nWant me to walk you through how it'd apply to your specific situation? ${cta}.`;
+      short = `${name} — re: ${specific.split('.')[0]}. That's exactly what I built around. Want me to walk you through how it'd apply? ${cta}.`;
+    } else if (s === 'comment') {
+      full = `Hey ${name} — saw your comment: "${specific}"\n\nWanted to come over here because the real answer is longer than what fits in a thread.\n\nQuick context: ${me}. Based on what you wrote, here's what I'd actually do first — and if it's useful, ${cta}.`;
+      short = `${name} — your comment about ${specific.split('.')[0]} deserves a longer answer than a thread. Coming over to DMs. ${cta}.`;
+    } else if (s === 'testimonial') {
+      full = `${name} — I have to celebrate this with you: ${specific}\n\nWould you be open to writing 2-3 sentences I could share? Anything is helpful, but if you can include where you were before and the specific result, that's gold.\n\nNo pressure at all — and ${cta} if you'd rather I draft something for you to edit.`;
+      short = `${name} — congrats on ${specific.split('.')[0]}. Would you be open to 2-3 sentences I could share as a testimonial? Where you started + the result is gold.`;
+    } else if (s === 'reconnect') {
+      full = `${name}! Been a minute. Was thinking about you because ${specific}\n\nNo agenda — just wanted to check in. How's it actually going right now?\n\nAnd if it's helpful, ${cta}. Either way, good to be in your orbit again.`;
+      short = `${name}! Been a minute. Was thinking about you re: ${specific.split('.')[0]}. How's it actually going right now?`;
+    }
+
+    document.getElementById('fullMsg').textContent = full;
+    document.getElementById('shortMsg').textContent = short;
+    document.getElementById('fullCount').textContent = `${full.length} chars`;
+    document.getElementById('shortCount').textContent = `${short.length} chars`;
+    document.getElementById('output').classList.add('show');
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.onclick = () => {
+      const text = document.getElementById(btn.dataset.target).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = original, 1500);
+      });
+    };
+  });
+</script>
+</body>
+</html>

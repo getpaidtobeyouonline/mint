@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End of Day Review Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  .card-hint { font-size: 0.78rem; color: #BFD8BF; font-style: italic; margin-bottom: 12px; }
+
+  /* List builder */
+  .list-items { margin-bottom: 10px; }
+  .list-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid #3C603C; }
+  .list-item:last-child { border-bottom: none; }
+  .list-dot { width: 6px; height: 6px; border-radius: 50%; background: #5AE57A; flex-shrink: 0; }
+  .list-dot.roll { background: #5AE57A; }
+  .list-text { flex: 1; font-size: 0.88rem; color: #F0EBE0aa; }
+  .item-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; }
+  .item-del:hover { color: #5AE57A; }
+  .add-row { display: flex; gap: 8px; }
+  .add-row input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 8px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .add-row input:focus { border-color: #5AE57A; }
+  .btn-sm { background: #5AE57A; color: #325132; border: none; padding: 8px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; white-space: nowrap; }
+  .btn-sm:hover { background: #5AE57A; }
+
+  /* Single inputs */
+  .solo-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none; }
+  .solo-input:focus { border-color: #5AE57A; }
+
+  /* Rating */
+  .rating-row { display: flex; gap: 10px; justify-content: center; }
+  .rating-btn { flex: 1; background: #325132; border: 2px solid #3C603C; border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .rating-btn .emoji { display: block; font-size: 1.4rem; margin-bottom: 3px; }
+  .rating-btn .lbl { font-size: 0.65rem; color: #BFD8BF; }
+  .rating-btn.active { border-color: #5AE57A; background: #325132; }
+  .rating-btn.active .lbl { color: #5AE57A; }
+
+  /* Shutdown button */
+  .shutdown-row { max-width: 580px; margin: 0 auto 24px; text-align: center; }
+  .btn-shutdown { background: #5AE57A; color: #325132; border: none; padding: 14px 56px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1.05rem; cursor: pointer; }
+  .btn-shutdown:hover { background: #5AE57A; }
+
+  /* Shutdown complete screen */
+  #shutdownScreen { display: none; }
+  .shutdown-card { background: #325132; border: 1px solid #2E4D2E; border-radius: 16px; padding: 36px 28px; max-width: 580px; margin: 0 auto 20px; text-align: center; }
+  .shutdown-icon { font-size: 2.5rem; margin-bottom: 12px; }
+  .shutdown-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.6rem; margin-bottom: 8px; }
+  .shutdown-sub { color: #F0EBE0aa; font-size: 0.9rem; margin-bottom: 24px; }
+  .tomorrow-box { background: #325132; border-radius: 10px; padding: 16px 18px; margin-bottom: 20px; }
+  .tomorrow-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .tomorrow-text { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #FFFFFF; }
+  .btn-restart { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; }
+  .btn-restart:hover { border-color: #5AE57A; color: #5AE57A; }
+
+  /* Archive */
+  .arch-item { padding: 11px 0; border-bottom: 1px solid #3C603C; }
+  .arch-item:last-child { border-bottom: none; }
+  .arch-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
+  .arch-date { font-size: 0.82rem; color: #5AE57A; font-weight: 500; }
+  .arch-rating { font-size: 0.9rem; }
+  .arch-priority { font-size: 0.78rem; color: #F0EBE0aa; font-style: italic; }
+  .arch-stats { font-size: 0.72rem; color: #5A845A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>End of Day Review</h1>
+<p class="subtitle">Close the loop. Leave work at work. Tomorrow is handled.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<!-- Review form -->
+<div id="reviewForm">
+  <div class="card">
+    <div class="card-title">✓ What did you complete today?</div>
+    <div class="card-hint">Even small things count — write them down.</div>
+    <div class="list-items" id="completedList"></div>
+    <div class="add-row">
+      <input type="text" id="completedInput" placeholder="Add a completed task…" maxlength="100" />
+      <button class="btn-sm" onclick="addItem('completed')">Add</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">→ What's rolling to tomorrow?</div>
+    <div class="card-hint">Capture it here so it's off your mind tonight.</div>
+    <div class="list-items" id="rollingList"></div>
+    <div class="add-row">
+      <input type="text" id="rollingInput" placeholder="Add an unfinished task…" maxlength="100" />
+      <button class="btn-sm" onclick="addItem('rolling')">Add</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">★ Tomorrow's #1 Priority</div>
+    <div class="card-hint">If you only do one thing tomorrow, what must it be?</div>
+    <input class="solo-input" id="topTomorrow" placeholder="The single most important thing for tomorrow…" maxlength="120" />
+  </div>
+
+  <div class="card">
+    <div class="card-title">How was today?</div>
+    <div class="rating-row" id="ratingRow">
+      <div class="rating-btn" onclick="setRating(1)"><span class="emoji">😓</span><span class="lbl">Rough</span></div>
+      <div class="rating-btn" onclick="setRating(2)"><span class="emoji">😐</span><span class="lbl">Okay</span></div>
+      <div class="rating-btn" onclick="setRating(3)"><span class="emoji">🙂</span><span class="lbl">Good</span></div>
+      <div class="rating-btn" onclick="setRating(4)"><span class="emoji">😊</span><span class="lbl">Great</span></div>
+      <div class="rating-btn" onclick="setRating(5)"><span class="emoji">🌟</span><span class="lbl">Excellent</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🕊 What are you leaving at work?</div>
+    <div class="card-hint">Name one thing you're choosing not to carry into your evening.</div>
+    <input class="solo-input" id="letGo" placeholder="e.g. The email I haven't replied to, the meeting that felt off…" maxlength="120" />
+  </div>
+
+  <div class="shutdown-row">
+    <button class="btn-shutdown" onclick="shutdown()">Shutdown Complete →</button>
+  </div>
+</div>
+
+<!-- Shutdown screen -->
+<div id="shutdownScreen">
+  <div class="shutdown-card">
+    <div class="shutdown-icon">✓</div>
+    <div class="shutdown-title">Shutdown Complete</div>
+    <div class="shutdown-sub" id="shutdownSub"></div>
+    <div class="tomorrow-box" id="tomorrowBox" style="display:none">
+      <div class="tomorrow-label">Tomorrow's #1 Priority</div>
+      <div class="tomorrow-text" id="tomorrowText"></div>
+    </div>
+    <div class="shutdown-sub" style="margin-bottom:16px;font-style:italic;color:#C9A84C44">Rest well. You've earned it.</div>
+    <button class="btn-restart" onclick="newReview()">Start a New Review</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="margin-bottom:14px">Past Reviews</div>
+    <div id="archiveList"><p class="empty">No past reviews yet.</p></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const RATINGS = ['','😓','😐','🙂','😊','🌟'];
+  const TODAY   = new Date().toISOString().slice(0, 10);
+  let reviews   = JSON.parse(localStorage.getItem('eod_reviews') || '[]');
+  let lists     = { completed: [], rolling: [] };
+  let rating    = 0;
+
+  document.getElementById('dateLabel').textContent =
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  function save() { localStorage.setItem('eod_reviews', JSON.stringify(reviews)); }
+
+  function addItem(type) {
+    const input = document.getElementById(type + 'Input');
+    const text  = input.value.trim(); if (!text) return;
+    lists[type].push({ id: Date.now(), text });
+    input.value = ''; input.focus();
+    renderList(type);
+  }
+
+  function removeItem(type, id) { lists[type] = lists[type].filter(i => i.id !== id); renderList(type); }
+
+  function renderList(type) {
+    const dot = type === 'rolling' ? 'roll' : '';
+    document.getElementById(type + 'List').innerHTML = lists[type].map(i =>
+      `<div class="list-item">
+        <div class="list-dot ${dot}"></div>
+        <span class="list-text">${esc(i.text)}</span>
+        <button class="item-del" onclick="removeItem('${type}',${i.id})">✕</button>
+      </div>`
+    ).join('');
+  }
+
+  function setRating(n) {
+    rating = n;
+    document.querySelectorAll('.rating-btn').forEach((b, i) =>
+      b.classList.toggle('active', i + 1 === n));
+  }
+
+  function shutdown() {
+    const topTomorrow = document.getElementById('topTomorrow').value.trim();
+    const letGo       = document.getElementById('letGo').value.trim();
+    const review = {
+      date: TODAY,
+      completed: lists.completed.map(i => i.text),
+      rolling:   lists.rolling.map(i => i.text),
+      topTomorrow, letGo, rating,
+    };
+    reviews = reviews.filter(r => r.date !== TODAY);
+    reviews.unshift(review);
+    save();
+
+    // Show shutdown screen
+    document.getElementById('reviewForm').style.display = 'none';
+    document.getElementById('shutdownScreen').style.display = 'block';
+    const c = lists.completed.length, r = lists.rolling.length;
+    document.getElementById('shutdownSub').textContent =
+      [c ? `${c} thing${c!==1?'s':''} completed` : '', r ? `${r} rolled to tomorrow` : '']
+        .filter(Boolean).join(' · ') || 'Day logged.';
+    if (topTomorrow) {
+      document.getElementById('tomorrowBox').style.display = 'block';
+      document.getElementById('tomorrowText').textContent = topTomorrow;
+    }
+    renderArchive();
+  }
+
+  function newReview() {
+    lists = { completed: [], rolling: [] };
+    rating = 0;
+    ['completedList','rollingList'].forEach(id => document.getElementById(id).innerHTML = '');
+    ['topTomorrow','letGo'].forEach(id => document.getElementById(id).value = '');
+    document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('reviewForm').style.display = 'block';
+    document.getElementById('shutdownScreen').style.display = 'none';
+    document.getElementById('tomorrowBox').style.display = 'none';
+  }
+
+  function renderArchive() {
+    const el = document.getElementById('archiveList');
+    if (!reviews.length) { el.innerHTML = '<p class="empty">No past reviews yet.</p>'; return; }
+    el.innerHTML = reviews.slice(0, 14).map(r => {
+      const d = new Date(r.date + 'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+      return `<div class="arch-item">
+        <div class="arch-top">
+          <span class="arch-date">${d}</span>
+          ${r.rating ? `<span class="arch-rating">${RATINGS[r.rating]}</span>` : ''}
+          <span class="arch-stats">${r.completed.length} done · ${r.rolling.length} rolled</span>
+        </div>
+        ${r.topTomorrow ? `<div class="arch-priority">Tomorrow: ${esc(r.topTomorrow)}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  ['completedInput','rollingInput'].forEach(id => {
+    const type = id.replace('Input','');
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key==='Enter') addItem(type); });
+  });
+
+  if (reviews.find(r => r.date === TODAY)) renderArchive();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emergency Contact Card Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 12px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 2px solid #5AE57A; border-radius: 12px; padding: 18px; margin-top: 14px; display: none; }
+  .card h3 { font-family: 'Playfair Display', serif; color: #5AE57A; text-align: center; font-size: 1.1rem; margin-bottom: 10px; }
+  .card .line { font-size: .9rem; padding: 4px 0; border-bottom: 1px solid #5A845A; }
+  .card .line:last-child { border-bottom: none; }
+  .card .line b { color: #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Emergency Contact Card Builder</h1>
+  <p class="sub">Build a card to carry in your wallet — the details that matter most in an emergency.</p>
+
+  <div class="panel">
+    <label for="name">Your name</label>
+    <input id="name" placeholder="Full name">
+    <div class="row">
+      <div><label for="blood">Blood type (optional)</label><input id="blood" placeholder="e.g. O+"></div>
+      <div><label for="allergy">Allergies / conditions</label><input id="allergy" placeholder="Important medical info"></div>
+    </div>
+    <label for="meds">Medications you take</label>
+    <input id="meds" placeholder="Or 'none'">
+    <label for="ice1">Emergency contact 1 (name &amp; number)</label>
+    <input id="ice1" placeholder="Name + phone">
+    <label for="ice2">Emergency contact 2 (name &amp; number)</label>
+    <input id="ice2" placeholder="Name + phone">
+    <label for="insurance">Travel insurance &amp; policy number</label>
+    <input id="insurance" placeholder="Provider + policy no.">
+    <label for="embassy">Home embassy contact at destination</label>
+    <input id="embassy" placeholder="Look this up for your country">
+    <button class="btn" onclick="gen()">Build Card</button>
+    <button class="btn ghost" onclick="copyOut()">Copy as Text</button>
+    <div class="note">Carry a printed copy and save a photo on your phone. Keep medical details only as detailed as you are comfortable sharing.</div>
+  </div>
+
+  <div class="card" id="card"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['name','blood','allergy','meds','ice1','ice2','insurance','embassy'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('eccb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('eccb_'+k,g(k).value)); });
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function line(lbl,val){ return val?'<div class="line"><b>'+lbl+':</b> '+esc(val)+'</div>':''; }
+  function gen(){
+    const c=g('card');
+    c.style.display='block';
+    c.innerHTML='<h3>🆘 EMERGENCY CONTACT CARD</h3>'+
+      line('Name',v('name')||'[your name]')+
+      line('Blood type',v('blood'))+
+      line('Allergies / conditions',v('allergy')||'None noted')+
+      line('Medications',v('meds')||'None noted')+
+      line('Emergency contact 1',v('ice1')||'[add a contact]')+
+      line('Emergency contact 2',v('ice2'))+
+      line('Travel insurance',v('insurance'))+
+      line('Embassy',v('embassy'));
+    c.scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){
+    const t='EMERGENCY CONTACT CARD\n\nName: '+(v('name')||'[name]')+'\nBlood type: '+(v('blood')||'-')+'\nAllergies/conditions: '+(v('allergy')||'None noted')+'\nMedications: '+(v('meds')||'None noted')+'\nEmergency contact 1: '+(v('ice1')||'-')+'\nEmergency contact 2: '+(v('ice2')||'-')+'\nTravel insurance: '+(v('insurance')||'-')+'\nEmbassy: '+(v('embassy')||'-');
+    navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.'));
+  }
+</script>
+</body>
+</html>

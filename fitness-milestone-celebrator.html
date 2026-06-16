@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fitness Milestone Celebrator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 18px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 15px; margin-bottom: 9px; }
+  .card .t { color: #5AE57A; font-weight: 500; }
+  .card .d { font-size: .8rem; opacity: .65; }
+  .card .m { font-size: .88rem; margin-top: 4px; font-style: italic; }
+  .x { float: right; cursor: pointer; opacity: .5; } .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Fitness Milestone Celebrator</h1>
+  <p class="sub">Log every win — first push-up, first 5k, first month. Progress you mark is progress you keep.</p>
+
+  <div class="panel">
+    <label for="name">The milestone you hit</label>
+    <input id="name" placeholder="e.g. Ran a full mile without stopping">
+    <div class="row">
+      <div><label for="type">Type</label><select id="type"><option>Strength</option><option>Endurance</option><option>Consistency</option><option>Flexibility</option><option>Mindset</option><option>Health marker</option></select></div>
+      <div><label for="dt">Date</label><input id="dt" type="date"></div>
+    </div>
+    <label for="how">How will you celebrate it?</label>
+    <input id="how" placeholder="A reward that is not food and not a punishment">
+    <button class="btn" onclick="add()">🎉 Celebrate This</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('fmc')||'[]');
+  const save=()=>localStorage.setItem('fmc',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  g('dt').value=new Date().toISOString().slice(0,10);
+  function add(){
+    if(!v('name')){ alert('What milestone did you hit?'); return; }
+    R.push({n:v('name'),t:g('type').value,d:g('dt').value,h:v('how')});
+    g('name').value=''; g('how').value=''; save(); render();
+  }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all milestones?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No milestones logged yet — your first win is waiting.</div>'; return; }
+    L.innerHTML='<div style="font-size:.85rem;opacity:.7;margin-bottom:8px">'+R.length+' milestone'+(R.length>1?'s':'')+' celebrated 🏆</div>'+
+      [...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.d<b.x.d?1:-1).map(({x,i})=>
+      '<div class="card"><span class="x" onclick="del('+i+')">✕</span><div class="t">'+esc(x.n)+'</div><div class="d">'+x.t+' · '+(x.d||'no date')+'</div>'+(x.h?'<div class="m">Reward: '+esc(x.h)+'</div>':'')+'</div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

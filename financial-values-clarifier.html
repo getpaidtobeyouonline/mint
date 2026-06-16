@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Values Clarifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; cursor: pointer; padding: 7px 13px; border-radius: 20px; font-size: .85rem; user-select: none; }
+  .chip.on { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .stat { font-size: .9rem; margin: 10px 0; opacity: .85; } .stat b { color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 12px; font-family:'DM Sans',sans-serif; }
+  .top { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .top .v { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #5AE57A; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Financial Values Clarifier</h1>
+  <p class="sub">Money is amplification — of values. Pick yours, narrow to a top 5 you spend by.</p>
+
+  <div class="note">Two rounds: tap everything that resonates, then trim to 5. Your top 5 = the budget filter ("Does this purchase honour one of these?").</div>
+
+  <div class="panel">
+    <div class="chips" id="chips"></div>
+    <div class="stat" id="stat"></div>
+    <button class="btn" onclick="lock()">Lock My Top 5</button>
+  </div>
+
+  <div id="locked"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const VAL=["Freedom","Security","Family","Health","Adventure","Generosity","Creativity","Comfort","Status","Faith","Independence","Community","Beauty","Learning","Experience","Stability","Legacy","Simplicity","Quality","Ease","Impact","Privacy","Connection","Growth","Service"];
+  const g=id=>document.getElementById(id);
+  let sel=JSON.parse(localStorage.getItem('fvc_sel')||'[]');
+  g('chips').innerHTML=VAL.map(x=>`<span class="chip ${sel.includes(x)?'on':''}" data-v="${x}">${x}</span>`).join('');
+  g('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const v=c.dataset.v; sel=sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]; c.classList.toggle('on'); localStorage.setItem('fvc_sel',JSON.stringify(sel)); upd(); });
+  function upd(){ g('stat').innerHTML=`Selected <b>${sel.length}</b>. ${sel.length>5?'Now narrow down to 5.':sel.length===5?'Five — that is the filter.':'Add more or lock when ready.'}`; }
+  function lock(){
+    if(sel.length<3){alert('Pick at least 3.');return;}
+    g('locked').innerHTML=`<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:18px 0 10px">Your money values</h3>`+
+      sel.map(v=>`<div class="top"><div class="v">${v}</div></div>`).join('')+
+      `<div class="top" style="border-left-color:#BFD8BF"><div class="v" style="font-size:.92rem;color:#FFFFFF">Use these</div><div style="font-size:.88rem;opacity:.85;margin-top:5px">Before any purchase over a threshold you choose: "Does this honour one of my values?" If no, hold it. If yes, spend without guilt.</div></div>`;
+    g('locked').scrollIntoView({behavior:'smooth'});
+  }
+  upd();
+</script>
+</body>
+</html>

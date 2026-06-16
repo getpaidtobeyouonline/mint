@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email Length Optimiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 160px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+  .stat { flex: 1; min-width: 110px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 11px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .stat .l { font-size: .7rem; opacity: .65; text-transform: uppercase; }
+  .res { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 8px; padding: 13px 16px; font-size: .92rem; }
+  .res b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Email Length Optimiser</h1>
+  <p class="sub">Most emails are too long. Check yours against the sweet spot for what you’re actually sending.</p>
+
+  <div class="panel">
+    <label for="type">Email type</label>
+    <select id="type" onchange="calc()">
+      <option value="welcome">Welcome / story</option>
+      <option value="value">Value / educational</option>
+      <option value="promo">Promo / sale</option>
+      <option value="lastcall">Last-call urgency</option>
+      <option value="newsletter">Newsletter</option>
+    </select>
+    <label for="body">Paste your email body</label>
+    <textarea id="body" placeholder="Paste here…" oninput="calc()"></textarea>
+    <div class="stats">
+      <div class="stat"><div class="v" id="w">0</div><div class="l">Words</div></div>
+      <div class="stat"><div class="v" id="r">0s</div><div class="l">Read time</div></div>
+      <div class="stat"><div class="v" id="sec">0</div><div class="l">Sentences</div></div>
+    </div>
+    <div class="res" id="res"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  g('body').value=localStorage.getItem('elo_body')||''; g('type').value=localStorage.getItem('elo_type')||'value';
+  // sweet spots in words [low, ideal-low, ideal-high, high]
+  const TARGETS={ welcome:[120,180,300,450], value:[120,180,280,400], promo:[80,120,220,320], lastcall:[40,60,140,220], newsletter:[200,300,500,800] };
+  const LABELS={ welcome:'Welcome / story', value:'Value', promo:'Promo', lastcall:'Last-call', newsletter:'Newsletter' };
+  function calc(){
+    localStorage.setItem('elo_body',g('body').value); localStorage.setItem('elo_type',g('type').value);
+    const t=g('body').value.trim();
+    const w=t?t.split(/\s+/).length:0;
+    const s=t?(t.match(/[.!?]+/g)||[]).length:0;
+    g('w').textContent=w.toLocaleString();
+    g('r').textContent=Math.round(w/3)+'s'; // ~3 words/sec scanning speed
+    g('sec').textContent=s||1;
+    const T=TARGETS[g('type').value];
+    let msg;
+    if(!w) msg='Paste an email to check it.';
+    else if(w<T[0]) msg=`Too short for a <b>${LABELS[g('type').value]}</b>. Aim for ~${T[1]}-${T[2]} words. You may be skipping the value/proof that drives action.`;
+    else if(w<=T[2]) msg=`<b>Spot on.</b> ${LABELS[g('type').value]} emails convert best around ${T[1]}-${T[2]} words. Don't pad it.`;
+    else if(w<=T[3]) msg=`A touch long. Sweet spot is ${T[1]}-${T[2]} words. Cut warm-up sentences and anything not driving the click.`;
+    else msg=`<b style="color:#5AE57A">Too long</b> for ${LABELS[g('type').value]}. You're likely losing readers before the CTA. Cut to ${T[1]}-${T[2]} words.`;
+    g('res').innerHTML=msg;
+  }
+  calc();
+</script>
+</body>
+</html>

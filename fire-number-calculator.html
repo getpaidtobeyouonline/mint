@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIRE Number Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .l { font-size: .85rem; opacity: .7; margin-top: 6px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .85rem; opacity: .82; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>FIRE Number Calculator</h1>
+  <p class="sub">Your FIRE number = annual expenses × multiplier. See yours for Lean, Standard, and Fat FIRE.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="exp">Annual expenses ($)</label><input id="exp" type="number" min="0" value="40000" oninput="calc()"></div>
+      <div><label for="rate">Safe withdrawal rate (%)</label><input id="rate" type="number" min="2" max="6" step="0.1" value="4" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="std">$0</div>
+    <div class="l">Standard FIRE (your number)</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="lean">$0</div><div class="l">Lean FIRE (50%)</div></div>
+      <div class="stat"><div class="v" id="coast">$0</div><div class="l">Coast FIRE (60%)</div></div>
+      <div class="stat"><div class="v" id="fat">$0</div><div class="l">Fat FIRE (×2.5)</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['exp','rate'].forEach(k=>{ const s=localStorage.getItem('fnc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['exp','rate'].forEach(k=>localStorage.setItem('fnc_'+k,g(k).value));
+    const mult=100/Math.max(2,n('rate')), std=n('exp')*mult;
+    g('std').textContent='$'+Math.round(std).toLocaleString();
+    g('lean').textContent='$'+Math.round(std*0.5).toLocaleString();
+    g('coast').textContent='$'+Math.round(std*0.6).toLocaleString();
+    g('fat').textContent='$'+Math.round(std*2.5).toLocaleString();
+    g('note').textContent= 'At a '+n('rate')+'% withdrawal rate, '+mult+'× annual expenses gives you a portfolio that can statistically sustain your lifestyle for 30+ years.';
+  }
+  calc();
+</script>
+</body>
+</html>
