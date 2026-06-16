@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Review Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .week-label { text-align: center; font-size: 0.82rem; color: #5AE57A; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 600px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 4px; }
+  .card-hint { font-size: 0.78rem; color: #BFD8BF; font-style: italic; margin-bottom: 12px; }
+  textarea {
+    width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF;
+    padding: 10px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; outline: none; resize: vertical; min-height: 72px; line-height: 1.6;
+  }
+  textarea:focus { border-color: #5AE57A; }
+  .priority-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .p-num { color: #5AE57A; font-family: 'Playfair Display', serif; width: 20px; flex-shrink: 0; }
+  .p-input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .p-input:focus { border-color: #5AE57A; }
+  .grat-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .grat-input:focus { border-color: #5AE57A; }
+  .generate-row { text-align: center; max-width: 600px; margin: 0 auto 24px; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 13px 48px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Generated output */
+  #outputCard { display: none; }
+  .review-doc {
+    background: #325132; border: 1px solid #4C724C; border-radius: 8px;
+    padding: 22px; font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap;
+    font-family: 'DM Sans', sans-serif; color: #FFFFFF; max-height: 420px;
+    overflow-y: auto; margin-bottom: 14px;
+  }
+  .review-doc .section-head { color: #5AE57A; font-weight: 500; }
+  .output-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-outline { background: none; border: 1px solid #5AE57A; color: #5AE57A; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-outline:hover { background: #C9A84C22; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .copy-note { font-size: 0.78rem; color: #BFD8BF; margin-top: 6px; height: 16px; }
+
+  /* Archive */
+  .arch-item { padding: 12px 0; border-bottom: 1px solid #3C603C; cursor: pointer; }
+  .arch-item:last-child { border-bottom: none; }
+  .arch-top { display: flex; justify-content: space-between; align-items: center; }
+  .arch-week { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #5AE57A; }
+  .arch-preview { font-size: 0.78rem; color: #BFD8BF; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .arch-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 6px; }
+  .arch-del:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 14px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Weekly Review Generator</h1>
+<p class="subtitle">Reflect. Learn. Plan. Close the week with intention.</p>
+<p class="week-label" id="weekLabel"></p>
+
+<div class="card">
+  <div class="card-title">✦ Wins This Week</div>
+  <div class="card-hint">What went well? Celebrate before you critique.</div>
+  <textarea id="wins" placeholder="e.g. Finished the project draft, had a great team meeting, stuck to my morning routine 5 days…"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">✦ Challenges Faced</div>
+  <div class="card-hint">What was hard, frustrating, or didn't go to plan?</div>
+  <textarea id="challenges" placeholder="e.g. Lost focus on Tuesday, underestimated the proposal timeline…"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">✦ Key Learnings</div>
+  <div class="card-hint">What do you know now that you didn't a week ago?</div>
+  <textarea id="learnings" placeholder="e.g. I do my best thinking in the morning, batching emails actually works…"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">✦ Left Undone</div>
+  <div class="card-hint">What needs to move to next week or be dropped entirely?</div>
+  <textarea id="undone" placeholder="e.g. Client follow-up email, updating the content calendar…"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">✦ Next Week's Top 3</div>
+  <div class="card-hint">If you only accomplish three things, what must they be?</div>
+  <div class="priority-row"><div class="p-num">1.</div><input class="p-input" id="p1" placeholder="Most important priority" maxlength="80" /></div>
+  <div class="priority-row"><div class="p-num">2.</div><input class="p-input" id="p2" placeholder="Second priority" maxlength="80" /></div>
+  <div class="priority-row"><div class="p-num">3.</div><input class="p-input" id="p3" placeholder="Third priority" maxlength="80" /></div>
+</div>
+
+<div class="card">
+  <div class="card-title">✦ One Thing I'm Grateful For</div>
+  <div class="card-hint">End on something good.</div>
+  <input class="grat-input" id="gratitude" placeholder="e.g. A good conversation with a friend, a quiet morning…" maxlength="120" />
+</div>
+
+<div class="generate-row">
+  <button class="btn-gold" onclick="generate()">Generate My Review</button>
+</div>
+
+<div class="card" id="outputCard">
+  <div class="card-title" style="margin-bottom:14px">Your Weekly Review</div>
+  <div class="review-doc" id="reviewDoc"></div>
+  <div class="output-btns">
+    <button class="btn-outline" onclick="copyReview()">Copy to Clipboard</button>
+    <button class="btn-ghost" onclick="saveReview()">Save to Archive</button>
+  </div>
+  <div class="copy-note" id="copyNote"></div>
+</div>
+
+<div class="card" id="archiveCard">
+  <div class="card-title" style="margin-bottom:14px">Past Reviews</div>
+  <div id="archiveList"><p class="empty">No saved reviews yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let reviews = JSON.parse(localStorage.getItem('wrg_reviews') || '[]');
+  let generatedText = '';
+
+  function getWeekLabel() {
+    const now = new Date();
+    const day = now.getDay();
+    const mon = new Date(now); mon.setDate(now.getDate() - ((day + 6) % 7));
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    return `${fmt(mon)} – ${fmt(sun)}`;
+  }
+
+  function getWeekKey() { return new Date().toISOString().slice(0,7) + '-W' + getWeekNum(); }
+  function getWeekNum() {
+    const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() + 3 - (d.getDay()+6)%7);
+    const w = new Date(d.getFullYear(),0,4);
+    return Math.round(((d-w)/86400000 - 3 + (w.getDay()+6)%7)/7) + 1;
+  }
+
+  document.getElementById('weekLabel').textContent = 'Week of ' + getWeekLabel();
+
+  function val(id) { return (document.getElementById(id).value || '').trim(); }
+
+  function generate() {
+    const week = getWeekLabel();
+    const wins = val('wins'), challenges = val('challenges'), learnings = val('learnings');
+    const undone = val('undone'), p1 = val('p1'), p2 = val('p2'), p3 = val('p3'), grat = val('gratitude');
+    const priorities = [p1,p2,p3].filter(Boolean);
+
+    generatedText = [
+      `WEEKLY REVIEW — ${week}`,
+      `${'─'.repeat(44)}`,
+      wins       && `\nWINS THIS WEEK\n${wins}`,
+      challenges && `\nCHALLENGES FACED\n${challenges}`,
+      learnings  && `\nKEY LEARNINGS\n${learnings}`,
+      undone     && `\nLEFT UNDONE\n${undone}`,
+      priorities.length && `\nNEXT WEEK'S TOP ${priorities.length}\n${priorities.map((p,i)=>`${i+1}. ${p}`).join('\n')}`,
+      grat       && `\nGRATEFUL FOR\n${grat}`,
+      `\n${'─'.repeat(44)}`
+    ].filter(Boolean).join('\n');
+
+    const html = generatedText
+      .replace(/^(WEEKLY REVIEW.*)/m, '<span class="section-head" style="font-size:1rem">$1</span>')
+      .replace(/^(WINS.*|CHALLENGES.*|KEY.*|LEFT.*|NEXT.*|GRATEFUL.*)/gm, '<span class="section-head">$1</span>');
+
+    document.getElementById('reviewDoc').innerHTML = html;
+    document.getElementById('outputCard').style.display = 'block';
+    document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function copyReview() {
+    if (!generatedText) return;
+    navigator.clipboard.writeText(generatedText).then(() => {
+      const note = document.getElementById('copyNote');
+      note.textContent = 'Copied to clipboard ✓';
+      setTimeout(() => note.textContent = '', 2500);
+    });
+  }
+
+  function saveReview() {
+    if (!generatedText) return;
+    const key = getWeekKey();
+    reviews = reviews.filter(r => r.key !== key);
+    reviews.unshift({ key, week: getWeekLabel(), text: generatedText, wins: val('wins') });
+    localStorage.setItem('wrg_reviews', JSON.stringify(reviews));
+    renderArchive();
+    const note = document.getElementById('copyNote');
+    note.textContent = 'Saved to archive ✓';
+    setTimeout(() => note.textContent = '', 2500);
+  }
+
+  function deleteReview(key) {
+    reviews = reviews.filter(r => r.key !== key);
+    localStorage.setItem('wrg_reviews', JSON.stringify(reviews));
+    renderArchive();
+  }
+
+  function renderArchive() {
+    const el = document.getElementById('archiveList');
+    if (!reviews.length) { el.innerHTML = '<p class="empty">No saved reviews yet.</p>'; return; }
+    el.innerHTML = reviews.slice(0, 12).map(r => `
+      <div class="arch-item" onclick="viewReview('${r.key}')">
+        <div class="arch-top">
+          <div class="arch-week">${r.week}</div>
+          <button class="arch-del" onclick="event.stopPropagation();deleteReview('${r.key}')">✕</button>
+        </div>
+        <div class="arch-preview">${(r.wins || '—').slice(0,80)}</div>
+      </div>`).join('');
+  }
+
+  function viewReview(key) {
+    const r = reviews.find(r => r.key === key);
+    if (!r) return;
+    generatedText = r.text;
+    document.getElementById('reviewDoc').textContent = r.text;
+    document.getElementById('outputCard').style.display = 'block';
+    document.getElementById('outputCard').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  renderArchive();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimonial Collection Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Testimonial Collection Tool</h1>
+  <p class="sub">Ask the right questions and you get testimonials that actually sell.</p>
+
+  <div class="panel">
+    <label for="client">Client's first name</label>
+    <input id="client" placeholder="Who you are asking">
+    <label for="service">What you worked on together</label>
+    <input id="service" placeholder="The programme or service">
+    <label for="result">A result they got (if you know one)</label>
+    <input id="result" placeholder="Helps you prompt a specific answer">
+    <button class="btn" onclick="gen()">Build Request</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['client','service','result'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('tctl_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('tctl_'+k,g(k).value)); });
+  function gen(){
+    const t='Subject: A quick favour — would you share your experience?\n\nHi '+(v('client')||'[name]')+',\n\nIt has been such a pleasure working with you'+(v('service')?' on '+v('service'):'')+'! '+(v('result')?'Seeing '+v('result')+' has been a real highlight. ':'')+'\n\nWould you be open to sharing a few words about your experience? It really helps others decide if this is right for them.\n\nTo make it easy, here are a few prompts — answer in your own words, as much or as little as you like:\n\n1. What was going on for you before we started?\n2. What made you decide to work with me?\n3. What was the experience like?\n4. What specific results or changes have you seen?\n5. What would you say to someone thinking about it?\n\nFeel free to record a quick voice note or video instead if that is easier.\n\nThank you so much — it means a great deal.\n\nWarmly,\n[your name]'+
+    '\n\n--- Why these questions ---\nQuestion 1 captures the "before" — that is what makes a testimonial relatable.\nQuestion 5 handles objections for you, in a real client’s voice.\nAlways ask permission to use their name, photo and words publicly.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

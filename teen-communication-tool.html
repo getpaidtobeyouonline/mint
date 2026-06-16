@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teen Communication Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; font-size: .85rem; padding: 8px 14px; margin-top: 6px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; }
+  .blk li { font-size: .9rem; margin-left: 16px; }
+  .blk .x { font-size: .9rem; }
+  .blk .bad { color: #5AE57A; } .blk .good { color: #5AE57A; }
+  .starter { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 12px 15px; font-size: .92rem; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Teen Communication Tool</h1>
+  <p class="sub">Talking to teenagers is its own skill. Get an approach for the conversation you are facing.</p>
+
+  <div class="panel">
+    <label for="topic">What is the conversation about?</label>
+    <select id="topic" onchange="gen()">
+      <option value="general">Just connecting / staying close</option>
+      <option value="conflict">A conflict or rule they pushed back on</option>
+      <option value="worry">Something I am worried about</option>
+      <option value="school">School, grades or pressure</option>
+      <option value="feelings">They seem low or withdrawn</option>
+      <option value="mistake">They made a mistake</option>
+    </select>
+    <button class="btn" onclick="gen()">Get My Approach</button>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="panel">
+    <div class="starter" id="starter"></div>
+    <button class="btn ghost" onclick="newStarter()">Another conversation starter</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const STARTERS=["What was the best and worst part of your day?","If you could change one rule in this house, what would it be?","What is something you wish I understood better?","Who is someone you really admire right now, and why?","What are you looking forward to this week?","Is there anything you have wanted to tell me but have not?","What is something you think you are getting really good at?"];
+  const P={
+    general:{tips:["Talk side by side, not face to face — car rides, walks, washing up.","Be available on their timing, even if it is 11pm.","Listen far more than you speak; resist fixing.","Show interest in their world without judging it."],bad:"So how was school?",good:"Tell me about the most interesting thing that happened today."},
+    conflict:{tips:["Stay calm — your regulation lets them regulate.","Acknowledge their view before restating the limit.","Separate the rule from the relationship: firm and warm.","Give choices within the boundary where you can."],bad:"Because I said so, end of discussion.",good:"I hear that this feels unfair. The rule stands, but help me understand your side."},
+    worry:{tips:["Lead with curiosity, not accusation.","Name what you noticed, gently and specifically.","Do not interrogate — leave space and silence.","Make it clear they are not in trouble for being honest."],bad:"What is wrong with you lately?",good:"I have noticed you seem a bit off this week. I am here whenever you want to talk."},
+    school:{tips:["Praise effort and process, not just grades.","Ask what THEY want, not just what you want for them.","Be a calm sounding board for pressure, not another source of it.","Separate their worth from their results, out loud."],bad:"These grades are not good enough.",good:"School sounds stressful right now. What part feels hardest?"},
+    feelings:{tips:["Do not rush to cheer them up — sit with it first.","Validate before advising: 'that sounds really hard'.","Watch for changes in sleep, friends, appetite, mood.","If you are seriously worried, seek professional support — do not wait."],bad:"You have nothing to be sad about.",good:"It is okay to feel this way. I am not going anywhere — talk to me when you are ready."},
+    mistake:{tips:["Respond to the mistake, not their character.","Let natural consequences teach where safe.","Stay connected — shame pushes teens away from honesty.","Ask what they would do differently rather than lecturing."],bad:"I am so disappointed in you.",good:"Okay, this happened. Let us work out together how to put it right."}
+  };
+  function gen(){
+    const p=P[g('topic').value];
+    g('out').innerHTML='<div class="panel"><div class="blk"><h4>How to approach it</h4><ul>'+p.tips.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>Swap this for that</h4><div class="x bad">✗ "'+p.bad+'"</div><div class="x good">✓ "'+p.good+'"</div></div></div>';
+  }
+  function newStarter(){ g('starter').textContent='💬 '+STARTERS[Math.floor(Math.random()*STARTERS.length)]; }
+  gen(); newStarter();
+</script>
+</body>
+</html>

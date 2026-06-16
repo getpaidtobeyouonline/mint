@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Gift Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Teacher Gift Planner</h1>
+  <p class="sub">Plan a teacher gift that says thank-you sincerely — without overdoing it.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="teacher">Teacher's name</label><input id="teacher" placeholder="e.g. Mrs Brown"></div>
+      <div><label for="occasion">Occasion</label><input id="occasion" placeholder="e.g. end of year, Christmas, thank you"></div>
+      <div><label for="budget">Budget</label><input id="budget" placeholder="e.g. £10"></div>
+    </div>
+    <label for="loves">What the teacher loves (if you know)</label>
+    <input id="loves" placeholder="A subject, a hobby, a favourite drink">
+    <label for="kid">A note from your child</label>
+    <textarea id="kid" placeholder="A sentence they want to say — in their own words"></textarea>
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['teacher','occasion','budget','loves','kid'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('tgp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('tgp_'+k,g(k).value)); });
+  function gen(){
+    const t='TEACHER GIFT PLAN'+(v('teacher')?'\nFor: '+v('teacher'):'')+(v('occasion')?'  ·  '+v('occasion'):'')+(v('budget')?'  ·  budget '+v('budget'):'')+
+    '\n\nGIFT IDEAS\n  • A heartfelt handwritten card from your child\n  • A small bunch of fresh flowers or a plant\n  • A favourite drink and a treat (coffee shop voucher, posh tea)\n  • A nice notebook or pen\n  • A class group gift (split the cost, bigger impact)\n  • A "best of" voucher from your child — a year of being kind, helpful, on time'+
+    (v('loves')?'\n\nIDEAS BASED ON WHAT THEY LOVE:\n  '+v('loves')+' — pick something small and personal around this.':'')+
+    '\n\nNOTE TEMPLATE FOR THE CARD\nDear '+(v('teacher')||'[teacher]')+',\n\n'+(v('kid')||'[your child\'s sentence — keep their words!]')+'\n\nThank you for everything you do this year — for the patience, the encouragement and the smile each morning. We see it, and we are so grateful.\n\nWith love,\n[Family name]'+
+    '\n\n--- Tips ---\nThe handwritten card from the child matters more than the gift itself.\nA small, sincere gift beats a big, impersonal one every time.\nA group gift can be a kind way to share the cost and make a bigger gesture.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viral Post Analyser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; }
+  textarea {
+    width: 100%;
+    min-height: 160px;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: inherit;
+    font-size: 15px;
+    resize: vertical;
+  }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 14px;
+    transition: transform 0.1s, opacity 0.2s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .score-row { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .score-circle {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    background: conic-gradient(#5AE57A var(--p, 0%), #4C724C 0);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .score-inner {
+    width: 88px; height: 88px;
+    background: #2A442A;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .verdict { flex: 1; min-width: 200px; }
+  .verdict h2 {
+    font-family: 'Playfair Display', serif;
+    color: #FFFFFF;
+    margin-bottom: 4px;
+    font-size: 22px;
+  }
+  .metric {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #4C724C;
+  }
+  .metric:last-child { border-bottom: none; }
+  .metric-name { font-size: 14px; }
+  .bar {
+    flex: 1;
+    height: 8px;
+    background: #4C724C;
+    border-radius: 4px;
+    margin: 0 14px;
+    overflow: hidden;
+    max-width: 220px;
+  }
+  .bar-fill { height: 100%; background: #5AE57A; border-radius: 4px; transition: width 0.6s; }
+  .metric-val { font-weight: 700; color: #5AE57A; min-width: 36px; text-align: right; }
+  .tips { list-style: none; }
+  .tips li {
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .tips li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .tips li:last-child { border-bottom: none; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Viral Post Analyser</h1>
+  <p class="subtitle">Paste any social post. Get a viral score, the breakdown, and exactly what to tweak.</p>
+
+  <div class="card">
+    <label for="post">Your post</label>
+    <textarea id="post" placeholder="Paste your tweet, LinkedIn post, IG caption, or hook..."></textarea>
+    <button onclick="analyse()">Analyse Post</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="score-row">
+        <div class="score-circle" id="circle"><div class="score-inner" id="score">0</div></div>
+        <div class="verdict">
+          <h2 id="verdict">—</h2>
+          <p id="summary" style="opacity:0.8;font-size:14px;"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:14px;">The Breakdown</label>
+      <div id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">How to Improve</label>
+      <ul class="tips" id="tips"></ul>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+function analyse() {
+  const text = document.getElementById('post').value.trim();
+  if (!text) { alert('Paste a post first.'); return; }
+
+  const words = text.split(/\s+/).filter(Boolean);
+  const wc = words.length;
+  const sentences = text.split(/[.!?\n]+/).filter(s => s.trim()).length || 1;
+  const lower = text.toLowerCase();
+
+  const hookWords = ['why','how','what','stop','never','secret','nobody','here','this','imagine','if','you','i'];
+  const firstLine = text.split('\n')[0].toLowerCase();
+  const hookScore = Math.min(100, (hookWords.filter(w => firstLine.startsWith(w + ' ') || firstLine.startsWith(w + "'")).length ? 70 : 30)
+    + (firstLine.length < 80 ? 20 : 0) + (firstLine.includes('?') ? 10 : 0));
+
+  const emotionWords = ['love','hate','fear','win','lose','fail','best','worst','easy','hard','rich','poor','free','proven','shocking','crazy','insane'];
+  const emoCount = emotionWords.filter(w => lower.includes(w)).length;
+  const emotionScore = Math.min(100, emoCount * 22 + 15);
+
+  const avgWordsPerSentence = wc / sentences;
+  const readScore = avgWordsPerSentence < 12 ? 95 : avgWordsPerSentence < 18 ? 75 : avgWordsPerSentence < 25 ? 55 : 30;
+
+  let lengthScore;
+  if (wc < 15) lengthScore = 40;
+  else if (wc <= 60) lengthScore = 95;
+  else if (wc <= 150) lengthScore = 80;
+  else if (wc <= 280) lengthScore = 60;
+  else lengthScore = 35;
+
+  const ctaWords = ['comment','reply','share','follow','dm','link','bio','tag','save','retweet','thoughts','agree'];
+  const hasCTA = ctaWords.some(w => lower.includes(w));
+  const ctaScore = hasCTA ? 90 : 25;
+
+  const overall = Math.round((hookScore*0.3 + emotionScore*0.2 + readScore*0.2 + lengthScore*0.15 + ctaScore*0.15));
+
+  const metrics = [
+    {name: 'Hook Strength', val: Math.round(hookScore)},
+    {name: 'Emotional Pull', val: Math.round(emotionScore)},
+    {name: 'Readability', val: Math.round(readScore)},
+    {name: 'Length Fit', val: Math.round(lengthScore)},
+    {name: 'Call to Action', val: Math.round(ctaScore)}
+  ];
+
+  let verdict, summary;
+  if (overall >= 80) { verdict = 'Ready to ship'; summary = 'Strong structure. Post it.'; }
+  else if (overall >= 60) { verdict = 'Solid — tighten it'; summary = 'A few tweaks could push this further.'; }
+  else if (overall >= 40) { verdict = 'Needs work'; summary = 'The bones are there. Sharpen the weak spots below.'; }
+  else { verdict = 'Rewrite recommended'; summary = 'Start over with a stronger hook and clearer payoff.'; }
+
+  const tips = [];
+  if (hookScore < 70) tips.push('Lead with a bolder first line — a question, a contrarian claim, or a number.');
+  if (emotionScore < 60) tips.push('Inject one emotional word (free, proven, fail, win) to make readers feel something.');
+  if (readScore < 70) tips.push('Shorten your sentences. Aim for under 12 words per line.');
+  if (lengthScore < 70) tips.push(wc > 150 ? 'Cut the fat. Best-performing posts are 30–60 words.' : 'Add 2–3 lines of context — too short to land.');
+  if (ctaScore < 70) tips.push('End with a clear ask: a question, "comment X", or "save this".');
+  if (!tips.length) tips.push('No obvious weaknesses. Test it against a variation.');
+
+  document.getElementById('score').textContent = overall;
+  document.getElementById('circle').style.setProperty('--p', overall + '%');
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('summary').textContent = summary;
+  document.getElementById('metrics').innerHTML = metrics.map(m =>
+    `<div class="metric"><span class="metric-name">${m.name}</span><div class="bar"><div class="bar-fill" style="width:${m.val}%"></div></div><span class="metric-val">${m.val}</span></div>`
+  ).join('');
+  document.getElementById('tips').innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

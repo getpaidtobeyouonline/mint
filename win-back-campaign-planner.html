@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Win Back Campaign Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .em h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .em p { font-size: .9rem; margin-top: 4px; } .em .sl { font-style: italic; opacity: .82; font-size: .85rem; margin-top: 3px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Win Back Campaign Planner</h1>
+  <p class="sub">Win back past customers (who already trust you) with a 4-email campaign that doesn't feel like begging.</p>
+
+  <div class="panel">
+    <label for="who">Who you are winning back</label>
+    <select id="who"><option>Past customers (bought before, gone quiet)</option><option>Former members / cancelled subscribers</option><option>Past clients (service)</option></select>
+    <label for="reason">A genuine new reason to come back</label>
+    <input id="reason" placeholder="e.g. a new product version, lower price, fresh result">
+    <label for="cta">Where they go / what they do</label>
+    <input id="cta" placeholder="e.g. claim a returning-customer discount">
+    <button class="btn" onclick="gen()">Build Campaign</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['who','reason','cta'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('wbcp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('wbcp_'+k,g(k).value)); });
+  function gen(){
+    const r=v('reason')||'we have something new since you were last here', cta=v('cta')||'take a look';
+    const seq=[
+      ["Email 1 — Honest re-introduction","Subject: a quick hello (it's been a while)","Acknowledge the gap without guilt. One sentence on what they liked, one sentence on what has changed."],
+      ["Email 2 — Show the change","Subject: what's new since we last spoke","Concretely: "+r+". No pitch yet — just show value or proof."],
+      ["Email 3 — The offer","Subject: just for past customers","Make a returning-customer offer (discount, bonus, early access). Make it feel exclusive to them, not the world. CTA: "+cta+"."],
+      ["Email 4 — Honest close","Subject: last note from me","One paragraph. Either come back or no hard feelings — and remove them from the campaign. Self-respect closes better than desperation."]
+    ];
+    g('out').innerHTML=seq.map(s=>'<div class="em"><h3>'+s[0]+'</h3><div class="sl">'+s[1]+'</div><p>'+s[2]+'</p></div>').join('');
+  }
+  gen();
+</script>
+</body>
+</html>

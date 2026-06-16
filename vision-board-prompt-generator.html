@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vision Board Prompt Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.8rem); text-align: center; margin-bottom: 0.5rem; }
+    .subtitle { text-align: center; opacity: 0.65; margin-bottom: 2rem; font-size: 0.95rem; }
+    .container { max-width: 680px; margin: 0 auto; }
+    .section-label { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 0.85rem; }
+    .categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 0.65rem; margin-bottom: 1.75rem; }
+    .cat-btn { background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.7rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; transition: all 0.2s; }
+    .cat-btn:hover { border-color: #5AE57A; }
+    .cat-btn.selected { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 700; }
+    .input-group { margin-bottom: 1.5rem; }
+    label { display: block; color: #5AE57A; font-family: 'Playfair Display', serif; margin-bottom: 0.5rem; }
+    input[type="text"] { width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.75rem 1rem; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; }
+    input[type="text"]:focus { border-color: #5AE57A; }
+    .generate-btn { background: #5AE57A; color: #325132; border: none; padding: 1rem 2rem; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; cursor: pointer; width: 100%; margin-bottom: 2rem; transition: opacity 0.2s; }
+    .generate-btn:hover { opacity: 0.85; }
+    .results { display: none; }
+    .prompt-card { background: #345534; border: 1px solid #3C603C; border-left: 3px solid #5AE57A; padding: 1.2rem; border-radius: 8px; margin-bottom: 0.9rem; }
+    .prompt-category { color: #5AE57A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.5rem; }
+    .prompt-text { color: #FFFFFF; font-size: 1rem; line-height: 1.65; font-style: italic; }
+    .copy-btn { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.3rem 0.7rem; border-radius: 6px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; margin-top: 0.7rem; transition: all 0.2s; }
+    .copy-btn:hover { background: #5AE57A; color: #325132; }
+    .copy-all-btn { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.8rem 1.5rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; width: 100%; margin: 0.5rem 0 2.5rem; transition: all 0.2s; }
+    .copy-all-btn:hover { background: #5AE57A; color: #325132; }
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Vision Board Prompt Generator</h1>
+  <p class="subtitle">Pick your focus areas. Get magnetic affirmations ready to pair with your vision board images.</p>
+
+  <p class="section-label">1. Choose your focus areas</p>
+  <div class="categories">
+    <button class="cat-btn" onclick="toggleCat(this,'Money')">💰 Money</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Career')">🚀 Career</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Love')">❤️ Love</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Health')">✨ Health</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Travel')">🌍 Travel</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Home')">🏡 Home</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Mindset')">🧠 Mindset</button>
+    <button class="cat-btn" onclick="toggleCat(this,'Freedom')">🕊️ Freedom</button>
+  </div>
+
+  <div class="input-group">
+    <label>2. What's your #1 dream right now? (optional)</label>
+    <input type="text" id="dreamInput" placeholder="e.g. quit my 9–5 and travel full-time…">
+  </div>
+
+  <button class="generate-btn" onclick="generate()">✦ Generate My Vision Board Prompts</button>
+
+  <div class="results" id="results">
+    <p class="section-label">Your Vision Board Prompts</p>
+    <div id="promptList"></div>
+    <button class="copy-all-btn" onclick="copyAll()">Copy All Prompts</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const selected = new Set();
+
+  function toggleCat(btn, cat) {
+    selected.has(cat) ? (selected.delete(cat), btn.classList.remove('selected'))
+                      : (selected.add(cat),    btn.classList.add('selected'));
+  }
+
+  const pool = {
+    Money:   ["I am a magnet for abundance — money flows to me easily and consistently.","My income grows month after month, and I always have more than enough.","I am financially free, living fully on my own terms.","Wealth is my natural state. I receive it with gratitude and ease.","High-value opportunities find me and multiply my income effortlessly."],
+    Career:  ["I am doing work I love, making an impact, and earning what I'm worth.","My dream career is my reality — I wake up excited every single day.","I am recognized as an authority in my field and paid accordingly.","Opportunities to grow, lead, and shine come to me naturally.","I built something I'm proud of — and it keeps growing."],
+    Love:    ["I am in a deeply loving, joyful relationship that lights me up daily.","My relationships are healthy, nourishing, and full of genuine connection.","I give and receive love freely — my heart is open and my life is full.","My partner is my best friend. We grow, laugh, and dream together.","I am worthy of a love that feels safe, passionate, and completely real."],
+    Health:  ["My body is strong, vibrant, and full of energy every single day.","I wake up feeling rested, clear-headed, and completely alive.","I nourish my body and it rewards me with incredible vitality.","I glow from the inside out — mind, body, and spirit in perfect harmony.","I am at my ideal weight and I feel absolutely amazing in my skin."],
+    Travel:  ["I travel the world freely, exploring beautiful places on my own timeline.","My passport is full of stamps, my heart is full of memories.","I work from anywhere — a laptop, a beach, a café in a city I just discovered.","Adventure finds me everywhere I go. My life is one beautiful journey.","I have the freedom and the funds to say yes to every trip I dream of."],
+    Home:    ["I live in a beautiful home that feels like a sanctuary — calm, bright, and mine.","My space reflects who I am: intentional, abundant, and full of beauty.","I own a home that fills me with pride and peace every time I walk in.","Every room in my life — literally and figuratively — is exactly as I designed it.","I have created a home that nourishes my creativity, rest, and joy."],
+    Mindset: ["I trust myself completely. My intuition always leads me in the right direction.","I am confident, grounded, and at peace with exactly who I am.","I release fear and step boldly into every new version of myself.","I choose growth over comfort — and that choice has transformed my life.","My mind is clear, focused, and working completely in my favor."],
+    Freedom: ["I answer to no one but myself. My time, my rules, my life.","Financial freedom is my reality — I work when I want and live how I please.","I designed a life with no ceiling, no commute, and no compromises.","Every day I wake up free — free to choose, to create, to live fully.","I have the freedom to be exactly who I am, everywhere I go."]
+  };
+
+  function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function makeCard(category, text) {
+    const d = document.createElement('div');
+    d.className = 'prompt-card';
+    d.innerHTML = `<div class="prompt-category">${category}</div><div class="prompt-text">"${text}"</div><button class="copy-btn" onclick="copyOne(this)">Copy</button>`;
+    return d;
+  }
+
+  function generate() {
+    const dream = document.getElementById('dreamInput').value.trim();
+    const cats  = selected.size > 0 ? [...selected] : Object.keys(pool);
+    const list  = document.getElementById('promptList');
+    list.innerHTML = '';
+
+    if (dream) list.appendChild(makeCard('Your Dream', `I am living my dream: ${dream}. It is real, it is mine, and it is happening now.`));
+    cats.forEach(cat => list.appendChild(makeCard(cat, rand(pool[cat]))));
+
+    const r = document.getElementById('results');
+    r.style.display = 'block';
+    r.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyOne(btn) {
+    const text = btn.parentElement.querySelector('.prompt-text').textContent;
+    navigator.clipboard.writeText(text).then(() => { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy', 1600); });
+  }
+
+  function copyAll() {
+    const all = [...document.querySelectorAll('.prompt-text')].map(e => e.textContent).join('\n\n');
+    navigator.clipboard.writeText(all).then(() => {
+      const b = document.querySelector('.copy-all-btn');
+      b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy All Prompts', 1600);
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vision Clarity Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 60px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; }
+  .res h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.2rem; margin-bottom: 8px; }
+  .res p { font-size: .95rem; margin-bottom: 8px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Vision Clarity Tool</h1>
+  <p class="sub">Write a vivid "year-from-now" snapshot. Vague vision = vague life. Specific snapshot pulls you forward.</p>
+
+  <div class="panel">
+    <label for="when">A year from now, on an ordinary day…</label>
+    <textarea id="when" placeholder="What time do you wake up? Where are you? Doing what?"></textarea>
+    <label for="work">What is your work day like?</label>
+    <textarea id="work" placeholder="Who are you working with / on what / how does it feel"></textarea>
+    <label for="people">Who is in your life?</label>
+    <textarea id="people" placeholder="Relationships, community, energy around you"></textarea>
+    <label for="body">How does your body feel?</label>
+    <textarea id="body" placeholder="Energy, health, how you move through the day"></textarea>
+    <label for="money">What does money look like?</label>
+    <textarea id="money" placeholder="Income, savings, relationship with it"></textarea>
+    <label for="feel">What is the dominant feeling?</label>
+    <input id="feel" placeholder="One word that runs through the whole year">
+    <button class="btn" onclick="gen()">Write My Vision</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['when','work','people','body','money','feel'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('vct_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('vct_'+k,g(k).value)); });
+  function gen(){
+    g('out').innerHTML='<div class="res"><h2>One year from today</h2>'+
+      '<p><b style="color:#5AE57A">My ordinary day:</b> '+esc(v('when')||'—')+'</p>'+
+      '<p><b style="color:#5AE57A">My work:</b> '+esc(v('work')||'—')+'</p>'+
+      '<p><b style="color:#5AE57A">My people:</b> '+esc(v('people')||'—')+'</p>'+
+      '<p><b style="color:#5AE57A">My body:</b> '+esc(v('body')||'—')+'</p>'+
+      '<p><b style="color:#5AE57A">My money:</b> '+esc(v('money')||'—')+'</p>'+
+      '<p><b style="color:#5AE57A">The feeling:</b> '+esc(v('feel')||'—')+'</p>'+
+      '<p style="margin-top:14px;opacity:.85"><b style="color:#5AE57A">Now ask:</b> what one decision this month moves me toward this snapshot? That is your next move. Read this every Sunday for 90 days.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Write it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

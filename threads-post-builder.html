@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Threads Post Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .sub { opacity: 0.85; max-width: 540px; margin: 0 auto; }
+  .card {
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #5AE57A;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid rgba(240, 235, 224, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 18px;
+  }
+  textarea { min-height: 90px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  button:hover { transform: translateY(-1px); opacity: 0.92; }
+  button.ghost {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .post {
+    position: relative;
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 10px;
+    padding: 16px 18px 16px 60px;
+    margin-bottom: 12px;
+  }
+  .post-num {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #5AE57A;
+    color: #325132;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+  .post-role {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+  }
+  .post-body {
+    font-size: 1rem;
+    white-space: pre-wrap;
+    line-height: 1.55;
+  }
+  .post-count {
+    font-size: 0.75rem;
+    opacity: 0.55;
+    margin-top: 8px;
+    text-align: right;
+  }
+  .post-count.over { color: #5AE57A; opacity: 1; }
+  .copy-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+  }
+  .mini-btn {
+    background: transparent;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    color: #5AE57A;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 5px;
+    cursor: pointer;
+    width: auto;
+  }
+  .mini-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .actions button { flex: 1; min-width: 130px; width: auto; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Threads Post Builder</h1>
+    <p class="sub">Turn one idea into a 6-post thread that pulls readers from hook to CTA — formatted for Threads or Twitter / X.</p>
+  </header>
+
+  <div class="card" id="inputCard">
+    <label for="topic">Your thread topic</label>
+    <input id="topic" type="text" placeholder="e.g. why I stopped using deadlines, the truth about freelance taxes" />
+
+    <label for="audience">Your audience</label>
+    <input id="audience" type="text" placeholder="e.g. solo creators, side-hustle founders" />
+
+    <label for="lessons">3 key insights (comma-separated)</label>
+    <textarea id="lessons" placeholder="e.g. urgency beats ability, energy is the real currency, structure compounds"></textarea>
+
+    <label for="cta">CTA for the final post</label>
+    <input id="cta" type="text" placeholder="e.g. Follow for more. Comment 'THREAD' for the playbook." />
+
+    <label for="style">Thread style</label>
+    <select id="style">
+      <option value="Threads">Threads (500 char limit)</option>
+      <option value="Twitter">Twitter / X (280 char limit)</option>
+    </select>
+
+    <button onclick="generate()">Build My Thread</button>
+  </div>
+
+  <div id="output" class="hidden"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  function buildThread(topic, audience, lessons, cta) {
+    const [l1, l2, l3] = lessons;
+    return [
+      { role: "Hook", body: `Most ${audience} are quietly stuck on ${topic}.\n\nNot because they're lazy — because nobody actually explained the part that matters.\n\nLet's fix that.` },
+      { role: "Context", body: `Here's what I mean.\n\nIf you've ever felt like you "should know this by now" about ${topic}, you're not alone. The advice everywhere skips the foundation.\n\nThis thread is the foundation.` },
+      { role: "Insight 1", body: `1. ${l1 || "Insight 1"}\n\nThis is the one most ${audience} resist. But once it clicks, everything downstream gets easier.` },
+      { role: "Insight 2", body: `2. ${l2 || "Insight 2"}\n\nThe shift here isn't doing more — it's protecting what already works. Notice where you're leaking.` },
+      { role: "Insight 3", body: `3. ${l3 || "Insight 3"}\n\nThis is the long-game move. It looks slow for weeks. Then suddenly it doesn't.` },
+      { role: "CTA", body: `That's the thread.\n\nIf this helped, ${cta || "follow for more like it."}` }
+    ];
+  }
+
+  function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    const audience = document.getElementById('audience').value.trim();
+    const lessonsRaw = document.getElementById('lessons').value.trim();
+    const cta = document.getElementById('cta').value.trim();
+    const style = document.getElementById('style').value;
+
+    if (!topic || !audience || !lessonsRaw) {
+      alert('Please fill in topic, audience, and key insights.');
+      return;
+    }
+
+    const lessons = lessonsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    const posts = buildThread(topic, audience, lessons, cta);
+    const limit = style === 'Twitter' ? 280 : 500;
+
+    let html = `<div class="card">
+      <h2 style="font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.5rem;margin-bottom:6px;">Your 6-Post Thread</h2>
+      <p style="opacity:0.8;margin-bottom:18px;font-size:0.92rem;">Optimized for ${style} · ${limit} character limit per post</p>`;
+
+    posts.forEach((p, i) => {
+      const len = p.body.length;
+      const over = len > limit;
+      html += `<div class="post">
+        <div class="post-num">${i + 1}</div>
+        <div class="post-role">${p.role}</div>
+        <div class="post-body" id="post-${i}">${escapeHtml(p.body)}</div>
+        <div class="post-count ${over ? 'over' : ''}">${len} / ${limit} chars${over ? ' — trim this one' : ''}</div>
+        <div class="copy-row"><button class="mini-btn" onclick="copyPost(${i})">Copy Post</button></div>
+      </div>`;
+    });
+
+    html += `<div class="actions">
+      <button class="ghost" onclick="copyAll()">Copy Entire Thread</button>
+      <button class="ghost" onclick="reset()">Start Over</button>
+    </div></div>`;
+
+    const out = document.getElementById('output');
+    out.innerHTML = html;
+    out.classList.remove('hidden');
+    document.getElementById('inputCard').classList.add('hidden');
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function copyPost(i) {
+    const txt = document.getElementById('post-' + i).innerText;
+    navigator.clipboard.writeText(txt).then(() => {
+      const btns = document.querySelectorAll('.mini-btn');
+      const orig = btns[i].innerText;
+      btns[i].innerText = 'Copied';
+      setTimeout(() => btns[i].innerText = orig, 1200);
+    });
+  }
+
+  function copyAll() {
+    const txt = Array.from(document.querySelectorAll('.post')).map((p, i) => {
+      const body = p.querySelector('.post-body').innerText;
+      return `[${i + 1}/6]\n${body}\n`;
+    }).join('\n---\n\n');
+    navigator.clipboard.writeText(txt).then(() => alert('Thread copied to clipboard.'));
+  }
+
+  function reset() {
+    document.getElementById('output').classList.add('hidden');
+    document.getElementById('inputCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

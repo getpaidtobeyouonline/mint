@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workshop Agenda Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.ws-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.ai{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.7rem;border-left:3px solid #5AE57A}
+.ai-top{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.ai-time{font-size:.75rem;font-weight:500;opacity:.45;flex:1}
+.ai-dur{font-size:.71rem;font-weight:600;opacity:.4}
+.type-badge{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-radius:4px;padding:.16rem .5rem;white-space:nowrap}
+.ai-title{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:.38rem}
+.ai-note{font-size:.82rem;opacity:.68;line-height:1.5;margin-bottom:.25rem}
+.ai-hint{font-size:.72rem;opacity:.36;font-style:italic}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Workshop Agenda Builder</h1>
+    <p class="subtitle">Build a complete, timed workshop agenda — with activity types, facilitator notes, and format-specific tips — in minutes.</p>
+  </header>
+
+  <div class="card">
+    <h2>Workshop Details</h2>
+    <label>Workshop Topic</label>
+    <input type="text" id="inTopic" placeholder="e.g. personal branding, launch strategy, team communication">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. small business owners">
+      </div>
+      <div>
+        <label style="margin-top:0">Key Takeaway</label>
+        <input type="text" id="inGoal" placeholder="e.g. a 90-day action plan">
+      </div>
+    </div>
+    <label>Workshop Length</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickLen(120)" id="l120">2 Hours</button>
+      <button class="opt"     onclick="pickLen(240)" id="l240">Half Day</button>
+      <button class="opt"     onclick="pickLen(480)" id="l480">Full Day</button>
+    </div>
+    <label>Format</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickFmt('inperson')" id="finperson">In-Person</button>
+      <button class="opt"     onclick="pickFmt('virtual')"  id="fvirtual">Virtual</button>
+      <button class="opt"     onclick="pickFmt('hybrid')"   id="fhybrid">Hybrid</button>
+    </div>
+    <button class="btn" onclick="generate()">Build My Workshop Agenda →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="ws-title" id="wsTitle"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ New Title</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="agendaItems"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyAgenda()">Copy Full Agenda as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const hhmm = n => `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
+
+const ti = {
+  welcome:  {label:'Welcome',    col:'#5AE57A'},
+  icebrkr:  {label:'Icebreaker', col:'#5AE57A'},
+  framing:  {label:'Framing',    col:'#5AE57A'},
+  teach:    {label:'Teaching',   col:'#5AE57A'},
+  exercise: {label:'Exercise',   col:'#5AE57A'},
+  discuss:  {label:'Discussion', col:'#5AE57A'},
+  activity: {label:'Activity',   col:'#5AE57A'},
+  sharing:  {label:'Sharing',    col:'#5AE57A'},
+  qanda:    {label:'Q&A',        col:'#5AE57A'},
+  energise: {label:'Energiser',  col:'#5AE57A'},
+  brk:      {label:'Break',      col:'#BFD8BF'},
+  wrapup:   {label:'Wrap-Up',    col:'#5AE57A'},
+};
+
+const fh = {
+  icebrkr:  ['Stand up and meet 3 new people in the room','Cameras on — go around verbally or share in chat','In-room verbal; virtual participants share in chat'],
+  exercise: ['Work in pairs or small groups at tables','Use breakout rooms — 3 to 4 per group','On-site pairs; virtual participants in breakout rooms'],
+  discuss:  ['Open floor or small table groups','Use chat for quick responses, then unmute to share','Blend in-room voices with live chat responses'],
+  activity: ['Rotate stations or work at tables','Use a shared doc or virtual whiteboard','Shared digital workspace accessible to all participants'],
+  sharing:  ['Volunteers share with the full room','Screen share with spotlight on the speaker','Shared doc; invite both in-room and virtual voices'],
+  energise: ['Stand-up stretch or a quick group activity','Camera-on movement break — everyone joins','Both groups join the same on-screen energiser'],
+};
+const fhIdx = {inperson:0, virtual:1, hybrid:2};
+
+const fw = {
+  120:[
+    {t:'welcome',  m:10, title:'Welcome & Workshop Overview',           note:'Set the stage: what {A} will achieve today and how the session is structured'},
+    {t:'icebrkr',  m:10, title:'Icebreaker: Your {T} Story in One Line',note:'Each {A} shares where they are with {T} right now — one sentence each'},
+    {t:'framing',  m:10, title:'The {T} Challenge Facing {A}',          note:'Frame the core problem {T} solves and why {X} is worth pursuing'},
+    {t:'teach',    m:20, title:'Core {T} Framework: Part 1',            note:'Introduce Pillar 1 of your {T} method — the foundation of {X}'},
+    {t:'exercise', m:15, title:'Hands-On: Apply Part 1 to {X}',         note:'{A} work through a focused task: use Pillar 1 on their own {T} situation'},
+    {t:'brk',      m: 5, title:'Break',                                 note:'Short reset before the second half of the workshop'},
+    {t:'teach',    m:20, title:'Core {T} Framework: Part 2',            note:'Introduce Pillar 2 — the step that turns {T} effort into {X} for {A}'},
+    {t:'discuss',  m:15, title:'Group Discussion: {T} in Your Context', note:'What did {A} discover? Share barriers, breakthroughs, and questions'},
+    {t:'qanda',    m:10, title:'Open Q&A',                              note:'Surface blockers and specific {T} challenges from {A}'},
+    {t:'wrapup',   m: 5, title:'Wrap-Up: Commitments & Next Steps',     note:'Each {A} names one {T} action they will take in the next 48 hours'},
+  ],
+  240:[
+    {t:'welcome',  m:15, title:'Welcome & Introductions',               note:'Welcome {A}, set the agenda, and share what {X} looks like in practice'},
+    {t:'icebrkr',  m:15, title:'Icebreaker: {T} Wins & Challenges',     note:'{A} share one {T} win and one current challenge — pairs or full group'},
+    {t:'framing',  m:10, title:'Scene Setting: The {T} Problem',        note:'Why {T} is harder than it looks — and why {A} are in the right place today'},
+    {t:'teach',    m:25, title:'{T} Framework: Part 1',                 note:'Deep dive into Pillar 1 — the first building block toward {X}'},
+    {t:'exercise', m:20, title:'Exercise: Apply Part 1 to Your Situation',note:'{A} work through Pillar 1 applied to their own context — solo then pairs'},
+    {t:'brk',      m:15, title:'Morning Break',                         note:'15-minute reset — encourage {A} to reflect on Pillar 1 before returning'},
+    {t:'teach',    m:25, title:'{T} Framework: Part 2',                 note:'Pillar 2 — the method that connects foundations to results for {A}'},
+    {t:'activity', m:25, title:'Group Workshop: Your {T} Action Plan',  note:'{A} work in small groups to map their {T} approach using Parts 1 and 2'},
+    {t:'brk',      m:15, title:'Lunch Break',                           note:'Full break — use the board to collect {T} questions for the afternoon'},
+    {t:'teach',    m:20, title:'{T} Framework: Part 3',                 note:'Pillar 3 — the final piece that turns {T} effort into {X} consistently'},
+    {t:'sharing',  m:20, title:'Share Back: {T} Insights & Plans',      note:'{A} present their {T} plan — 2 minutes each, peer feedback welcome'},
+    {t:'qanda',    m:15, title:'Open Q&A',                              note:'Surface blockers, edge cases, and specific {T} challenges from {A}'},
+    {t:'wrapup',   m:20, title:'Wrap-Up, Commitments & Next Steps',     note:'Recap {X}, confirm next steps, share resources, and close with energy'},
+  ],
+  480:[
+    {t:'welcome',  m:20, title:'Welcome, Introductions & Day Overview', note:'Welcome {A}, introduce facilitators, set group norms, preview the full day'},
+    {t:'icebrkr',  m:20, title:'Icebreaker: {T} Story Sharing',         note:'{A} share a memorable {T} moment — what worked, what didn\'t, and why'},
+    {t:'framing',  m:15, title:'Why {T} Matters for {A} Right Now',     note:'Frame the {T} opportunity, the cost of inaction, and the path to {X}'},
+    {t:'teach',    m:30, title:'Core {T} Framework: Pillar 1',          note:'Foundation of {X} — introduce Pillar 1 with examples, slides, and context'},
+    {t:'exercise', m:35, title:'Exercise 1: Pillar 1 in Action',        note:'{A} apply Pillar 1 to their own {T} situation — guided with a worksheet'},
+    {t:'discuss',  m:20, title:'Group Discussion: What Came Up',        note:'Surface what {A} found in the exercise — challenges, insights, questions'},
+    {t:'brk',      m:15, title:'Morning Break',                         note:'15-minute reset — encourage {A} to jot down Pillar 1 reflections'},
+    {t:'teach',    m:30, title:'Core {T} Framework: Pillar 2',          note:'The engine of {T} results — deep dive into Pillar 2 with live examples'},
+    {t:'exercise', m:40, title:'Exercise 2: Apply Pillar 2 to {X}',     note:'{A} work in pairs through Pillar 2 applied to their specific {T} context'},
+    {t:'brk',      m:60, title:'Lunch Break',                           note:'Full break — use the board to collect afternoon {T} questions from {A}'},
+    {t:'energise', m:15, title:'Afternoon Energiser',                   note:'Re-engage {A} after lunch — quick movement, a reflection prompt, or team game'},
+    {t:'teach',    m:30, title:'Core {T} Framework: Pillar 3',          note:'The final piece — how Pillar 3 locks in {X} and makes {T} repeatable'},
+    {t:'activity', m:55, title:'Workshop: Build Your {T} Action Plan',  note:'{A} integrate all 3 pillars into a personalised {T} plan toward {X}'},
+    {t:'brk',      m:15, title:'Afternoon Break',                       note:'Break before final presentations — {A} finalise and rehearse their plans'},
+    {t:'sharing',  m:35, title:'Present Back & Peer Feedback',          note:'{A} share their {T} plan — 3 minutes each with structured peer feedback'},
+    {t:'wrapup',   m:45, title:'Full Q&A, Key Takeaways & Close',       note:'Open Q&A, recap {X}, confirm commitments, share resources, energising close'},
+  ]
+};
+
+const titleFns = [
+  (T,A,X) => `The ${cap(T)} Workshop`,
+  (T,A,X) => `${cap(T)} for ${cap(A)}: A Hands-On Workshop`,
+  (T,A,X) => `${cap(X)}: The ${cap(T)} Workshop for ${cap(A)}`,
+  (T,A,X) => `${cap(T)} Intensive: A Workshop for ${cap(A)}`,
+  (T,A,X) => `From Stuck to ${cap(X)}: The ${cap(T)} Workshop`,
+  (T,A,X) => `The ${cap(A)} ${cap(T)} Workshop`,
+];
+const lenLabel = {120:'2 hrs', 240:'4 hrs', 480:'8 hrs'};
+const fmtLabel = {inperson:'In-Person', virtual:'Virtual', hybrid:'Hybrid'};
+const activeTypes = new Set(['icebrkr','exercise','discuss','activity','sharing','energise']);
+
+let state = {len:120, fmt:'inperson', T:'', A:'', X:''};
+let titleIdx = 0;
+
+function pickLen(n) {
+  state.len = n;
+  [120,240,480].forEach(x => document.getElementById(`l${x}`).classList.toggle('sel', x===n));
+}
+function pickFmt(f) {
+  state.fmt = f;
+  ['inperson','virtual','hybrid'].forEach(x => document.getElementById(`f${x}`).classList.toggle('sel', x===f));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to build your agenda.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('wsTitle').textContent = titleFns[titleIdx](state.T, state.A, state.X);
+}
+
+function renderAll() {
+  const {len, fmt, T, A, X} = state;
+  const items = fw[len];
+  const interactive = items.filter(i => activeTypes.has(i.t)).length;
+  const breaks      = items.filter(i => i.t === 'brk').length;
+
+  document.getElementById('wsTitle').textContent = titleFns[titleIdx](T, A, X);
+  document.getElementById('statsBar').innerHTML =
+    st(items.length,'Segments') + st(interactive,'Activities') + st(breaks,'Breaks') + st(lenLabel[len],'Duration');
+
+  let elapsed = 0;
+  document.getElementById('agendaItems').innerHTML = items.map(item => {
+    const start = elapsed; elapsed += item.m;
+    const info  = ti[item.t];
+    const hint  = fh[item.t] ? fh[item.t][fhIdx[fmt]] : '';
+    const isBrk = item.t === 'brk';
+    return `<div class="ai" style="border-left-color:${info.col}">
+      <div class="ai-top">
+        <span class="ai-time">${hhmm(start)} – ${hhmm(elapsed)}</span>
+        <span class="ai-dur">${item.m} min</span>
+        <span class="type-badge" style="color:${info.col};background:${info.col}18;border:1px solid ${info.col}33">${info.label}</span>
+      </div>
+      <div class="ai-title" style="color:${isBrk ? '#FFFFFF' : info.col}">${cap(fill(item.title,T,A,X))}</div>
+      <div class="ai-note">${fill(item.note,T,A,X)}</div>
+      ${hint ? `<div class="ai-hint">💡 ${hint}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function copyAgenda() {
+  const {len, fmt, T, A, X} = state;
+  let text = `WORKSHOP AGENDA\n${titleFns[titleIdx](T,A,X)}\nAudience: ${A}  |  Format: ${fmtLabel[fmt]}  |  Length: ${lenLabel[len]}\n\n`;
+  let elapsed = 0;
+  fw[len].forEach(item => {
+    const start = elapsed; elapsed += item.m;
+    const hint = fh[item.t] ? fh[item.t][fhIdx[fmt]] : '';
+    text += `${hhmm(start)} – ${hhmm(elapsed)}  [${ti[item.t].label}]  ${item.m} min\n`;
+    text += `${cap(fill(item.title,T,A,X))}\n${fill(item.note,T,A,X)}\n`;
+    if (hint) text += `💡 ${hint}\n`;
+    text += '\n';
+  });
+  text += '---\nCreated with Workshop Agenda Builder by GetPaidToBeYouOnline';
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Full Agenda as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

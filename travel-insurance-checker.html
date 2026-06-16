@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Insurance Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .89rem; }
+  .item:last-of-type { border-bottom: none; }
+  .box { width: 20px; height: 20px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .item small { display: block; opacity: .6; font-size: .76rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; margin-top: 14px; display: none; }
+  .result h3 { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Travel Insurance Checker</h1>
+  <p class="sub">Before you buy a policy, check it actually covers what you need. Tick what your policy includes.</p>
+
+  <div class="panel">
+    <div id="checks"></div>
+    <button class="btn" onclick="score()">Check My Cover</button>
+    <div class="result" id="out"></div>
+    <div class="note">A general checklist, not insurance advice. Always read the full policy wording for limits and exclusions.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const C=[
+    ["Medical &amp; hospital cover","The big one — make sure the limit is high (millions, not thousands)."],
+    ["Emergency repatriation","Getting you home if you are seriously ill or injured."],
+    ["Trip cancellation &amp; curtailment","Covers you if you must cancel or cut the trip short."],
+    ["Lost, stolen or delayed baggage","And check the single-item limit for valuables."],
+    ["Travel delay &amp; missed departure","Compensation when transport lets you down."],
+    ["Personal liability","If you accidentally injure someone or damage property."],
+    ["Covers your specific activities","Skiing, diving, hiking at altitude often need add-ons."],
+    ["Covers pre-existing conditions","Declare them — undeclared conditions void claims."],
+    ["Valid for your whole trip length","Single-trip vs annual, and the maximum trip duration."],
+    ["24/7 emergency assistance line","Someone to call when things go wrong abroad."]
+  ];
+  function build(){
+    g('checks').innerHTML=C.map((c,i)=>'<div class="item" onclick="tog('+i+')"><span class="box" id="b'+i+'"></span><span>'+c[0]+'<small>'+c[1]+'</small></span></div>').join('');
+  }
+  let st={};
+  function tog(i){ st[i]=!st[i]; const b=g('b'+i); b.className='box'+(st[i]?' on':''); b.textContent=st[i]?'✓':''; }
+  function score(){
+    const n=Object.values(st).filter(Boolean).length;
+    let title,msg;
+    if(n>=9){ title='Well covered'; msg='This policy ticks almost every box. Just confirm the limits are high enough for your destination.'; }
+    else if(n>=6){ title='Mostly covered'; msg='Decent cover, but '+( C.length-n)+' area(s) are missing. Check whether those gaps matter for your trip.'; }
+    else if(n>=3){ title='Significant gaps'; msg='This policy leaves you exposed. Compare other options before you buy.'; }
+    else { title='Not enough cover'; msg='Big gaps here. Do not travel on this — find a more comprehensive policy.'; }
+    g('out').style.display='block';
+    g('out').innerHTML='<h3>'+title+' ('+n+'/'+C.length+')</h3><p style="font-size:.9rem;margin-top:4px">'+msg+'</p>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  build();
+</script>
+</body>
+</html>

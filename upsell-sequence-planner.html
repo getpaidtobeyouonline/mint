@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upsell Sequence Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:720px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+.mb{margin-bottom:1rem}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;appearance:none}
+input:focus,select:focus{border-color:#5AE57A}
+.sopt{background:#325132;border:2px solid #4C724C;border-radius:10px;padding:1rem .75rem;cursor:pointer;text-align:center;transition:all .2s}
+.sopt:hover{border-color:#5AE57A}
+.sopt.sel{border-color:#5AE57A;background:#325132}
+.sopt .ico{font-size:1.4rem;display:block;margin-bottom:.3rem}
+.sopt strong{display:block;color:#FFFFFF;font-size:.88rem;margin-bottom:.2rem}
+.sopt.sel strong{color:#5AE57A}
+.sopt small{opacity:.45;font-size:.73rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.seq-header{margin-bottom:1.25rem;padding:1rem 1.25rem;background:#3C603C;border:1px solid #4C724C;border-radius:10px}
+.seq-title{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.1rem;margin-bottom:.25rem}
+.seq-sub{font-size:.82rem;opacity:.5}
+.step{background:#3C603C;border:1px solid #4C724C;border-left:3px solid #5AE57A;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.step-top{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-bottom:.65rem}
+.step-num{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;opacity:.4;white-space:nowrap}
+.step-badge{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:.2rem .6rem;border-radius:4px;background:#325132;white-space:nowrap}
+.step-timing{font-size:.75rem;opacity:.45;margin-left:auto}
+.step-offer{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:.5rem}
+.step-row{display:flex;gap:1.5rem;margin-bottom:.5rem;flex-wrap:wrap}
+.step-meta{flex:1}
+.meta-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;opacity:.4;margin-bottom:.15rem}
+.meta-val{font-size:.85rem}
+.step-pitch{font-size:.82rem;opacity:.6;line-height:1.55;margin-bottom:.5rem;padding-top:.5rem;border-top:1px solid #3C603C}
+.step-subject{font-size:.82rem;margin-bottom:.35rem}
+.step-subject span{color:#5AE57A;font-style:italic}
+.step-cta{font-size:.82rem;opacity:.65}
+.step-cta span{color:#5AE57A}
+.cbtn-row{display:flex;gap:.75rem;margin-top:1.25rem}
+.cbtn{flex:1;background:transparent;border:2px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.8rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s}
+.cbtn:hover{background:#5AE57A;color:#325132}
+.cbtn.done{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:520px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.g3{grid-template-columns:1fr}.step-row{flex-direction:column;gap:.5rem}.step-timing{margin-left:0}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Upsell Sequence Planner</h1>
+    <p class="subtitle">Enter your core product — get a complete, step-by-step upsell plan with offer ideas, pricing, and email copy angles.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Core Product</h2>
+    <div class="g2">
+      <div><label>Product Name</label><input type="text" id="pname" placeholder="e.g. The Freelancer's Pricing Guide"></div>
+      <div><label>Price ($)</label><input type="text" id="price" placeholder="e.g. 27"></div>
+    </div>
+    <div class="g2 mb">
+      <div><label>Niche</label>
+        <select id="niche">
+          <option value="health">Health & Wellness</option><option value="finance">Money & Finance</option>
+          <option value="business">Business & Marketing</option><option value="creative">Creative Arts & Design</option>
+          <option value="tech">Tech & Productivity</option><option value="relationships">Relationships</option>
+          <option value="parenting">Parenting & Family</option><option value="lifestyle">Lifestyle & Hobbies</option>
+        </select>
+      </div>
+      <div><label>Target Audience</label><input type="text" id="audience" placeholder="e.g. freelance designers"></div>
+    </div>
+    <div>
+      <label>Sequence Type</label>
+      <div class="g3" style="margin-top:.3rem">
+        <div class="sopt" id="t_funnel" onclick="pickType('funnel')"><span class="ico">🛒</span><strong>Quick Funnel</strong><small>3-step checkout sequence</small></div>
+        <div class="sopt" id="t_email" onclick="pickType('email')"><span class="ico">📬</span><strong>Email Sequence</strong><small>5-email nurture series</small></div>
+        <div class="sopt" id="t_full" onclick="pickType('full')"><span class="ico">⚡</span><strong>Full Funnel</strong><small>7-step complete system</small></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Build My Upsell Sequence →</button>
+
+  <div class="results" id="results">
+    <div class="seq-header">
+      <div class="seq-title" id="seqTitle"></div>
+      <div class="seq-sub" id="seqSub"></div>
+    </div>
+    <div id="steps"></div>
+    <div class="cbtn-row">
+      <button class="cbtn" onclick="copyPlan(this)">Copy Full Plan as Text</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const offers = {
+  health:  {bump:'Quick-Start Habit Tracker Template',oto:'90-Day Transformation Toolkit',down:'Starter Wellness Planner',cross:'Meal Prep & Nutrition Template Pack',big:'Health Coaching Session Bundle'},
+  finance: {bump:'Monthly Budget Jumpstart Template',oto:'Financial Freedom Planning Toolkit',down:'Simple Debt Payoff Tracker',cross:'Side Income & Savings Tracker Bundle',big:'Wealth Building Roadmap'},
+  business:{bump:'Client Onboarding Email Templates',oto:'Complete Business Systems Toolkit',down:'Quick-Win Client Checklist Pack',cross:'Content Marketing Template Bundle',big:'Business Growth Strategy Session'},
+  creative:{bump:'Creative Project Planning Templates',oto:'Brand Identity Template Kit',down:'Mini Design Asset Bundle',cross:'Social Media Graphics Template Pack',big:'Brand Strategy Consultation'},
+  tech:    {bump:'Productivity Setup Checklist',oto:'Full Automation Workflow Toolkit',down:'Quick-Start Template Bundle',cross:'AI Prompt Library for Creators',big:'Productivity Systems Deep-Dive'},
+  relationships:{bump:'Conversation Starter Script Pack',oto:'Complete Communication Toolkit',down:'Boundary Setting Quick Guide',cross:'Relationship Goal-Setting Planner',big:'Communication Coaching Bundle'},
+  parenting:{bump:'Family Routine Checklist Templates',oto:'Complete Family Organization Toolkit',down:'Kid-Friendly Activity Planner',cross:'Meal Planning Template Bundle',big:'Parenting Support Community Access'},
+  lifestyle:{bump:'Daily Habit Tracker Template',oto:'Complete Life Organization System',down:'Morning Routine Quick Guide',cross:'Goal Setting & Vision Board Pack',big:'Life Coaching Kickstart Session'}
+};
+
+const seqDefs = {
+  funnel:{label:'Quick Funnel',sub:'3-step checkout sequence',steps:[
+    {type:'bump', label:'Order Bump',    timing:'At Checkout'},
+    {type:'oto',  label:'OTO 1',         timing:'Post-Purchase Page'},
+    {type:'down', label:'Downsell',      timing:'If OTO 1 Declined'}
+  ]},
+  email:{label:'Email Sequence',sub:'5-email post-purchase nurture series',steps:[
+    {type:'delivery',label:'Welcome Email',  timing:'Day 1 — immediately'},
+    {type:'warmup',  label:'Check-In Email', timing:'Day 2'},
+    {type:'pitch',   label:'Pitch Email 1',  timing:'Day 4'},
+    {type:'pitch2',  label:'Pitch Email 2',  timing:'Day 6'},
+    {type:'close',   label:'Close Email',    timing:'Day 9'}
+  ]},
+  full:{label:'Full Funnel',sub:'7-step checkout + email sequence',steps:[
+    {type:'bump',    label:'Order Bump',    timing:'At Checkout'},
+    {type:'oto',     label:'OTO 1',         timing:'Post-Purchase Page'},
+    {type:'down',    label:'Downsell',      timing:'If OTO 1 Declined'},
+    {type:'delivery',label:'Welcome Email', timing:'Day 1'},
+    {type:'warmup',  label:'Check-In Email',timing:'Day 3'},
+    {type:'pitch',   label:'Pitch Email',   timing:'Day 5'},
+    {type:'close',   label:'Close Email',   timing:'Day 8'}
+  ]}
+};
+
+const colors={bump:'#5AE57A',oto:'#5AE57A',down:'#5AE57A',delivery:'#5AE57A',warmup:'#BFD8BF',pitch:'#5AE57A',pitch2:'#5AE57A',close:'#5AE57A'};
+
+function stepData(type, name, niche, p, audience) {
+  const o=offers[niche], c=parseFloat(p)||17;
+  const map={
+    bump:    {offer:o.bump,  price:`$7–$17`,          subject:null,            cta:`Yes! Add this to my order →`,               pitch:`Quick-win add-on that complements ${name} and helps buyers get results faster. Low resistance — priced to be a no-brainer.`},
+    oto:     {offer:o.oto,   price:`$${c*2|0}–$${c*3|0}`,  subject:null,       cta:`Upgrade my order — I want the full system →`,   pitch:`The natural next level after ${name}. Position it as "the complete version" for buyers who are serious.`},
+    down:    {offer:o.down,  price:`$${c*1.3|0}–$${c*1.7|0}`,subject:null,    cta:`Yes, I'll take this instead →`,              pitch:`For buyers who said no to the OTO but still want more. Lower commitment, still moves them up.`},
+    delivery:{offer:`Deliver ${name} + warm welcome`,price:'Free (included)', subject:`Your [${name}] is here — start here first`,cta:null,pitch:`Send the product, welcome them warmly, and hint at what's coming next. Seed the relationship.`},
+    warmup:  {offer:`Bonus tip + check-in`,           price:'Free (goodwill)',subject:`Did you open ${name} yet?`,              cta:null,pitch:`Build trust before pitching. Share one quick actionable tip from your expertise. No ask — just value.`},
+    pitch:   {offer:o.cross, price:`$${c*1.2|0}–$${c*2.5|0}`,subject:`Something that goes perfectly with ${name}`,cta:`Grab it here →`, pitch:`Introduce a complementary offer. Reference their purchase of ${name} and show how this builds on it naturally.`},
+    pitch2:  {offer:o.oto,   price:`$${c*2|0}–$${c*4|0}`,  subject:`Want to go deeper than ${name}?`,            cta:`Get the full system →`,pitch:`Second pitch for your bigger offer. Lead with a story, result, or short case study before the ask.`},
+    close:   {offer:o.big,   price:`$${c*3|0}–$${c*5|0}`,  subject:`Last chance — this closes tonight`,          cta:`Claim this before it closes →`,pitch:`Urgency-driven final push. Use a real deadline or expiring bonus. Remove all friction and make the decision easy.`}
+  };
+  return map[type];
+}
+
+let selType=null;
+function pickType(id){
+  if(selType) document.getElementById('t_'+selType).classList.remove('sel');
+  selType=id; document.getElementById('t_'+id).classList.add('sel');
+}
+
+function build(){
+  const name=document.getElementById('pname').value.trim();
+  if(!name){alert('Please enter your product name.');return;}
+  if(!selType){alert('Please choose a sequence type.');return;}
+  const niche=document.getElementById('niche').value;
+  const price=document.getElementById('price').value.trim();
+  const audience=document.getElementById('audience').value.trim()||'your audience';
+  const seq=seqDefs[selType];
+
+  document.getElementById('seqTitle').textContent=`${seq.label} for: ${name}`;
+  document.getElementById('seqSub').textContent=`${seq.sub} · Targeting: ${audience}`;
+
+  document.getElementById('steps').innerHTML=seq.steps.map((step,i)=>{
+    const d=stepData(step.type,name,niche,price,audience);
+    const col=colors[step.type];
+    return `<div class="step" style="border-left-color:${col}">
+      <div class="step-top">
+        <span class="step-num">Step ${i+1}</span>
+        <span class="step-badge" style="color:${col};border:1px solid ${col}22">${step.label}</span>
+        <span class="step-timing">${step.timing}</span>
+      </div>
+      <div class="step-offer">${d.offer}</div>
+      <div class="step-row">
+        <div class="step-meta"><div class="meta-lbl">Suggested Price</div><div class="meta-val" style="color:${col}">${d.price}</div></div>
+        ${d.cta?`<div class="step-meta"><div class="meta-lbl">CTA Button Copy</div><div class="meta-val">${d.cta}</div></div>`:''}
+      </div>
+      ${d.subject?`<div class="step-subject">✉ Subject line: <span>"${d.subject}"</span></div>`:''}
+      <div class="step-pitch">${d.pitch}</div>
+    </div>`;
+  }).join('');
+
+  const res=document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function copyPlan(btn){
+  const name=document.getElementById('pname').value.trim();
+  const niche=document.getElementById('niche').value;
+  const price=document.getElementById('price').value.trim();
+  const audience=document.getElementById('audience').value.trim()||'your audience';
+  const seq=seqDefs[selType];
+  const lines=['== UPSELL SEQUENCE PLAN ==',`Product: ${name}`,`Sequence: ${seq.label} — ${seq.sub}`,`Audience: ${audience}`,''];
+  seq.steps.forEach((step,i)=>{
+    const d=stepData(step.type,name,niche,price,audience);
+    lines.push(`STEP ${i+1}: ${step.label} (${step.timing})`);
+    lines.push(`Offer: ${d.offer}`);
+    lines.push(`Price: ${d.price}`);
+    if(d.subject) lines.push(`Subject: "${d.subject}"`);
+    if(d.cta) lines.push(`CTA: ${d.cta}`);
+    lines.push(`Strategy: ${d.pitch}`,'');
+  });
+  const text=lines.join('\n'), orig=btn.textContent;
+  const flash=()=>{btn.textContent='Copied!';btn.classList.add('done');setTimeout(()=>{btn.textContent=orig;btn.classList.remove('done');},2200);};
+  navigator.clipboard?navigator.clipboard.writeText(text).then(flash):(()=>{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);flash();})();
+}
+</script>
+</body>
+</html>

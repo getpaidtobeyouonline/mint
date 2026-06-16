@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimonial Request Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:620px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;transition:border .2s;resize:none}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#5AE57A}
+input::placeholder,textarea::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.platform-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.plat-opt{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
+.plat-opt:hover{border-color:#BFD8BF}
+.plat-opt.sel{border-color:#5AE57A;background:#C9A84C0D}
+.plat-icon{font-size:1.3rem;margin-bottom:4px}
+.plat-name{font-size:.72rem;font-weight:600;color:#BFD8BF;transition:color .2s}
+.plat-opt.sel .plat-name{color:#5AE57A}
+.btn{width:100%;max-width:620px;display:block;margin:0 auto 20px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#output{max-width:620px;margin:0 auto;display:none}
+.msg-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:14px}
+.msg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.msg-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A}
+.copy-btn{background:transparent;border:1px solid #5AE57A;color:#5AE57A;padding:6px 16px;border-radius:6px;font-size:.78rem;font-family:'DM Sans',sans-serif;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.copy-btn:hover,.copy-btn.done{background:#5AE57A;color:#325132}
+.msg-body{background:#325132;border-radius:8px;padding:16px;font-size:.88rem;line-height:1.9;white-space:pre-wrap;color:#FFFFFF;border:1px solid #3C603C}
+.msg-body em{color:#5AE57A;font-style:normal}
+.tab-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:20px;padding:6px 16px;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s}
+.tab:hover,.tab.active{border-color:#5AE57A;color:#5AE57A;background:#C9A84C0D}
+.q-list{display:flex;flex-direction:column;gap:8px}
+.q-item{display:flex;gap:10px;align-items:flex-start;background:#325132;border-radius:8px;padding:12px}
+.q-num{background:#5AE57A;color:#325132;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.q-text{font-size:.86rem;line-height:1.5}
+.tip-card{background:#C9A84C0D;border:1px solid #C9A84C22;border-radius:12px;padding:16px;margin-bottom:14px}
+.tip-title{font-size:.75rem;font-weight:700;color:#5AE57A;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.tip-text{font-size:.83rem;line-height:1.7;opacity:.85}
+.action-row{display:flex;gap:10px}
+.restart-btn{flex:1;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .2s}
+.restart-btn:hover{border-color:#5AE57A;color:#5AE57A}
+.copy-all-btn{flex:2;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.copy-all-btn:hover{opacity:.85}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:500px){.row,.row3{grid-template-columns:1fr}.platform-grid{grid-template-columns:repeat(3,1fr)}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Testimonial Request Generator</h1>
+<p class="sub">Get glowing reviews — by asking the right way, at the right time</p>
+
+<div class="card">
+  <div class="card-title">About the Client & Project</div>
+  <div class="row">
+    <div><label>Client's First Name</label><input id="cName" type="text" placeholder="e.g. Sarah"></div>
+    <div><label>Your Name / Business</label><input id="myName" type="text" placeholder="e.g. Maya or Bloom Studio"></div>
+  </div>
+  <label>What did you help them with?</label>
+  <input id="service" type="text" placeholder="e.g. brand identity, 3-month coaching programme, website redesign">
+  <label>What result or transformation did they get? (be specific)</label>
+  <input id="result" type="text" placeholder="e.g. launched their business, landed their first 3 clients, doubled their revenue">
+  <div class="row">
+    <div>
+      <label>Relationship / Timing</label>
+      <select id="timing">
+        <option value="fresh">Just wrapped up — fresh result</option>
+        <option value="weeks">A few weeks after delivery</option>
+        <option value="longterm">Long-term / ongoing client</option>
+        <option value="past">Past client — reaching back</option>
+      </select>
+    </div>
+    <div>
+      <label>Tone</label>
+      <select id="tone">
+        <option value="warm">Warm & Personal</option>
+        <option value="professional">Professional & Polished</option>
+        <option value="casual">Casual & Friendly</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Where Will This Be Used?</div>
+  <div class="platform-grid" id="platGrid">
+    <div class="plat-opt sel" data-plat="email"><div class="plat-icon">✉️</div><div class="plat-name">Email</div></div>
+    <div class="plat-opt" data-plat="dm"><div class="plat-icon">💬</div><div class="plat-name">DM / Text</div></div>
+    <div class="plat-opt" data-plat="linkedin"><div class="plat-icon">💼</div><div class="plat-name">LinkedIn</div></div>
+    <div class="plat-opt" data-plat="google"><div class="plat-icon">⭐</div><div class="plat-name">Google</div></div>
+    <div class="plat-opt" data-plat="video"><div class="plat-icon">🎥</div><div class="plat-name">Video</div></div>
+    <div class="plat-opt" data-plat="form"><div class="plat-icon">📋</div><div class="plat-name">Form / Survey</div></div>
+  </div>
+</div>
+
+<button class="btn" onclick="generate()">Generate My Request →</button>
+
+<div id="output">
+  <div class="tip-card">
+    <div class="tip-title">✦ Timing Tip</div>
+    <div class="tip-text" id="tipText"></div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <div class="msg-title" id="msgTitle">Your Message</div>
+      <button class="copy-btn" id="copyMsg" onclick="copyText('msgBody','copyMsg','Copy Message')">Copy Message</button>
+    </div>
+    <div class="tab-row" id="varTabs"></div>
+    <div class="msg-body" id="msgBody"></div>
+  </div>
+
+  <div class="msg-card">
+    <div class="msg-header">
+      <div class="msg-title">Prompt Questions</div>
+      <button class="copy-btn" id="copyQs" onclick="copyText('qPlain','copyQs','Copy Questions')">Copy Questions</button>
+    </div>
+    <div class="q-list" id="qList"></div>
+    <div style="display:none" id="qPlain"></div>
+  </div>
+
+  <div class="action-row">
+    <button class="restart-btn" onclick="restart()">Generate Another</button>
+    <button class="copy-all-btn" onclick="copyAll()">Copy Full Request</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+let selPlat='email';
+let msgs=[];
+
+document.querySelectorAll('.plat-opt').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.plat-opt').forEach(p=>p.classList.remove('sel'));
+    el.classList.add('sel');
+    selPlat=el.dataset.plat;
+  });
+});
+
+function v(id){return(document.getElementById(id)||{}).value||''}
+
+const tips={
+  fresh:'The best time to ask is within 48 hours of delivery — emotions are high and results are fresh. Strike while the iron is hot.',
+  weeks:'A few weeks after delivery is golden — your client has had time to see real results in their life or business. Reach out with a genuine check-in first.',
+  longterm:'Long-term clients give the richest testimonials. Acknowledge the journey you\'ve shared and ask them to reflect on the full transformation.',
+  past:'Re-engaging past clients shows you still care. Lead with a warm check-in before the ask — never cold-ask for a testimonial out of nowhere.'
+};
+
+const questions=[
+  n=>`What was going on in your business or life before you worked with ${n}?`,
+  ()=>'What made you decide to move forward — what pushed you off the fence?',
+  ()=>'What specific results or changes have you seen since we worked together?',
+  ()=>'What surprised you most about the experience?',
+  n=>`How would you describe working with ${n} to a friend who was on the fence?`,
+  ()=>'Who would you recommend this to — who else needs this?',
+];
+
+function buildMessages(name,myName,service,result,tone,timing,plat){
+  const n=name||'[client name]';const m=myName||'[your name]';
+  const s=service||'our work together';const r=result||'amazing results';
+
+  const greets={warm:`Hi ${n}! 🌟`,professional:`Hi ${n},`,casual:`Hey ${n}!`};
+  const closes={warm:`With so much gratitude,\n${m}`,professional:`Kind regards,\n${m}`,casual:`Thanks a million,\n${m} 😊`};
+  const g=greets[tone];const c=closes[tone];
+
+  const pastLine=timing==='past'?`I was just thinking about our time working together on ${s} and wanted to reach out to see how you\'re getting on.\n\n`:'';
+
+  if(plat==='email'){
+    return[
+      {label:'Version A — With Questions',body:`${g}\n\n${pastLine}Working with you on ${s} was such a highlight — seeing you ${r} made everything worth it.\n\nI'm currently putting together some testimonials for my website and I'd love to include your voice. Would you be open to writing a short one?\n\nTo make it as easy as possible, here are a few prompts to guide you (answer whichever feel most natural):\n\n• Before we worked together, what was going on for you?\n• What results or changes have you seen since?\n• What surprised you most about the experience?\n• Who would you recommend this to?\n\nEven 3–5 sentences is plenty — I'm not looking for an essay, just your honest experience.\n\n${c}`},
+      {label:'Version B — Simple Ask',body:`${g}\n\n${pastLine}I'm so glad I got to be part of your journey with ${s} and help you ${r}.\n\nQuick favour — would you be willing to leave me a short testimonial? A few sentences about your experience and the results you saw would mean the world and help other ${tone==='professional'?'clients':'people'} make a confident decision.\n\nFeel free to keep it brief and honest — whatever feels natural to you.\n\n${c}`},
+    ];
+  }
+  if(plat==='dm'){
+    return[
+      {label:'DM / Text',body:`Hey ${n}! Loved working with you on ${s} and seeing you ${r} 🙌\n\nQuick ask — would you be up for leaving me a short testimonial? Just a few lines about your experience would be amazing. I'll even send you some questions if that makes it easier!\n\n— ${m}`},
+      {label:'Follow-up (if no reply)',body:`Hey ${n}! Just following up on my last message — totally fine if it's not for you! But if you did have a couple of minutes to share your experience working with me on ${s}, I'd be so grateful. No pressure either way! 💛\n\n— ${m}`},
+    ];
+  }
+  if(plat==='linkedin'){
+    return[
+      {label:'LinkedIn Message',body:`Hi ${n},\n\nI hope you're doing well! It was such a pleasure working with you on ${s} and witnessing you ${r}.\n\nI'm building out my LinkedIn presence and would love to include your perspective — would you be open to writing a short recommendation or sharing a few words about your experience?\n\nI can send over some guiding questions to make it as straightforward as possible. Just let me know!\n\nBest,\n${m}`},
+    ];
+  }
+  if(plat==='google'){
+    return[
+      {label:'Google Review Request',body:`${g}\n\nThank you so much for letting me be part of your journey with ${s} — seeing you ${r} has been incredibly rewarding.\n\nIf you have 2 minutes, it would mean the world if you could leave a Google review sharing your experience. Reviews help others find me and make a confident decision.\n\n[Insert your Google review link here]\n\nEven a sentence or two about what you got out of our work together makes a huge difference.\n\nThank you so much — I genuinely appreciate it.\n\n${c}`},
+    ];
+  }
+  if(plat==='video'){
+    return[
+      {label:'Video Testimonial Ask',body:`${g}\n\nWorking with you on ${s} and watching you ${r} has been one of my favourite experiences this year.\n\nI have a slightly bigger ask — would you be open to recording a short video testimonial? Just 60–90 seconds on your phone is perfect. You could cover:\n\n• Where you were before we worked together\n• What changed or what results you saw\n• Who you'd recommend this to\n\nYou don't need to be fancy — natural and honest is exactly what I'm looking for. I can send you a simple Loom or video link to record straight from your browser.\n\nWould you be up for it?\n\n${c}`},
+    ];
+  }
+  if(plat==='form'){
+    return[
+      {label:'Form / Survey Link',body:`${g}\n\n${pastLine}It was such a pleasure working with you on ${s}. Seeing you ${r} was exactly why I do this work.\n\nI've put together a short feedback form — it takes about 3 minutes and your answers would mean so much to me (and help other ${tone==='professional'?'clients':'people'} make a decision):\n\n[Insert your form link here]\n\nThank you in advance — your voice genuinely matters.\n\n${c}`},
+    ];
+  }
+  return[];
+}
+
+let activeVar=0;
+
+function generate(){
+  const name=v('cName'),myName=v('myName'),service=v('service'),result=v('result');
+  const tone=v('tone'),timing=v('timing');
+
+  document.getElementById('tipText').textContent=tips[timing];
+  msgs=buildMessages(name,myName,service,result,tone,timing,selPlat);
+  activeVar=0;
+  renderMessages();
+
+  const qs=questions.map((q,i)=>({num:i+1,text:q(myName||'[your name]')}));
+  document.getElementById('qList').innerHTML=qs.map(q=>`<div class="q-item"><div class="q-num">${q.num}</div><div class="q-text">${q.text}</div></div>`).join('');
+  document.getElementById('qPlain').textContent=qs.map(q=>`${q.num}. ${q.text}`).join('\n');
+
+  document.querySelector('.btn').style.display='none';
+  document.querySelectorAll('.card').forEach(c=>c.style.display='none');
+  document.getElementById('output').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderMessages(){
+  const platNames={email:'Email',dm:'DM / Text',linkedin:'LinkedIn',google:'Google Review',video:'Video Ask',form:'Form Request'};
+  document.getElementById('msgTitle').textContent=platNames[selPlat]+' Request';
+  if(msgs.length>1){
+    document.getElementById('varTabs').innerHTML=msgs.map((m,i)=>`<button class="tab ${i===activeVar?'active':''}" onclick="switchVar(${i})">${m.label}</button>`).join('');
+  } else document.getElementById('varTabs').innerHTML='';
+  document.getElementById('msgBody').textContent=msgs[activeVar]?.body||'—';
+}
+
+function switchVar(i){activeVar=i;renderMessages();}
+
+function copyText(srcId,btnId,label){
+  const text=document.getElementById(srcId).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById(btnId);
+    b.textContent='Copied!';b.classList.add('done');
+    setTimeout(()=>{b.textContent=label;b.classList.remove('done')},1800);
+  });
+}
+
+function copyAll(){
+  const msg=msgs[activeVar]?.body||'';
+  const qs=document.getElementById('qPlain').textContent;
+  const text=msg+'\n\n─────────────────────\nPROMPT QUESTIONS\n─────────────────────\n'+qs+'\n\nPowered by GetPaidToBeYouOnline';
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.querySelector('.copy-all-btn');
+    b.textContent='Copied!';setTimeout(()=>b.textContent='Copy Full Request',1800);
+  });
+}
+
+function restart(){
+  document.querySelectorAll('.card').forEach(c=>c.style.display='block');
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('output').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

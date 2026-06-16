@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Health Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .count { text-align: center; margin-bottom: 12px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .grp { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 14px 0 6px; font-weight: 500; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .88rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 20px; height: 20px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .item.done .lb { text-decoration: line-through; opacity: .5; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Travel Health Checklist</h1>
+  <p class="sub">Stay well on the road — the health prep that is easy to forget until it is too late.</p>
+
+  <div class="panel">
+    <div class="count"><span class="n" id="pct">0%</span><div style="opacity:.7;font-size:.85rem">health prep done</div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="list"></div>
+    <div class="note">General guidance only — not medical advice. Visit a doctor or travel clinic 6-8 weeks before travel for destination-specific vaccines and advice.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GROUPS={
+    "Before you go":["Checked required &amp; recommended vaccinations","Booked a travel clinic visit if needed","Researched health risks at the destination","Confirmed travel insurance covers medical care","Dental check-up if travelling long-term"],
+    "Medication":["Enough prescription medication for the whole trip","Medication in original labelled packaging","A copy of prescriptions / a doctor's letter","Checked your meds are legal at the destination"],
+    "Travel health kit":["Pain relief &amp; anti-inflammatory","Rehydration sachets &amp; anti-diarrhoea tablets","Antiseptic, plasters &amp; basic first aid","Insect repellent &amp; any antimalarials","Sunscreen &amp; motion-sickness remedy"],
+    "On the trip":["Know how to access healthcare locally","Drink safe water / know if tap water is safe","Travel-friendly hand hygiene","Plan to move and rest on long journeys"]
+  };
+  let state=JSON.parse(localStorage.getItem('thc2')||'{}');
+  const save=()=>localStorage.setItem('thc2',JSON.stringify(state));
+  function toggle(k){ state[k]=!state[k]; save(); render(); }
+  function render(){
+    let html='', total=0, done=0;
+    Object.entries(GROUPS).forEach(([grp,items])=>{
+      html+='<div class="grp">'+grp+'</div>';
+      items.forEach(it=>{ const k=grp+'|'+it; const on=!!state[k]; total++; if(on)done++;
+        html+='<div class="item'+(on?' done':'')+'" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(on?' on':'')+'">'+(on?'✓':'')+'</span><span class="lb">'+it+'</span></div>';
+      });
+    });
+    g('list').innerHTML=html;
+    const pct=total?Math.round(done/total*100):0;
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+  }
+  render();
+</script>
+</body>
+</html>

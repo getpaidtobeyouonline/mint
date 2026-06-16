@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woodworking Project Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 54px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 12px; font-size: .79rem; opacity: .72; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Woodworking Project Tool</h1>
+  <p class="sub">From sketch to finish — plan the wood, the cuts, the joinery and the finish.</p>
+
+  <div class="panel">
+    <label for="piece">The piece</label>
+    <input id="piece" placeholder="e.g. coffee table, bookshelf, cutting board">
+    <label for="dims">Dimensions</label>
+    <input id="dims" placeholder="L × W × H">
+    <label for="wood">Wood &amp; materials</label>
+    <textarea id="wood" placeholder="Species, sheet goods, screws, glue"></textarea>
+    <label for="cuts">Cut list</label>
+    <textarea id="cuts" placeholder="One part per line: name, qty, dimensions"></textarea>
+    <label for="joinery">Joinery</label>
+    <input id="joinery" placeholder="e.g. mortise &amp; tenon, dowels, pocket screws">
+    <label for="finish">Finish</label>
+    <input id="finish" placeholder="Oil, wax, stain, paint">
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['piece','dims','wood','cuts','joinery','finish'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('wpt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('wpt_'+k,g(k).value)); });
+  function gen(){
+    const t='WOODWORKING PROJECT PLAN\n\nPIECE: '+(v('piece')||'[the piece]')+(v('dims')?'  ('+v('dims')+')':'')+
+    '\n\nWOOD & MATERIALS:\n'+(v('wood')||'[species + fixings]')+
+    '\n\nCUT LIST:\n'+(v('cuts')||'[part, quantity, dimensions]')+
+    '\n\nJOINERY:\n'+(v('joinery')||'[joinery method]')+
+    '\n\nFINISH:\n'+(v('finish')||'[oil, wax, stain, paint]')+
+    '\n\n--- Workshop safety ---\nMeasure twice, cut once. Then measure again.\nWear eye and ear protection — every time.\nKeep a clear, well-lit, well-ventilated workspace.\nDry-fit every joint before glue. Have clamps ready before you start glue-up.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upcycling Idea Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; text-align: left; min-height: 80px; }
+  .idea h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .idea p { font-size: .92rem; margin-top: 6px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Upcycling Idea Generator</h1>
+  <p class="sub">Give old things new life — pick a material and tap for inspiration.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="idea" id="idea"></div>
+    <button class="btn" onclick="next()">New Idea</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const I={
+    'Glass jars':[
+      {n:'Bedside herb garden',d:'Drainage layer, soil and a chive or basil cutting. Wrap with twine for character.'},
+      {n:'Pendant lantern',d:'String battery fairy lights inside, fix a lid hook, hang from a beam.'},
+      {n:'Pantry refresh',d:'Label, fill with grains/pasta/pulses — instant cottage-kitchen vibe.'},
+      {n:'Sewing kit jar',d:'Sort buttons, thread and pins into a clear jar — beautiful and useful.'}
+    ],
+    'Old furniture':[
+      {n:'Paint a chair, change the room',d:'Sand, prime, two coats of a bold colour. New cushion. Done.'},
+      {n:'Drawer into a shelf',d:'Mount an old drawer to the wall as a shadow-box style shelf.'},
+      {n:'Door into a desk',d:'A reclaimed door + two filing cabinets = a generous desk for not much money.'},
+      {n:'Step ladder plant stand',d:'A weathered step ladder, plants on each step — instant indoor garden.'}
+    ],
+    'Clothes & fabric':[
+      {n:'T-shirt quilt',d:'Cut squares from old beloved tees and sew a memory quilt.'},
+      {n:'Jeans tote bag',d:'Old denim into a sturdy tote — back pockets become outer pockets.'},
+      {n:'Pillow refresh',d:'Recover a tired cushion with a vintage scarf or shirt.'},
+      {n:'Fabric scrap garland',d:'Tear strips, tie onto string, hang for a soft, colourful garland.'}
+    ],
+    'Cans & tins':[
+      {n:'Pen pot or planter',d:'Sand, prime, paint a tin can. Drill drainage if planting.'},
+      {n:'Lantern punch-pattern',d:'Tap nail holes in a punched pattern, drop in a tealight.'},
+      {n:'Kitchen utensil holder',d:'Group three different sizes together, paint one bold colour.'},
+      {n:'Storage cubby wall',d:'Mount tins to a board, on their sides, as little open cubbies.'}
+    ],
+    'Paper & books':[
+      {n:'Book page wallpaper',d:'Decoupage book pages onto a small wall, drawer fronts or a tray.'},
+      {n:'Origami garland',d:'Fold paper cranes or stars and string them up.'},
+      {n:'Old map gift wrap',d:'Wrap presents in old maps and finish with a twine bow.'},
+      {n:'Magazine bead necklace',d:'Roll triangular strips of colour pages into beads — coat with varnish.'}
+    ]
+  };
+  let cat='Glass jars';
+  const g=id=>document.getElementById(id);
+  function drawPresets(){ g('presets').innerHTML=Object.keys(I).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=I[cat]; const x=list[Math.floor(Math.random()*list.length)]; g('idea').innerHTML='<h3>'+x.n+'</h3><p>'+x.d+'</p>'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

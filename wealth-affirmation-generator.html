@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wealth Affirmation Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .aff { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  .aff .t { font-family: 'Playfair Display', serif; font-size: 1.05rem; }
+  .aff .cp { cursor:pointer; color:#5AE57A; font-size:.82rem; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.85rem;margin-bottom:12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wealth Affirmation Generator</h1>
+  <p class="sub">Believable wealth affirmations — bridge statements your brain can actually accept.</p>
+
+  <div class="note">"I'm rich" feels like a lie if you aren't. "I'm becoming…" and "I'm learning to…" slip past the gatekeeper and reshape the belief.</div>
+
+  <div class="panel">
+    <label for="cat">Area</label>
+    <select id="cat"><option value="earn">Earning more</option><option value="receive">Receiving / being paid well</option><option value="save">Saving / discipline</option><option value="invest">Investing / growing wealth</option><option value="spend">Healthy spending</option><option value="abun">Abundance / enough</option></select>
+    <button class="btn" onclick="gen()">Generate</button>
+    <button class="btn ghost" onclick="gen()">↻ More</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const T={
+    earn:["I am becoming someone whose income can grow without burning out.","I am learning that earning more is allowed for someone like me.","I am building skills that the market pays well for.","My value to others is allowed to translate into income."],
+    receive:["I am learning to receive money without flinching.","I am allowed to be paid generously for work I genuinely do well.","I do not have to over-give to deserve what I am paid.","Receiving well is part of being good at this."],
+    save:["I am becoming someone who keeps small promises to herself with money.","My savings rate is allowed to grow as my income grows.","I save for future-me as an act of love, not punishment.","Discipline with money is a quiet form of self-respect."],
+    invest:["I am learning to let money work for me.","My investments are allowed to grow whether I watch them or not.","Compounding is on my side; my job is to keep showing up.","I do not have to time the market to win."],
+    spend:["I am learning to spend on what I actually value.","Spending well does not require feeling guilty afterward.","I trust myself with money I have planned to spend.","Joy is a valid line item."],
+    abun:["I am becoming someone who can want more without losing gratitude for what is here.","My wealth does not subtract from anyone else's.","Money flows in proportion to the value I create.","I am learning what enough actually feels like for me."]
+  };
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const p=[...T[g('cat').value]]; for(let i=p.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [p[i],p[j]]=[p[j],p[i]]; }
+    g('out').innerHTML=p.slice(0,4).map((x,i)=>`<div class="aff"><span class="t">${esc(x)}</span><span class="cp" onclick="cp(${i})">⧉</span></div>`).join('');
+    window._a=p.slice(0,4);
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function cp(i){ navigator.clipboard.writeText(window._a[i]).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

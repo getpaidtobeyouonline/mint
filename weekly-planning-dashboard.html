@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Planning Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 660px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Week header */
+  .week-label { text-align: center; font-size: 0.8rem; color: #BFD8BF; margin-bottom: 4px; }
+  .theme-input { width: 100%; background: #325132; border: none; border-bottom: 2px solid #4C724C; color: #5AE57A; padding: 8px 4px; font-family: 'Playfair Display', serif; font-size: 1.3rem; outline: none; text-align: center; }
+  .theme-input:focus { border-color: #5AE57A; }
+  .theme-input::placeholder { color: #4C724C; }
+  .divider { border: none; border-top: 1px solid #3C603C; margin: 16px 0; }
+  .priorities { display: flex; flex-direction: column; gap: 8px; }
+  .priority-row { display: flex; align-items: center; gap: 10px; }
+  .p-num { color: #5AE57A; font-family: 'Playfair Display', serif; font-size: 1rem; width: 18px; flex-shrink: 0; }
+  .p-input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 8px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .p-input:focus { border-color: #5AE57A; }
+
+  /* Week stats */
+  .stats-row { display: flex; gap: 10px; max-width: 660px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; line-height: 1; }
+  .stat-l { font-size: 0.7rem; color: #BFD8BF; margin-top: 3px; }
+
+  /* Day rows */
+  .days { max-width: 660px; margin: 0 auto; }
+  .day-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; margin-bottom: 10px; overflow: hidden; }
+  .day-card.today { border-color: #C9A84C55; }
+  .day-header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; cursor: pointer; user-select: none; }
+  .day-header:hover { background: #3C603C; }
+  .day-name { font-family: 'Playfair Display', serif; font-size: 1rem; width: 38px; flex-shrink: 0; }
+  .day-date { font-size: 0.75rem; color: #BFD8BF; width: 52px; flex-shrink: 0; }
+  .today-chip { font-size: 0.65rem; background: #C9A84C22; border: 1px solid #5AE57A; color: #5AE57A; padding: 1px 7px; border-radius: 8px; flex-shrink: 0; }
+  .day-focus-preview { flex: 1; font-size: 0.82rem; color: #BFD8BF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-style: italic; }
+  .day-progress { font-size: 0.75rem; color: #5AE57A; white-space: nowrap; flex-shrink: 0; }
+  .chevron { color: #5A845A; font-size: 0.72rem; transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* Day body */
+  .day-body { display: none; border-top: 1px solid #3C603C; padding: 14px 16px; }
+  .day-body.open { display: block; }
+  .focus-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .focus-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 8px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; margin-bottom: 12px; }
+  .focus-input:focus { border-color: #5AE57A; }
+  .task-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #325132; }
+  .task-item:last-child { border-bottom: none; }
+  .task-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: #5AE57A; cursor: pointer; flex-shrink: 0; }
+  .task-text { flex: 1; font-size: 0.86rem; }
+  .task-text.done { text-decoration: line-through; color: #5A845A; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.78rem; padding: 2px 4px; }
+  .del-btn:hover { color: #5AE57A; }
+  .add-row { display: flex; gap: 7px; margin-top: 10px; }
+  .add-row input { flex: 1; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 7px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.84rem; outline: none; }
+  .add-row input:focus { border-color: #5AE57A; }
+  .btn-sm { background: #5AE57A; color: #325132; border: none; padding: 7px 14px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; cursor: pointer; }
+  .btn-sm:hover { background: #5AE57A; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Weekly Planning Dashboard</h1>
+<p class="subtitle">One place for your whole week. Theme, priorities, and daily focus — all connected.</p>
+
+<div class="card">
+  <p class="week-label" id="weekLabel"></p>
+  <input class="theme-input" id="themeInput" placeholder="This week's theme…" maxlength="60" />
+  <hr class="divider">
+  <div class="card-title" style="margin-bottom:10px">Top 3 Priorities This Week</div>
+  <div class="priorities">
+    <div class="priority-row"><div class="p-num">I.</div><input class="p-input" id="pri1" placeholder="Must-accomplish #1" maxlength="80" /></div>
+    <div class="priority-row"><div class="p-num">II.</div><input class="p-input" id="pri2" placeholder="Must-accomplish #2" maxlength="80" /></div>
+    <div class="priority-row"><div class="p-num">III.</div><input class="p-input" id="pri3" placeholder="Must-accomplish #3" maxlength="80" /></div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statDone">0</div><div class="stat-l">tasks done</div></div>
+  <div class="stat-box"><div class="stat-n" id="statLeft">0</div><div class="stat-l">remaining</div></div>
+  <div class="stat-box"><div class="stat-n" id="statPct">0%</div><div class="stat-l">week complete</div></div>
+</div>
+
+<div class="days" id="dayGrid"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0, 10);
+
+  function getWeekDays() {
+    const dow = now.getDay();
+    const mon = new Date(now); mon.setDate(now.getDate() - ((dow + 6) % 7));
+    return Array.from({length: 7}, (_, i) => {
+      const d = new Date(mon); d.setDate(mon.getDate() + i);
+      return d.toISOString().slice(0, 10);
+    });
+  }
+
+  const WEEK_DAYS = getWeekDays();
+  const WEEK_KEY  = WEEK_DAYS[0];
+
+  function getWeekLabel() {
+    const fmt = d => new Date(d+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `Week of ${fmt(WEEK_DAYS[0])} – ${fmt(WEEK_DAYS[6])}`;
+  }
+
+  document.getElementById('weekLabel').textContent = getWeekLabel();
+
+  // Load / init data
+  let data = JSON.parse(localStorage.getItem('wpd_data') || '{}');
+  if (data.weekKey !== WEEK_KEY) {
+    data = { weekKey: WEEK_KEY, theme: '', priorities: ['','',''], days: {} };
+  }
+  WEEK_DAYS.forEach(k => { if (!data.days[k]) data.days[k] = { focus: '', tasks: [], open: k === todayKey }; });
+
+  function save() { localStorage.setItem('wpd_data', JSON.stringify(data)); }
+
+  // Restore header inputs
+  document.getElementById('themeInput').value = data.theme || '';
+  ['pri1','pri2','pri3'].forEach((id, i) => document.getElementById(id).value = data.priorities[i] || '');
+
+  // Auto-save header on change
+  document.getElementById('themeInput').addEventListener('input', () => { data.theme = document.getElementById('themeInput').value; save(); });
+  ['pri1','pri2','pri3'].forEach((id, i) => document.getElementById(id).addEventListener('input', () => { data.priorities[i] = document.getElementById(id).value; save(); }));
+
+  function toggleDay(key) { data.days[key].open = !data.days[key].open; save(); render(); }
+
+  function setFocus(key) {
+    data.days[key].focus = document.getElementById('focus-' + key).value;
+    save(); renderStats(); renderHeader(key);
+  }
+
+  function addTask(key) {
+    const input = document.getElementById('task-in-' + key);
+    const text = input.value.trim(); if (!text) return;
+    data.days[key].tasks.push({ id: Date.now(), text, done: false });
+    save(); render();
+  }
+
+  function toggleTask(key, id) {
+    const t = data.days[key].tasks.find(t => t.id === id); if (!t) return;
+    t.done = !t.done; save(); renderStats(); renderDayBody(key);
+  }
+
+  function delTask(key, id) {
+    data.days[key].tasks = data.days[key].tasks.filter(t => t.id !== id);
+    save(); render();
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function renderStats() {
+    const allTasks = WEEK_DAYS.flatMap(k => data.days[k].tasks);
+    const done = allTasks.filter(t => t.done).length;
+    const total = allTasks.length;
+    document.getElementById('statDone').textContent = done;
+    document.getElementById('statLeft').textContent = total - done;
+    document.getElementById('statPct').textContent  = total ? Math.round(done/total*100)+'%' : '0%';
+  }
+
+  function renderHeader(key) {
+    const day = data.days[key];
+    const preview = document.getElementById('preview-' + key);
+    if (preview) preview.textContent = day.focus || '';
+    const prog = document.getElementById('prog-' + key);
+    if (prog) {
+      const done = day.tasks.filter(t=>t.done).length, total = day.tasks.length;
+      prog.textContent = total ? `${done}/${total}` : '';
+    }
+  }
+
+  function renderDayBody(key) {
+    const day = data.days[key];
+    const body = document.getElementById('body-' + key); if (!body) return;
+    const taskHtml = day.tasks.map(t => `
+      <div class="task-item">
+        <input type="checkbox" ${t.done?'checked':''} onchange="toggleTask('${key}',${t.id})" />
+        <span class="task-text ${t.done?'done':''}">${esc(t.text)}</span>
+        <button class="del-btn" onclick="delTask('${key}',${t.id})">✕</button>
+      </div>`).join('');
+    body.innerHTML = `
+      <div class="focus-label">Day's Focus</div>
+      <input class="focus-input" id="focus-${key}" value="${esc(day.focus)}" placeholder="What's the one focus for this day?" maxlength="80"
+        oninput="setFocus('${key}')" />
+      ${taskHtml}
+      <div class="add-row">
+        <input id="task-in-${key}" placeholder="Add a task for this day…" maxlength="80"
+          onkeydown="if(event.key==='Enter')addTask('${key}')" />
+        <button class="btn-sm" onclick="addTask('${key}')">Add</button>
+      </div>`;
+  }
+
+  function render() {
+    const grid = document.getElementById('dayGrid');
+    grid.innerHTML = WEEK_DAYS.map(key => {
+      const day = data.days[key];
+      const d = new Date(key + 'T12:00:00');
+      const isToday = key === todayKey;
+      const done = day.tasks.filter(t=>t.done).length, total = day.tasks.length;
+      return `
+        <div class="day-card ${isToday?'today':''}">
+          <div class="day-header" onclick="toggleDay('${key}')">
+            <span class="day-name">${DAY_NAMES[d.getDay()]}</span>
+            <span class="day-date">${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}</span>
+            ${isToday ? '<span class="today-chip">Today</span>' : ''}
+            <span class="day-focus-preview" id="preview-${key}">${esc(day.focus)}</span>
+            <span class="day-progress" id="prog-${key}">${total ? `${done}/${total}` : ''}</span>
+            <span class="chevron ${day.open?'open':''}">▼</span>
+          </div>
+          <div class="day-body ${day.open?'open':''}" id="body-${key}"></div>
+        </div>`;
+    }).join('');
+    WEEK_DAYS.forEach(key => { if (data.days[key].open) renderDayBody(key); });
+    renderStats();
+  }
+
+  render();
+</script>
+</body>
+</html>

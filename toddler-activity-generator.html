@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Toddler Activity Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 18px; margin-top: 16px; display: none; text-align: left; }
+  .idea .big { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .idea .meta { font-size: .82rem; opacity: .65; margin: 6px 0; }
+  .idea .need { font-size: .86rem; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Toddler Activity Generator</h1>
+  <p class="sub">Simple, screen-free activities to keep little ones (1-4) busy and learning.</p>
+
+  <div class="panel">
+    <label for="goal">What do you need right now?</label>
+    <select id="goal"><option value="any">Anything</option><option value="calm">Calm them down</option><option value="energy">Burn energy</option><option value="learn">Learning play</option><option value="solo">Keep them busy solo</option></select>
+    <label for="mess">Mess tolerance</label>
+    <select id="mess"><option value="any">Any</option><option value="low">Low mess please</option><option value="ok">Mess is fine</option></select>
+    <button class="btn" onclick="gen()">Get an Activity</button>
+  </div>
+
+  <div class="idea" id="idea"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A=[
+    {t:"Sticker sorting",d:"Give them stickers and paper — peeling and placing builds fine motor skills.",goal:["learn","solo","calm"],mess:"low"},
+    {t:"Posting box",d:"Cut a slot in a box; let them post lids, cards or pom-poms through it.",goal:["learn","solo","calm"],mess:"low"},
+    {t:"Indoor 'floor is lava'",d:"Cushions become safe islands — hop between them.",goal:["energy"],mess:"low"},
+    {t:"Dance and freeze",d:"Play music, dance, and freeze when it stops.",goal:["energy","any"],mess:"low"},
+    {t:"Water play",d:"A bowl of water, cups and a spoon — endless quiet pouring.",goal:["calm","solo"],mess:"ok"},
+    {t:"Treasure basket",d:"Fill a basket with safe household objects to explore by touch.",goal:["learn","solo","calm"],mess:"low"},
+    {t:"Colour hunt",d:"Pick a colour and find everything in the house that matches.",goal:["learn","energy"],mess:"low"},
+    {t:"Playdough creations",d:"Squish, roll and shape — great for hands and imagination.",goal:["learn","calm","solo"],mess:"ok"},
+    {t:"Bubble chasing",d:"Blow bubbles for them to pop and chase.",goal:["energy","calm"],mess:"low"},
+    {t:"Sensory bin",d:"Dry rice or pasta with scoops and small cups to dig in.",goal:["solo","calm","learn"],mess:"ok"},
+    {t:"Animal walk",d:"Hop like a frog, stomp like an elephant, slither like a snake.",goal:["energy","learn"],mess:"low"},
+    {t:"Paint with water",d:"A paintbrush and water on a wall or pavement — zero mess painting.",goal:["calm","solo","learn"],mess:"low"},
+    {t:"Cardboard box play",d:"A big box becomes a car, a den, a boat — whatever they decide.",goal:["solo","calm","any"],mess:"low"},
+    {t:"Sock matching",d:"Tip out clean socks and match the pairs together.",goal:["learn","calm","solo"],mess:"low"},
+    {t:"Obstacle crawl",d:"Crawl under chairs, over cushions, around the table.",goal:["energy"],mess:"low"},
+    {t:"Pom-pom drop",d:"Drop pom-poms down a cardboard tube into a cup.",goal:["learn","solo","calm"],mess:"low"},
+    {t:"Story acting",d:"Read a favourite book and act out the animals and sounds.",goal:["calm","learn"],mess:"low"},
+    {t:"Finger painting",d:"Paper, washable paint, and free creative mess.",goal:["learn"],mess:"ok"}
+  ];
+  function gen(){
+    const goal=g('goal').value, mess=g('mess').value;
+    let pool=A.filter(x=>(goal==='any'||x.goal.includes(goal))&&(mess==='any'||x.mess===mess||(mess==='ok')));
+    if(!pool.length)pool=A.filter(x=>goal==='any'||x.goal.includes(goal));
+    if(!pool.length)pool=A;
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    g('idea').style.display='block';
+    g('idea').innerHTML='<div class="big">'+p.t+'</div><div class="meta">'+(p.mess==='low'?'Low mess':'Some mess')+'</div><div class="need">'+p.d+'</div>';
+  }
+</script>
+</body>
+</html>

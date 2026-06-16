@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Revenue Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 28px; }
+    .wrap { width: 100%; max-width: 560px; }
+    .summary { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .sum-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 14px 16px; }
+    .sum-lbl { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; margin-bottom: 5px; }
+    .sum-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+    .delta { font-size: 0.71rem; margin-top: 4px; }
+    .up { color: #5AE57A; } .dn { color: #5AE57A; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 16px; }
+    .bars { display: flex; gap: 5px; align-items: flex-end; height: 120px; }
+    .bw { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+    .ba { font-size: 0.56rem; color: #5AE57A; margin-bottom: 3px; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+    .bw:hover .ba { opacity: 1; }
+    .bar { width: 100%; border-radius: 4px 4px 0 0; min-height: 3px; transition: height 0.4s ease; background: #3C603C; }
+    .bar.past { background: #2E4D2E; }
+    .bar.cur  { background: #5AE57A; }
+    .bl { font-size: 0.57rem; opacity: 0.32; margin-top: 6px; text-align: center; line-height: 1.2; }
+    .bl.cur { opacity: 0.75; color: #5AE57A; }
+    .row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .field { flex: 1; }
+    label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; }
+    input { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #5AE57A; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); }
+    .src-field { margin-bottom: 10px; }
+    .btn-add { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; padding: 12px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; }
+    .btn-add:hover { opacity: 0.85; }
+    .e-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #3C603C; }
+    .e-row:last-child { border-bottom: none; }
+    .e-src { font-size: 0.9rem; opacity: 0.8; }
+    .e-date { font-size: 0.72rem; opacity: 0.32; margin-top: 2px; }
+    .e-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .e-amt { font-weight: 600; color: #5AE57A; font-size: 0.95rem; }
+    .btn-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 1rem; padding: 0; transition: color 0.2s; }
+    .btn-del:hover { color: #5AE57A; }
+    .empty { text-align: center; opacity: 0.26; font-size: 0.85rem; padding: 24px 0; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Weekly Revenue Dashboard</h1>
+  <p class="subtitle">See your revenue week by week. Know your trends.</p>
+
+  <div class="wrap">
+    <div class="summary">
+      <div class="sum-card">
+        <div class="sum-lbl">This Week</div>
+        <div class="sum-val" id="s-this">—</div>
+        <div class="delta" id="s-delta"></div>
+      </div>
+      <div class="sum-card"><div class="sum-lbl">Last Week</div><div class="sum-val" id="s-last">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">Best Week Ever</div><div class="sum-val" id="s-best">—</div></div>
+      <div class="sum-card"><div class="sum-lbl">All-Time Total</div><div class="sum-val" id="s-all">—</div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Last 8 Weeks</div>
+      <div class="bars" id="chart"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Log Revenue</div>
+      <div class="src-field">
+        <label>Source / Product</label>
+        <input type="text" id="e-src" placeholder="e.g. Canva Templates, Email Launch, Coaching Call" />
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Amount ($)</label>
+          <input type="number" id="e-amt" placeholder="e.g. 297" min="0" step="0.01" />
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="e-date" />
+        </div>
+      </div>
+      <button class="btn-add" onclick="addEntry()">+ Log Revenue</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent Entries</div>
+      <div id="recent"></div>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    let entries = [];
+    const load = () => { try { entries = JSON.parse(localStorage.getItem('wrev_v1') || '[]'); } catch(e) { entries = []; } };
+    const save = () => localStorage.setItem('wrev_v1', JSON.stringify(entries));
+    const fmt  = n => '$' + Math.round(n).toLocaleString('en-US');
+
+    function weekOf(dateStr) {
+      const d = new Date(dateStr + 'T12:00:00');
+      const day = d.getDay();
+      d.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+      return d.toISOString().split('T')[0];
+    }
+
+    function last8() {
+      const cur = weekOf(new Date().toISOString().split('T')[0]);
+      return Array.from({ length: 8 }, (_, i) => {
+        const d = new Date(cur + 'T12:00:00');
+        d.setDate(d.getDate() - (7 - i) * 7);
+        return d.toISOString().split('T')[0];
+      });
+    }
+
+    function lbl(w) {
+      return new Date(w + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric' });
+    }
+
+    function addEntry() {
+      const src = document.getElementById('e-src').value.trim();
+      const amt = parseFloat(document.getElementById('e-amt').value) || 0;
+      const dt  = document.getElementById('e-date').value;
+      if (!src || !amt || !dt) { alert('Please fill in source, amount, and date.'); return; }
+      entries.unshift({ id: Date.now(), src, amt, date: dt });
+      save(); render();
+      document.getElementById('e-src').value = '';
+      document.getElementById('e-amt').value = '';
+    }
+
+    function deleteEntry(id) { entries = entries.filter(e => e.id !== id); save(); render(); }
+
+    function render() {
+      const weeks  = last8();
+      const curW   = weeks[7];
+      const prevW  = weeks[6];
+      const totals = {};
+      weeks.forEach(w => totals[w] = 0);
+      entries.forEach(e => { const w = weekOf(e.date); if (w in totals) totals[w] += e.amt; });
+
+      const thisW = totals[curW]  || 0;
+      const lastW = totals[prevW] || 0;
+      const allT  = entries.reduce((s, e) => s + e.amt, 0);
+      const allWk = {};
+      entries.forEach(e => { const w = weekOf(e.date); allWk[w] = (allWk[w] || 0) + e.amt; });
+      const best  = Object.values(allWk).length ? Math.max(...Object.values(allWk)) : 0;
+
+      document.getElementById('s-this').textContent = thisW ? fmt(thisW) : '—';
+      document.getElementById('s-last').textContent = lastW ? fmt(lastW) : '—';
+      document.getElementById('s-best').textContent = best  ? fmt(best)  : '—';
+      document.getElementById('s-all').textContent  = allT  ? fmt(allT)  : '—';
+
+      const dEl = document.getElementById('s-delta');
+      if (thisW > 0 && lastW > 0) {
+        const p = Math.round(((thisW - lastW) / lastW) * 100);
+        dEl.innerHTML = `<span class="${p >= 0 ? 'up' : 'dn'}">${p >= 0 ? '▲' : '▼'} ${Math.abs(p)}% vs last week</span>`;
+      } else dEl.textContent = '';
+
+      const maxV = Math.max(...weeks.map(w => totals[w]), 1);
+      document.getElementById('chart').innerHTML = weeks.map(w => {
+        const v   = totals[w];
+        const pct = Math.max((v / maxV) * 100, v > 0 ? 5 : 0);
+        const cur = w === curW;
+        return `<div class="bw">
+          <div class="ba">${v > 0 ? fmt(v) : ''}</div>
+          <div class="bar ${cur ? 'cur' : v > 0 ? 'past' : ''}" style="height:${pct}%"></div>
+          <div class="bl ${cur ? 'cur' : ''}">${lbl(w)}${cur ? '<br>↑' : ''}</div>
+        </div>`;
+      }).join('');
+
+      const el  = document.getElementById('recent');
+      const rec = entries.slice(0, 15);
+      if (!rec.length) { el.innerHTML = '<div class="empty">No entries yet — log your first sale above.</div>'; return; }
+      el.innerHTML = rec.map(e => `
+        <div class="e-row">
+          <div>
+            <div class="e-src">${e.src}</div>
+            <div class="e-date">${new Date(e.date + 'T12:00:00').toLocaleDateString('en-US',{ month:'short', day:'numeric', year:'numeric' })}</div>
+          </div>
+          <div class="e-right">
+            <span class="e-amt">${fmt(e.amt)}</span>
+            <button class="btn-del" onclick="deleteEntry(${e.id})" title="Remove">×</button>
+          </div>
+        </div>`).join('');
+    }
+
+    document.getElementById('e-date').value = new Date().toISOString().split('T')[0];
+    load(); render();
+  </script>
+</body>
+</html>

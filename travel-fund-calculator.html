@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Fund Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .res .l { font-size: .85rem; opacity: .7; margin-top: 6px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Travel Fund Calculator</h1>
+  <p class="sub">Build the budget by category, then see exactly how to save by departure.</p>
+
+  <div class="panel">
+    <label for="trip">Trip name</label>
+    <input id="trip" placeholder="e.g. Japan, October" oninput="calc()">
+    <div class="grid">
+      <div><label for="flight">Flights ($)</label><input id="flight" type="number" min="0" value="1200" oninput="calc()"></div>
+      <div><label for="stay">Accommodation ($)</label><input id="stay" type="number" min="0" value="1500" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="food">Food / dining ($)</label><input id="food" type="number" min="0" value="600" oninput="calc()"></div>
+      <div><label for="acts">Activities ($)</label><input id="acts" type="number" min="0" value="400" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="trans">Local transport ($)</label><input id="trans" type="number" min="0" value="200" oninput="calc()"></div>
+      <div><label for="misc">Misc / buffer ($)</label><input id="misc" type="number" min="0" value="300" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="months">Months until trip</label><input id="months" type="number" min="1" value="6" oninput="calc()"></div>
+      <div><label for="have">Saved already ($)</label><input id="have" type="number" min="0" value="500" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="total">$0</div>
+    <div class="l">total trip budget</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="mo">$0</div><div class="l">save / month</div></div>
+      <div class="stat"><div class="v" id="wk">$0</div><div class="l">save / week</div></div>
+      <div class="stat"><div class="v" id="gap">$0</div><div class="l">to go</div></div>
+    </div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['trip','flight','stay','food','acts','trans','misc','months','have'];
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  F.forEach(k=>{ const s=localStorage.getItem('tfc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    F.forEach(k=>localStorage.setItem('tfc_'+k,g(k).value));
+    const t=n('flight')+n('stay')+n('food')+n('acts')+n('trans')+n('misc');
+    g('total').textContent='$'+Math.round(t).toLocaleString();
+    const gap=Math.max(0,t-n('have'));
+    g('gap').textContent='$'+Math.round(gap).toLocaleString();
+    const m=Math.max(1,n('months'));
+    g('mo').textContent='$'+Math.ceil(gap/m).toLocaleString();
+    g('wk').textContent='$'+Math.ceil(gap/(m*4.33)).toLocaleString();
+  }
+  calc();
+</script>
+</body>
+</html>

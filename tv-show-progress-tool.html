@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TV Show Progress Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; }
+  .item .top { display: flex; justify-content: space-between; gap: 8px; }
+  .item .nm { font-weight: 500; }
+  .item .meta { font-size: .82rem; opacity: .7; }
+  .ctrl { display: flex; gap: 6px; align-items: center; }
+  .ctrl button { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family:'DM Sans',sans-serif; }
+  .ctrl button:hover { border-color: #5AE57A; color: #5AE57A; }
+  .x { cursor: pointer; opacity: .5; } .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TV Show Progress Tool</h1>
+  <p class="sub">Remember exactly where you got to — and never re-watch the same episode twice.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:3"><label>Show</label><input id="title" placeholder="Show title"></div>
+      <div><label>Season</label><input id="season" type="number" min="1" value="1"></div>
+      <div><label>Episode</label><input id="ep" type="number" min="1" value="1"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('tvspt')||'[]');
+  const save=()=>localStorage.setItem('tvspt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('title')){ alert('Enter a show.'); return; }
+    R.unshift({t:v('title'),s:+g('season').value||1,e:+g('ep').value||1}); g('title').value=''; save(); render(); }
+  function ep(i,d){ R[i].e=Math.max(1,R[i].e+d); save(); render(); }
+  function season(i,d){ R[i].s=Math.max(1,R[i].s+d); if(d>0)R[i].e=1; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all shows?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No shows tracked yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="item"><div class="top"><span class="nm">'+esc(x.t)+'</span><span class="x" onclick="del('+i+')">✕</span></div><div class="top" style="margin-top:6px"><span class="meta">S'+x.s+' · E'+x.e+'</span><div class="ctrl"><button onclick="season('+i+',-1)">S-</button><button onclick="season('+i+',1)">S+</button><button onclick="ep('+i+',-1)">E-</button><button onclick="ep('+i+',1)">E+</button></div></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

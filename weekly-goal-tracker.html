@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Goal Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .week-label {
+    text-align: center;
+    color: #F0EBE0aa;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+  }
+  .card {
+    background: #3C603C;
+    border: 1px solid #4C724C;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 580px;
+    margin: 0 auto 20px;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 1rem;
+    margin-bottom: 14px;
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .input-row input[type="text"] {
+    flex: 1;
+    min-width: 140px;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    outline: none;
+  }
+  .input-row input[type="text"]:focus { border-color: #5AE57A; }
+  .input-row input[type="number"] {
+    width: 72px;
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    padding: 10px 10px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.92rem;
+    outline: none;
+    text-align: center;
+  }
+  .input-row input[type="number"]:focus { border-color: #5AE57A; }
+  .btn-gold {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.92rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn-gold:hover { background: #5AE57A; }
+  .goal-item {
+    padding: 14px 0;
+    border-bottom: 1px solid #3C603C;
+  }
+  .goal-item:last-child { border-bottom: none; }
+  .goal-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .goal-name {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+  .goal-count {
+    font-size: 0.88rem;
+    color: #5AE57A;
+    white-space: nowrap;
+  }
+  .counter-btn {
+    background: #325132;
+    border: 1px solid #4C724C;
+    color: #FFFFFF;
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .counter-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+  .counter-btn:disabled { opacity: 0.3; cursor: default; }
+  .del-btn {
+    background: none;
+    border: none;
+    color: #5A845A;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .del-btn:hover { color: #5AE57A; }
+  .progress-bar {
+    background: #325132;
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    background: #5AE57A;
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .progress-fill.done { background: #5AE57A; }
+  .empty {
+    text-align: center;
+    color: #5A845A;
+    font-size: 0.9rem;
+    padding: 16px 0;
+  }
+  .bottom-row {
+    max-width: 580px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .summary {
+    font-size: 0.85rem;
+    color: #F0EBE0aa;
+  }
+  .summary span { color: #5AE57A; }
+  .btn-ghost {
+    background: none;
+    border: 1px solid #4C724C;
+    color: #F0EBE0aa;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .btn-ghost:hover { border-color: #5AE57A; color: #5AE57A; }
+  footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    text-align: center;
+    color: #5A845A;
+    font-size: 0.78rem;
+    padding: 10px;
+    background: #325132;
+    border-top: 1px solid #3C603C;
+  }
+</style>
+</head>
+<body>
+
+<h1>Weekly Goal Tracker</h1>
+<p class="week-label" id="weekLabel"></p>
+
+<div class="card">
+  <div class="card-title">Add a Goal</div>
+  <div class="input-row">
+    <input type="text" id="goalName" placeholder="e.g. Exercise, Read, Meditate…" maxlength="60" />
+    <input type="number" id="goalTarget" value="3" min="1" max="99" title="Times per week" />
+    <button class="btn-gold" onclick="addGoal()">Add</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Week</div>
+  <div id="goalList"><p class="empty">No goals yet — add one above.</p></div>
+</div>
+
+<div class="bottom-row">
+  <div class="summary" id="summary"></div>
+  <button class="btn-ghost" onclick="newWeek()">New Week ↺</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  let goals = JSON.parse(localStorage.getItem('wgt_goals') || '[]');
+
+  function getWeekLabel() {
+    const now = new Date();
+    const day = now.getDay();
+    const mon = new Date(now); mon.setDate(now.getDate() - ((day + 6) % 7));
+    const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+    const fmt = d => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `Week of ${fmt(mon)} – ${fmt(sun)}`;
+  }
+
+  function save() { localStorage.setItem('wgt_goals', JSON.stringify(goals)); }
+
+  function addGoal() {
+    const name = document.getElementById('goalName').value.trim();
+    const target = parseInt(document.getElementById('goalTarget').value) || 1;
+    if (!name) return;
+    goals.push({ id: Date.now(), name, target, progress: 0 });
+    save(); render();
+    document.getElementById('goalName').value = '';
+    document.getElementById('goalName').focus();
+  }
+
+  function increment(id) {
+    const g = goals.find(g => g.id === id);
+    if (g && g.progress < g.target) { g.progress++; save(); render(); }
+  }
+
+  function decrement(id) {
+    const g = goals.find(g => g.id === id);
+    if (g && g.progress > 0) { g.progress--; save(); render(); }
+  }
+
+  function remove(id) {
+    goals = goals.filter(g => g.id !== id);
+    save(); render();
+  }
+
+  function newWeek() {
+    if (!goals.length) return;
+    if (!confirm('Start a new week? Progress will reset, goals will stay.')) return;
+    goals.forEach(g => g.progress = 0);
+    save(); render();
+  }
+
+  function esc(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function render() {
+    document.getElementById('weekLabel').textContent = getWeekLabel();
+    const list = document.getElementById('goalList');
+
+    if (!goals.length) {
+      list.innerHTML = '<p class="empty">No goals yet — add one above.</p>';
+      document.getElementById('summary').innerHTML = '';
+      return;
+    }
+
+    list.innerHTML = goals.map(g => {
+      const pct = Math.min(100, Math.round((g.progress / g.target) * 100));
+      const done = g.progress >= g.target;
+      return `
+        <div class="goal-item">
+          <div class="goal-top">
+            <span class="goal-name">${esc(g.name)}${done ? ' ✓' : ''}</span>
+            <span class="goal-count">${g.progress} / ${g.target}</span>
+            <button class="counter-btn" onclick="decrement(${g.id})" ${g.progress === 0 ? 'disabled' : ''}>−</button>
+            <button class="counter-btn" onclick="increment(${g.id})" ${done ? 'disabled' : ''}>+</button>
+            <button class="del-btn" onclick="remove(${g.id})" title="Remove">✕</button>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill ${done ? 'done' : ''}" style="width:${pct}%"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const completed = goals.filter(g => g.progress >= g.target).length;
+    document.getElementById('summary').innerHTML =
+      `<span>${completed}</span> of <span>${goals.length}</span> goals completed`;
+  }
+
+  document.getElementById('goalName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') addGoal();
+  });
+
+  render();
+</script>
+</body>
+</html>

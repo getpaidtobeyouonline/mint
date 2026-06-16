@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Zone Converter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .zone { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+  .zone .nm { font-size: .9rem; }
+  .zone .tm { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #5AE57A; }
+  .zone .dy { font-size: .72rem; opacity: .6; }
+  .zone .x { cursor: pointer; opacity: .5; margin-left: 10px; } .zone .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Time Zone Converter</h1>
+  <p class="sub">See the current time across your destinations at a glance — perfect for calls and travel.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>City / place label</label><input id="name" placeholder="e.g. Tokyo office"></div>
+      <div><label>UTC offset</label><select id="off"></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('tzc')||'[]');
+  const save=()=>localStorage.setItem('tzc',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let opts='';
+  for(let o=-12;o<=14;o++){ opts+='<option value="'+o+'"'+(o===0?' selected':'')+'>UTC'+(o>=0?'+':'')+o+'</option>'; }
+  g('off').innerHTML=opts;
+  function add(){ if(!v('name')){ alert('Enter a label.'); return; }
+    R.push({n:v('name'),o:+g('off').value}); g('name').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all zones?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No time zones added yet.</div>'; return; }
+    const now=new Date();
+    const utc=now.getTime()+now.getTimezoneOffset()*60000;
+    L.innerHTML=R.map((x,i)=>{
+      const d=new Date(utc+x.o*3600000);
+      const tm=d.toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+      const dy=d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+      return '<div class="zone"><span class="nm"><b style="color:#5AE57A">'+esc(x.n)+'</b><br><span class="dy">'+dy+' · UTC'+(x.o>=0?'+':'')+x.o+'</span></span><span style="display:flex;align-items:center"><span class="tm">'+tm+'</span><span class="x" onclick="del('+i+')">✕</span></span></div>';
+    }).join('');
+  }
+  render();
+  setInterval(render,30000);
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tradition Builder Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 44px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 10px 16px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; font-size: .88rem; font-style: italic; margin-bottom: 4px; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .card .t { color: #5AE57A; font-weight: 500; }
+  .card .m { font-size: .8rem; opacity: .65; }
+  .card .d { font-size: .88rem; margin-top: 3px; }
+  .card .x { float: right; cursor: pointer; opacity: .5; } .card .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tradition Builder Tool</h1>
+  <p class="sub">Traditions are the glue of family memory. Design ones that are yours.</p>
+
+  <div class="panel">
+    <div class="idea" id="idea"></div>
+    <button class="btn ghost" onclick="newIdea()" style="margin-top:6px">Need inspiration?</button>
+    <label>Tradition name</label>
+    <input id="name" placeholder="e.g. Friday pizza & film night">
+    <label>How often</label>
+    <select id="freq"><option>Weekly</option><option>Monthly</option><option>Seasonal</option><option>Yearly</option><option>Special occasions</option></select>
+    <label>What it involves / why it matters</label>
+    <textarea id="desc" placeholder="The simple ritual, and what you want it to give your family"></textarea>
+    <button class="btn" onclick="add()">+ Add Tradition</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const IDEAS=["A weekly shared meal where everyone shares a high and a low","First-day-of-school photo in the same spot every year","A birthday interview — same questions, recorded each year","Pancakes every Sunday morning","A holiday season activity advent — one small thing each day","Stargazing or a night walk once a month","A gratitude jar emptied and read together on New Year","A yearly family trip to the same place","Everyone cooks one dish for a monthly themed dinner","A book read aloud together over the winter"];
+  let R=JSON.parse(localStorage.getItem('tbt')||'[]');
+  const save=()=>localStorage.setItem('tbt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function newIdea(){ g('idea').textContent='💡 '+IDEAS[Math.floor(Math.random()*IDEAS.length)]; }
+  function add(){ if(!v('name')){ alert('Name your tradition.'); return; }
+    R.push({n:v('name'),f:g('freq').value,d:v('desc')}); g('name').value=''; g('desc').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all traditions?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No traditions yet — add your first.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="card"><span class="x" onclick="del('+i+')">✕</span><div class="t">'+esc(x.n)+'</div><div class="m">'+x.f+'</div>'+(x.d?'<div class="d">'+esc(x.d)+'</div>':'')+'</div>').join('');
+  }
+  newIdea(); render();
+</script>
+</body>
+</html>

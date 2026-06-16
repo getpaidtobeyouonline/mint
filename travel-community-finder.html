@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Community Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select, input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus, input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 7px; font-size: .89rem; }
+  .idea b { color: #5AE57A; }
+  .add { display: flex; gap: 8px; }
+  .saved { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin: 5px 0; display: flex; justify-content: space-between; font-size: .86rem; }
+  .saved .x { cursor: pointer; opacity: .5; } .saved .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .82rem; font-style: italic; padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Travel Community Finder</h1>
+  <p class="sub">Travel is better with people. Find the kinds of communities that suit how you travel.</p>
+
+  <div class="panel">
+    <label for="type">What are you looking for?</label>
+    <select id="type" onchange="gen()">
+      <option value="meet">To meet other travellers on the road</option>
+      <option value="nomad">A digital nomad community</option>
+      <option value="solo">Solo traveller support</option>
+      <option value="expat">An expat community where I am moving</option>
+      <option value="interest">People who share a travel interest</option>
+    </select>
+    <button class="btn" onclick="gen()">Show Me Where to Look</button>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="panel">
+    <label>Communities I have found / want to join</label>
+    <div class="add"><input id="note" placeholder="e.g. Local hiking meetup group" onkeydown="if(event.key==='Enter')add()"><button class="btn" onclick="add()" style="margin-top:0">Add</button></div>
+    <div id="list" style="margin-top:8px"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const T={
+    meet:["Hostel common rooms &amp; organised hostel events","Free walking tours — travellers gather there","Group day tours, classes and activities","Travel apps that connect nearby travellers","Co-living spaces"],
+    nomad:["Co-working spaces in nomad-friendly cities","Online nomad forums and city-specific groups","Nomad meetup events and conferences","Skill-share and slack/discord communities","Coffee shops known as nomad hubs"],
+    solo:["Solo travel online groups and forums","Women's / niche solo travel communities","Hostels and small-group trips designed for solos","Local language exchanges","Interest meetups — instant common ground"],
+    expat:["Expat groups for your destination city","Community noticeboards and local events","Language classes — full of fellow newcomers","Clubs around your hobbies","Neighbourhood associations and markets"],
+    interest:["Hobby-specific travel groups (diving, cycling, food...)","Themed tours and retreats","Online communities, then their local chapters","Classes and workshops while travelling","Events and festivals around your interest"]
+  };
+  let saved=JSON.parse(localStorage.getItem('tcf')||'[]');
+  function gen(){
+    g('out').innerHTML='<div class="panel">'+T[g('type').value].map(x=>'<div class="idea"><b>▸</b> '+esc(x)+'</div>').join('')+'</div>';
+  }
+  function add(){ const t=g('note').value.trim(); if(!t)return; saved.push(t); g('note').value=''; localStorage.setItem('tcf',JSON.stringify(saved)); render(); }
+  function del(i){ saved.splice(i,1); localStorage.setItem('tcf',JSON.stringify(saved)); render(); }
+  function render(){
+    g('list').innerHTML=saved.length?saved.map((x,i)=>'<div class="saved"><span>'+esc(x)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join(''):'<div class="empty">Nothing saved yet.</div>';
+  }
+  gen(); render();
+</script>
+</body>
+</html>

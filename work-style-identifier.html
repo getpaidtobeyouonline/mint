@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Style Identifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 16px; }
+  .qt { font-weight: 500; margin-bottom: 7px; font-size: .95rem; }
+  .opt { display: flex; gap: 9px; align-items: flex-start; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 11px; margin-bottom: 5px; cursor: pointer; font-size: .9rem; }
+  .opt:hover { border-color: #5AE57A; }
+  .opt input { accent-color: #5AE57A; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Work Style Identifier</h1>
+  <p class="sub">Answer eight questions to understand how you do your best work.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">See My Work Style</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    {q:'You do your best work when...',a:['You have long, quiet stretches alone','You are bouncing ideas off other people','You are moving fast on something real','Everything is planned and organised']},
+    {q:'A new task lands. You first...',a:['Block focus time to go deep','Talk it through with someone','Just start and adjust as you go','Map out the steps before acting']},
+    {q:'Your ideal workday has...',a:['Few meetings and deep concentration','Lots of collaboration and energy','Quick wins and visible progress','A clear, predictable structure']},
+    {q:'You feel most drained by...',a:['Constant interruptions','Working alone for too long','Slow, drawn-out processes','Chaos and last-minute changes']},
+    {q:'Others come to you for...',a:['Careful, thorough thinking','Energy and connection','Getting things moving','Order and reliable follow-through']},
+    {q:'Under pressure you...',a:['Withdraw and focus hard','Rally the people around you','Act quickly and decisively','Make a list and work it']},
+    {q:'You are happiest finishing...',a:['One thing done deeply and well','A team effort that came together','A burst of fast progress','A tidy, fully-checked deliverable']},
+    {q:'Your growth edge is...',a:['Collaborating and sharing earlier','Protecting solo focus time','Slowing down to plan','Staying flexible when plans change']}
+  ];
+  const STYLES=[
+    {n:'The Focuser',d:'You do your best work in deep, uninterrupted stretches. Protect your focus time fiercely — and share your thinking with others a little sooner.'},
+    {n:'The Connector',d:'You think and energise best with people. Lean into collaboration — and guard some solo time so the deep work still gets done.'},
+    {n:'The Driver',d:'You create momentum and get things moving. Use that energy well — and pause to plan so speed never outruns direction.'},
+    {n:'The Organiser',d:'You bring structure, order and reliable follow-through. Trust your systems — and practise staying flexible when plans need to change.'}
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((item,qi)=>{
+    let h='<div class="q"><p class="qt">'+(qi+1)+'. '+item.q+'</p>';
+    item.a.forEach((opt,oi)=>{ h+='<label class="opt"><input type="radio" name="q'+qi+'" value="'+oi+'"><span>'+opt+'</span></label>'; });
+    g('quiz').insertAdjacentHTML('beforeend',h+'</div>');
+  });
+  function result(){
+    const c=[0,0,0,0];
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please answer all eight questions.'); return; } c[+s.value]++; }
+    let m=0; c.forEach((n,i)=>{ if(n>c[m])m=i; });
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<h2>'+STYLES[m].n+'</h2><p>'+STYLES[m].d+'</p><p style="opacity:.7;font-size:.86rem;margin-top:8px">Most people blend two styles. Design your week to fit how you actually work best.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

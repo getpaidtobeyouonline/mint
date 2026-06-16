@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Audit Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 5px; }
+  .cat-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 5px 13px; border-radius: 16px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+  .chip.sel { border-color: var(--cc); color: var(--cc); }
+  .f-input, select { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 9px 11px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+  .f-input:focus, select:focus { border-color: #5AE57A; }
+  .form-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+  .countdown { font-family: 'Playfair Display', serif; font-size: 4rem; text-align: center; line-height: 1; margin: 12px 0; letter-spacing: -2px; }
+  .running-cat { display: inline-block; font-size: 0.72rem; padding: 3px 14px; border-radius: 12px; border: 1px solid; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; background: #325132; }
+  .btn-go { background: #5AE57A; color: #325132; border: none; padding: 11px 44px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-go:hover { background: #5AE57A; }
+  .btn-stop { background: none; border: 1px solid #5AE57A; color: #5AE57A; padding: 10px 30px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-stop:hover { background: #325132; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .btn-gold:hover { background: #5AE57A; }
+  .stats-row { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; line-height: 1; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .bar-item { margin-bottom: 11px; }
+  .bar-item:last-child { margin-bottom: 0; }
+  .bar-top { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 5px; color: #F0EBE0aa; }
+  .bar-track { background: #325132; border-radius: 4px; height: 7px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .log-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid #325132; }
+  .log-item:last-child { border-bottom: none; }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+  .log-body { flex: 1; }
+  .log-cat { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .log-note { font-size: 0.86rem; color: #F0EBE0aa; margin-top: 1px; }
+  .log-meta { font-size: 0.72rem; color: #5A845A; margin-top: 2px; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.82rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Time Audit Tracker</h1>
+<p class="subtitle">Track where your time actually goes. No filters. No excuses.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Active Timer</div>
+  <div id="timerIdle">
+    <div class="field-label" style="margin-bottom:7px">What are you working on?</div>
+    <div class="cat-chips" id="timerCats"></div>
+    <div style="margin-top:14px;text-align:center">
+      <button class="btn-go" onclick="startTimer()">▶ Start Timer</button>
+    </div>
+  </div>
+  <div id="timerRunning" style="display:none;text-align:center">
+    <div class="running-cat" id="runningLabel">Deep Work</div>
+    <div class="countdown" id="timerDisplay">0:00</div>
+    <button class="btn-stop" onclick="stopTimer()">■ Stop &amp; Log</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log Manually</div>
+  <div class="form-row">
+    <div style="flex:0 0 130px">
+      <div class="field-label">Duration</div>
+      <select id="logDur">
+        <option value="5">5 min</option><option value="10">10 min</option>
+        <option value="15">15 min</option><option value="20">20 min</option>
+        <option value="30" selected>30 min</option><option value="45">45 min</option>
+        <option value="60">1 hour</option><option value="90">1.5 hours</option>
+        <option value="120">2 hours</option>
+      </select>
+    </div>
+    <div style="flex:1">
+      <div class="field-label">Note (optional)</div>
+      <input class="f-input" id="logNote" placeholder="What were you doing?" maxlength="60" />
+    </div>
+    <button class="btn-gold" onclick="logManual()">Log</button>
+  </div>
+  <div class="field-label" style="margin-bottom:7px">Category</div>
+  <div class="cat-chips" id="logCats"></div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statTotal">0h</div><div class="stat-l">tracked today</div></div>
+  <div class="stat-box"><div class="stat-n" id="statEntries">0</div><div class="stat-l">entries</div></div>
+  <div class="stat-box"><div class="stat-n" id="statTop">—</div><div class="stat-l">top category</div></div>
+</div>
+
+<div class="card" id="breakdownCard" style="display:none">
+  <div class="card-title" style="margin-bottom:14px">Today's Breakdown</div>
+  <div id="breakdown"></div>
+</div>
+
+<div class="card" id="logCard" style="display:none">
+  <div class="card-title" style="margin-bottom:12px">Today's Log</div>
+  <div id="logList"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = [
+    {id:'deep',     icon:'🎯', label:'Deep Work',  color:'#5AE57A', bg:'#325132'},
+    {id:'meetings', icon:'💬', label:'Meetings',   color:'#5AE57A', bg:'#325132'},
+    {id:'admin',    icon:'📧', label:'Admin',      color:'#5AE57A', bg:'#325132'},
+    {id:'learning', icon:'🧠', label:'Learning',   color:'#5AE57A', bg:'#325132'},
+    {id:'creative', icon:'✨', label:'Creative',   color:'#5AE57A', bg:'#325132'},
+    {id:'reactive', icon:'🔄', label:'Reactive',   color:'#5AE57A', bg:'#325132'},
+    {id:'wasted',   icon:'🕳️', label:'Wasted',    color:'#5AE57A', bg:'#325132'},
+  ];
+
+  const TODAY = new Date().toISOString().slice(0,10);
+  document.getElementById('dateLabel').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+  let entries = JSON.parse(localStorage.getItem('tat_'+TODAY)||'[]');
+  let timerStart=null, timerCat='deep', timerInt=null, selLog='deep';
+
+  function save() { localStorage.setItem('tat_'+TODAY, JSON.stringify(entries)); }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function fmtDur(m) { if(m<60) return m+'m'; const h=Math.floor(m/60),r=m%60; return h+'h'+(r?' '+r+'m':''); }
+  function fmtTime(ts) { const d=new Date(ts); return `${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`; }
+
+  function buildChips(containerId, selId, onPick) {
+    document.getElementById(containerId).innerHTML = CATS.map(c=>`
+      <div class="chip ${c.id===selId?'sel':''}" id="${containerId}-${c.id}" style="--cc:${c.color}" onclick="${onPick}('${c.id}')">${c.icon} ${c.label}</div>`).join('');
+  }
+
+  function pickTimerCat(id) {
+    timerCat=id;
+    CATS.forEach(c=>document.getElementById('timerCats-'+c.id).classList.toggle('sel',c.id===id));
+  }
+  function pickLogCat(id) {
+    selLog=id;
+    CATS.forEach(c=>document.getElementById('logCats-'+c.id).classList.toggle('sel',c.id===id));
+  }
+
+  function startTimer() {
+    const cat=CATS.find(c=>c.id===timerCat);
+    timerStart=Date.now();
+    const lbl=document.getElementById('runningLabel');
+    lbl.textContent=`${cat.icon} ${cat.label}`;
+    lbl.style.color=cat.color; lbl.style.borderColor=cat.color;
+    document.getElementById('timerIdle').style.display='none';
+    document.getElementById('timerRunning').style.display='block';
+    timerInt=setInterval(()=>{
+      const e=Math.floor((Date.now()-timerStart)/1000);
+      document.getElementById('timerDisplay').textContent=`${Math.floor(e/60)}:${String(e%60).padStart(2,'0')}`;
+    },1000);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInt);
+    const mins=Math.max(1,Math.round((Date.now()-timerStart)/60000));
+    entries.push({id:Date.now(),ts:timerStart,dur:mins,cat:timerCat,note:''});
+    save(); render();
+    document.getElementById('timerRunning').style.display='none';
+    document.getElementById('timerIdle').style.display='block';
+    document.getElementById('timerDisplay').textContent='0:00';
+    timerStart=null;
+  }
+
+  function logManual() {
+    const dur=+document.getElementById('logDur').value;
+    const note=document.getElementById('logNote').value.trim();
+    entries.push({id:Date.now(),ts:Date.now(),dur,cat:selLog,note});
+    document.getElementById('logNote').value='';
+    save(); render();
+  }
+
+  function removeEntry(id) { entries=entries.filter(e=>e.id!==id); save(); render(); }
+
+  function render() {
+    const totalMins=entries.reduce((s,e)=>s+e.dur,0);
+    const totals={};
+    entries.forEach(e=>{totals[e.cat]=(totals[e.cat]||0)+e.dur;});
+    const topEntry=Object.entries(totals).sort((a,b)=>b[1]-a[1])[0];
+    const topCat=topEntry?CATS.find(c=>c.id===topEntry[0]):null;
+
+    document.getElementById('statTotal').textContent=totalMins?fmtDur(totalMins):'0h';
+    document.getElementById('statEntries').textContent=entries.length;
+    document.getElementById('statTop').textContent=topCat?topCat.icon:'—';
+
+    const bCard=document.getElementById('breakdownCard');
+    if(!entries.length){bCard.style.display='none';}
+    else{
+      bCard.style.display='block';
+      document.getElementById('breakdown').innerHTML=
+        Object.entries(totals).sort((a,b)=>b[1]-a[1]).map(([id,mins])=>{
+          const cat=CATS.find(c=>c.id===id);
+          const pct=Math.round(mins/totalMins*100);
+          return `<div class="bar-item">
+            <div class="bar-top"><span>${cat.icon} ${cat.label}</span><span>${fmtDur(mins)} · ${pct}%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cat.color}"></div></div>
+          </div>`;
+        }).join('');
+    }
+
+    const lCard=document.getElementById('logCard');
+    const sorted=[...entries].sort((a,b)=>b.ts-a.ts);
+    if(!sorted.length){lCard.style.display='none';return;}
+    lCard.style.display='block';
+    document.getElementById('logList').innerHTML=sorted.map(e=>{
+      const cat=CATS.find(c=>c.id===e.cat)||CATS[0];
+      return `<div class="log-item">
+        <div class="log-dot" style="background:${cat.color}"></div>
+        <div class="log-body">
+          <div class="log-cat" style="color:${cat.color}">${cat.icon} ${cat.label}</div>
+          ${e.note?`<div class="log-note">${esc(e.note)}</div>`:''}
+          <div class="log-meta">${fmtTime(e.ts)} · ${fmtDur(e.dur)}</div>
+        </div>
+        <button class="del-btn" onclick="removeEntry(${e.id})">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  buildChips('timerCats','deep','pickTimerCat');
+  buildChips('logCats','deep','pickLogCat');
+  document.getElementById('logNote').addEventListener('keydown',e=>{if(e.key==='Enter')logManual();});
+  render();
+</script>
+</body>
+</html>

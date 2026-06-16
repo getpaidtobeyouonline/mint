@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Work Life Balance Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+.subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+.week-lbl { text-align: center; font-size: 0.76rem; color: #BFD8BF; margin-bottom: 20px; }
+.score-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 14px; text-align: center; }
+.ring-wrap { width: 136px; height: 136px; border-radius: 50%; background: conic-gradient(var(--rc,#4C724C) var(--prog,0%), #3C603C 0%); margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; transition: background 0.4s; }
+.ring-inner { width: 106px; height: 106px; border-radius: 50%; background: #325132; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+.ring-score { font-family: 'Playfair Display', serif; font-size: 2rem; line-height: 1; }
+.ring-lbl { font-size: 0.6rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.09em; margin-top: 2px; }
+.score-grade { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 4px; }
+.score-msg { font-size: 0.79rem; color: #BFD8BF; }
+.domains { max-width: 580px; margin: 0 auto 14px; display: flex; flex-direction: column; gap: 7px; }
+.domain-card { background: #3C603C; border: 1px solid #3C603C; border-radius: 10px; padding: 12px 14px; }
+.domain-top { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
+.domain-icon { font-size: 1rem; flex-shrink: 0; }
+.domain-name { font-size: 0.85rem; color: #F0EBE0cc; flex: 1; }
+.domain-val { font-size: 0.77rem; color: #BFD8BF; transition: color 0.2s; flex-shrink: 0; }
+.dots { display: flex; gap: 6px; }
+.dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid #4C724C; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; color: #5A845A; font-family: 'Playfair Display', serif; }
+.dot:hover { border-color: var(--dc,#5AE57A); color: var(--dc,#5AE57A); }
+.dot.active { border-color: var(--dc,#5AE57A); background: var(--dc,#5AE57A); color: #325132; }
+.domain-bar-track { height: 3px; background: #325132; border-radius: 2px; margin-top: 9px; }
+.domain-bar-fill { height: 100%; border-radius: 2px; transition: width 0.3s; width: 0%; }
+.insights-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; max-width: 580px; margin: 0 auto 14px; }
+.card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.95rem; margin-bottom: 12px; }
+.insight-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid #325132; font-size: 0.82rem; }
+.insight-row:last-child { border-bottom: none; }
+.insight-text { color: #F0EBE0bb; flex: 1; line-height: 1.5; }
+.empty-msg { text-align: center; color: #5A845A; font-size: 0.83rem; padding: 6px 0; }
+.save-wrap { max-width: 580px; margin: 4px auto 16px; }
+.btn-save { width: 100%; border: none; padding: 14px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.97rem; cursor: pointer; transition: all 0.3s; }
+.btn-idle { background: #3C603C; color: #BFD8BF; border: 1px solid #4C724C; cursor: default; }
+.btn-ready { background: #5AE57A; color: #325132; }
+.btn-done { background: #70c07022; color: #5AE57A; border: 1px solid #70c07066; cursor: default; }
+.hist-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; max-width: 580px; margin: 0 auto 16px; }
+.hist-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #325132; font-size: 0.82rem; }
+.hist-row:last-child { border-bottom: none; }
+.hist-date { color: #BFD8BF; flex-shrink: 0; width: 84px; }
+.hist-score { font-family: 'Playfair Display', serif; font-size: 0.95rem; flex-shrink: 0; width: 28px; }
+.hist-bar { flex: 1; background: #325132; height: 5px; border-radius: 3px; overflow: hidden; }
+.hist-bar-fill { height: 100%; border-radius: 3px; }
+.hist-grade { font-size: 0.72rem; flex-shrink: 0; }
+footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Work Life Balance</h1>
+<p class="subtitle">Rate how balanced each area of your life feels this week.</p>
+<p class="week-lbl" id="weekLbl"></p>
+
+<div class="score-card">
+  <div class="ring-wrap" id="ring">
+    <div class="ring-inner">
+      <div class="ring-score" id="ringScore" style="color:#5A845A">—</div>
+      <div class="ring-lbl">balance</div>
+    </div>
+  </div>
+  <div class="score-grade" id="scoreGrade" style="color:#BFD8BF">Rate your life areas below</div>
+  <div class="score-msg" id="scoreMsg"></div>
+</div>
+
+<div class="domains" id="domainList"></div>
+
+<div class="insights-card">
+  <div class="card-title">Areas Needing Attention</div>
+  <div id="insights"><p class="empty-msg">Rate your areas to see personalized insights.</p></div>
+</div>
+
+<div class="save-wrap">
+  <button class="btn-save btn-idle" id="saveBtn" onclick="saveWeek()">Rate at least 4 areas to save</button>
+</div>
+
+<div class="hist-card">
+  <div class="card-title">Weekly History</div>
+  <div id="histList"><p class="empty-msg">No history yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const DOMAINS = [
+  {id:'work',    icon:'💼', label:'Work & Career',    color:'#5AE57A'},
+  {id:'family',  icon:'🏠', label:'Home & Family',     color:'#5AE57A'},
+  {id:'health',  icon:'💪', label:'Health & Fitness',  color:'#5AE57A'},
+  {id:'growth',  icon:'📚', label:'Growth & Learning', color:'#5AE57A'},
+  {id:'social',  icon:'👥', label:'Social Life',       color:'#5AE57A'},
+  {id:'rest',    icon:'😴', label:'Rest & Recovery',   color:'#5AE57A'},
+  {id:'hobbies', icon:'🎨', label:'Hobbies & Fun',     color:'#5AE57A'},
+  {id:'finance', icon:'💰', label:'Finances & Admin',  color:'#5AE57A'},
+];
+const GRADES = [
+  {min:85,g:'S',label:'Thriving',color:'#5AE57A'},
+  {min:70,g:'A',label:'Well Balanced',color:'#5AE57A'},
+  {min:55,g:'B',label:'Mostly Balanced',color:'#5AE57A'},
+  {min:40,g:'C',label:'Needs Attention',color:'#5AE57A'},
+  {min:0, g:'D',label:'Significantly Off',color:'#5AE57A'},
+];
+const TIPS = {
+  work:    'Set a hard stop time today and protect it like an appointment.',
+  family:  'Even 30 minutes of undivided attention each day compounds fast.',
+  health:  'One small habit — a walk, a stretch — is enough to restart the momentum.',
+  growth:  'A single chapter or podcast episode a day keeps you moving forward.',
+  social:  'Reach out to one person this week — even a short message counts.',
+  rest:    'Sleep is the highest-leverage health investment you can make.',
+  hobbies: 'Block 30 minutes this week for something that is purely for you.',
+  finance: 'One money task — even reviewing one account — breaks the avoidance cycle.',
+};
+const VLABELS = ['','Neglected','Low','Okay','Good','Thriving'];
+
+function getMonday(){const d=new Date(),day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));return d.toISOString().slice(0,10);}
+const WEEK=getMonday();
+let ratings=JSON.parse(localStorage.getItem('wlb_r_'+WEEK)||'{}');
+let history=JSON.parse(localStorage.getItem('wlb_hist')||'[]');
+let saved=!!localStorage.getItem('wlb_saved_'+WEEK);
+
+function calcScore(){
+  const vals=DOMAINS.map(d=>ratings[d.id]).filter(v=>v);
+  if(!vals.length) return{score:0,grade:null,ratedCount:0};
+  const avg=vals.reduce((s,v)=>s+v,0)/vals.length;
+  const variance=vals.reduce((s,v)=>s+(v-avg)**2,0)/vals.length;
+  const score=Math.max(0,Math.round((avg/5)*100-Math.sqrt(variance)*4));
+  return{score,grade:GRADES.find(g=>score>=g.min)||GRADES[GRADES.length-1],ratedCount:vals.length};
+}
+
+function setRating(domId,val){
+  ratings[domId]=ratings[domId]===val?undefined:val;
+  if(!ratings[domId]) delete ratings[domId];
+  localStorage.setItem('wlb_r_'+WEEK,JSON.stringify(ratings));
+  renderDomain(domId);updateScore();updateInsights();updateSaveBtn();
+}
+
+function renderDomain(domId){
+  const dom=DOMAINS.find(d=>d.id===domId),val=ratings[domId]||0;
+  for(let i=1;i<=5;i++) document.getElementById('dot-'+domId+'-'+i).classList.toggle('active',i<=val);
+  const dv=document.getElementById('dval-'+domId);
+  dv.textContent=val?VLABELS[val]:'—';dv.style.color=val?dom.color:'#BFD8BF';
+  document.getElementById('dbar-'+domId).style.cssText=`width:${val/5*100}%;background:${dom.color}`;
+}
+
+function updateScore(){
+  const{score,grade,ratedCount}=calcScore();
+  const rc=score>=70?'#5AE57A':score>=45?'#5AE57A':'#5AE57A';
+  const ring=document.getElementById('ring');
+  ring.style.setProperty('--prog',score+'%');ring.style.setProperty('--rc',ratedCount?rc:'#4C724C');
+  const rs=document.getElementById('ringScore');
+  rs.textContent=ratedCount?score:'—';rs.style.color=ratedCount?rc:'#5A845A';
+  const sg=document.getElementById('scoreGrade');
+  if(grade){sg.textContent=grade.g+' — '+grade.label;sg.style.color=grade.color;}
+  else{sg.textContent='Rate your life areas below';sg.style.color='#BFD8BF';}
+  document.getElementById('scoreMsg').textContent=ratedCount?`Based on ${ratedCount} of 8 areas rated`:'';
+}
+
+function updateInsights(){
+  const low=DOMAINS.filter(d=>ratings[d.id]&&ratings[d.id]<=2).sort((a,b)=>(ratings[a.id]||0)-(ratings[b.id]||0)).slice(0,3);
+  const el=document.getElementById('insights');
+  if(!low.length){
+    const n=Object.keys(ratings).length;
+    el.innerHTML=`<p class="empty-msg">${n?'All rated areas look healthy. Keep it up.':'Rate your areas to see personalized insights.'}</p>`;
+    return;
+  }
+  el.innerHTML=low.map(d=>`<div class="insight-row"><span>${d.icon}</span><span class="insight-text"><strong style="color:${d.color}">${d.label}</strong> rated ${ratings[d.id]}/5 — ${TIPS[d.id]}</span></div>`).join('');
+}
+
+function updateSaveBtn(){
+  const btn=document.getElementById('saveBtn'),{ratedCount}=calcScore();
+  if(saved){btn.className='btn-save btn-done';btn.textContent='✓ This Week Saved';return;}
+  if(ratedCount>=4){btn.className='btn-save btn-ready';btn.textContent="Save This Week's Check-In";}
+  else{btn.className='btn-save btn-idle';btn.textContent='Rate at least 4 areas to save';}
+}
+
+function saveWeek(){
+  const{score,grade,ratedCount}=calcScore();
+  if(saved||ratedCount<4) return;
+  const entry={week:WEEK,score,grade:grade.g,color:grade.color};
+  history=history.filter(h=>h.week!==WEEK);history.unshift(entry);
+  if(history.length>12) history.pop();
+  localStorage.setItem('wlb_hist',JSON.stringify(history));
+  localStorage.setItem('wlb_saved_'+WEEK,'1');
+  saved=true;updateSaveBtn();renderHistory();
+}
+
+function renderHistory(){
+  const el=document.getElementById('histList');
+  if(!history.length){el.innerHTML='<p class="empty-msg">No history yet.</p>';return;}
+  el.innerHTML=history.slice(0,8).map(h=>{
+    const d=new Date(h.week+'T12:00:00'),label=d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return`<div class="hist-row"><span class="hist-date">Wk ${label}</span><span class="hist-score" style="color:${h.color}">${h.score}</span><div class="hist-bar"><div class="hist-bar-fill" style="width:${h.score}%;background:${h.color}"></div></div><span class="hist-grade" style="color:${h.color}">${h.grade}</span></div>`;
+  }).join('');
+}
+
+const wd=new Date(WEEK+'T12:00:00');
+document.getElementById('weekLbl').textContent='Week of '+wd.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+document.getElementById('domainList').innerHTML=DOMAINS.map(dom=>`
+  <div class="domain-card" style="--dc:${dom.color}">
+    <div class="domain-top">
+      <span class="domain-icon">${dom.icon}</span>
+      <span class="domain-name">${dom.label}</span>
+      <span class="domain-val" id="dval-${dom.id}">—</span>
+    </div>
+    <div class="dots">${[1,2,3,4,5].map(i=>`<div class="dot${(ratings[dom.id]||0)>=i?' active':''}" id="dot-${dom.id}-${i}" onclick="setRating('${dom.id}',${i})">${i}</div>`).join('')}</div>
+    <div class="domain-bar-track"><div class="domain-bar-fill" id="dbar-${dom.id}" style="width:${(ratings[dom.id]||0)/5*100}%;background:${dom.color}"></div></div>
+  </div>`).join('');
+
+DOMAINS.forEach(d=>{if(ratings[d.id]) renderDomain(d.id);});
+updateScore();updateInsights();updateSaveBtn();renderHistory();
+</script>
+</body>
+</html>

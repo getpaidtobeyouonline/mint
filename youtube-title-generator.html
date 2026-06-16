@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouTube Title Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .title-row {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .title-row:hover { border-color: #5AE57A; }
+  .title-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    background: #5AE57A;
+    color: #325132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .meta {
+    font-size: 12px;
+    opacity: 0.6;
+    display: flex;
+    gap: 12px;
+  }
+  .title-text {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .copy-hint {
+    font-size: 11px;
+    color: #5AE57A;
+    opacity: 0.5;
+    margin-top: 6px;
+  }
+  .copied { opacity: 1; font-weight: 700; }
+  .hidden { display: none; }
+  .ctr-good { color: #5AE57A; }
+  .ctr-ok { opacity: 0.7; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>YouTube Title Generator</h1>
+  <p class="subtitle">10 click-worthy titles with CTR potential scored. Tap any title to copy.</p>
+
+  <div class="card">
+    <label>What's your video about?</label>
+    <input type="text" id="topic" placeholder="e.g. building a side income from home">
+    <div class="row">
+      <div>
+        <label>Style</label>
+        <select id="style">
+          <option>Tutorial</option>
+          <option>Story</option>
+          <option>List / Top X</option>
+          <option>Opinion / Rant</option>
+          <option>Case Study</option>
+          <option>Review</option>
+        </select>
+      </div>
+      <div>
+        <label>Audience level</label>
+        <select id="level">
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Generate 10 Titles</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Your Titles — tap to copy</label>
+      <div id="titles"></div>
+      <button onclick="generate()" style="margin-top:6px;">Generate 10 More</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const TEMPLATES = {
+  'Tutorial': [
+    "How To {topic} (Even If You're {level})",
+    "The Easiest Way To {topic} In 2026",
+    "{topic}: A Step-By-Step Guide That Actually Works",
+    "I Tried {topic} For 30 Days — Here's What Worked",
+    "Stop Doing {topic} Wrong. Watch This First.",
+    "The {level}'s Guide To {topic}"
+  ],
+  'Story': [
+    "How I Mastered {topic} (After Failing 3 Times)",
+    "From Zero To {topic} In 90 Days — My Real Story",
+    "I Quit Everything To {topic}. Here's What Happened.",
+    "The Truth About {topic} Nobody Told Me",
+    "Why I Stopped {topic} (And What I Do Instead)",
+    "What 1 Year Of {topic} Actually Taught Me"
+  ],
+  'List / Top X': [
+    "7 {topic} Mistakes That Are Killing Your Progress",
+    "5 Things I Wish I Knew Before I Started {topic}",
+    "Top 10 {topic} Tips For {level}s",
+    "3 {topic} Hacks That Changed Everything For Me",
+    "9 {topic} Rules I Live By",
+    "5 Reasons Your {topic} Isn't Working"
+  ],
+  'Opinion / Rant': [
+    "Everything You've Heard About {topic} Is Wrong",
+    "Why {topic} Is Harder Than People Admit",
+    "The Uncomfortable Truth About {topic}",
+    "Stop Believing These {topic} Myths",
+    "{topic} Is Broken. Here's What To Do.",
+    "Nobody Wants To Talk About This Side Of {topic}"
+  ],
+  'Case Study': [
+    "How One Person Cracked {topic} In 60 Days",
+    "The {topic} Strategy That Built A 6-Figure Result",
+    "Breaking Down The Best {topic} I've Ever Seen",
+    "We Tested 5 {topic} Methods — Here's The Winner",
+    "Reverse Engineering A Perfect {topic}",
+    "Behind The Scenes Of A {topic} That Actually Worked"
+  ],
+  'Review': [
+    "Is {topic} Worth It In 2026? Honest Review",
+    "{topic}: The Good, The Bad, And The Ugly",
+    "I Spent 30 Days On {topic} — Brutally Honest Review",
+    "Don't Try {topic} Until You Watch This",
+    "{topic} Review: What They Don't Tell You",
+    "The Real Pros And Cons Of {topic}"
+  ]
+};
+
+function pickN(arr, n) {
+  const shuffled = [...arr].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, n);
+}
+
+function scoreTitle(title) {
+  let score = 50;
+  const len = title.length;
+  if (len >= 40 && len <= 60) score += 20;
+  else if (len < 40) score += 8;
+  else if (len <= 70) score += 10;
+  if (/\d/.test(title)) score += 12;
+  const power = ['secret','truth','best','worst','never','stop','easy','proven','real','honest','actually','wrong','failed','won','quit','cracked'];
+  if (power.some(w => title.toLowerCase().includes(w))) score += 10;
+  if (/[?!]/.test(title)) score += 5;
+  if (title.includes('(') || title.includes(':')) score += 3;
+  return Math.min(99, score);
+}
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { alert('Add a topic first.'); return; }
+  const style = document.getElementById('style').value;
+  const level = document.getElementById('level').value;
+
+  const styles = Object.keys(TEMPLATES);
+  let allTitles = [];
+  TEMPLATES[style].forEach(t => allTitles.push({tag: style, t}));
+  styles.filter(s => s !== style).forEach(s => {
+    pickN(TEMPLATES[s], 1).forEach(t => allTitles.push({tag: s, t}));
+  });
+
+  const picked = pickN(allTitles, 10).map(p => {
+    const text = p.t.replace(/{topic}/g, topic).replace(/{level}/g, level.toLowerCase());
+    const score = scoreTitle(text);
+    return {tag: p.tag, text, score, len: text.length};
+  });
+
+  picked.sort((a, b) => b.score - a.score);
+
+  document.getElementById('titles').innerHTML = picked.map((p, i) => `
+    <div class="title-row" onclick="copyTitle(this, ${i})">
+      <div class="title-top">
+        <span class="tag">${p.tag}</span>
+        <span class="meta">
+          <span class="${p.score >= 75 ? 'ctr-good' : 'ctr-ok'}">CTR ${p.score}</span>
+          <span>${p.len} chars</span>
+        </span>
+      </div>
+      <div class="title-text" id="t-${i}">${p.text}</div>
+      <div class="copy-hint">tap to copy</div>
+    </div>
+  `).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyTitle(el, i) {
+  const text = document.getElementById('t-' + i).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const hint = el.querySelector('.copy-hint');
+    hint.textContent = 'copied!';
+    hint.classList.add('copied');
+    setTimeout(() => {
+      hint.textContent = 'tap to copy';
+      hint.classList.remove('copied');
+    }, 1400);
+  });
+}
+</script>
+</body>
+</html>

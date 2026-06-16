@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tagging Strategy Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .tag { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 7px; }
+  .tag b { color: #5AE57A; } .tag .x { float: right; cursor: pointer; opacity: .5; } .tag .x:hover { opacity: 1; color: #5AE57A; }
+  .tip { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.86rem;margin-bottom:12px; }
+  .tip ul { margin-left: 18px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Tagging Strategy Tool</h1>
+  <p class="sub">A clean tag system keeps your emails relevant for years. Plan yours with the rule of "behaviour, source, interest".</p>
+
+  <div class="tip">Use only 3 tag families — anything more becomes chaos:
+    <ul>
+      <li><b>Source</b> — where they came from (lead-magnet-name, ad, partner)</li>
+      <li><b>Interest</b> — what topics they click on</li>
+      <li><b>Behaviour</b> — what they did (buyer, opened-launch, cold-90d)</li>
+    </ul>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:0;min-width:110px"><label for="fam">Family</label><input id="fam" list="famlist" placeholder="source / interest / behaviour"></div>
+      <datalist id="famlist"><option>source</option><option>interest</option><option>behaviour</option></datalist>
+      <div style="flex:2"><label for="name">Tag name (kebab-case)</label><input id="name" placeholder="e.g. lead-magnet-pricing-guide"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let T=JSON.parse(localStorage.getItem('tst')||'[]');
+  const save=()=>localStorage.setItem('tst',JSON.stringify(T));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const f=v('fam').toLowerCase(), nm=v('name').toLowerCase().replace(/\s+/g,'-'); if(!f||!nm){alert('Add family and tag.');return;} T.push({f,nm}); g('name').value=''; save(); render(); }
+  function del(i){ T.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all tags?')){ T=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!T.length){ L.innerHTML='<div class="empty">No tags yet — add a few in each family.</div>'; return; }
+    const fams=['source','interest','behaviour','other'];
+    L.innerHTML=fams.map(f=>{
+      const grp=T.map((t,i)=>({t,i})).filter(o=>o.t.f===f);
+      if(!grp.length) return '';
+      return `<div class="panel"><b style="color:#5AE57A;text-transform:uppercase;font-size:.75rem">${f}</b>`+
+        grp.map(({t,i})=>`<div class="tag"><b>${f}:</b>${esc(t.nm)}<span class="x" onclick="del(${i})">✕</span></div>`).join('')+`</div>`;
+    }).join('');
+    const other=T.filter(t=>!['source','interest','behaviour'].includes(t.f));
+    if(other.length){ /* already handled by 'other' family above if used */ }
+  }
+  render();
+</script>
+</body>
+</html>

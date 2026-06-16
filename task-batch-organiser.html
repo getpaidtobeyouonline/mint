@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Batch Organiser</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+
+  /* Add form */
+  .add-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; max-width: 680px; margin: 0 auto 20px; }
+  .add-card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .add-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .add-row input[type="text"] { flex: 1; min-width: 150px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.92rem; outline: none; }
+  .add-row input[type="text"]:focus { border-color: #5AE57A; }
+  .add-row select { background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; cursor: pointer; }
+  .add-row input[type="number"] { width: 68px; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 8px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; text-align: center; }
+  .add-row input[type="number"]:focus, .add-row select:focus { border-color: #5AE57A; }
+  .mins-label { font-size: 0.78rem; color: #BFD8BF; align-self: center; white-space: nowrap; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-gold:hover { background: #5AE57A; }
+
+  /* Summary bar */
+  .summary { max-width: 680px; margin: 0 auto 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .sum-chip { background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 8px 14px; font-size: 0.8rem; color: #F0EBE0aa; }
+  .sum-chip span { color: #5AE57A; font-weight: 500; }
+
+  /* Batch grid */
+  .batch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; max-width: 680px; margin: 0 auto; }
+  .batch-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; overflow: hidden; transition: opacity 0.25s; }
+  .batch-card.dimmed { opacity: 0.25; }
+  .batch-card.focused { border-color: var(--bc); }
+  .batch-header { padding: 14px 16px 10px; border-bottom: 1px solid #3C603C; cursor: pointer; }
+  .batch-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .batch-icon { font-size: 1.1rem; }
+  .batch-name { font-family: 'Playfair Display', serif; font-size: 0.95rem; flex: 1; }
+  .focus-btn { font-size: 0.7rem; padding: 2px 9px; border-radius: 10px; border: 1px solid var(--bc); color: var(--bc); background: var(--bb); cursor: pointer; white-space: nowrap; }
+  .focus-btn:hover { opacity: 0.8; }
+  .batch-meta { display: flex; gap: 10px; font-size: 0.74rem; color: #BFD8BF; }
+  .batch-meta .done-count { color: var(--bc); }
+
+  /* Task list */
+  .task-list { padding: 10px 16px 14px; }
+  .task-item { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid #3C603C; }
+  .task-item:last-child { border-bottom: none; }
+  .task-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #5AE57A; cursor: pointer; flex-shrink: 0; }
+  .task-name { flex: 1; font-size: 0.88rem; }
+  .task-name.done { text-decoration: line-through; color: #5A845A; }
+  .task-mins { font-size: 0.72rem; color: #BFD8BF; white-space: nowrap; }
+  .task-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; }
+  .task-del:hover { color: #5AE57A; }
+  .clear-done { display: block; width: 100%; background: none; border: none; color: #4C724C; font-family: 'DM Sans', sans-serif; font-size: 0.75rem; cursor: pointer; text-align: center; padding: 4px; margin-top: 4px; }
+  .clear-done:hover { color: #BFD8BF; }
+  .batch-empty { font-size: 0.8rem; color: #4C724C; text-align: center; padding: 10px 0; font-style: italic; }
+
+  .page-empty { text-align: center; color: #5A845A; font-size: 0.9rem; padding: 30px 0; max-width: 680px; margin: 0 auto; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Task Batch Organiser</h1>
+<p class="subtitle">Group similar tasks. Focus one batch at a time. Kill context switching.</p>
+
+<div class="add-card">
+  <div class="add-card-title">Add a Task</div>
+  <div class="add-row">
+    <input type="text" id="taskName" placeholder="What needs doing?" maxlength="80" />
+    <select id="taskType">
+      <option value="email">📧 Email</option>
+      <option value="calls">📞 Calls</option>
+      <option value="writing">✍️ Writing</option>
+      <option value="research">🔍 Research</option>
+      <option value="admin">📋 Admin</option>
+      <option value="creative">💡 Creative</option>
+      <option value="errands">🛒 Errands</option>
+    </select>
+    <input type="number" id="taskMins" value="15" min="1" max="480" placeholder="min" />
+    <span class="mins-label">min</span>
+    <button class="btn-gold" onclick="addTask()">Add</button>
+  </div>
+</div>
+
+<div class="summary" id="summary"></div>
+<div id="main"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const TYPES = {
+    email:    { icon:'📧', name:'Email',    color:'#5AE57A', bg:'#6aaae022' },
+    calls:    { icon:'📞', name:'Calls',    color:'#5AE57A', bg:'#70c07022' },
+    writing:  { icon:'✍️', name:'Writing',  color:'#5AE57A', bg:'#C9A84C22' },
+    research: { icon:'🔍', name:'Research', color:'#5AE57A', bg:'#c47de022' },
+    admin:    { icon:'📋', name:'Admin',    color:'#5AE57A', bg:'#d4824a22' },
+    creative: { icon:'💡', name:'Creative', color:'#5AE57A', bg:'#e0707022' },
+    errands:  { icon:'🛒', name:'Errands',  color:'#5AE57A', bg:'#7dd69a22' },
+  };
+
+  let tasks   = JSON.parse(localStorage.getItem('tbo_tasks')   || '[]');
+  let focused = localStorage.getItem('tbo_focused') || null;
+
+  function save() {
+    localStorage.setItem('tbo_tasks', JSON.stringify(tasks));
+    localStorage.setItem('tbo_focused', focused || '');
+  }
+
+  function addTask() {
+    const name = document.getElementById('taskName').value.trim(); if (!name) return;
+    const type = document.getElementById('taskType').value;
+    const mins = parseInt(document.getElementById('taskMins').value) || 15;
+    tasks.push({ id: Date.now(), name, type, mins, done: false });
+    save(); render();
+    document.getElementById('taskName').value = '';
+    document.getElementById('taskName').focus();
+  }
+
+  function toggleDone(id) {
+    const t = tasks.find(t => t.id === id); if (!t) return;
+    t.done = !t.done; save(); render();
+  }
+
+  function removeTask(id) { tasks = tasks.filter(t => t.id !== id); save(); render(); }
+
+  function clearDone(type) {
+    tasks = tasks.filter(t => !(t.type === type && t.done)); save(); render();
+  }
+
+  function toggleFocus(type) {
+    focused = focused === type ? null : type; save(); render();
+  }
+
+  function fmtMins(m) {
+    const h = Math.floor(m/60), min = m%60;
+    return h && min ? `${h}h ${min}m` : h ? `${h}h` : `${min}m`;
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function render() {
+    const activeTasks = tasks.filter(t => !t.done);
+    const totalTasks  = tasks.length;
+    const doneTasks   = tasks.filter(t => t.done).length;
+    const totalMins   = activeTasks.reduce((s,t) => s+t.mins, 0);
+
+    // Summary
+    document.getElementById('summary').innerHTML = totalTasks ? `
+      <div class="sum-chip"><span>${activeTasks.length}</span> remaining</div>
+      <div class="sum-chip"><span>${doneTasks}</span> done</div>
+      <div class="sum-chip"><span>${fmtMins(totalMins)}</span> left</div>` : '';
+
+    // Batches
+    const main = document.getElementById('main');
+    const usedTypes = [...new Set(tasks.map(t => t.type))];
+    if (!usedTypes.length) { main.innerHTML = '<p class="page-empty">No tasks yet — add one above and it will appear in its batch.</p>'; return; }
+
+    const isFocusing = focused && usedTypes.includes(focused);
+
+    main.innerHTML = `<div class="batch-grid">${usedTypes.map(type => {
+      const tp = TYPES[type];
+      const batchTasks = tasks.filter(t => t.type === type);
+      const pending = batchTasks.filter(t => !t.done);
+      const done    = batchTasks.filter(t => t.done).length;
+      const batchMins = pending.reduce((s,t) => s+t.mins, 0);
+      const isFocused = focused === type;
+      const isDimmed  = isFocusing && !isFocused;
+
+      const taskHtml = batchTasks.length ? batchTasks.map(t => `
+        <div class="task-item">
+          <input type="checkbox" ${t.done?'checked':''} onchange="toggleDone(${t.id})" />
+          <span class="task-name ${t.done?'done':''}">${esc(t.name)}</span>
+          <span class="task-mins">${fmtMins(t.mins)}</span>
+          <button class="task-del" onclick="removeTask(${t.id})">✕</button>
+        </div>`).join('') : `<div class="batch-empty">All done!</div>`;
+
+      return `
+        <div class="batch-card ${isFocused?'focused':''} ${isDimmed?'dimmed':''}"
+          style="--bc:${tp.color};--bb:${tp.bg}">
+          <div class="batch-header">
+            <div class="batch-top">
+              <span class="batch-icon">${tp.icon}</span>
+              <span class="batch-name">${tp.name}</span>
+              <button class="focus-btn" onclick="toggleFocus('${type}')">
+                ${isFocused ? '✓ Focused' : 'Focus'}
+              </button>
+            </div>
+            <div class="batch-meta">
+              <span>${pending.length} task${pending.length!==1?'s':''}</span>
+              ${batchMins ? `<span>${fmtMins(batchMins)}</span>` : ''}
+              ${done ? `<span class="done-count">${done} done</span>` : ''}
+            </div>
+          </div>
+          <div class="task-list">
+            ${taskHtml}
+            ${done ? `<button class="clear-done" onclick="clearDone('${type}')">Clear ${done} completed</button>` : ''}
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+  }
+
+  document.getElementById('taskName').addEventListener('keydown', e => { if (e.key==='Enter') addTask(); });
+  render();
+</script>
+</body>
+</html>

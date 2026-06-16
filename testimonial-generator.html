@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testimonial Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.pt-note{font-size:.75rem;opacity:.4;text-align:center;margin-bottom:1rem;font-style:italic}
+.angle-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.angle-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.3rem;gap:.6rem}
+.angle-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.angle-use{font-size:.65rem;opacity:.35;text-align:right;line-height:1.4;flex-shrink:0;max-width:175px}
+.angle-why{font-size:.8rem;opacity:.55;font-style:italic;margin-bottom:.7rem;line-height:1.4}
+.angle-lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;color:#5AE57A;margin-bottom:.3rem;display:block}
+.angle-text{font-size:.82rem;opacity:.72;line-height:1.5;margin-bottom:.6rem;padding:.5rem .7rem;background:#325132;border-radius:6px}
+.angle-text:last-child{margin-bottom:0}
+.blank{color:#5AE57A;font-weight:600}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Testimonial Generator</h1>
+    <p class="subtitle">Generate ready-to-send testimonial prompts and fill-in templates — so your customers know exactly what to say.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Product</h2>
+    <label>Product Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPT(0)" id="pt0">Course</button>
+      <button class="opt"     onclick="pickPT(1)" id="pt1">Ebook</button>
+      <button class="opt"     onclick="pickPT(2)" id="pt2">Template Kit</button>
+      <button class="opt"     onclick="pickPT(3)" id="pt3">Membership</button>
+      <button class="opt"     onclick="pickPT(4)" id="pt4">Coaching</button>
+    </div>
+    <label>Product Name</label>
+    <input type="text" id="inT" placeholder="e.g. Email Marketing Bootcamp, The Freelancer Kit">
+    <label>Customer Description</label>
+    <input type="text" id="inA" placeholder="e.g. coaches, freelancers, online sellers">
+    <label>Core Transformation</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, sign 3 clients">
+    <label>Angles to Generate</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickN(3)" id="n3">Essentials (3)</button>
+      <button class="opt sel" onclick="pickN(5)" id="n5">Full Set (5)</button>
+      <button class="opt"     onclick="pickN(7)" id="n7">All 7</button>
+    </div>
+    <button class="btn" onclick="generate()">Generate My Testimonial Kit →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div class="pt-note" id="ptNote"></div>
+    <div id="angleCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Testimonial Kit as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const hl   = s => s.replace(/___/g,'<span class="blank">___</span>');
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const ptLabel  = ['Course','Ebook','Template Kit','Membership','Coaching'];
+const ptOpener = [
+  'Best asked after {A} completes {T} — results are fresh and enthusiasm is high',
+  'Best sent 7–14 days after purchase — enough time to read and apply {T}',
+  'Best asked after {A} uses {T} for their first real task and gets a quick win',
+  'Best sent after 30+ days inside {T} — long enough to form a real opinion',
+  'Best asked in your final session on {T} — emotion and results are at their peak',
+];
+
+const angles = [
+  {name:'Before & After',      col:'#5AE57A',
+   why:'The contrast structure creates emotional proof — readers see themselves in the "before" and want the "after"',
+   prompt:'Can you tell me: what did {X} look like for you before {T} — and where are you now? Even 2–3 honest sentences would mean everything.',
+   template:'Before {T}, I was struggling with ___. I\'d tried ___ but nothing was working. Since {T}, I\'ve ___ and I\'m now able to ___. If you\'re a {A} trying to {X}, this changed everything for me.',
+   usedOn:'Sales page hero · Landing page above the fold'},
+  {name:'The Specific Win',    col:'#5AE57A',
+   why:'Concrete numbers and named milestones build trust faster than any amount of vague praise',
+   prompt:'What\'s one specific result you\'ve seen since going through {T}? A number, a milestone, or a moment where you thought — "this is actually working"?',
+   template:'Since {T}, I\'ve been able to ___. Specifically, I [achieved/did] ___ within ___ days. For any {A} who wants to {X}, the results are real — here\'s proof: ___.',
+   usedOn:'Sales emails · Social proof sections · Ad creative'},
+  {name:'Skeptic Converted',   col:'#5AE57A',
+   why:'Addresses hidden objections every prospect has — perfect for "I\'ve tried things before and they didn\'t work" resistance',
+   prompt:'What was your biggest hesitation before getting {T} — and what changed your mind? Your honest answer could help someone just like you make the right decision.',
+   template:'Honestly, I almost didn\'t get {T} because ___. I was worried that ___. But after ___, I realised ___. If you\'re on the fence about {X}, here\'s what I\'d say: ___.',
+   usedOn:'FAQ sections · Checkout pages · Email nurture sequences'},
+  {name:'The Recommendation',  col:'#5AE57A',
+   why:'Peer-to-peer language is the most trusted form of social proof — reads like advice from a friend, not a marketing claim',
+   prompt:'If a friend who was a {A} asked you about {T}, what would you tell them? What would you want them to know before they decide?',
+   template:'If you\'re a {A} thinking about {T}, here\'s what I\'d tell you: ___. The thing that surprised me most was ___. It\'s helped me ___ and I\'d recommend it if ___.',
+   usedOn:'Social media · Referral emails · Community pins'},
+  {name:'The Quick Win',       col:'#5AE57A',
+   why:'Fast results lower perceived risk — prospects feel confident they\'ll see progress quickly, not months from now',
+   prompt:'What\'s the fastest win you got from {T}? Even something small — when did you first think "this is actually working for me"?',
+   template:'Within [X days/hours] of starting {T}, I\'d already ___. I remember thinking, ___. For any {A} who\'s been waiting to feel like they\'re finally moving toward {X}, this happens fast.',
+   usedOn:'Ads · Email subject line proof · Above-the-fold stats'},
+  {name:'The Comparison',      col:'#5AE57A',
+   why:'Positions your offer vs. the status quo — shows the real cost of doing nothing or trying alternatives',
+   prompt:'Before {T}, how were you trying to handle {X} on your own — and how does that compare to now? What\'s different about the approach or results?',
+   template:'Before {T}, I was trying to ___ on my own. I was spending ___ and getting ___. With {T}, ___. The difference is ___. I only wish I\'d found it sooner instead of ___.',
+   usedOn:'Comparison sections · Objection handling · Retargeting ads'},
+  {name:'Long-Term Impact',    col:'#5AE57A',
+   why:'Shows your product creates lasting change, not a temporary fix — ideal for premium offers and high-ticket objections',
+   prompt:'Now that time has passed since {T}, how has it continued to impact your work or life? What\'s still different from where you were before?',
+   template:'[X weeks/months] after {T}, I\'m still ___. The biggest ongoing change has been ___. I didn\'t expect ___, but it\'s become one of the most valuable things I got from it. For any {A} wondering if {X} is sustainable: ___.',
+   usedOn:'High-ticket pages · Case studies · Podcast pitches'},
+];
+
+let state = {pt:0, n:5};
+
+function pickPT(i) {
+  state.pt = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`pt${x}`).classList.toggle('sel', x===i));
+}
+function pickN(n) {
+  state.n = n;
+  [3,5,7].forEach(x => document.getElementById(`n${x}`).classList.toggle('sel', x===n));
+}
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const slice = angles.slice(0, state.n);
+  document.getElementById('statsBar').innerHTML =
+    st(state.n,'Angles') + st(ptLabel[state.pt],'Product') + st('~2 min','Per Ask') + st(7,'Available');
+  document.getElementById('ptNote').textContent = fill(ptOpener[state.pt],T,A,X);
+
+  document.getElementById('angleCards').innerHTML = slice.map(a => {
+    return `<div class="angle-card" style="border-left-color:${a.col}">
+      <div class="angle-head">
+        <span class="angle-name" style="color:${a.col}">${a.name}</span>
+        <span class="angle-use">Best on: ${a.usedOn}</span>
+      </div>
+      <div class="angle-why">${a.why}</div>
+      <span class="angle-lbl">Send this to your customer</span>
+      <div class="angle-text">${fill(a.prompt,T,A,X)}</div>
+      <span class="angle-lbl">Template for them to fill in</span>
+      <div class="angle-text">${hl(fill(a.template,T,A,X))}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  const slice = angles.slice(0, state.n);
+  let text = `TESTIMONIAL KIT\n`;
+  text += `Product: ${T} (${ptLabel[state.pt]}) · Customer: ${A}\n`;
+  text += `${fill(ptOpener[state.pt],T,A,X)}\n\n`;
+  slice.forEach((a,i) => {
+    text += `${i+1}. ${a.name.toUpperCase()}\n${'─'.repeat(36)}\n`;
+    text += `Why this works: ${a.why}\nBest on: ${a.usedOn}\n\n`;
+    text += `SEND TO YOUR CUSTOMER:\n${fill(a.prompt,T,A,X)}\n\n`;
+    text += `FILL-IN TEMPLATE:\n${fill(a.template,T,A,X)}\n\n`;
+  });
+  text += `---\nCreated with Testimonial Generator by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Testimonial Kit as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

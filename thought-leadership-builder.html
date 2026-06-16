@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thought Leadership Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Thought Leadership Builder</h1>
+  <p class="sub">Design a clear, repeatable plan to become a recognised voice in your field.</p>
+
+  <div class="panel">
+    <label for="niche">Your niche / lane</label>
+    <input id="niche" placeholder="The narrow area you want to own">
+    <label for="pov">The point of view you want to be known for</label>
+    <textarea id="pov" placeholder="A belief you will repeat — even if it is a little contrarian"></textarea>
+    <label for="themes">Recurring themes you can speak to</label>
+    <textarea id="themes" placeholder="3-5 sub-topics you can write about endlessly"></textarea>
+    <label for="formats">Formats &amp; channels you will use</label>
+    <input id="formats" placeholder="e.g. LinkedIn posts, a newsletter, talks, a podcast">
+    <label for="rhythm">Your posting rhythm</label>
+    <input id="rhythm" placeholder="e.g. 2 posts a week, 1 long piece a month">
+    <label for="story">Your signature story or experience</label>
+    <textarea id="story" placeholder="The lived experience that gives you the right to speak"></textarea>
+    <button class="btn" onclick="gen()">Build Strategy</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['niche','pov','themes','formats','rhythm','story'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('tlb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('tlb_'+k,g(k).value)); });
+  function gen(){
+    const t='THOUGHT LEADERSHIP STRATEGY\n\nMY LANE:\n'+(v('niche')||'[your narrow niche]')+
+    '\n\nMY POINT OF VIEW:\n'+(v('pov')||'[the belief you will be known for]')+
+    '\n\nRECURRING THEMES:\n'+(v('themes')||'[3-5 sub-topics to mine]')+
+    '\n\nFORMATS & CHANNELS:\n'+(v('formats')||'[where you will show up]')+
+    '\n\nPOSTING RHYTHM:\n'+(v('rhythm')||'[a pace you can sustain]')+
+    '\n\nMY SIGNATURE STORY:\n'+(v('story')||'[the experience behind your authority]')+
+    '\n\n--- The long game ---\nConsistency beats brilliance. Show up on a schedule you can keep.\nHave a real opinion — agreeable content is forgettable content.\nTeach what you know. Authority is a by-product of being useful, often.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

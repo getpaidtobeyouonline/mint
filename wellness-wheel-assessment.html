@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wellness Wheel Assessment</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .dim { margin-bottom: 14px; }
+  .dim .top { display: flex; justify-content: space-between; font-size: .9rem; margin-bottom: 3px; }
+  .dim .top b { color: #5AE57A; }
+  .dim .top .val { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  input[type=range] { width: 100%; accent-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  canvas { display: block; margin: 6px auto; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; margin-top: 12px; font-size: .9rem; }
+  .result b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Wellness Wheel Assessment</h1>
+  <p class="sub">Rate eight areas of life 1-10. The shape shows where you are balanced — and where you are not.</p>
+
+  <div class="panel" id="sliders"></div>
+
+  <div class="panel" style="text-align:center">
+    <button class="btn" onclick="draw()">See My Wellness Wheel</button>
+    <canvas id="wheel" width="320" height="320"></canvas>
+    <div class="result" id="result" style="display:none"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const DIMS=["Physical","Emotional","Social","Career / Purpose","Financial","Intellectual","Spiritual","Environmental"];
+  let V=JSON.parse(localStorage.getItem('wwa')||'null')||DIMS.map(()=>5);
+  function build(){
+    g('sliders').innerHTML=DIMS.map((d,i)=>'<div class="dim"><div class="top"><b>'+d+'</b><span class="val" id="v'+i+'">'+V[i]+'</span></div><input type="range" min="1" max="10" value="'+V[i]+'" oninput="upd('+i+',this.value)"></div>').join('');
+  }
+  function upd(i,val){ V[i]=+val; g('v'+i).textContent=val; localStorage.setItem('wwa',JSON.stringify(V)); }
+  function draw(){
+    const c=g('wheel'), x=c.getContext('2d'), cx=160, cy=160, R=120, n=DIMS.length;
+    x.clearRect(0,0,320,320);
+    for(let r=1;r<=5;r++){ x.beginPath();
+      for(let i=0;i<=n;i++){ const a=Math.PI*2*i/n-Math.PI/2, rr=R*r/5;
+        const px=cx+Math.cos(a)*rr, py=cy+Math.sin(a)*rr;
+        i===0?x.moveTo(px,py):x.lineTo(px,py); }
+      x.strokeStyle='#5A845A'; x.stroke(); }
+    for(let i=0;i<n;i++){ const a=Math.PI*2*i/n-Math.PI/2;
+      x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(a)*R,cy+Math.sin(a)*R); x.strokeStyle='#5A845A'; x.stroke(); }
+    x.beginPath();
+    for(let i=0;i<=n;i++){ const idx=i%n, a=Math.PI*2*idx/n-Math.PI/2, rr=R*V[idx]/10;
+      const px=cx+Math.cos(a)*rr, py=cy+Math.sin(a)*rr;
+      i===0?x.moveTo(px,py):x.lineTo(px,py); }
+    x.closePath(); x.fillStyle='rgba(201,168,76,0.35)'; x.fill();
+    x.strokeStyle='#5AE57A'; x.lineWidth=2; x.stroke();
+    x.fillStyle='#FFFFFF'; x.font='9px DM Sans'; x.textAlign='center';
+    for(let i=0;i<n;i++){ const a=Math.PI*2*i/n-Math.PI/2;
+      x.fillText(DIMS[i],cx+Math.cos(a)*(R+18),cy+Math.sin(a)*(R+18)+3); }
+    const avg=(V.reduce((s,n)=>s+n,0)/n).toFixed(1);
+    const low=DIMS[V.indexOf(Math.min(...V))], high=DIMS[V.indexOf(Math.max(...V))];
+    g('result').style.display='block';
+    g('result').innerHTML='Overall balance score: <b>'+avg+'/10</b>.<br>Strongest area: <b>'+high+'</b>. Needs the most attention: <b>'+low+'</b>.<br>A balanced wheel rolls smoothly — focus your next month on lifting '+low.toLowerCase()+' by one or two points.';
+  }
+  build(); draw();
+</script>
+</body>
+</html>

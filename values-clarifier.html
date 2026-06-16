@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Values Clarifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.86rem;margin-bottom:14px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; cursor: pointer; padding: 7px 13px; border-radius: 20px; font-size: .85rem; user-select: none; }
+  .chip.on { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .stat { font-size: .9rem; margin: 10px 0; opacity: .85; } .stat b { color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 12px; font-family:'DM Sans',sans-serif; }
+  .top { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .top .v { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Values Clarifier</h1>
+  <p class="sub">Pick the values that actually pull you. Then narrow to your real top 5 — the ones you live by, not aspire to.</p>
+
+  <div class="note">Round 1: select everything that resonates (~15-20). Round 2 (the hard one): trim to your top 5. Your top 5 = the filter you make decisions with.</div>
+
+  <div class="panel">
+    <div class="chips" id="chips"></div>
+    <div class="stat" id="stat"></div>
+    <button class="btn" onclick="lock()">Lock My Top 5</button>
+  </div>
+
+  <div id="locked"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const VAL=["Freedom","Family","Growth","Health","Creativity","Adventure","Security","Connection","Mastery","Honesty","Kindness","Wealth","Faith","Service","Independence","Curiosity","Joy","Discipline","Beauty","Justice","Loyalty","Wisdom","Peace","Courage","Authenticity","Impact","Simplicity","Excellence","Humour","Compassion","Integrity","Patience","Resilience","Stillness","Ambition","Trust","Play"];
+  const g=id=>document.getElementById(id);
+  let sel=JSON.parse(localStorage.getItem('vc_sel')||'[]');
+  g('chips').innerHTML=VAL.map(v=>`<span class="chip ${sel.includes(v)?'on':''}" data-v="${v}">${v}</span>`).join('');
+  g('chips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ const v=c.dataset.v; sel=sel.includes(v)?sel.filter(x=>x!==v):[...sel,v]; c.classList.toggle('on'); localStorage.setItem('vc_sel',JSON.stringify(sel)); upd(); });
+  function upd(){ g('stat').innerHTML=`Selected <b>${sel.length}</b>. ${sel.length>5?`Now trim down to 5 — pick the ones you would defend.`:sel.length===5?'Five — that is the working set.':sel.length<5&&sel.length>0?'Add more if more resonate, then narrow.':'Start tapping.'}`; }
+  function lock(){
+    if(sel.length<3){alert('Pick at least 3.');return;}
+    if(sel.length>5 && !confirm('You have '+sel.length+' selected — locking more than 5 dilutes the filter. Continue anyway?')) return;
+    g('locked').innerHTML=`<h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:18px 0 10px">Your top values</h3>`+
+      sel.map(v=>`<div class="top"><div class="v">${v}</div></div>`).join('')+
+      `<div class="top" style="border-left-color:#BFD8BF"><div class="v" style="font-size:.92rem;color:#FFFFFF">Use these when stuck</div><div style="font-size:.88rem;opacity:.85;margin-top:5px">Before any decision: "Which option honours more of these?" If something keeps draining you, check which value it is violating.</div></div>`;
+    g('locked').scrollIntoView({behavior:'smooth'});
+  }
+  upd();
+</script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Worthiness Score Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .q { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .q span { flex: 1; min-width: 230px; font-size: .92rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 8px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin: 18px 0; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; margin-top: 5px; }
+  .res .d { opacity: .85; font-size: .92rem; margin-top: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Worthiness Score Calculator</h1>
+  <p class="sub">Worthiness is the felt sense that you are allowed to have what you want. Score where yours is right now.</p>
+
+  <div id="form"></div>
+  <button class="btn" onclick="run()">Score</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+  <div id="res"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    "I let myself rest without earning it",
+    "I can receive compliments / love / money without flinching",
+    "I take up space in conversations",
+    "I let myself spend on things that bring me joy",
+    "I do not over-justify why I want what I want",
+    "I do not punish myself when I make mistakes",
+    "I let myself be supported by others",
+    "I do not minimise my wins",
+    "I prioritise my needs without guilt at least sometimes",
+    "I believe good things are allowed to keep happening to me"
+  ];
+  const g=id=>document.getElementById(id);
+  g('form').innerHTML='<div style="background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.86rem;margin-bottom:12px">Answer honestly. Worthiness is not earned. It is decided, repeatedly.</div>'+
+    Q.map((q,i)=>`<div class="q"><span>${q}</span>
+      <select id="q${i}"><option value="1">Rarely</option><option value="2">Sometimes</option><option value="3">Often</option><option value="4">Almost always</option></select></div>`).join('');
+  const saved=JSON.parse(localStorage.getItem('wsc8')||'{}');
+  Q.forEach((_,i)=>{ if(saved[i])g('q'+i).value=saved[i]; g('q'+i).addEventListener('change',()=>{ const o={};Q.forEach((_,j)=>o[j]=g('q'+j).value); localStorage.setItem('wsc8',JSON.stringify(o)); }); });
+  function run(){
+    const sc=Q.reduce((s,_,i)=>s+ +g('q'+i).value,0);
+    const pct=Math.round(sc/(Q.length*4)*100);
+    const vd= pct>=80?['Rooted worthiness','You let yourself have things. Keep modelling that.']:pct>=60?['Mostly okay','One or two areas where you still flinch. Practise receiving in those.']:pct>=40?['Wobbling','You keep earning what should be a given. Worthiness is decided, not deserved.']:['Low — and that is information','Most likely an old story. Pick one small "yes" to yourself this week and keep it.'];
+    g('res').innerHTML='<div class="res"><div class="n">'+pct+'%</div><div class="vd">'+vd[0]+'</div><div class="d">'+vd[1]+'</div></div>';
+    g('res').scrollIntoView({behavior:'smooth'});
+  }
+  function reset(){ if(confirm('Reset?')){ localStorage.removeItem('wsc8'); Q.forEach((_,i)=>g('q'+i).value='1'); g('res').innerHTML=''; } }
+</script>
+</body>
+</html>

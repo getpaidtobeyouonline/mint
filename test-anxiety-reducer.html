@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Anxiety Reducer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; font-size: .82rem; cursor: pointer; }
+  .tab.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .orb { width: 160px; height: 160px; border-radius: 50%; margin: 18px auto; background: radial-gradient(circle,#5AE57A,#5AE57A 80%); display: flex; align-items: center; justify-content: center; transition: transform 4s ease-in-out; }
+  .orb .ph { font-family: 'Playfair Display', serif; color: #325132; font-weight: 700; }
+  .center { text-align: center; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 6px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .affirm { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; font-size: 1.05rem; font-style: italic; text-align: center; }
+  .tip { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; font-size: .89rem; margin-bottom: 7px; }
+  .tip b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Test Anxiety Reducer</h1>
+  <p class="sub">Nervous before an exam? Calm your body and mind in a few minutes.</p>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab on" id="t0" onclick="tab(0)">Breathe</div>
+      <div class="tab" id="t1" onclick="tab(1)">Reframe</div>
+      <div class="tab" id="t2" onclick="tab(2)">Tips</div>
+    </div>
+    <div id="pane"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const AFF=["I am prepared, and I can handle this.","Nervousness is energy — I can use it to focus.","I only have to answer one question at a time.","My worth is not decided by one test.","I have learned more than I think. I will trust it.","Calm body, clear mind. I have got this."];
+  const TIPS=[
+    ["The night before","Stop cramming early. Sleep beats one more hour of revision."],
+    ["The morning of","Eat something steady. Arrive early so you are not rushed."],
+    ["When the paper starts","Read everything first. Start with a question you CAN answer."],
+    ["If your mind blanks","Put the pen down, breathe out slowly, move to another question."],
+    ["During the exam","Stuck? Skip and return. Easy marks first builds momentum."],
+    ["Mid-panic","Drop your shoulders, unclench your jaw, take three slow breaths."]
+  ];
+  let breathTimer=null;
+  function tab(n){
+    [0,1,2].forEach(i=>g('t'+i).className='tab'+(i===n?' on':''));
+    if(breathTimer){ clearInterval(breathTimer); breathTimer=null; }
+    if(n===0)paneBreathe();
+    if(n===1)paneReframe();
+    if(n===2)paneTips();
+  }
+  function paneBreathe(){
+    g('pane').innerHTML='<div class="center"><div class="orb" id="orb"><span class="ph" id="ph">Ready</span></div><button class="btn" id="bb" onclick="toggleBreath()">Start breathing</button><p style="font-size:.82rem;opacity:.6;margin-top:8px">Slow 4-in, 6-out breathing calms the nervous system.</p></div>';
+  }
+  let breathing=false, phase=0;
+  function toggleBreath(){
+    breathing=!breathing;
+    g('bb').textContent=breathing?'Stop':'Start breathing';
+    if(breathing){ phase=0; cycle(); breathTimer=setInterval(cycle,5000); }
+    else { clearInterval(breathTimer); g('ph').textContent='Ready'; g('orb').style.transform='scale(1)'; }
+  }
+  function cycle(){
+    if(phase%2===0){ g('ph').textContent='Breathe in'; g('orb').style.transition='transform 4s ease-in-out'; g('orb').style.transform='scale(1.3)'; }
+    else { g('ph').textContent='Breathe out'; g('orb').style.transition='transform 4s ease-in-out'; g('orb').style.transform='scale(0.8)'; }
+    phase++;
+  }
+  function paneReframe(){
+    g('pane').innerHTML='<div class="affirm" id="aff"></div><div class="center"><button class="btn ghost" onclick="newAff()">Another</button></div><p style="font-size:.82rem;opacity:.6;text-align:center;margin-top:8px">Read it slowly. Say it in your head, then once out loud.</p>';
+    newAff();
+  }
+  function newAff(){ g('aff').textContent='"'+AFF[Math.floor(Math.random()*AFF.length)]+'"'; }
+  function paneTips(){
+    g('pane').innerHTML=TIPS.map(t=>'<div class="tip"><b>'+t[0]+'</b><br>'+t[1]+'</div>').join('');
+  }
+  paneBreathe();
+</script>
+</body>
+</html>

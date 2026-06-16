@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Travel Goal Setter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 12px 14px; margin-bottom: 9px; }
+  .card.done { border-left: 3px solid #5AE57A; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; }
+  .card .t { font-weight: 500; }
+  .card .t.done-t { text-decoration: line-through; opacity: .6; }
+  .card .m { font-size: .8rem; opacity: .65; }
+  .card .ic { cursor: pointer; opacity: .6; flex: none; } .card .ic:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Travel Goal Setter</h1>
+  <p class="sub">Turn "one day I'll go there" into a plan — destinations, dates and how you will fund it.</p>
+
+  <div class="panel">
+    <label>Destination or travel goal</label>
+    <input id="goal" placeholder="e.g. See the Northern Lights in Iceland">
+    <div class="row">
+      <div><label>Target year</label><input id="year" placeholder="e.g. 2027"></div>
+      <div><label>Est. cost</label><input id="cost" placeholder="e.g. 3,000"></div>
+    </div>
+    <label>How you will make it happen (saving, time off...)</label>
+    <input id="how" placeholder="e.g. Save 250/month, book leave in advance">
+    <button class="btn" onclick="add()">+ Add Travel Goal</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('tgs2')||'[]');
+  const save=()=>localStorage.setItem('tgs2',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('goal')){ alert('Enter a travel goal.'); return; }
+    R.push({g:v('goal'),y:v('year'),c:v('cost'),how:v('how'),done:false}); ['goal','year','cost','how'].forEach(k=>g(k).value=''); save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all goals?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No travel goals yet — dream one up.</div>'; return; }
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.done-b.x.done).map(({x,i})=>
+      '<div class="card'+(x.done?' done':'')+'"><div class="top"><div><div class="t'+(x.done?' done-t':'')+'">'+esc(x.g)+'</div><div class="m">'+(x.y?'Target '+esc(x.y):'')+(x.c?' · ~'+esc(x.c):'')+(x.how?'<br>'+esc(x.how):'')+'</div></div><div style="display:flex;gap:8px"><span class="ic" onclick="toggle('+i+')">'+(x.done?'↩':'✓')+'</span><span class="ic" onclick="del('+i+')">✕</span></div></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

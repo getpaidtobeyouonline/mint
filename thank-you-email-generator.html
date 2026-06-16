@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You Email Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Thank You Email Generator</h1>
+  <p class="sub">The thank-you email after a purchase is your highest-attention moment. Don't waste it on logistics.</p>
+
+  <div class="panel">
+    <label for="type">After a…</label>
+    <select id="type"><option value="buy">Purchase</option><option value="signup">Free sign-up</option><option value="call">Call booking</option><option value="event">Event registration</option></select>
+    <label for="name">Product / freebie / thing</label>
+    <input id="name" placeholder="e.g. The Pricing Toolkit">
+    <label for="action">The ONE first step you want them to take</label>
+    <input id="action" placeholder="e.g. open Module 1 today">
+    <label for="bonus">Optional: a small surprise / bonus</label>
+    <input id="bonus" placeholder="e.g. a free template included with this">
+    <button class="btn" onclick="gen()">Build Thank-You Email</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['type','name','action','bonus'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('tyeg_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('tyeg_'+k,g(k).value)); });
+  function gen(){
+    const t=g('type').value, n=v('name')||'[product]', a=v('action')||'take the first step', b=v('bonus');
+    const top = t==='buy'? `You're in. ${n} is officially yours.`
+      : t==='signup'? `You're in. ${n} is on its way to you.`
+      : t==='call'? `You're booked. Looking forward to our call about ${n}.`
+      : `You're registered for ${n} — save the date.`;
+    const out='Subject: '+top+'\n\n'+
+      top+'\n\nQuick note before anything else: thank you. Genuinely.\n\n'+
+      'Here is the one thing I would do today, while it is fresh — '+a+'. Doing this in the first 48 hours is what separates people who get the result from people who don’t.\n\n'+
+      (b? '\nOh, and a small extra: '+b+'.\n' : '')+
+      '\nAny question, just hit reply. A real human reads everything.\n\n— [your name]\n\nP.S. Save this email so you can come back to it later.';
+    g('out').textContent=out; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ if(g('out').style.display==='none'){alert('Build it first.');return;} navigator.clipboard.writeText(g('out').textContent).then(()=>alert('Email copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

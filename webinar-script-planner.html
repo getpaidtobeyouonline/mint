@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webinar Script Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.wb-title{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.sc-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.sc-head{display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem}
+.sc-num{font-size:.68rem;font-weight:600;opacity:.38;text-transform:uppercase;letter-spacing:.08em;flex:1}
+.sc-time-range{font-size:.72rem;opacity:.4;font-weight:500}
+.sc-min{font-size:.71rem;font-weight:600;opacity:.42}
+.type-badge{font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-radius:4px;padding:.16rem .5rem;white-space:nowrap}
+.sc-title{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.45rem}
+.sc-dir{font-size:.82rem;opacity:.65;line-height:1.5;margin-bottom:.5rem}
+.sc-say{font-size:.65rem;font-weight:600;opacity:.35;text-transform:uppercase;letter-spacing:.07em;margin-bottom:.2rem}
+.sc-line{background:#325132;border-left:2px solid #C9A84C44;border-radius:0 6px 6px 0;padding:.5rem .8rem;font-size:.83rem;font-style:italic;line-height:1.65;opacity:.8}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Webinar Script Planner</h1>
+    <p class="subtitle">Plan every section of your webinar — with script directions and an opening line you can say for each part.</p>
+  </header>
+
+  <div class="card">
+    <h2>Webinar Details</h2>
+    <label>Topic</label>
+    <input type="text" id="inTopic" placeholder="e.g. email marketing, sales calls, content creation">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Target Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. freelancers, new coaches">
+      </div>
+      <div>
+        <label style="margin-top:0">Core Promise / Outcome</label>
+        <input type="text" id="inGoal" placeholder="e.g. land 3 clients this month">
+      </div>
+    </div>
+    <label>Webinar Length</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickLen(45)" id="l45">45 min</button>
+      <button class="opt"     onclick="pickLen(60)" id="l60">60 min</button>
+      <button class="opt"     onclick="pickLen(90)" id="l90">90 min</button>
+    </div>
+    <label>Purpose</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPurp('teach')" id="pteach">Free Training</button>
+      <button class="opt"     onclick="pickPurp('sell')"  id="psell">Sell at End</button>
+    </div>
+    <button class="btn" onclick="generate()">Plan My Webinar Script →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="wb-title" id="wbTitle"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ New Title</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="sections"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyScript()">Copy Full Script Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const hhmm = n => `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
+
+const fw = {
+  45:{
+    shared:[
+      {typ:'Open',     col:'#5AE57A', sec:'Hook & Welcome',      min:5,  dir:'Open bold; activate chat immediately; state your big promise and set the session agenda',              line:'"Drop your name in the chat — and tell me: how long have you been working on {T}?"'},
+      {typ:'Story',    col:'#5AE57A', sec:'Your Story',           min:6,  dir:'Share your relatable "before"; connect to {A}\'s struggle; explain why {T} changed everything for you', line:'"I want to share something I don\'t often say publicly — it\'s the moment {T} stopped being optional for me."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'Core {T} Framework',  min:20, dir:'Teach your {T} system in 3 parts; use real examples; pause mid-way to re-engage {A} via chat',        line:'"Here\'s the exact {T} system that takes {A} from where you are to {X} — three parts, all connected."'},
+    ],
+    teach:[
+      {typ:'Q&A',      col:'#5AE57A', sec:'Open Q&A',             min:10, dir:'Open the floor; address the top {T} questions; keep it specific to {A}\'s real situations',            line:'"The floor is yours — what\'s your #1 question about applying {T} to your situation right now?"'},
+      {typ:'Close',    col:'#5AE57A', sec:'Wrap-Up & Next Steps', min:4,  dir:'Recap the core {T} takeaway; give {A} one clear immediate action; close with genuine energy',         line:'"One thing before you go — here\'s the single {T} action I want you to take in the next 24 hours."'},
+    ],
+    sell:[
+      {typ:'Offer',    col:'#5AE57A', sec:'The Offer Reveal',      min:8,  dir:'Transition naturally from teaching; name your offer; connect every element directly to {X} for {A}', line:'"Everything I\'ve taught you is the foundation — I\'ve built something that takes {A} all the way to {X}."'},
+      {typ:'Q&A',      col:'#5AE57A', sec:'Q&A & Closes',           min:4,  dir:'Handle time, price, and fit objections; confirm your offer is right for {A} specifically',            line:'"I know some of you are thinking \'this sounds great but...\' — let me answer the unasked questions."'},
+      {typ:'CTA',      col:'#5AE57A', sec:'Final Call to Action',   min:2,  dir:'Give one clear, simple next step; create natural urgency; close with warmth — not pressure',         line:'"Here\'s your next step — one action, right now, and I\'ll see you on the other side."'},
+    ]
+  },
+  60:{
+    shared:[
+      {typ:'Open',     col:'#5AE57A', sec:'Hook & Welcome',        min:6,  dir:'Open bold; activate chat; state your big promise and set the agenda for the session',                 line:'"Type your name and city in the chat — and tell me: what\'s the #1 thing stopping you from {X} right now?"'},
+      {typ:'Story',    col:'#5AE57A', sec:'Your Story',             min:7,  dir:'Share your relatable "before"; connect to {A}\'s current struggle; build trust before you teach',    line:'"Before I teach you anything — let me share the moment I realised {T} wasn\'t optional and why it changed everything."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'{T} Framework: Part 1', min:15, dir:'Introduce Pillar 1 with a real example; end with a chat prompt to re-engage {A}',                    line:'"The #1 mistake most {A} make with {T} is something nobody talks about — once you see it, you can\'t unsee it."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'{T} Framework: Part 2', min:12, dir:'Build on Part 1; introduce Pillar 2; connect both pillars to the outcome {X} for {A}',               line:'"Now we\'re into the part of {T} most people never reach — this is what separates those who get {X} from those who don\'t."'},
+    ],
+    teach:[
+      {typ:'Impl.',    col:'#5AE57A', sec:'Implementation Guide',  min:8,  dir:'Walk {A} through applying the {T} framework to their own situation — step by step',                  line:'"Let\'s make this practical — I\'m going to show you how to apply everything to your own situation right now."'},
+      {typ:'Q&A',      col:'#5AE57A', sec:'Open Q&A',               min:7,  dir:'Open the floor; address the top {T} questions; stay specific to {A}\'s real situations',             line:'"The floor is yours — what questions do you have about taking {T} from theory to real results?"'},
+      {typ:'Close',    col:'#5AE57A', sec:'Wrap-Up & Resources',   min:5,  dir:'Recap all key {T} takeaways; share a bonus resource; give {A} one clear action step',               line:'"Before we wrap — here\'s one resource and one action that will change your relationship with {T} this week."'},
+    ],
+    sell:[
+      {typ:'Proof',    col:'#5AE57A', sec:'Proof & Case Study',    min:5,  dir:'Share a specific {A} result story; walk through the exact steps; make the outcome feel inevitable',  line:'"Let me show you what this looks like in real life — someone just like you who used {T} to get to {X}."'},
+      {typ:'Offer',    col:'#5AE57A', sec:'The Offer Reveal',       min:8,  dir:'Transition naturally; name your offer; connect every element directly to the outcome {X} for {A}',  line:'"Everything I\'ve taught you is the foundation — I\'ve built something that takes {A} all the way to {X}."'},
+      {typ:'Q&A',      col:'#5AE57A', sec:'Q&A & Closes',            min:5,  dir:'Handle time, price, and fit objections; confirm this is right for {A} right now',                   line:'"I know some of you are wondering if this is right for you specifically — let me answer that directly."'},
+      {typ:'CTA',      col:'#5AE57A', sec:'Final Call to Action',   min:2,  dir:'Give one clear next step; create natural urgency; close with confidence and warmth',                 line:'"Here\'s your next step — one action, right now, and I\'ll be there when you take it."'},
+    ]
+  },
+  90:{
+    shared:[
+      {typ:'Open',     col:'#5AE57A', sec:'Hook & Welcome',        min:8,  dir:'Open bold; activate chat; state the big promise; set the full agenda and build anticipation',         line:'"Before we start — type in the chat: on a scale of 1–10, how urgent is {T} for you right now?"'},
+      {typ:'Story',    col:'#5AE57A', sec:'Your Story',             min:8,  dir:'Share your "before" moment; connect deeply to {A}\'s reality; build real trust before teaching',     line:'"I\'m going to start by telling you something most people in {T} would never admit publicly."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'{T} Framework: Part 1', min:18, dir:'Introduce Pillar 1 in depth; multiple examples; check in with chat regularly throughout',             line:'"Here\'s the foundation — the thing that makes everything else in {T} work for {A}."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'{T} Framework: Part 2', min:15, dir:'Build on Part 1; introduce Pillar 2; connect directly to {A}\'s real situation',                     line:'"Now that you have Part 1, here\'s the piece that activates it — most {A} never get this far."'},
+      {typ:'Teaching', col:'#5AE57A', sec:'{T} Framework: Part 3', min:11, dir:'Deliver Pillar 3; show how all three combine to make {X} achievable for {A}',                        line:'"This is where it all comes together — and why {X} is faster than {A} think when you have all three."'},
+    ],
+    teach:[
+      {typ:'Impl.',    col:'#5AE57A', sec:'Live Implementation',   min:12, dir:'Walk {A} through applying all 3 pillars to their own {T} situation in real time',                    line:'"Stop watching — this part is for doing. Let\'s apply everything to your specific {T} situation right now."'},
+      {typ:'Q&A',      col:'#5AE57A', sec:'Extended Q&A',           min:12, dir:'Long-form Q&A; address every {T} objection; make it personal and specific to {A}',                  line:'"I want to give you real time here — what\'s the specific {T} challenge I can help you break through today?"'},
+      {typ:'Close',    col:'#5AE57A', sec:'Wrap-Up & Resources',   min:6,  dir:'Recap all {T} pillars; share resources; give {A} a clear 30-day action plan',                        line:'"Here\'s your {T} roadmap — and the one thing I want you to do before this week is over."'},
+    ],
+    sell:[
+      {typ:'Proof',    col:'#5AE57A', sec:'Proof & Testimonials',  min:7,  dir:'Share 2–3 case studies of {A} achieving {X} using your {T} method; make results feel real',          line:'"Before I show you what\'s next — let me prove this works with people who were exactly where you are."'},
+      {typ:'Offer',    col:'#5AE57A', sec:'The Offer Reveal',       min:12, dir:'Transition naturally; name your offer; build the full stack; connect every element to {X} for {A}', line:'"What I\'m about to share is the fastest path from right where {A} are to {X}."'},
+      {typ:'Q&A',      col:'#5AE57A', sec:'Q&A & Objections',       min:8,  dir:'Address time, money, and fit; handle "I\'ve tried {T} before"; confirm it\'s right for {A} now',    line:'"I want to spend real time here — what\'s stopping you from saying yes to {X} today?"'},
+      {typ:'CTA',      col:'#5AE57A', sec:'Final Call to Action',   min:3,  dir:'Restate the outcome {X}; give one clear next step; close with confidence and energy',               line:'"One last thing — here\'s what happens when you take the next step, and exactly how to do it."'},
+    ]
+  }
+};
+
+const titleFns = [
+  (T,A,X) => `The ${cap(T)} Webinar`,
+  (T,A,X) => `How ${cap(A)} Can ${cap(X)}: A Free Webinar`,
+  (T,A,X) => `${cap(X)}: The ${cap(T)} Webinar for ${cap(A)}`,
+  (T,A,X) => `The ${cap(T)} Playbook: A Free Training for ${cap(A)}`,
+  (T,A,X) => `${cap(T)} for ${cap(A)}: The Free Live Training`,
+  (T,A,X) => `The ${cap(T)} Masterclass: From Zero to ${cap(X)}`,
+];
+const lenLabel  = {45:'45 min', 60:'60 min', 90:'90 min'};
+const purpLabel = {teach:'Free Training', sell:'Sell at End'};
+
+let state = {len:45, purpose:'teach', T:'', A:'', X:''};
+let titleIdx = 0;
+
+function pickLen(n) {
+  state.len = n;
+  [45,60,90].forEach(x => document.getElementById(`l${x}`).classList.toggle('sel', x===n));
+}
+function pickPurp(p) {
+  state.purpose = p;
+  ['teach','sell'].forEach(x => document.getElementById(`p${x}`).classList.toggle('sel', x===p));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to plan your webinar.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('wbTitle').textContent = titleFns[titleIdx](state.T, state.A, state.X);
+}
+
+function renderAll() {
+  const {len, purpose, T, A, X} = state;
+  const items = [...fw[len].shared, ...fw[len][purpose]];
+  const totalMin = items.reduce((s,i) => s + i.min, 0);
+  const words = Math.round(totalMin * 130 / 100) / 10 + 'k';
+
+  document.getElementById('wbTitle').textContent = titleFns[titleIdx](T, A, X);
+  document.getElementById('statsBar').innerHTML =
+    st(items.length,'Sections') + st(words,'Est. Words') + st(lenLabel[len],'Runtime') + st(purpLabel[purpose],'Purpose');
+
+  let elapsed = 0;
+  document.getElementById('sections').innerHTML = items.map((item, i) => {
+    const start = elapsed; elapsed += item.min;
+    const sec  = cap(fill(item.sec, T, A, X));
+    const dir  = fill(item.dir, T, A, X);
+    const line = fill(item.line, T, A, X);
+    return `<div class="sc-card" style="border-left-color:${item.col}">
+      <div class="sc-head">
+        <span class="sc-num">Section ${i+1}</span>
+        <span class="sc-time-range">${hhmm(start)} – ${hhmm(elapsed)}</span>
+        <span class="sc-min">&nbsp;·&nbsp;${item.min} min</span>
+        <span class="type-badge" style="color:${item.col};background:${item.col}18;border:1px solid ${item.col}33">${item.typ}</span>
+      </div>
+      <div class="sc-title" style="color:${item.col}">${sec}</div>
+      <div class="sc-dir">${dir}</div>
+      <div class="sc-say">Say this →</div>
+      <div class="sc-line">${line}</div>
+    </div>`;
+  }).join('');
+}
+
+function copyScript() {
+  const {len, purpose, T, A, X} = state;
+  const items = [...fw[len].shared, ...fw[len][purpose]];
+  let text = `WEBINAR SCRIPT PLAN\n${titleFns[titleIdx](T,A,X)}\nTopic: ${T}  |  Audience: ${A}  |  Length: ${lenLabel[len]}  |  Purpose: ${purpLabel[purpose]}\n\n`;
+  let elapsed = 0;
+  items.forEach((item, i) => {
+    const start = elapsed; elapsed += item.min;
+    text += `SECTION ${i+1}: ${cap(fill(item.sec,T,A,X))}  [${item.typ}]  ${hhmm(start)}–${hhmm(elapsed)}\n`;
+    text += `Direction: ${fill(item.dir,T,A,X)}\n`;
+    text += `Say this: ${fill(item.line,T,A,X)}\n\n`;
+  });
+  text += '---\nCreated with Webinar Script Planner by GetPaidToBeYouOnline';
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Full Script Plan as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

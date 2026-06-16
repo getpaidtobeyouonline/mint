@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Capacity Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .week-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .form-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .f-input:focus { border-color: #5AE57A; }
+  .cap-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .cap-num { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; line-height: 1; }
+  .cap-input { width: 64px; background: #325132; border: 1px solid #4C724C; color: #5AE57A; padding: 6px 8px; border-radius: 6px; font-family: 'Playfair Display', serif; font-size: 1.2rem; text-align: center; outline: none; }
+  .cap-input:focus { border-color: #5AE57A; }
+  .bar-track { background: #325132; border-radius: 6px; height: 9px; overflow: hidden; margin: 12px 0 8px; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease, background 0.3s; }
+  .cap-status { font-size: 0.8rem; text-align: center; }
+  .stepper { display: flex; align-items: center; background: #325132; border: 1px solid #3C603C; border-radius: 8px; overflow: hidden; }
+  .step-btn { background: none; border: none; color: #5AE57A; padding: 10px 14px; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+  .step-btn:hover { background: #325132; }
+  .step-val { font-family: 'Playfair Display', serif; color: #5AE57A; min-width: 40px; text-align: center; font-size: 0.95rem; }
+  .pchip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 6px 15px; border-radius: 16px; font-size: 0.79rem; cursor: pointer; transition: all 0.15s; }
+  .pchip.sel { border-color: var(--pc); color: var(--pc); background: var(--pbg); }
+  .btn-add { background: #5AE57A; color: #325132; border: none; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+  .btn-add:hover { background: #5AE57A; }
+  .stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 18px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .prio-header { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; padding: 12px 0 8px; border-top: 1px solid #3C603C; margin-top: 4px; }
+  .prio-header:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+  .task-item { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: 8px; background: #325132; margin-bottom: 6px; cursor: default; }
+  .task-item.done .task-name { text-decoration: line-through; color: #5A845A; }
+  .task-item.done .task-hrs { color: #5A845A; background: #325132; }
+  .task-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #4C724C; flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; transition: all 0.15s; }
+  .task-prio { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .task-name { flex: 1; font-size: 0.88rem; }
+  .task-hrs { font-family: 'Playfair Display', serif; font-size: 0.88rem; color: #5AE57A; background: #325132; border-radius: 6px; padding: 2px 8px; flex-shrink: 0; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 2px 4px; flex-shrink: 0; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 16px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Weekly Capacity Planner</h1>
+<p class="subtitle">Know your real ceiling. Plan inside it.</p>
+<p class="week-label" id="weekLabel"></p>
+
+<div class="card">
+  <div class="card-title">Your Capacity This Week</div>
+  <div class="cap-row">
+    <input class="cap-input" id="capInput" type="number" min="1" max="168" value="40" oninput="updateCapacity()" />
+    <span style="font-size:0.82rem;color:#BFD8BF">hours available this week</span>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="capBar"></div></div>
+  <div class="cap-status" id="capStatus"></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add Work This Week</div>
+  <div class="form-row">
+    <div style="flex:1">
+      <div class="field-label">Task or project</div>
+      <input class="f-input" id="taskInput" placeholder="What needs to get done this week?" maxlength="70" />
+    </div>
+  </div>
+  <div class="form-row" style="align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <div class="field-label">Estimated hours</div>
+      <div class="stepper">
+        <button class="step-btn" onclick="adjHrs(-0.5)">−</button>
+        <span class="step-val" id="hrsDisplay">1</span>
+        <button class="step-btn" onclick="adjHrs(0.5)">+</button>
+      </div>
+    </div>
+    <div style="flex:1;min-width:160px">
+      <div class="field-label">Priority</div>
+      <div style="display:flex;gap:6px" id="prioChips"></div>
+    </div>
+    <div style="padding-top:22px"><button class="btn-add" onclick="addTask()">Add</button></div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statTasks">0</div><div class="stat-l">tasks planned</div></div>
+  <div class="stat-box"><div class="stat-n" id="statCommitted">0h</div><div class="stat-l">hours committed</div></div>
+  <div class="stat-box"><div class="stat-n" id="statFree">—</div><div class="stat-l">hours remaining</div></div>
+</div>
+
+<div class="card" id="listCard">
+  <div class="card-title">This Week's Work</div>
+  <div id="taskList"><p class="empty">No tasks yet — add your first one above.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const PRIO = [
+  {id:'high', label:'High',   color:'#5AE57A', bg:'#18080820'},
+  {id:'med',  label:'Medium', color:'#5AE57A', bg:'#1a150820'},
+  {id:'low',  label:'Low',    color:'#5AE57A', bg:'#08140820'},
+];
+
+function getMonday() {
+  const d=new Date(), day=d.getDay(), diff=d.getDate()-day+(day===0?-6:1);
+  return new Date(new Date().setDate(diff)).toISOString().slice(0,10);
+}
+
+const WEEK_KEY = getMonday();
+let capacity = parseInt(localStorage.getItem('wcp_cap')||'40');
+let tasks = JSON.parse(localStorage.getItem('wcp_'+WEEK_KEY)||'[]');
+let selPrio = 'high', hrsVal = 1;
+
+function fmtH(h) { return h%1===0 ? h+'h' : h.toFixed(1)+'h'; }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function save() { localStorage.setItem('wcp_'+WEEK_KEY,JSON.stringify(tasks)); localStorage.setItem('wcp_cap',String(capacity)); }
+
+(function setWeekLabel(){
+  const mon=new Date(WEEK_KEY+'T12:00:00'), sun=new Date(WEEK_KEY+'T12:00:00');
+  sun.setDate(sun.getDate()+6);
+  const f=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  document.getElementById('weekLabel').textContent=`Week of ${f(mon)} – ${f(sun)}, ${sun.getFullYear()}`;
+})();
+
+document.getElementById('capInput').value = capacity;
+
+document.getElementById('prioChips').innerHTML = PRIO.map(p=>
+  `<div class="pchip${p.id===selPrio?' sel':''}" style="--pc:${p.color};--pbg:${p.bg}" id="pc-${p.id}" onclick="pickPrio('${p.id}')">${p.label}</div>`).join('');
+
+function pickPrio(id) {
+  selPrio=id;
+  PRIO.forEach(p=>document.getElementById('pc-'+p.id).classList.toggle('sel',p.id===id));
+}
+
+function updateCapacity() {
+  const v=parseInt(document.getElementById('capInput').value);
+  if(v>=1&&v<=168){capacity=v;save();render();}
+}
+
+function adjHrs(d) {
+  hrsVal=Math.max(0.5,Math.min(40,Math.round((hrsVal+d)*2)/2));
+  document.getElementById('hrsDisplay').textContent=fmtH(hrsVal).replace('h','');
+}
+
+function addTask() {
+  const name=document.getElementById('taskInput').value.trim();
+  if(!name) return;
+  tasks.push({id:Date.now(),name,hrs:hrsVal,prio:selPrio,done:false});
+  document.getElementById('taskInput').value='';
+  save(); render();
+}
+
+function toggleDone(id) {
+  const t=tasks.find(t=>t.id===id); if(t){t.done=!t.done;save();render();}
+}
+
+function removeTask(id) { tasks=tasks.filter(t=>t.id!==id); save(); render(); }
+
+function render() {
+  const planned=tasks.reduce((s,t)=>s+t.hrs,0);
+  const pct=Math.min(planned/capacity*100,100);
+  const overBy=planned-capacity;
+  const barColor=pct<80?'#5AE57A':pct<100?'#5AE57A':'#5AE57A';
+  document.getElementById('capBar').style.cssText=`width:${pct}%;background:${barColor}`;
+
+  let statusText, statusColor;
+  if(!planned){statusText=`${capacity}h fully open — nothing committed yet`;statusColor='#BFD8BF';}
+  else if(overBy>0){statusText=`${fmtH(planned)} planned — ${fmtH(overBy)} over capacity, cut something`;statusColor='#5AE57A';}
+  else if(pct>=80){statusText=`${fmtH(planned)} planned — ${fmtH(capacity-planned)} left, nearly full`;statusColor='#5AE57A';}
+  else{statusText=`${fmtH(planned)} planned — ${fmtH(capacity-planned)} still available`;statusColor='#5AE57A';}
+  const s=document.getElementById('capStatus'); s.textContent=statusText; s.style.color=statusColor;
+
+  document.getElementById('statTasks').textContent=tasks.length;
+  document.getElementById('statCommitted').textContent=planned?fmtH(planned):'0h';
+  const free=capacity-planned;
+  const fEl=document.getElementById('statFree');
+  fEl.textContent=free>0?fmtH(free):(free<0?'-'+fmtH(Math.abs(free)):'0h');
+  fEl.style.color=free<0?'#5AE57A':'#5AE57A';
+
+  const el=document.getElementById('taskList');
+  if(!tasks.length){el.innerHTML='<p class="empty">No tasks yet — add your first one above.</p>';return;}
+  let html='';
+  PRIO.forEach(p=>{
+    const pts=tasks.filter(t=>t.prio===p.id);
+    if(!pts.length) return;
+    html+=`<div class="prio-header" style="color:${p.color}">${p.label} Priority</div>`;
+    pts.forEach(t=>{
+      const chkStyle=t.done?'background:#3C603C;border-color:#4C724C;color:#BFD8BF':('border-color:'+p.color+';color:'+p.color);
+      html+=`<div class="task-item${t.done?' done':''}">
+        <div class="task-check" style="${chkStyle}" onclick="toggleDone(${t.id})">${t.done?'✓':''}</div>
+        <div class="task-prio" style="background:${p.color}"></div>
+        <div class="task-name">${esc(t.name)}</div>
+        <div class="task-hrs">${fmtH(t.hrs)}</div>
+        <button class="del-btn" onclick="removeTask(${t.id})">✕</button>
+      </div>`;
+    });
+  });
+  el.innerHTML=html;
+}
+
+document.getElementById('taskInput').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+render();
+</script>
+</body>
+</html>

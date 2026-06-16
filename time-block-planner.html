@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Time Block Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 580px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+
+  /* Form */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .form-grid input, .form-grid select { background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; width: 100%; }
+  .form-grid input:focus, .form-grid select:focus { border-color: #5AE57A; }
+  .task-input { width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 9px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; margin-bottom: 8px; }
+  .task-input:focus { border-color: #5AE57A; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 10px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.92rem; cursor: pointer; width: 100%; }
+  .btn-gold:hover { background: #5AE57A; }
+  .err { font-size: 0.8rem; color: #5AE57A; min-height: 18px; margin-bottom: 6px; }
+
+  /* Schedule */
+  .schedule { position: relative; }
+  .time-block {
+    display: flex; border-radius: 8px; margin-bottom: 3px;
+    border-left: 4px solid; overflow: hidden; cursor: default;
+    transition: opacity 0.2s;
+  }
+  .time-block:hover { opacity: 0.9; }
+  .block-inner { flex: 1; padding: 0 12px; display: flex; align-items: center; gap: 10px; overflow: hidden; }
+  .block-time { font-size: 0.75rem; color: #F0EBE0aa; white-space: nowrap; flex-shrink: 0; width: 92px; }
+  .block-name { flex: 1; font-size: 0.92rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .block-cat  { font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; white-space: nowrap; flex-shrink: 0; }
+  .block-dur  { font-size: 0.75rem; color: #F0EBE0aa; white-space: nowrap; flex-shrink: 0; }
+  .del-btn { background: none; border: none; color: #5A845A; cursor: pointer; font-size: 0.85rem; padding: 0 8px; flex-shrink: 0; align-self: stretch; display: flex; align-items: center; }
+  .del-btn:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 20px 0; }
+
+  /* Summary pills */
+  .summary { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; padding-top: 14px; border-top: 1px solid #3C603C; }
+  .sum-pill { font-size: 0.75rem; padding: 4px 10px; border-radius: 12px; }
+
+  /* Gap indicator */
+  .gap-line { text-align: center; font-size: 0.72rem; color: #4C724C; padding: 2px 0; }
+
+  /* Overlap warning */
+  .overlap-warn { background: #5AE57A; border: 1px solid #5AE57A; border-radius: 6px; padding: 8px 12px; font-size: 0.8rem; color: #5AE57A; margin-bottom: 10px; display: none; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Time Block Planner</h1>
+<p class="subtitle">Design your day in blocks. Own every hour before someone else does.</p>
+
+<div class="card">
+  <div class="card-title">Add a Block</div>
+  <input class="task-input" id="taskName" placeholder="What's this block for?" maxlength="60" />
+  <div class="form-grid">
+    <input type="time" id="startTime" value="09:00" />
+    <input type="time" id="endTime"   value="10:00" />
+    <select id="catSelect">
+      <option value="Work">Work</option>
+      <option value="Personal">Personal</option>
+      <option value="Health">Health</option>
+      <option value="Admin">Admin</option>
+      <option value="Break">Break</option>
+    </select>
+    <button class="btn-gold" onclick="addBlock()">Add Block</button>
+  </div>
+  <div class="err" id="errMsg"></div>
+</div>
+
+<div class="card">
+  <div class="card-title" id="schedTitle">Today's Schedule</div>
+  <div class="overlap-warn" id="overlapWarn">⚠ Some blocks overlap — check your schedule.</div>
+  <div id="schedule"><p class="empty">No blocks yet — add your first time block above.</p></div>
+  <div class="summary" id="summary"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = {
+    Work:     { color: '#5AE57A', bg: '#325132' },
+    Personal: { color: '#5AE57A', bg: '#325132' },
+    Health:   { color: '#5AE57A', bg: '#325132' },
+    Admin:    { color: '#5AE57A', bg: '#325132' },
+    Break:    { color: '#BFD8BF',    bg: '#345534' },
+  };
+
+  const TODAY = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  document.getElementById('schedTitle').textContent = TODAY;
+
+  let blocks = JSON.parse(localStorage.getItem('tbp_blocks') || '[]');
+  const savedDate = localStorage.getItem('tbp_date');
+  const todayKey  = new Date().toISOString().slice(0, 10);
+  if (savedDate !== todayKey) { blocks = []; save(); }
+
+  function save() {
+    localStorage.setItem('tbp_blocks', JSON.stringify(blocks));
+    localStorage.setItem('tbp_date', todayKey);
+  }
+
+  function toMins(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+
+  function fmtTime(t) {
+    const [h, m] = t.split(':').map(Number);
+    const ampm = h < 12 ? 'AM' : 'PM';
+    return `${h % 12 || 12}:${m.toString().padStart(2,'0')} ${ampm}`;
+  }
+
+  function fmtDur(mins) {
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return h && m ? `${h}h ${m}m` : h ? `${h}h` : `${m}m`;
+  }
+
+  function addBlock() {
+    const name  = document.getElementById('taskName').value.trim();
+    const start = document.getElementById('startTime').value;
+    const end   = document.getElementById('endTime').value;
+    const cat   = document.getElementById('catSelect').value;
+    const err   = document.getElementById('errMsg');
+
+    if (!name) { err.textContent = 'Please enter a task name.'; return; }
+    if (toMins(end) <= toMins(start)) { err.textContent = 'End time must be after start time.'; return; }
+    err.textContent = '';
+
+    blocks.push({ id: Date.now(), name, start, end, cat });
+    blocks.sort((a, b) => toMins(a.start) - toMins(b.start));
+    save(); render();
+    document.getElementById('taskName').value = '';
+  }
+
+  function remove(id) { blocks = blocks.filter(b => b.id !== id); save(); render(); }
+
+  function hasOverlap() {
+    for (let i = 1; i < blocks.length; i++)
+      if (toMins(blocks[i].start) < toMins(blocks[i-1].end)) return true;
+    return false;
+  }
+
+  function render() {
+    document.getElementById('overlapWarn').style.display = hasOverlap() ? 'block' : 'none';
+    const el = document.getElementById('schedule');
+
+    if (!blocks.length) { el.innerHTML = '<p class="empty">No blocks yet — add your first time block above.</p>'; document.getElementById('summary').innerHTML = ''; return; }
+
+    const rows = [];
+    blocks.forEach((b, i) => {
+      if (i > 0) {
+        const gap = toMins(b.start) - toMins(blocks[i-1].end);
+        if (gap > 5) rows.push(`<div class="gap-line">· · · ${fmtDur(gap)} free · · ·</div>`);
+      }
+      const c = CATS[b.cat] || CATS.Work;
+      const dur = toMins(b.end) - toMins(b.start);
+      const ht = Math.max(44, Math.min(dur * 0.9, 120));
+      rows.push(`
+        <div class="time-block" style="border-color:${c.color};background:${c.bg};height:${ht}px">
+          <div class="block-inner">
+            <span class="block-time">${fmtTime(b.start)} – ${fmtTime(b.end)}</span>
+            <span class="block-name">${esc(b.name)}</span>
+            <span class="block-cat" style="background:${c.color}22;color:${c.color}">${b.cat}</span>
+            <span class="block-dur">${fmtDur(dur)}</span>
+          </div>
+          <button class="del-btn" onclick="remove(${b.id})">✕</button>
+        </div>`);
+    });
+    el.innerHTML = rows.join('');
+
+    // Summary by category
+    const totals = {};
+    blocks.forEach(b => { totals[b.cat] = (totals[b.cat] || 0) + toMins(b.end) - toMins(b.start); });
+    document.getElementById('summary').innerHTML = Object.entries(totals).map(([cat, m]) => {
+      const c = CATS[cat] || CATS.Work;
+      return `<span class="sum-pill" style="background:${c.color}22;color:${c.color}">${cat} ${fmtDur(m)}</span>`;
+    }).join('');
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  document.getElementById('taskName').addEventListener('keydown', e => { if (e.key === 'Enter') addBlock(); });
+  render();
+</script>
+</body>
+</html>

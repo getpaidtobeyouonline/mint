@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workbook Section Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,select:focus{border-color:#5AE57A}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C9A84C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem;align-items:start}
+.style-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem}
+.sc{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:border-color .2s,background .2s}
+.sc.sel{border-color:#5AE57A;background:#325132}
+.sc-name{font-size:.85rem;font-weight:600;margin-bottom:.18rem}
+.sc-desc{font-size:.71rem;opacity:.5;line-height:1.35}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.name-box{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.45rem}
+.wb-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:#5AE57A;line-height:1.3;flex:1}
+.name-acts{display:flex;align-items:center;gap:.5rem;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+.btn-sm{background:transparent;border:1px solid #C9A84C44;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.btn-sm:hover{opacity:.7}
+.tagline{font-size:.875rem;opacity:.65;line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-bottom:1.25rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:.85rem .6rem;text-align:center}
+.s-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;line-height:1;font-weight:700}
+.s-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-top:.3rem}
+.sec-card{background:#3C603C;border:1px solid #4C724C;border-left:3px solid;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.85rem}
+.sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.25rem}
+.sec-num{font-size:.67rem;text-transform:uppercase;letter-spacing:.09em;font-weight:600}
+.sec-pages{font-size:.67rem;background:#325132;border:1px solid #3C603C;border-radius:4px;padding:.15rem .45rem;opacity:.5}
+.sec-title{font-family:'Playfair Display',serif;font-size:1.05rem;line-height:1.3;color:#FFFFFF;margin-bottom:.35rem}
+.sec-desc{font-size:.8rem;opacity:.48;line-height:1.5;margin-bottom:.6rem}
+.ex-row{display:flex;flex-wrap:wrap;gap:.38rem;margin-bottom:.55rem}
+.ex{font-size:.64rem;border-radius:4px;padding:.18rem .48rem;font-weight:500;white-space:nowrap}
+.sample-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.08em;color:#5AE57A;opacity:.6;margin-bottom:.22rem}
+.sample-text{font-size:.8rem;line-height:1.5;font-style:italic;opacity:.7}
+.copy-btn{width:100%;background:transparent;border:1px solid #C9A84C55;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.name-row{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Workbook Section Planner</h1>
+    <p class="subtitle">Plan every section of your workbook — exercises, prompts, page targets, and a complete structure — in under a minute.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Workbook Details</h2>
+    <label>Workbook Topic</label>
+    <input type="text" id="topic" placeholder="e.g. mindset, Instagram growth, business planning, weight loss">
+    <label>Target Audience</label>
+    <input type="text" id="audience" placeholder="e.g. new coaches, busy moms, freelance designers">
+    <label>Reader Transformation — what will they achieve?</label>
+    <input type="text" id="transform" placeholder="e.g. launch their business, lose 20 lbs, land 3 clients">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Number of Sections</label>
+        <select id="secCount">
+          <option value="4">4 Sections — Compact</option>
+          <option value="6" selected>6 Sections — Standard</option>
+          <option value="8">8 Sections — Full</option>
+          <option value="10">10 Sections — Comprehensive</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0">Workbook Style</label>
+        <div class="style-grid">
+          <div class="sc sel" onclick="pickStyle('stepbystep')" id="ss-stepbystep"><div class="sc-name">Step-by-Step</div><div class="sc-desc">Worksheets, plans & checklists</div></div>
+          <div class="sc" onclick="pickStyle('reflection')" id="ss-reflection"><div class="sc-name">Reflection-Led</div><div class="sc-desc">Journaling & deep prompts</div></div>
+          <div class="sc" onclick="pickStyle('assessment')" id="ss-assessment"><div class="sc-name">Assessment</div><div class="sc-desc">Quizzes, scores & trackers</div></div>
+          <div class="sc" onclick="pickStyle('coaching')" id="ss-coaching"><div class="sc-name">Coaching Style</div><div class="sc-desc">Discovery & coaching prompts</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Plan My Workbook →</button>
+
+  <div class="results" id="results">
+    <div class="name-box">
+      <div class="name-row">
+        <div class="wb-title" id="wbTitle">—</div>
+        <div class="name-acts"><button class="btn-sm" onclick="regenTitle()">↻ New Title</button></div>
+      </div>
+      <div class="tagline" id="wbTagline">—</div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div id="sections"></div>
+    <button class="copy-btn" onclick="copyPlan()">Copy Full Workbook Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap = s => s ? s.replace(/\b\w/g, c => c.toUpperCase()) : s;
+const fill = (str, T, A, X) => str.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const ac = {orientation:'#5AE57A',mindset:'#5AE57A',assessment:'#5AE57A',visioning:'#5AE57A',goal:'#5AE57A',strategy:'#5AE57A',action:'#5AE57A',action1:'#5AE57A',action2:'#5AE57A',obstacles:'#5AE57A',review:'#5AE57A'};
+
+const baseEx = {
+  orientation: ['Welcome Exercise','Goal Statement','Commitment Pledge'],
+  mindset:     ['Belief Audit','Mindset Reflection','Reframe Exercise'],
+  assessment:  ['Self-Assessment Quiz','Gap Analysis','Baseline Score'],
+  visioning:   ['Vision Writing','Values Clarification','Dream Statement'],
+  goal:        ['Goal-Setting Worksheet','Milestone Map','Priority Matrix'],
+  strategy:    ['Strategy Planner','Resource Audit','Roadmap Worksheet'],
+  action:      ['Action Plan','Accountability Tracker','Weekly Checklist'],
+  action1:     ['Phase 1 Action Plan','Step Tracker','Completion Checklist'],
+  action2:     ['Phase 2 Action Plan','Optimization Worksheet','Results Log'],
+  obstacles:   ['Obstacle Audit','Problem-Solving Sheet','Resilience Reflection'],
+  review:      ['Progress Review','Wins & Lessons','Next 90-Day Planner']
+};
+
+const styleBonus = {
+  stepbystep: {orientation:'Quick-Start Checklist',mindset:'Belief Worksheet',assessment:'Scoring Rubric',visioning:'Action Statement',goal:'Implementation Checklist',strategy:'Step-by-Step Planner',action:'Daily Habit Tracker',action1:'Step Tracker Sheet',action2:'Optimization Checklist',obstacles:'Recovery Checklist',review:'Final Checklist'},
+  reflection: {orientation:'Opening Reflection',mindset:'Journaling Prompt',assessment:'Reflection Questions',visioning:'Visualization Script',goal:'Journaling Exercise',strategy:'Reflection Prompt',action:'Check-In Journal',action1:'Progress Reflection',action2:'Deeper Reflection',obstacles:'Compassion Reflection',review:'Closing Reflection'},
+  assessment: {orientation:'Readiness Assessment',mindset:'Mindset Score',assessment:'Detailed Scoring Sheet',visioning:'Vision Score',goal:'Goal Tracker',strategy:'Strategy Assessment',action:'Progress Assessment',action1:'Phase Assessment',action2:'Results Assessment',obstacles:'Resilience Score',review:'Final Assessment'},
+  coaching:   {orientation:'Discovery Questions',mindset:'Coaching Prompt',assessment:'Diagnostic Questions',visioning:'Coaching Vision Questions',goal:'Goal Discovery',strategy:'Strategy Questions',action:'Coaching Accountability',action1:'Phase Questions',action2:'Deeper Dive Questions',obstacles:'Breakthrough Questions',review:'Integration Questions'}
+};
+
+const secs = {
+  4:[
+    {n:'Foundation: Where You Are Now',         typ:'assessment', d:'Help {A} get honest about their current {T} situation and establish a clear baseline before any growth work begins.',          s:'Describe your current {T} situation in [3–5] sentences. What\'s working? What isn\'t? What do you most want to change?',                    pg:[3,5]},
+    {n:'Vision: Where You Want to Go',           typ:'visioning',  d:'Guide {A} through defining their ideal {X} outcome — specific, sensory, and emotionally compelling.',                         s:'Describe life [6/12] months from now having achieved {X}. Be specific: what does a typical day look like? What has changed?',               pg:[3,5]},
+    {n:'Your {T} Action Plan',                   typ:'action',     d:'Move {A} from intention to execution with a concrete, time-bound plan for achieving {X}.',                                    s:'List your top [3] {T} priorities this month. For each: write one specific action you can take in the next [7] days.',                      pg:[4,6]},
+    {n:'Momentum: Staying on Track',             typ:'review',     d:'Cement learning, celebrate progress, and give {A} a clear plan for maintaining {T} momentum beyond this workbook.',           s:'What\'s the most important insight from this workbook? How will you apply it this week? Who will you share your commitment with?',          pg:[2,4]}
+  ],
+  6:[
+    {n:'Welcome to Your {T} Journey',            typ:'orientation', d:'Orient {A} to the workbook, set expectations, and build real excitement about the {X} transformation ahead.',                s:'Write [3] things you hope to achieve by completing this workbook. What would make this time truly well spent?',                             pg:[2,3]},
+    {n:'Honest Assessment: Where You Stand',     typ:'assessment',  d:'Give {A} a clear-eyed view of their current {T} reality — identifying gaps, strengths, and what matters most to change.',  s:'Rate yourself across [5] key {T} areas from 1–10. Circle the area where improvement would have the biggest impact on {X}.',                pg:[4,5]},
+    {n:'Your Vision for {X}',                    typ:'visioning',   d:'Guide {A} through crafting a vivid, emotionally compelling picture of what life looks like after achieving {X}.',            s:'Finish this sentence: "When I have achieved {X}, I will feel ___ because ___." Write at least [5] full sentences.',                        pg:[3,5]},
+    {n:'The {T} Framework',                      typ:'strategy',    d:'Introduce the core method {A} will use to achieve {X} and help them map their complete path from start to finish.',         s:'Sketch or outline your {T} roadmap. What are the [3–5] stages between where you are now and fully achieving {X}?',                        pg:[4,6]},
+    {n:'Your Action Plan',                       typ:'action',      d:'Translate the framework into a concrete, time-bound plan that {A} can begin executing immediately.',                         s:'For this week: What is the [1] most important {T} action? When will you do it? What might stop you, and how will you handle it?',          pg:[4,6]},
+    {n:'Reflection & What Comes Next',           typ:'review',      d:'Integrate learnings, celebrate wins, and give {A} a clear next action so they leave with real momentum.',                   s:'What were your [3] biggest breakthroughs in this workbook? What is your single most important next action in the next [24] hours?',        pg:[2,4]}
+  ],
+  8:[
+    {n:'Welcome & How to Use This Workbook',     typ:'orientation', d:'Set the stage: explain the structure, what {A} can expect, and how to get maximum value from every exercise.',              s:'Write [3] specific things you\'re committing to for this workbook journey. Sign and date your commitment below.',                          pg:[2,3]},
+    {n:'Mindset & Foundation for {T}',           typ:'mindset',     d:'Surface and address the internal blocks keeping {A} from progress with {T} before the practical work begins.',              s:'What [3] beliefs have held you back from {X}? Write them down. Now rewrite each as a belief that supports your success.',                  pg:[3,5]},
+    {n:'Your Current Reality',                   typ:'assessment',  d:'Give {A} a clear, honest view of their {T} starting point — strengths, gaps, and the most important things to change.',    s:'Complete this: "Right now, my biggest {T} challenge is ___ and it\'s costing me ___." What would change if you solved it?',               pg:[3,5]},
+    {n:'Clarifying Your {X} Vision',             typ:'visioning',   d:'Help {A} paint a vivid, specific, sensory picture of where they\'re going and why it matters deeply to them.',             s:'Write your "{X} Success Story" as if it\'s already happened. Use present tense, be specific, describe exactly how it feels.',             pg:[3,4]},
+    {n:'Setting Your Goals & Milestones',        typ:'goal',        d:'Break the big vision into concrete, measurable goals with milestones {A} can track and celebrate along the way.',          s:'Your [90-day] {T} goal: ___. Break into [3] monthly milestones. What does success look like at each stage?',                              pg:[4,5]},
+    {n:'Your {T} Strategy & Framework',          typ:'strategy',    d:'Introduce the strategic approach {A} will use and help them customize it fully to their situation and resources.',          s:'Identify your [3] highest-leverage {T} actions from the framework. Why these? What is the first step for each?',                          pg:[4,6]},
+    {n:'Taking Action: Your {T} Plan',           typ:'action',      d:'Move from planning to doing — give {A} a concrete weekly plan for executing their {T} strategy starting now.',              s:'Plan your first [2] weeks of action. For each week: the goal, [3] specific actions, and how you\'ll measure success.',                    pg:[4,6]},
+    {n:'Review, Integration & Next 90 Days',     typ:'review',      d:'Celebrate progress, lock in insights, and give {A} a clear roadmap for continuing their {T} journey after the workbook.',  s:'List your top [5] insights. Write your #1 commitment for the next [90] days. How will you stay accountable?',                            pg:[2,4]}
+  ],
+  10:[
+    {n:'Welcome & How to Use This Workbook',        typ:'orientation', d:'Orient {A} to the full experience, explain the process, and generate real excitement about the {X} transformation ahead.',   s:'Why are you starting this workbook today? Write [3–5] sentences about what\'s driving you and what {X} would mean for your life.',         pg:[2,3]},
+    {n:'The {T} Mindset Foundation',                typ:'mindset',     d:'Surface and dismantle the limiting beliefs keeping {A} stuck before any practical {T} work begins.',                         s:'Complete this: "I\'ve held myself back from {X} because I believe ___." Now rewrite it as your new empowering belief.',                   pg:[3,4]},
+    {n:'Your Current Reality: Honest Assessment',   typ:'assessment',  d:'Help {A} see their {T} starting point clearly — where they\'re winning, where they\'re stuck, and what matters most.',       s:'Score yourself in [5–7] {T} areas (1–10). For your lowest score: what\'s one thing you\'ve never tried that might change everything?',   pg:[4,5]},
+    {n:'Defining Your {X} Vision',                  typ:'visioning',   d:'Guide {A} from vague desire to vivid, emotionally resonant vision of what {X} looks and feels like in real life.',           s:'Write a "Future Self Letter" to yourself one year from now after achieving {X}. What do you want that future version to know?',           pg:[3,4]},
+    {n:'Setting Goals & Milestones',                typ:'goal',        d:'Translate the big vision into a hierarchy of goals — [90-day], monthly, and weekly — that feel achievable and motivating.',  s:'Your [90-day] {T} goal: ___. Break into [3] monthly milestones. For Milestone 1, write [3] actions to take this week.',                 pg:[4,5]},
+    {n:'Core {T} Strategy & Framework',             typ:'strategy',    d:'Introduce the strategic model {A} will use, map it to their situation, and identify their highest-leverage moves toward {X}.',s:'Using the {T} framework, identify the [1] strategy with the biggest impact. Why? What is the very first concrete step?',               pg:[4,6]},
+    {n:'Implementation Phase 1: First Steps',       typ:'action1',     d:'Get {A} into motion with quick wins that build confidence and create unstoppable momentum toward {X}.',                      s:'Your Phase 1 focus is [first key milestone]. Write your day-by-day plan for Week 1 with [1] non-negotiable daily {T} action.',            pg:[4,5]},
+    {n:'Implementation Phase 2: Going Deeper',      typ:'action2',     d:'Build on early momentum with the deeper work that compounds results and creates lasting {T} change.',                        s:'Review Phase 1 progress: what\'s working? What needs adjusting? Write your updated Phase 2 plan with refined targets.',                  pg:[4,5]},
+    {n:'Overcoming Obstacles & Staying Consistent', typ:'obstacles',   d:'Equip {A} with concrete strategies for when {T} progress stalls, motivation dips, or unexpected challenges appear.',         s:'Anticipate your top [3] obstacles to {X}. For each: write exactly what you\'ll do when it appears.',                                    pg:[3,5]},
+    {n:'Integration, Celebration & Your Next Level',typ:'review',      d:'Bring it all together: celebrate the journey, cement the transformation, and launch {A} into their next chapter.',           s:'Write a letter to someone who\'s exactly where you were when you started this workbook. What do you want them to know about {T}?',       pg:[2,4]}
+  ]
+};
+
+const nameForms = [
+  (T)     => `The ${cap(T)} Workbook`,
+  (T,_,X) => `${cap(X)}: The ${cap(T)} Workbook`,
+  (_,A)   => `The ${cap(A)} Workbook`,
+  (T,_,X) => `The Complete ${cap(T)} Workbook`,
+  (T,A)   => `${cap(T)} for ${cap(A)}: The Interactive Workbook`,
+  (_,_,X) => `Your ${cap(X)} Workbook`
+];
+const taglines = [
+  (T,A,X,n) => `A ${n}-section interactive workbook that guides ${A} step by step to ${X} — with exercises, prompts, and structured reflection built in at every stage.`,
+  (T,A,X,n) => `Everything ${A} need to ${X}, organized into ${n} guided sections with exercises and prompts they can work through at their own pace.`,
+  (T,A,X,n) => `The hands-on ${T} workbook that helps ${A} reach ${X} through structured exercises, honest reflection, and actionable planning.`
+];
+
+let state = {}, titleIdx = 0, wbStyle = 'stepbystep';
+
+function pickStyle(s) {
+  wbStyle = s;
+  document.querySelectorAll('.sc').forEach(el => el.classList.remove('sel'));
+  document.getElementById(`ss-${s}`).classList.add('sel');
+}
+
+function generate() {
+  const T = document.getElementById('topic').value.trim();
+  const A = document.getElementById('audience').value.trim();
+  const X = document.getElementById('transform').value.trim();
+  const n = parseInt(document.getElementById('secCount').value);
+  if (!T) { alert('Please enter a workbook topic.'); return; }
+  if (!A) { alert('Please enter your target audience.'); return; }
+  if (!X) { alert('Please enter the reader transformation.'); return; }
+  titleIdx = Math.floor(Math.random() * nameForms.length);
+  state = {T, A, X, n, style: wbStyle};
+  render();
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function render() {
+  const {T, A, X, n, style} = state;
+  const CT = cap(T), CA = cap(A), CX = cap(X);
+  document.getElementById('wbTitle').textContent = nameForms[titleIdx](T, A, X);
+  document.getElementById('wbTagline').textContent = rnd(taglines)(T, A, X, n);
+
+  const list = secs[n];
+  const totalLo = list.reduce((s,sec)=>s+sec.pg[0],0);
+  const totalHi = list.reduce((s,sec)=>s+sec.pg[1],0);
+  const midPg = Math.round((totalLo+totalHi)/2);
+  const hrs = (midPg * 12 / 60).toFixed(1);
+  const exCount = n * 4;
+
+  document.getElementById('stats').innerHTML =
+    st(n,'Sections') + st(`${totalLo}–${totalHi}`,'Est. Pages') + st(`~${hrs}h`,'Completion') + st(exCount,'Exercises');
+
+  document.getElementById('sections').innerHTML = list.map((sec, i) => {
+    const c = ac[sec.typ] || '#5AE57A';
+    const exes = [...(baseEx[sec.typ]||[]), styleBonus[style][sec.typ]||''].filter(Boolean);
+    const badges = exes.map(e => `<span class="ex" style="color:${c};background:${c}18;border:1px solid ${c}33">${e}</span>`).join('');
+    return `<div class="sec-card" style="border-left-color:${c}">
+      <div class="sec-head">
+        <div class="sec-num" style="color:${c}">Section ${i+1}</div>
+        <div class="sec-pages">${sec.pg[0]}–${sec.pg[1]} pages</div>
+      </div>
+      <div class="sec-title">${fill(sec.n, CT, CA, CX)}</div>
+      <div class="sec-desc">${fill(sec.d, T, A, X)}</div>
+      <div class="ex-row">${badges}</div>
+      <div class="sample-lbl">Sample Exercise Prompt</div>
+      <div class="sample-text">${fill(sec.s, CT, CA, CX)}</div>
+    </div>`;
+  }).join('');
+}
+
+function st(val, lbl) {
+  return `<div class="stat"><div class="s-val">${val}</div><div class="s-lbl">${lbl}</div></div>`;
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % nameForms.length;
+  const {T, A, X} = state;
+  document.getElementById('wbTitle').textContent = nameForms[titleIdx](T, A, X);
+}
+
+function copyPlan() {
+  const {T, A, X, n, style} = state;
+  const CT = cap(T), CA = cap(A), CX = cap(X);
+  const styleLabel = {stepbystep:'Step-by-Step',reflection:'Reflection-Led',assessment:'Assessment',coaching:'Coaching Style'};
+  const list = secs[n];
+  const lo = list.reduce((s,sec)=>s+sec.pg[0],0), hi = list.reduce((s,sec)=>s+sec.pg[1],0);
+  let text = `WORKBOOK PLAN: ${nameForms[titleIdx](T, A, X)}\nStyle: ${styleLabel[style]} | Sections: ${n} | Est. Pages: ${lo}–${hi}\n\n`;
+  list.forEach((sec, i) => {
+    const exes = [...(baseEx[sec.typ]||[]), styleBonus[style][sec.typ]||''].filter(Boolean);
+    text += `SECTION ${i+1}: ${fill(sec.n, CT, CA, CX)}\nPages: ${sec.pg[0]}–${sec.pg[1]}\nOverview: ${fill(sec.d, T, A, X)}\nExercises: ${exes.join(' | ')}\nSample Prompt: ${fill(sec.s, CT, CA, CX)}\n\n`;
+  });
+  text += '---\nGenerated by GetPaidToBeYouOnline Workbook Section Planner';
+  const btn = document.querySelector('.copy-btn');
+  const flash = () => { const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(flash) : (() => {const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();})();
+}
+</script>
+</body>
+</html>

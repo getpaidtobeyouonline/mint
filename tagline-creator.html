@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tagline Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:32px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2.2rem;color:#5AE57A;text-align:center;margin-bottom:8px}
+.sub{text-align:center;opacity:.65;margin-bottom:32px;font-size:.95rem;line-height:1.5}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:28px;max-width:580px;margin:0 auto 28px}
+label{display:block;margin-bottom:6px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:12px 14px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;margin-bottom:20px;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#BFD8BF}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:4px}
+.btn:hover{opacity:.85}
+.results{max-width:580px;margin:0 auto}
+.tagline-row{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:18px 20px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:14px}
+.tagline-text{font-family:'Playfair Display',serif;font-size:1.1rem;line-height:1.4;word-break:break-word}
+.formula-tag{font-size:.7rem;color:#BFD8BF;margin-top:4px;font-style:italic}
+.copy-btn{background:transparent;border:1px solid #5AE57A;color:#5AE57A;padding:7px 16px;border-radius:6px;font-size:.78rem;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;white-space:nowrap;width:auto;transition:all .2s;flex-shrink:0}
+.copy-btn:hover,.copy-btn.done{background:#5AE57A;color:#325132}
+.tip{font-size:.8rem;color:#BFD8BF;text-align:center;margin-bottom:16px;font-style:italic}
+footer{text-align:center;margin-top:48px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row{grid-template-columns:1fr}h1{font-size:1.7rem}.tagline-text{font-size:1rem}}
+</style>
+</head>
+<body>
+
+<h1>Tagline Creator</h1>
+<p class="sub">Answer three questions — get 10 scroll-stopping taglines instantly</p>
+
+<div class="card">
+  <label>What do you sell or offer?</label>
+  <input id="offer" type="text" placeholder="e.g. online coaching, skincare products, financial planning">
+
+  <label>Who do you help?</label>
+  <input id="audience" type="text" placeholder="e.g. busy moms, new entrepreneurs, women over 40">
+
+  <label>What result or transformation do you create?</label>
+  <input id="result" type="text" placeholder="e.g. feel confident, build wealth, lose 20 lbs">
+
+  <div class="row">
+    <div>
+      <label>Tone</label>
+      <select id="tone">
+        <option value="inspiring">Inspiring</option>
+        <option value="bold">Bold &amp; Direct</option>
+        <option value="luxury">Luxury &amp; Premium</option>
+        <option value="playful">Playful &amp; Fun</option>
+        <option value="professional">Professional</option>
+        <option value="warm">Warm &amp; Nurturing</option>
+      </select>
+    </div>
+    <div>
+      <label>Style</label>
+      <select id="style">
+        <option value="short">Short &amp; Punchy</option>
+        <option value="question">Question Hook</option>
+        <option value="promise">Bold Promise</option>
+        <option value="contrast">Before &amp; After</option>
+      </select>
+    </div>
+  </div>
+  <button class="btn" onclick="generate()">Create Taglines →</button>
+</div>
+
+<div class="results" id="results"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const power = {
+  inspiring:['Transform','Unleash','Elevate','Ignite','Awaken','Rise','Become','Unlock','Step into','Own'],
+  bold:['Stop settling for','Get','Demand','Take control of','Build','Own','Claim','Dominate','Fuel','Drive'],
+  luxury:['Redefine','Curate','Experience','Indulge in','Command','Embody','Refine','Elevate','Savour','Craft'],
+  playful:['Finally!','Say hello to','Kiss goodbye to','Get ready for','Welcome to','Meet your','Level up your','Ditch the','Discover','Enjoy'],
+  professional:['Achieve','Maximize','Streamline','Accelerate','Build','Secure','Optimize','Develop','Establish','Grow'],
+  warm:['Nurture','Embrace','Celebrate','Find','Discover','Welcome','Cherish','Restore','Reconnect with','Support']
+};
+const adj = {
+  inspiring:['powerful','unstoppable','extraordinary','limitless','fearless','bold','vibrant','radiant'],
+  bold:['real','proven','no-BS','serious','results-driven','unapologetic','deliberate','focused'],
+  luxury:['refined','elevated','exquisite','premium','curated','bespoke','distinguished','signature'],
+  playful:['amazing','fun','simple','easy','game-changing','refreshing','brilliant','fresh'],
+  professional:['strategic','proven','reliable','expert-led','focused','measurable','structured','efficient'],
+  warm:['gentle','compassionate','supportive','holistic','heartfelt','caring','nurturing','authentic']
+};
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function clean(s){return s.trim().replace(/\s+/g,' ')}
+function firstCap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+function build(offer,audience,result,tone,style){
+  const o=clean(offer)||'your business';
+  const a=clean(audience)||'you';
+  const r=clean(result)||'your best life';
+  const P=power[tone];const A=adj[tone];
+
+  const templates = [
+    // Short & Punchy
+    [()=>`${pick(P)} ${r}.`, 'Short & Punchy'],
+    [()=>`${firstCap(o)} that actually works.`, 'Short & Punchy'],
+    [()=>`Built for ${a} who refuse to settle.`, 'Short & Punchy'],
+    [()=>`Your ${pick(A)} path to ${r}.`, 'Short & Punchy'],
+    [()=>`${r} — for ${a} who mean it.`, 'Short & Punchy'],
+    // Question Hook
+    [()=>`Ready to ${r}?`, 'Question Hook'],
+    [()=>`What if ${a} could ${r} — without the guesswork?`, 'Question Hook'],
+    [()=>`What would change if you could finally ${r}?`, 'Question Hook'],
+    [()=>`Tired of waiting to ${r}?`, 'Question Hook'],
+    // Bold Promise
+    [()=>`We help ${a} ${r} — guaranteed.`, 'Bold Promise'],
+    [()=>`The ${pick(A)} way for ${a} to ${r}.`, 'Bold Promise'],
+    [()=>`${pick(P)} ${r} — starting today.`, 'Bold Promise'],
+    [()=>`${firstCap(o)} designed to help ${a} ${r}.`, 'Bold Promise'],
+    // Before & After
+    [()=>`Less struggle. More ${r}.`, 'Before & After'],
+    [()=>`From overwhelmed to ${r}.`, 'Before & After'],
+    [()=>`Stop guessing. Start ${r}.`, 'Before & After'],
+    [()=>`Done with stuck. Time to ${r}.`, 'Before & After'],
+    // Bonus evergreens
+    [()=>`${firstCap(o)} for ${a} who want more.`, 'Classic'],
+    [()=>`The ${pick(A)} ${o} for ${a}.`, 'Classic'],
+    [()=>`Because ${a} deserve to ${r}.`, 'Empathy'],
+    [()=>`${pick(P)} your potential. ${firstCap(o)} for ${a}.`, 'Empathy'],
+  ];
+
+  // Filter by selected style or return all
+  const filtered = style === 'short'    ? templates.filter(t=>t[1]==='Short & Punchy'||t[1]==='Classic')
+    : style === 'question' ? templates.filter(t=>t[1]==='Question Hook')
+    : style === 'promise'  ? templates.filter(t=>t[1]==='Bold Promise'||t[1]==='Empathy')
+    : style === 'contrast' ? templates.filter(t=>t[1]==='Before & After')
+    : templates;
+
+  const pool = style === 'short' ? templates : filtered.concat(templates);
+  return pool.sort(()=>Math.random()-.5).slice(0,12);
+}
+
+function generate(){
+  const offer    = document.getElementById('offer').value;
+  const audience = document.getElementById('audience').value;
+  const result   = document.getElementById('result').value;
+  const tone     = document.getElementById('tone').value;
+  const style    = document.getElementById('style').value;
+
+  if(!offer&&!audience&&!result){
+    document.getElementById('results').innerHTML=
+      '<p style="text-align:center;opacity:.5;padding:20px">Fill in at least one field to get started.</p>';
+    return;
+  }
+
+  const rows = build(offer,audience,result,tone,style);
+  const seen = new Set();
+  const unique = rows.filter(r=>{
+    const t = r[0]().toLowerCase();
+    if(seen.has(t))return false;
+    seen.add(t);return true;
+  }).slice(0,10);
+
+  document.getElementById('results').innerHTML =
+    '<p class="tip">Click any tagline to copy it — then test your favourites on social media.</p>' +
+    unique.map(r=>{
+      const text = r[0]();
+      const label = r[1];
+      return `<div class="tagline-row">
+        <div>
+          <div class="tagline-text">${text}</div>
+          <div class="formula-tag">${label}</div>
+        </div>
+        <button class="copy-btn" onclick="doCopy(this,\`${text.replace(/`/g,"'")}\`)">Copy</button>
+      </div>`;
+    }).join('');
+}
+
+function doCopy(btn,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('done');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('done')},1600);
+  });
+}
+</script>
+</body>
+</html>

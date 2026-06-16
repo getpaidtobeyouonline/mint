@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unschooling Activity Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 18px; margin-top: 16px; display: none; text-align: left; }
+  .idea .big { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; }
+  .idea .learn { font-size: .85rem; opacity: .75; margin-top: 8px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Unschooling Activity Generator</h1>
+  <p class="sub">Child-led, life-based learning ideas — follow their curiosity, see the learning everywhere.</p>
+
+  <div class="panel">
+    <label for="interest">What is your child into right now?</label>
+    <select id="interest">
+      <option value="any">Surprise me</option>
+      <option value="nature">Nature &amp; animals</option>
+      <option value="building">Building &amp; making</option>
+      <option value="cooking">Cooking &amp; food</option>
+      <option value="stories">Stories &amp; imagination</option>
+      <option value="science">How things work</option>
+      <option value="art">Art &amp; creating</option>
+    </select>
+    <button class="btn" onclick="gen()">Generate an Idea</button>
+  </div>
+
+  <div class="idea" id="idea"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A={
+    nature:[
+      {t:"Start a nature journal — draw and note what you find on walks",l:"Observation, biology, drawing, writing"},
+      {t:"Grow something from seed and track it daily",l:"Botany, patience, measurement, responsibility"},
+      {t:"Identify the birds that visit your area",l:"Research, classification, focus, ecology"},
+      {t:"Build a bug hotel or bird feeder",l:"Design, biology, hands-on construction"}],
+    building:[
+      {t:"Design and build the tallest free-standing tower you can",l:"Engineering, geometry, problem-solving, persistence"},
+      {t:"Make a working marble run from household items",l:"Physics, design, gravity, iteration"},
+      {t:"Take apart an old gadget and see how it works",l:"Engineering, curiosity, mechanics"},
+      {t:"Build a fort and design its 'rules' and layout",l:"Planning, spatial thinking, creativity"}],
+    cooking:[
+      {t:"Cook a recipe together, doubling all the quantities",l:"Maths, fractions, chemistry, life skills"},
+      {t:"Invent a new recipe and write it up properly",l:"Creativity, writing, measurement, experimentation"},
+      {t:"Explore a dish from another country and its culture",l:"Geography, culture, history, cooking"},
+      {t:"Run a pretend cafe — menu, prices, 'orders'",l:"Money maths, literacy, role-play, planning"}],
+    stories:[
+      {t:"Write and illustrate a short book together",l:"Literacy, narrative, art, sequencing"},
+      {t:"Act out a favourite story, then change the ending",l:"Comprehension, creativity, drama, empathy"},
+      {t:"Create a comic strip about your week",l:"Writing, art, sequencing, reflection"},
+      {t:"Make up a story with a roll of the dice deciding twists",l:"Imagination, probability, storytelling"}],
+    science:[
+      {t:"Do a simple kitchen experiment and predict the result first",l:"Scientific method, chemistry, prediction"},
+      {t:"Investigate a 'why' question your child asked",l:"Research, curiosity, critical thinking"},
+      {t:"Build a paper plane lab — test designs, measure distance",l:"Physics, measurement, fair testing"},
+      {t:"Track the weather for a week and look for patterns",l:"Data, observation, meteorology, graphs"}],
+    art:[
+      {t:"Make art using only things found outside",l:"Creativity, texture, nature, design"},
+      {t:"Try a famous artist's style, then your own version",l:"Art history, technique, expression"},
+      {t:"Create a stop-motion animation with toys",l:"Patience, technology, storytelling, sequencing"},
+      {t:"Design and 'sell' artwork in a home gallery",l:"Creativity, presentation, confidence, money"}]
+  };
+  function gen(){
+    let key=g('interest').value;
+    if(key==='any')key=Object.keys(A)[Math.floor(Math.random()*Object.keys(A).length)];
+    const pool=A[key];
+    const p=pool[Math.floor(Math.random()*pool.length)];
+    g('idea').style.display='block';
+    g('idea').innerHTML='<div class="big">'+p.t+'</div><div class="learn">✦ Hidden learning: '+p.l+'</div>';
+  }
+</script>
+</body>
+</html>

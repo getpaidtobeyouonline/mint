@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Planning Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .count { text-align: center; margin-bottom: 12px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .grp { font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; margin: 12px 0 5px; }
+  .task { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; align-items: center; gap: 9px; font-size: .87rem; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .task.done .lb { text-decoration: line-through; opacity: .5; }
+  .task .x { margin-left: auto; cursor: pointer; opacity: .5; } .task .x:hover { opacity: 1; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Trip Planning Tool</h1>
+  <p class="sub">One home for your whole trip — destination, dates, countdown and every task to sort.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Destination</label><input id="dest" placeholder="Where to?" onchange="saveTrip()"></div>
+      <div><label>Departure date</label><input id="date" type="date" onchange="render()"></div>
+    </div>
+    <div class="count" style="margin-top:12px"><span class="n" id="days">—</span><div style="opacity:.7;font-size:.85rem" id="dlabel">set your departure date</div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div style="text-align:center;font-size:.85rem;opacity:.8" id="meta"></div>
+  </div>
+
+  <div class="panel">
+    <label>Add a planning task</label>
+    <div class="row">
+      <div style="flex:2"><input id="task" placeholder="e.g. Book accommodation" onkeydown="if(event.key==='Enter')add()"></div>
+      <div><select id="cat"><option>Before booking</option><option>Bookings</option><option>Documents</option><option>Pre-departure</option><option>Packing</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+    <div id="list" style="margin-top:10px"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const CATS=["Before booking","Bookings","Documents","Pre-departure","Packing"];
+  let R=JSON.parse(localStorage.getItem('tpt4')||'[]');
+  const save=()=>localStorage.setItem('tpt4',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  if(localStorage.getItem('tpt4_dest'))g('dest').value=localStorage.getItem('tpt4_dest');
+  if(localStorage.getItem('tpt4_date'))g('date').value=localStorage.getItem('tpt4_date');
+  function saveTrip(){ localStorage.setItem('tpt4_dest',g('dest').value); }
+  function add(){ if(!v('task')){ alert('Enter a task.'); return; }
+    R.push({t:v('task'),c:g('cat').value,done:false}); g('task').value=''; save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all tasks?')){ R=[]; save(); render(); } }
+  function render(){
+    if(g('date').value){
+      localStorage.setItem('tpt4_date',g('date').value);
+      const d=Math.ceil((new Date(g('date').value)-new Date().setHours(0,0,0,0))/86400000);
+      g('days').textContent= d>=0?d:'—';
+      const dest=g('dest').value.trim();
+      g('dlabel').textContent= d>1?'days until'+(dest?' '+dest:' you go'):d===1?'day to go!':d===0?'Today — safe travels!':'trip date has passed';
+    } else { g('days').textContent='—'; g('dlabel').textContent='set your departure date'; }
+    const done=R.filter(x=>x.done).length;
+    g('bar').style.width=(R.length?Math.round(done/R.length*100):0)+'%';
+    g('meta').textContent=R.length?(done+' / '+R.length+' tasks done'):'';
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div style="text-align:center;opacity:.5;font-size:.86rem;font-style:italic;padding:10px 0">No tasks added yet.</div>'; return; }
+    L.innerHTML=CATS.map(c=>{
+      const items=R.map((x,i)=>({x,i})).filter(o=>o.x.c===c);
+      if(!items.length)return '';
+      return '<div class="grp">'+c+'</div>'+items.map(({x,i})=>
+        '<div class="task'+(x.done?' done':'')+'"><span class="box'+(x.done?' on':'')+'" onclick="toggle('+i+')">'+(x.done?'✓':'')+'</span><span class="lb">'+esc(x.t)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

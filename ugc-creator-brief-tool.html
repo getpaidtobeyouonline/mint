@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UGC Creator Brief Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 48px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>UGC Creator Brief Tool</h1>
+  <p class="sub">Brands send vague briefs; creators guess. Build a tight UGC brief both sides can run with.</p>
+
+  <div class="panel">
+    <label for="brand">Brand & product</label>
+    <input id="brand" placeholder="e.g. Brightleaf — matcha starter kit">
+    <label for="goal">Goal of this content</label>
+    <select id="goal"><option>Sales / conversions</option><option>Awareness</option><option>Social proof / testimonial</option><option>Ad creative for paid</option></select>
+    <div class="grid">
+      <div><label for="format">Format</label><select id="format"><option>9:16 vertical video</option><option>Photo set</option><option>Unboxing video</option><option>Testimonial video</option></select></div>
+      <div><label for="count">How many deliverables</label><input id="count" type="number" min="1" value="2"></div>
+    </div>
+    <label for="hook">Hook angle</label>
+    <input id="hook" placeholder="e.g. 'I was sceptical about matcha until…'">
+    <label for="points">Key messages to land (one per line)</label>
+    <textarea id="points" placeholder="Benefit 1&#10;Benefit 2&#10;The offer / CTA"></textarea>
+    <label for="donts">Don'ts / brand no-gos</label>
+    <input id="donts" placeholder="e.g. no competitor mentions, no claims about health">
+    <button class="btn" onclick="gen()">Build Brief</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['brand','goal','format','count','hook','points','donts'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('ucb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('ucb_'+k,g(k).value)); });
+  function gen(){
+    if(!v('brand')){ alert('Add the brand & product.'); return; }
+    const pts=v('points').split('\n').map(s=>s.trim()).filter(Boolean);
+    const t=`UGC CREATIVE BRIEF
+
+Brand / product: ${v('brand')}
+Goal: ${g('goal').value}
+Format: ${g('format').value}  ·  Deliverables: ${v('count')||1}
+
+Hook (first 3 seconds): ${v('hook')||'[scroll-stopping opener]'}
+
+Key messages to land:
+${pts.length?pts.map((p,i)=>`  ${i+1}. ${p}`).join('\n'):'  1. [benefit]\n  2. [benefit]\n  3. [CTA / offer]'}
+
+Structure: Hook → relatable problem → product as the fix → proof/result → clear CTA.
+
+Tone: authentic, talking-to-a-friend, lightly imperfect (UGC, not an ad).
+
+Do NOT: ${v('donts')||'[brand no-gos]'}
+
+Deliver: raw + captioned versions, hook variations x2, no on-screen logos unless asked.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Brief copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

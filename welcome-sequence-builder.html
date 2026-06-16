@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome Sequence Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .em { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .em h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.02rem; }
+  .em .when { font-size: .78rem; opacity: .6; }
+  .em p { font-size: .9rem; margin-top: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Welcome Sequence Builder</h1>
+  <p class="sub">The first 5 emails decide if subscribers ever open you again. Build a proven welcome flow.</p>
+
+  <div class="panel">
+    <label for="who">Who just joined (audience)</label>
+    <input id="who" placeholder="e.g. new subscribers from my free guide">
+    <label for="freebie">What they signed up for</label>
+    <input id="freebie" placeholder="e.g. the 5-day pricing mini-course">
+    <label for="offer">Your eventual offer</label>
+    <input id="offer" placeholder="e.g. my $97 pricing toolkit">
+    <button class="btn" onclick="gen()">Build Welcome Sequence</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['who','freebie','offer'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('wsb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('wsb_'+k,g(k).value)); });
+  function gen(){
+    const fb=v('freebie')||'what you signed up for', off=v('offer')||'my offer';
+    const seq=[
+      ["Email 1 — Deliver + set expectations","Immediately",`Hand over <b>${esc(fb)}</b> fast (no fluff). Say who you are in 2 lines, what to expect & how often, and tell them to reply with their #1 struggle (boosts deliverability + gives you content).`],
+      ["Email 2 — Quick win","Day 1",`Give one tiny, usable result related to ${esc(fb)} they can apply in 5 minutes. Prove value before you ever ask for anything.`],
+      ["Email 3 — Your story / why","Day 2",`Share the relatable struggle behind why you do this. Builds the trust that makes future pitches land. End with a soft, single CTA.`],
+      ["Email 4 — Teach + position the offer","Day 4",`Teach the gap between where they are and where they want to be — and frame <b>${esc(off)}</b> as the bridge. Mention it, don't hard-sell yet.`],
+      ["Email 5 — The invitation","Day 6",`Make the offer clearly: who it's for, the outcome, and one reason to act now. One CTA, repeated. Then move them to your regular broadcasts.`]
+    ];
+    g('out').innerHTML=`<div class="panel" style="font-size:.88rem;opacity:.85">For <b>${esc(v('who')||'new subscribers')}</b>. Send while attention is highest — front-load value, earn the sale by email 5.</div>`+
+      seq.map(s=>`<div class="em"><h3>${s[0]}</h3><div class="when">${s[1]}</div><p>${s[2]}</p></div>`).join('');
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Sequence copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>
