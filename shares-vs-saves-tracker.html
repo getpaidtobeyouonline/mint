@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shares vs Saves Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .note { background:#2E4D2E; border:1px solid #4F8A55; border-radius:8px; padding:11px 14px; font-size:.86rem; margin-bottom:12px; }
+  .post { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .post .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .post .nm { font-weight: 500; }
+  .post .tag { font-size: .76rem; padding: 1px 8px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .post .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .post .x { cursor: pointer; opacity: .5; } .post .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Shares vs Saves Tracker</h1>
+  <p class="sub">Shares = reach. Saves = value. Track the ratio to know what kind of content you're really making.</p>
+
+  <div class="note">High <b>shares</b> → make it more emotional/relatable to ride reach. High <b>saves</b> → make it more practical/reference-worthy. The mix tells you your superpower.</div>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Post</label><input id="nm" placeholder="e.g. Carousel: 5 hooks"></div>
+      <div><label for="sh">Shares</label><input id="sh" type="number" min="0"></div>
+      <div><label for="sv">Saves</label><input id="sv" type="number" min="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let P=JSON.parse(localStorage.getItem('ssvt')||'[]');
+  const save=()=>localStorage.setItem('ssvt',JSON.stringify(P));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Name the post.');return;} P.push({nm,sh:nu('sh'),sv:nu('sv')}); ['nm','sh','sv'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ P.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ P=[]; save(); render(); } }
+  function tag(p){ const t=p.sh+p.sv; if(!t) return ['—','#BFD8BF']; const sr=p.sh/t; return sr>=0.65?['Reach-driver','#5AE57A']:sr<=0.35?['Save-magnet','#5AE57A']:['Balanced','#5AE57A']; }
+  function render(){
+    const L=g('list');
+    if(!P.length){ L.innerHTML='<div class="empty">No posts logged yet.</div>'; return; }
+    const tot=P.reduce((s,p)=>({sh:s.sh+p.sh,sv:s.sv+p.sv}),{sh:0,sv:0});
+    const lean=tot.sh+tot.sv?(tot.sh/(tot.sh+tot.sv)>=0.55?'Your content spreads more than it\'s saved — you\'re a reach creator. Add more save-worthy reference posts to deepen value.':tot.sv/(tot.sh+tot.sv)>=0.55?'Your content gets saved more than shared — you\'re a value creator. Add emotional/relatable angles to widen reach.':'Healthy share/save balance — keep this mix.'):'';
+    L.innerHTML=`<div class="note" style="background:#3C603C;border-color:#4C724C">Overall: ${tot.sh} shares · ${tot.sv} saves. ${lean}</div>`+
+      P.map((p,i)=>{ const [tg]=tag(p);
+      return `<div class="post"><div class="top"><span class="nm">${esc(p.nm)}</span><span class="tag">${tg}</span></div>
+        <div class="meta">🔁 ${p.sh} shares · 🔖 ${p.sv} saves <span class="x" onclick="del(${i})">✕</span></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

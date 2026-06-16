@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Single Tasking Timer</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 28px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 560px; margin: 0 auto 18px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 7px; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 12px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; }
+  .f-input:focus { border-color: #5AE57A; }
+  .err-msg { font-size: 0.78rem; color: #5AE57A; height: 16px; margin-top: 6px; }
+  .dur-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dur-chip { background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 6px 14px; border-radius: 16px; font-size: 0.8rem; cursor: pointer; transition: all 0.15s; }
+  .dur-chip.sel { border-color: #5AE57A; color: #5AE57A; background: #325132; }
+  .btn-commit { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem; cursor: pointer; margin-top: 6px; }
+  .btn-commit:hover { background: #5AE57A; }
+
+  /* Active view */
+  #activeView { max-width: 560px; margin: 0 auto; text-align: center; }
+  .active-label { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .active-task { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #FFFFFF; margin-bottom: 22px; line-height: 1.4; padding: 0 8px; }
+  .timer-big { font-family: 'Playfair Display', serif; font-size: 6rem; color: #5AE57A; line-height: 1; letter-spacing: -3px; margin-bottom: 10px; }
+  .prog-track { background: #325132; border-radius: 4px; height: 5px; max-width: 560px; margin: 0 auto 24px; overflow: hidden; }
+  .prog-fill { height: 100%; background: #5AE57A; border-radius: 4px; transition: width 1s linear; width: 0%; }
+  .dist-row { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 28px; }
+  .btn-dist { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 20px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; transition: all 0.15s; }
+  .btn-dist:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn-dist.flash { border-color: #5AE57A; color: #5AE57A; }
+  .dist-tally { font-size: 0.8rem; color: #5A845A; min-width: 80px; }
+  .action-row { display: flex; gap: 10px; justify-content: center; }
+  .btn-done { background: #5AE57A; color: #325132; border: none; padding: 12px 40px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-done:hover { background: #5AE57A; }
+  .btn-abandon { background: none; border: 1px solid #4C724C; color: #BFD8BF; padding: 11px 24px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; cursor: pointer; }
+  .btn-abandon:hover { border-color: #BFD8BF; color: #F0EBE0aa; }
+
+  /* Done view */
+  #doneView { max-width: 560px; margin: 0 auto; }
+  .done-icon { font-size: 2.4rem; text-align: center; margin-bottom: 10px; }
+  .done-task { font-family: 'Playfair Display', serif; font-size: 1.2rem; text-align: center; margin-bottom: 18px; color: #FFFFFF; }
+  .stat-trio { display: flex; gap: 10px; margin-bottom: 16px; }
+  .stat-box { flex: 1; background: #325132; border-radius: 10px; padding: 14px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .focus-label { font-size: 0.85rem; color: #F0EBE0aa; text-align: center; margin-bottom: 18px; }
+  .btn-next { width: 100%; background: #5AE57A; color: #325132; border: none; padding: 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-next:hover { background: #5AE57A; }
+
+  /* History */
+  .hist-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #325132; font-size: 0.83rem; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-check { flex-shrink: 0; font-size: 0.85rem; }
+  .hist-task { flex: 1; color: #F0EBE0aa; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .hist-mins { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.95rem; flex-shrink: 0; }
+  .hist-dist { font-size: 0.72rem; color: #5A845A; flex-shrink: 0; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 10px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<!-- Idle -->
+<div id="idleView">
+  <h1>Single Tasking Timer</h1>
+  <p class="subtitle">One task. All of you. No exceptions.</p>
+  <div class="card">
+    <div class="field-label" style="margin-bottom:8px">Right now, I am working on:</div>
+    <input class="f-input" id="taskInput" placeholder="Be specific — what exactly are you doing?" maxlength="80" />
+    <p class="err-msg" id="errMsg"></p>
+    <div class="field-label" style="margin-top:16px;margin-bottom:8px">I will work for:</div>
+    <div class="dur-row" id="durRow"></div>
+    <button class="btn-commit" style="margin-top:18px" onclick="startSession()">Commit &amp; Begin</button>
+  </div>
+</div>
+
+<!-- Active -->
+<div id="activeView" style="display:none">
+  <div class="active-label">Now working on</div>
+  <div class="active-task" id="activeTask"></div>
+  <div class="timer-big" id="timerDisplay">0:00</div>
+  <div class="prog-track" id="progTrack" style="display:none"><div class="prog-fill" id="progFill"></div></div>
+  <div class="dist-row">
+    <button class="btn-dist" id="distBtn" onclick="logDistraction()">Mind wandered</button>
+    <span class="dist-tally" id="distTally"></span>
+  </div>
+  <div class="action-row">
+    <button class="btn-done" onclick="completeSession()">✓ Task Done</button>
+    <button class="btn-abandon" onclick="abandonSession()">Abandon</button>
+  </div>
+</div>
+
+<!-- Done -->
+<div id="doneView" style="display:none">
+  <div class="card">
+    <div class="done-icon" id="doneIcon"></div>
+    <div class="done-task" id="doneTask"></div>
+    <div class="stat-trio">
+      <div class="stat-box"><div class="stat-n" id="doneTime">—</div><div class="stat-l">minutes focused</div></div>
+      <div class="stat-box"><div class="stat-n" id="doneDist">—</div><div class="stat-l">mind wanders</div></div>
+      <div class="stat-box"><div class="stat-n" id="doneFocus">—</div><div class="stat-l">focus rating</div></div>
+    </div>
+    <div class="focus-label" id="focusMsg"></div>
+    <button class="btn-next" onclick="resetAll()">Start Next Task</button>
+  </div>
+</div>
+
+<div class="card" id="histCard">
+  <div class="card-title">Today's Sessions</div>
+  <div id="histList"><p class="empty">No sessions yet today.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const DURS = [{label:'Open-ended',val:0},{label:'15m',val:15},{label:'25m',val:25},{label:'30m',val:30},{label:'45m',val:45},{label:'1h',val:60},{label:'90m',val:90}];
+const TODAY = new Date().toISOString().slice(0,10);
+let sessions = JSON.parse(localStorage.getItem('stt_'+TODAY)||'[]');
+let selDur=0, taskText='', startTs=null, elapsed=0, timerInt=null, distractions=0;
+
+document.getElementById('durRow').innerHTML = DURS.map(d=>
+  `<div class="dur-chip${d.val===0?' sel':''}" id="dc-${d.val}" onclick="pickDur(${d.val})">${d.label}</div>`).join('');
+
+function pickDur(v) {
+  selDur=v;
+  DURS.forEach(d=>document.getElementById('dc-'+d.val).classList.toggle('sel',d.val===v));
+}
+
+function fmtSecs(s) {
+  const m=Math.floor(s/60), sec=s%60;
+  return m+':'+String(sec).padStart(2,'0');
+}
+
+function show(id) {
+  ['idleView','activeView','doneView'].forEach(v=>document.getElementById(v).style.display=v===id?'block':'none');
+}
+
+function startSession() {
+  taskText=document.getElementById('taskInput').value.trim();
+  if(!taskText){ document.getElementById('errMsg').textContent='Please enter what you are working on.'; return; }
+  document.getElementById('errMsg').textContent='';
+  distractions=0; elapsed=0; startTs=Date.now();
+  document.getElementById('activeTask').textContent=taskText;
+  document.getElementById('distTally').textContent='';
+  document.getElementById('progTrack').style.display=selDur?'block':'none';
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('timerDisplay').textContent='0:00';
+  show('activeView');
+  timerInt=setInterval(tick,1000);
+}
+
+function tick() {
+  elapsed=Math.floor((Date.now()-startTs)/1000);
+  if(selDur){
+    const rem=Math.max(0,selDur*60-elapsed);
+    document.getElementById('timerDisplay').textContent=fmtSecs(rem);
+    document.getElementById('progFill').style.width=(Math.min(1,elapsed/(selDur*60))*100)+'%';
+    if(rem===0) completeSession();
+  } else {
+    document.getElementById('timerDisplay').textContent=fmtSecs(elapsed);
+  }
+}
+
+function logDistraction() {
+  distractions++;
+  const tally=document.getElementById('distTally');
+  tally.textContent=distractions+(distractions===1?' wander':' wanders');
+  const btn=document.getElementById('distBtn');
+  btn.classList.add('flash');
+  setTimeout(()=>btn.classList.remove('flash'),600);
+}
+
+function endSession(done) {
+  clearInterval(timerInt);
+  const mins=Math.max(1,Math.round(elapsed/60));
+  const entry={task:taskText,mins,distractions,done,ts:Date.now()};
+  sessions.push(entry); sessions=sessions.slice(-20);
+  localStorage.setItem('stt_'+TODAY,JSON.stringify(sessions));
+  showDone(entry);
+  renderHistory();
+}
+
+function completeSession() { endSession(true); }
+function abandonSession() { endSession(false); }
+
+function focusRating(mins, dist) {
+  if(dist===0) return {r:'S',msg:'Flawless session. Pure single-tasking.'};
+  const rate=dist/Math.max(1,mins);
+  if(rate<0.1) return {r:'A',msg:'Excellent focus with minimal drift.'};
+  if(rate<0.2) return {r:'B',msg:'Solid session. A few wandering moments.'};
+  if(rate<0.4) return {r:'C',msg:'Moderate focus. Your attention needed some reeling in.'};
+  return {r:'D',msg:'Scattered session — try removing your biggest distraction trigger first.'};
+}
+
+function showDone(e) {
+  show('doneView');
+  document.getElementById('doneIcon').textContent=e.done?'✅':'🚩';
+  document.getElementById('doneTask').textContent=e.task;
+  document.getElementById('doneTime').textContent=e.mins;
+  document.getElementById('doneDist').textContent=e.distractions;
+  const fr=focusRating(e.mins,e.distractions);
+  document.getElementById('doneFocus').textContent=fr.r;
+  document.getElementById('focusMsg').textContent=fr.msg;
+}
+
+function resetAll() {
+  show('idleView');
+  document.getElementById('taskInput').value='';
+  document.getElementById('errMsg').textContent='';
+  pickDur(0);
+}
+
+function renderHistory() {
+  const el=document.getElementById('histList');
+  if(!sessions.length){el.innerHTML='<p class="empty">No sessions yet today.</p>';return;}
+  el.innerHTML=[...sessions].reverse().map(e=>`
+    <div class="hist-item">
+      <span class="hist-check">${e.done?'✅':'🚩'}</span>
+      <span class="hist-task">${e.task}</span>
+      <span class="hist-dist">${e.distractions?e.distractions+'↯':''}</span>
+      <span class="hist-mins">${e.mins}m</span>
+    </div>`).join('');
+}
+
+document.getElementById('taskInput').addEventListener('keydown',e=>{if(e.key==='Enter')startSession();});
+renderHistory();
+</script>
+</body>
+</html>

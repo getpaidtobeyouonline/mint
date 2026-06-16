@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smoothie Recipe Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 580px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .recipe { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 18px; margin-top: 16px; display: none; text-align: left; }
+  .recipe h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.2rem; margin-bottom: 8px; }
+  .recipe li { font-size: .9rem; margin-left: 16px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Smoothie Recipe Generator</h1>
+  <p class="sub">A balanced smoothie every time — pick your goal and get a recipe.</p>
+
+  <div class="panel">
+    <label for="goal">What do you want from it?</label>
+    <select id="goal">
+      <option value="energy">Morning energy</option>
+      <option value="green">Get more greens</option>
+      <option value="protein">Protein boost</option>
+      <option value="recovery">Post-workout recovery</option>
+      <option value="treat">A healthy treat</option>
+    </select>
+    <button class="btn" onclick="gen()">Blend Me a Recipe</button>
+  </div>
+
+  <div class="recipe" id="recipe"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const BASE={liquid:["Milk or plant milk","Coconut water","Water","Cold green tea"],
+    creamy:["Frozen banana","Greek yogurt","Avocado","Oats"]};
+  const G={
+    energy:{name:"Morning Energy Smoothie",extra:["Banana","Handful of berries","1 tbsp nut butter","Pinch of cinnamon","Optional: shot of espresso"]},
+    green:{name:"Green Goodness Smoothie",extra:["Big handful of spinach or kale","Half a green apple","Cucumber chunk","Squeeze of lemon","Fresh mint"]},
+    protein:{name:"Protein Power Smoothie",extra:["Scoop of protein powder or Greek yogurt","Banana","2 tbsp oats","1 tbsp peanut butter","Cocoa powder"]},
+    recovery:{name:"Post-Workout Recovery Smoothie",extra:["Banana (carbs to refuel)","Protein source","Handful of berries","Spinach","Chia or flax seeds"]},
+    treat:{name:"Healthy Treat Smoothie",extra:["Frozen banana","1 tbsp cocoa powder","Pitted date for sweetness","1 tbsp nut butter","Pinch of sea salt"]}
+  };
+  function gen(){
+    const goal=g('goal').value, r=G[goal];
+    const liquid=BASE.liquid[Math.floor(Math.random()*BASE.liquid.length)];
+    const creamy=BASE.creamy[Math.floor(Math.random()*BASE.creamy.length)];
+    g('recipe').style.display='block';
+    g('recipe').innerHTML='<h3>'+r.name+'</h3><ul><li>Base: '+liquid+'</li><li>For body: '+creamy+'</li>'+
+      r.extra.map(x=>'<li>'+x+'</li>').join('')+'</ul>'+
+      '<p style="font-size:.86rem;opacity:.75;margin-top:10px">Blend with ice until smooth. Adjust liquid for the thickness you like.</p>';
+  }
+</script>
+</body>
+</html>

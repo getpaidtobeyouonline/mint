@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasonal Home Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; font-size: .82rem; cursor: pointer; }
+  .tab.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .count { text-align: center; margin-bottom: 10px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 11px; overflow: hidden; margin: 6px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .88rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .item.done .lb { text-decoration: line-through; opacity: .5; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Seasonal Home Checklist</h1>
+  <p class="sub">The home jobs each season needs — keep your home in good shape all year.</p>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab on" data-s="Spring" onclick="tab('Spring')">Spring</div>
+      <div class="tab" data-s="Summer" onclick="tab('Summer')">Summer</div>
+      <div class="tab" data-s="Autumn" onclick="tab('Autumn')">Autumn</div>
+      <div class="tab" data-s="Winter" onclick="tab('Winter')">Winter</div>
+    </div>
+    <div class="count"><span class="n" id="pct">0%</span><div style="opacity:.7;font-size:.82rem" id="slabel"></div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const SEASONS={
+    Spring:["Deep clean the whole home","Service air-con / cooling before summer","Clean windows inside &amp; out","Check the garden &amp; outdoor furniture","Clear gutters of winter debris","Test smoke &amp; CO alarms"],
+    Summer:["Check garden watering &amp; plants","Clean the BBQ / outdoor cooking area","Service or clean fans","Check window screens &amp; seals","Pest-proof entry points","Tidy outdoor spaces"],
+    Autumn:["Clear gutters of leaves","Service the heating before winter","Bleed radiators","Check insulation &amp; draughts","Store away garden furniture","Check the roof for loose tiles"],
+    Winter:["Protect pipes from freezing","Stock up on winter essentials","Test heating &amp; have spare blankets","Check exterior lighting works","Keep paths grit-ready","Reverse ceiling fans (if applicable)"]
+  };
+  let state=JSON.parse(localStorage.getItem('shc')||'{}');
+  let current='Spring';
+  const save=()=>localStorage.setItem('shc',JSON.stringify(state));
+  function tab(s){ current=s; document.querySelectorAll('.tab').forEach(t=>t.className='tab'+(t.dataset.s===s?' on':'')); render(); }
+  function toggle(k){ state[k]=!state[k]; save(); render(); }
+  function render(){
+    const items=SEASONS[current];
+    let html='', done=0;
+    items.forEach(it=>{ const k=current+'|'+it; const on=!!state[k]; if(on)done++;
+      html+='<div class="item'+(on?' done':'')+'" onclick="toggle(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(on?' on':'')+'">'+(on?'✓':'')+'</span><span class="lb">'+it+'</span></div>';
+    });
+    g('list').innerHTML=html;
+    const pct=Math.round(done/items.length*100);
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+    g('slabel').textContent=current+' jobs done';
+  }
+  render();
+</script>
+</body>
+</html>

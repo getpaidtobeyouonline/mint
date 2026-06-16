@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media ROI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 5px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .note { font-size: .85rem; opacity: .78; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Social Media ROI Calculator</h1>
+  <p class="sub">Is social actually paying you back? Put a number on time + spend vs. what it returns.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="hrs">Hours/week on social</label><input id="hrs" type="number" min="0" value="10" oninput="calc()"></div>
+      <div><label for="rate">Your time worth ($/hr)</label><input id="rate" type="number" min="0" value="40" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="spend">Tools/ads spend ($/mo)</label><input id="spend" type="number" min="0" value="50" oninput="calc()"></div>
+      <div><label for="rev">Revenue from social ($/mo)</label><input id="rev" type="number" min="0" value="1200" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="roi">0%</div>
+    <div class="vd" id="vd">monthly ROI</div>
+    <div class="stats">
+      <div class="stat"><div class="v" id="cost">$0</div><div class="l">True cost/mo</div></div>
+      <div class="stat"><div class="v" id="profit">$0</div><div class="l">Net/mo</div></div>
+      <div class="stat"><div class="v" id="hrval">$0</div><div class="l">$/hour earned</div></div>
+    </div>
+    <div class="note" id="note"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['hrs','rate','spend','rev'].forEach(k=>{ const s=localStorage.getItem('smrc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['hrs','rate','spend','rev'].forEach(k=>localStorage.setItem('smrc_'+k,g(k).value));
+    const timeCost=n('hrs')*4.33*n('rate');
+    const cost=timeCost+n('spend');
+    const rev=n('rev');
+    const net=rev-cost;
+    const roi=cost>0?net/cost*100:(rev>0?Infinity:0);
+    const perHr=n('hrs')>0?rev/(n('hrs')*4.33):0;
+    g('cost').textContent='$'+Math.round(cost).toLocaleString();
+    g('profit').textContent=(net<0?'-$':'$')+Math.abs(Math.round(net)).toLocaleString();
+    g('hrval').textContent='$'+Math.round(perHr).toLocaleString();
+    g('roi').textContent=roi===Infinity?'∞':Math.round(roi)+'%';
+    let vd,note;
+    if(net<=0){ vd='Losing money'; note='Right now social costs more (mostly your time) than it returns. Either cut hours, raise your conversion path, or treat it as brand-building with a deadline to turn profitable.'; }
+    else if(roi<50){ vd='Marginal'; note='It pays, barely. The fix is rarely "post more" — it\'s a clearer path from follower to buyer. Tighten that before adding hours.'; }
+    else if(roi<200){ vd='Solid return'; note='Social is genuinely working. Protect the inputs that drive it and consider buying back some of those hours.'; }
+    else { vd='Excellent'; note='Strong ROI. Reinvest: systemise content and double the highest-converting activity.'; }
+    g('vd').textContent=vd; g('note').textContent=note;
+  }
+  calc();
+</script>
+</body>
+</html>

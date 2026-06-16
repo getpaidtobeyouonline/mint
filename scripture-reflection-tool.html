@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scripture Reflection Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 54px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Scripture Reflection Tool</h1>
+  <p class="sub">Slow down with a passage — observe, understand, apply and pray.</p>
+
+  <div class="panel">
+    <label for="ref">Passage reference</label>
+    <input id="ref" placeholder="e.g. Psalm 23, John 1:1-5">
+    <label for="text">The passage (write it out)</label>
+    <textarea id="text" placeholder="Copying it by hand helps it land"></textarea>
+    <label for="observe">What stands out to you</label>
+    <textarea id="observe" placeholder="A word, phrase or image that catches your attention"></textarea>
+    <label for="mean">What it means / what it is saying</label>
+    <textarea id="mean" placeholder="Sit with the meaning"></textarea>
+    <label for="apply">How it speaks to your life right now</label>
+    <textarea id="apply" placeholder="One honest, specific application"></textarea>
+    <button class="btn" onclick="gen()">Build Reflection</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['ref','text','observe','mean','apply'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('scrt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('scrt_'+k,g(k).value)); });
+  function gen(){
+    const t='SCRIPTURE REFLECTION\n\nPASSAGE: '+(v('ref')||'[reference]')+
+    '\n\n'+(v('text')||'[the passage]')+
+    '\n\n1. OBSERVE — what stands out\n'+(v('observe')||'[the word or image that caught you]')+
+    '\n\n2. UNDERSTAND — what it means\n'+(v('mean')||'[the meaning you sense]')+
+    '\n\n3. APPLY — how it speaks to me now\n'+(v('apply')||'[one honest application]')+
+    '\n\n4. PRAY — a response\n[Turn your reflection into a short, honest prayer.]\n\n--- A gentle practice ---\nRead the passage slowly two or three times. Let one phrase choose you.\nReflection is not study — it is listening. Sit longer than feels comfortable.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

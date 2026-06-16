@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storage Solution Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; margin-bottom: 6px; }
+  .card.done { border-left: 3px solid #5AE57A; }
+  .card .top { display: flex; justify-content: space-between; gap: 10px; }
+  .card .pl { color: #5AE57A; font-weight: 500; }
+  .card .m { font-size: .8rem; opacity: .65; }
+  .card .ic { cursor: pointer; opacity: .6; flex: none; } .card .ic:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Storage Solution Planner</h1>
+  <p class="sub">Identify the trouble spots and plan a storage fix for each — before you buy anything.</p>
+
+  <div class="panel">
+    <label>The problem area</label>
+    <input id="area" placeholder="e.g. Hallway — coats and shoes everywhere">
+    <label>What needs storing there</label>
+    <input id="items" placeholder="e.g. 6 coats, shoes, bags, keys">
+    <div class="row">
+      <div><label>Storage idea</label><input id="idea" placeholder="e.g. Wall hooks + shoe bench"></div>
+      <div><label>Est. cost</label><input id="cost" placeholder="Optional"></div>
+    </div>
+    <button class="btn" onclick="add()">+ Add Storage Plan</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('ssp3')||'[]');
+  const save=()=>localStorage.setItem('ssp3',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('area')){ alert('Enter the problem area.'); return; }
+    R.push({a:v('area'),i:v('items'),idea:v('idea'),c:v('cost'),done:false}); ['area','items','idea','cost'].forEach(k=>g(k).value=''); save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all plans?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No storage plans yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>'<div class="card'+(x.done?' done':'')+'"><div class="top"><div><div class="pl">'+esc(x.a)+(x.done?' ✓':'')+'</div><div class="m">'+(x.i?'Store: '+esc(x.i):'')+(x.idea?'<br>Fix: '+esc(x.idea):'')+(x.c?' · ~'+esc(x.c):'')+'</div></div><div style="display:flex;gap:8px"><span class="ic" onclick="toggle('+i+')">'+(x.done?'↩':'✓')+'</span><span class="ic" onclick="del('+i+')">✕</span></div></div></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

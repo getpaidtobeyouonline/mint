@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engagement Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 120px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 6px; }
+  .res .d { font-size: .88rem; opacity: .78; margin-top: 4px; }
+  .bench { font-size: .84rem; opacity: .75; margin-top: 12px; text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 11px 14px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Engagement Rate Calculator</h1>
+  <p class="sub">Calculate your true engagement rate and see how it stacks up against the benchmark for your platform.</p>
+
+  <div class="panel">
+    <label for="plat">Platform</label>
+    <select id="plat" onchange="calc()">
+      <option value="ig">Instagram</option><option value="tiktok">TikTok</option>
+      <option value="x">X / Twitter</option><option value="li">LinkedIn</option>
+      <option value="yt">YouTube</option><option value="fb">Facebook</option>
+    </select>
+    <label for="base">Calculate against</label>
+    <select id="base" onchange="calc()"><option value="foll">Followers</option><option value="reach">Reach / views</option></select>
+    <div class="grid">
+      <div><label for="aud" id="audL">Followers</label><input id="aud" type="number" min="1" value="5000" oninput="calc()"></div>
+      <div><label for="posts">Posts measured</label><input id="posts" type="number" min="1" value="1" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="likes">Total likes</label><input id="likes" type="number" min="0" value="250" oninput="calc()"></div>
+      <div><label for="comments">Total comments</label><input id="comments" type="number" min="0" value="30" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="shares">Total shares</label><input id="shares" type="number" min="0" value="15" oninput="calc()"></div>
+      <div><label for="saves">Total saves</label><input id="saves" type="number" min="0" value="40" oninput="calc()"></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="rate">0%</div>
+    <div class="vd" id="verdict">—</div>
+    <div class="d" id="detail"></div>
+    <div class="bench" id="bench"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  // good engagement-rate benchmark midpoints (% by followers)
+  const BM = { ig:1.5, tiktok:5, x:0.5, li:2, yt:2, fb:0.5 };
+  const NM = { ig:'Instagram', tiktok:'TikTok', x:'X / Twitter', li:'LinkedIn', yt:'YouTube', fb:'Facebook' };
+  ['plat','base','aud','posts','likes','comments','shares','saves'].forEach(k=>{ const s=localStorage.getItem('serc_'+k); if(s!==null)g(k).value=s; });
+
+  function calc() {
+    ['plat','base','aud','posts','likes','comments','shares','saves'].forEach(k=>localStorage.setItem('serc_'+k,g(k).value));
+    g('audL').textContent = g('base').value==='foll' ? 'Followers' : 'Avg reach / views';
+    const eng = n('likes')+n('comments')+n('shares')+n('saves');
+    const denom = n('aud') * Math.max(1,n('posts'));
+    const rate = denom>0 ? eng/denom*100 : 0;
+    g('rate').textContent = rate.toFixed(2)+'%';
+    g('detail').textContent = `${eng.toLocaleString()} interactions ÷ (${n('aud').toLocaleString()} × ${Math.max(1,n('posts'))} posts)`;
+    const bm = BM[g('plat').value];
+    let vd, col;
+    if (rate >= bm*2) { vd='Outstanding 🔥'; }
+    else if (rate >= bm) { vd='Above average ✅'; }
+    else if (rate >= bm*0.5) { vd='Around average'; }
+    else { vd='Below average ⚠'; }
+    g('verdict').textContent = vd;
+    g('bench').innerHTML = `On <b>${NM[g('plat').value]}</b>, a solid engagement rate is around <b>${bm}%</b> (by followers). `+
+      (rate>=bm ? 'You\'re beating it — keep doing what works and double down on your best format.'
+               : 'You\'re under it — tighter hooks, stronger CTAs, and replying to every comment fast will lift this.');
+  }
+  calc();
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>School Holiday Activity Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>School Holiday Activity Tool</h1>
+  <p class="sub">Plan a holiday week with a mix of big days out, slow days and quiet recovery.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="length">Length of holiday</label><input id="length" placeholder="e.g. 1 week, 2 weeks"></div>
+      <div><label for="budget">Rough budget</label><input id="budget" placeholder="e.g. low cost / a couple of treats"></div>
+    </div>
+    <label for="big">Big day-outs you want to do</label>
+    <textarea id="big" placeholder="The day trips you have your eye on"></textarea>
+    <label for="local">Local low-cost ideas</label>
+    <textarea id="local" placeholder="Parks, library, free events, friend playdates"></textarea>
+    <label for="quiet">Quiet / home days</label>
+    <textarea id="quiet" placeholder="Craft, baking, films — the slow days everyone needs"></textarea>
+    <label for="learning">A little learning</label>
+    <input id="learning" placeholder="A book to finish, a skill to try, a project">
+    <button class="btn" onclick="gen()">Build Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['length','budget','big','local','quiet','learning'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('shat_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('shat_'+k,g(k).value)); });
+  function gen(){
+    const t='SCHOOL HOLIDAY PLAN'+(v('length')?'  ·  '+v('length'):'')+(v('budget')?'  ·  '+v('budget'):'')+
+    '\n\nBIG DAYS OUT:\n'+(v('big')||'[your bucket-list outings]')+
+    '\n\nLOCAL & LOW-COST:\n'+(v('local')||'[parks, library, friends]')+
+    '\n\nQUIET HOME DAYS:\n'+(v('quiet')||'[the recovery and slow days]')+
+    (v('learning')?'\n\nA LITTLE LEARNING:\n'+v('learning'):'')+
+    '\n\n--- Holiday rhythm tips ---\nFor each "big day", pair it with a quieter recovery day after.\nA few open windows of unscheduled time let the best moments happen.\nMake the kids part of the planning — pick one outing each.\nPack snacks, water and patience. In that order.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

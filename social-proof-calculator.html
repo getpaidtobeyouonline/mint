@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Proof Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 6px; }
+  .res .d { font-size: .9rem; opacity: .78; margin-top: 6px; }
+  .lines { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .9rem; }
+  .lines b { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Social Proof Calculator</h1>
+  <p class="sub">Turn your raw numbers into credibility statements that actually convert on your profile.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="clients">People helped / customers</label><input id="clients" type="number" min="0" value="120" oninput="calc()"></div>
+      <div><label for="years">Years doing this</label><input id="years" type="number" min="0" value="3" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="results">Testimonials / 5★ reviews</label><input id="results" type="number" min="0" value="40" oninput="calc()"></div>
+      <div><label for="reach">Total audience / reach</label><input id="reach" type="number" min="0" value="8000" oninput="calc()"></div>
+    </div>
+    <label for="big">Your single biggest result (number + outcome)</label>
+    <input id="big" placeholder="e.g. helped a client hit $10k months" oninput="calc()">
+  </div>
+
+  <div class="res">
+    <div class="n" id="score">0</div>
+    <div class="vd" id="vd">Social proof strength</div>
+    <div class="d" id="d"></div>
+    <div class="lines" id="lines"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0, v=id=>g(id).value.trim();
+  ['clients','years','results','reach','big'].forEach(k=>{ const s=localStorage.getItem('spc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['clients','years','results','reach','big'].forEach(k=>localStorage.setItem('spc_'+k,g(k).value));
+    let s=0;
+    s+=Math.min(30, n('clients')/10);
+    s+=Math.min(15, n('years')*4);
+    s+=Math.min(30, n('results')/2);
+    s+=Math.min(15, n('reach')/1000);
+    s+=v('big')?10:0;
+    const score=Math.round(Math.min(100,s));
+    g('score').textContent=score;
+    g('vd').textContent= score>=75?'Strong — lead with this':score>=50?'Decent — sharpen it':score>=25?'Thin — build & display more':'Minimal — borrow proof for now';
+    g('d').textContent= score>=50?'Put these front and centre in your bio and pinned post.':'Use specific numbers you do have, plus a client story or screenshot — one strong proof beats five vague ones.';
+    const lines=[];
+    if(n('clients')) lines.push(`Trusted by <b>${n('clients').toLocaleString()}+</b> ${n('clients')==1?'client':'people'}`);
+    if(n('results')) lines.push(`<b>${n('results')}</b> 5★ results & counting`);
+    if(n('years')) lines.push(`<b>${n('years')}</b> year${n('years')==1?'':'s'} in the trenches`);
+    if(n('reach')) lines.push(`Read by a <b>${n('reach').toLocaleString()}+</b> community`);
+    if(v('big')) lines.push(`Most proud of: <b>${esc(v('big'))}</b>`);
+    g('lines').innerHTML = lines.length?('Copy-ready proof lines:<br>• '+lines.join('<br>• ')):'Enter your numbers to generate proof lines.';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  calc();
+</script>
+</body>
+</html>

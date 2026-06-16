@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subject Line Tester</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; margin-bottom: 14px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .res .vd { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; margin-top: 4px; }
+  .res .pv { font-size: .85rem; opacity: .7; margin-top: 8px; word-break: break-word; }
+  .chk { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: .9rem; display: flex; gap: 10px; }
+  .chk .i { flex: none; } .ok { color: #5AE57A; } .no { color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Subject Line Tester</h1>
+  <p class="sub">Score your subject line on the things that actually drive opens — before you hit send.</p>
+
+  <div class="panel">
+    <label for="sl">Your subject line</label>
+    <input id="sl" placeholder="Type or paste a subject line…" oninput="calc()" autocomplete="off">
+  </div>
+
+  <div class="res">
+    <div class="n" id="score">0</div>
+    <div class="vd" id="vd">subject score</div>
+    <div class="pv" id="pv"></div>
+  </div>
+
+  <div id="checks"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  g('sl').value=localStorage.getItem('slt')||'';
+  const SPAM=/\b(free|guarantee|act now|limited time|cash|winner|click here|buy now|cheap|urgent|congratulations|risk-free|100%)\b/i;
+  function calc(){
+    const s=g('sl').value; localStorage.setItem('slt',s);
+    const len=s.length, words=s.trim()?s.trim().split(/\s+/).length:0;
+    const checks=[
+      ["Length 30–55 chars (mobile-friendly)", len>=30&&len<=55, `Currently ${len} chars. Aim 30–55 — long subjects truncate on phones.`],
+      ["Concise (4–9 words)", words>=3&&words<=9, `${words} words. Short subjects feel personal and get opened.`],
+      ["Has curiosity, number, or specificity", /\d/.test(s)||/\b(how|why|what|the one|secret|mistake|stop|never|now)\b/i.test(s), "Add a number, a 'how/why', or a specific promise."],
+      ["No spammy words", !SPAM.test(s), "Spam-trigger words hurt deliverability and trust."],
+      ["Not ALL CAPS / no excessive !!!", !(s===s.toUpperCase()&&/[A-Z]/.test(s)) && (s.match(/!/g)||[]).length<=1, "Caps and multiple ! read as spam."],
+      ["Front-loads the value", words>0 && !/^(hi|hey|hello|just|quick|update)/i.test(s.trim()), "Lead with the hook, not a filler greeting."],
+      ["Feels human, not corporate", !/\b(newsletter|edition|vol\.?|issue #|weekly digest)\b/i.test(s), "Generic labels kill opens — make it sound like a person."]
+    ];
+    let pass=0; checks.forEach(c=>c[1]&&pass++);
+    const score=s.trim()?Math.round(pass/checks.length*100):0;
+    g('score').textContent=score;
+    g('vd').textContent= !s.trim()?'type a subject line':score>=85?'Strong — send it 🔥':score>=60?'Decent — tighten it':score>=35?'Weak — rework it':'Poor — start over';
+    g('pv').innerHTML= s.trim()?`Inbox preview: <b style="color:#FFFFFF">${esc(s).slice(0,60)}${s.length>60?'…':''}</b>`:'';
+    g('checks').innerHTML=checks.map(c=>`<div class="chk"><span class="i ${c[1]?'ok':'no'}">${c[1]?'✓':'✗'}</span><div><b>${c[0]}</b>${c[1]?'':`<br><span style="opacity:.65;font-size:.85rem">${c[2]}</span>`}</div></div>`).join('');
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  calc();
+</script>
+</body>
+</html>

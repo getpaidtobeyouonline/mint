@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasonal Content Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .plan {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .plan.show { display: block; }
+  .section { margin-bottom: 22px; }
+  .section:last-child { margin-bottom: 0; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #5AE57A;
+    margin-bottom: 10px;
+  }
+  .theme {
+    background: rgba(201, 168, 76, 0.1);
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .entry {
+    background: rgba(240, 235, 224, 0.04);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .entry-head {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .entry-date {
+    color: #5AE57A;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 500;
+  }
+  .entry-tag {
+    font-size: 0.72rem;
+    background: rgba(201, 168, 76, 0.2);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .entry-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.08rem;
+    margin-bottom: 6px;
+  }
+  .entry-hook { font-size: 0.92rem; opacity: 0.85; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Seasonal Content Calendar</h1>
+  <p class="subtitle">Stop scrambling for seasonal post ideas the night before. Get a dated calendar of hooks tied to real seasonal moments and your niche.</p>
+
+  <label for="niche">Your Niche or Product</label>
+  <input type="text" id="niche" placeholder="e.g. handmade candles, freelance design, sourdough courses" />
+
+  <label for="audience">Your Audience</label>
+  <input type="text" id="audience" placeholder="e.g. busy women who want a slower home" />
+
+  <div class="grid">
+    <div>
+      <label for="season">Season</label>
+      <select id="season">
+        <option value="spring">Spring (Mar-May)</option>
+        <option value="summer">Summer (Jun-Aug)</option>
+        <option value="fall">Fall (Sep-Nov)</option>
+        <option value="winter">Winter (Dec-Feb)</option>
+      </select>
+    </div>
+    <div>
+      <label for="year">Year</label>
+      <input type="number" id="year" value="2026" min="2024" max="2030" />
+    </div>
+  </div>
+
+  <label for="pieces">How Many Posts To Plan</label>
+  <select id="pieces">
+    <option>6</option><option selected>10</option><option>15</option><option>20</option>
+  </select>
+
+  <button class="build-btn" id="buildBtn">Build My Calendar</button>
+
+  <div class="plan" id="plan">
+    <div class="section">
+      <div class="section-title">Seasonal Theme</div>
+      <div class="theme" id="theme"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Calendar</div>
+      <div id="entries"></div>
+    </div>
+    <div class="section">
+      <div class="section-title">Seasonal CTAs To Rotate</div>
+      <div id="ctas"></div>
+    </div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Calendar</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const seasons = {
+    spring: {
+      theme: "Renewal, fresh starts, growth, lightness. Audiences are emerging from winter — they want to feel hopeful and capable.",
+      months: [2, 3, 4], monthNames: ['March','April','May'],
+      dates: [
+        { m: 2, d: 8, label: "International Women's Day", angle: "spotlight a customer/woman who inspires you" },
+        { m: 2, d: 17, label: "St. Patrick's Day", angle: "lucky finds / things you swear by" },
+        { m: 2, d: 20, label: "First day of spring", angle: "what you're letting go of / refreshing" },
+        { m: 3, d: 1, label: "April fresh start", angle: "a 30-day challenge or reset" },
+        { m: 3, d: 22, label: "Earth Day", angle: "sustainable choices in your craft / business" },
+        { m: 4, d: 1, label: "May begins", angle: "what's blooming for you this month" },
+        { m: 4, d: 11, label: "Mother's Day (US)", angle: "gift guide / story about a mother figure" },
+        { m: 4, d: 25, label: "Memorial Day weekend", angle: "long weekend product push / rest" }
+      ],
+      angles: ['fresh-start','planting','spring-cleaning','renewal','outdoor-light','garden-metaphor']
+    },
+    summer: {
+      theme: "Slow living, long days, indulgence, travel. Audiences want permission to rest or excitement to plan.",
+      months: [5, 6, 7], monthNames: ['June','July','August'],
+      dates: [
+        { m: 5, d: 1, label: "June begins", angle: "kickoff a summer challenge or series" },
+        { m: 5, d: 15, label: "Father's Day (US) weekend", angle: "gift guide / story about a father figure" },
+        { m: 5, d: 21, label: "First day of summer", angle: "your summer non-negotiables" },
+        { m: 6, d: 4, label: "July 4th (US)", angle: "independence theme — what you've broken free from" },
+        { m: 6, d: 15, label: "Mid-summer reset", angle: "what's working / what you're scrapping" },
+        { m: 6, d: 30, label: "End of July", angle: "behind the scenes of your slowest month" },
+        { m: 7, d: 8, label: "Back-to-school countdown", angle: "tools for the next chapter / planner push" },
+        { m: 7, d: 26, label: "Last week of August", angle: "fall preview / pre-launch tease" }
+      ],
+      angles: ['slow-living','sun-soaked','travel','indulgence','reset','permission-to-rest']
+    },
+    fall: {
+      theme: "Cozy, focused, intentional. Audiences are nesting and getting serious again — strongest buying season for digital products.",
+      months: [8, 9, 10], monthNames: ['September','October','November'],
+      dates: [
+        { m: 8, d: 1, label: "September begins", angle: "fresh notebook energy — new habits/systems" },
+        { m: 8, d: 22, label: "First day of fall", angle: "what you're slowing down for" },
+        { m: 9, d: 1, label: "October begins", angle: "Q4 push — what's left this year" },
+        { m: 9, d: 15, label: "Halloween prep", angle: "things that scare you about your business — and how you face them" },
+        { m: 9, d: 31, label: "Halloween", angle: "the 'monster' in your industry / a cheeky hot take" },
+        { m: 10, d: 11, label: "Veterans Day weekend", angle: "honor a mentor / a long-form thank you post" },
+        { m: 10, d: 25, label: "Thanksgiving (US)", angle: "gratitude post + customer spotlight" },
+        { m: 10, d: 28, label: "Black Friday", angle: "your best offer of the year" },
+        { m: 10, d: 30, label: "Cyber Monday", angle: "last-call push + objection-killer" }
+      ],
+      angles: ['cozy','intentional','q4-push','gratitude','launch','black-friday']
+    },
+    winter: {
+      theme: "Reflection, ritual, planning, generosity. Audiences are both reflective and forward-looking.",
+      months: [11, 0, 1], monthNames: ['December','January','February'],
+      dates: [
+        { m: 11, d: 1, label: "December begins", angle: "year-end recap / behind the scenes of your year" },
+        { m: 11, d: 12, label: "Holiday gift guide week", angle: "curated gift list featuring your product" },
+        { m: 11, d: 21, label: "Winter solstice", angle: "what you're letting go of from this year" },
+        { m: 11, d: 25, label: "Christmas", angle: "personal/family post — humanize the brand" },
+        { m: 11, d: 31, label: "New Year's Eve", angle: "year in review + intentions for next year" },
+        { m: 0, d: 1, label: "January 1", angle: "anti-resolution post — what you'll NOT do" },
+        { m: 0, d: 8, label: "First full week of January", angle: "soft launch / fresh-start sale" },
+        { m: 0, d: 22, label: "Late January push", angle: "for the people whose resolutions already cracked" },
+        { m: 1, d: 14, label: "Valentine's Day", angle: "love letter to your customers / your craft" }
+      ],
+      angles: ['reflection','ritual','gift-guide','year-end','intentions','self-love']
+    }
+  };
+
+  function fmt(d) {
+    return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  }
+
+  function build() {
+    const niche = document.getElementById('niche').value.trim() || '[your niche]';
+    const audience = document.getElementById('audience').value.trim() || '[your audience]';
+    const seasonKey = document.getElementById('season').value;
+    const year = parseInt(document.getElementById('year').value) || 2026;
+    const pieces = parseInt(document.getElementById('pieces').value);
+    const s = seasons[seasonKey];
+
+    document.getElementById('theme').textContent = s.theme;
+
+    const allEntries = s.dates.map(x => ({ ...x, date: new Date(year, x.m, x.d) }));
+    while (allEntries.length < pieces) {
+      const m = s.months[Math.floor(Math.random() * 3)];
+      const d = Math.floor(Math.random() * 28) + 1;
+      const angle = s.angles[Math.floor(Math.random() * s.angles.length)];
+      allEntries.push({ m, d, label: `${angle.replace('-',' ')} post`, angle: `tie ${niche} to a ${angle.replace('-',' ')} moment`, date: new Date(year, m, d) });
+    }
+    allEntries.sort((a,b) => a.date - b.date);
+    const entries = allEntries.slice(0, pieces);
+
+    const el = document.getElementById('entries');
+    el.innerHTML = '';
+    entries.forEach((e, i) => {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `
+        <div class="entry-head">
+          <span class="entry-date">${fmt(e.date)}</span>
+          <span class="entry-tag">${e.label}</span>
+        </div>
+        <div class="entry-title">${entryTitle(e, niche, audience)}</div>
+        <div class="entry-hook"><strong>Hook:</strong> ${entryHook(e, niche, audience)}</div>
+      `;
+      el.appendChild(div);
+    });
+
+    const ctas = {
+      spring: ['Free spring reset guide (lead magnet) → drives signups for fall launch','Soft product mention with 15% spring code','Invite to your newsletter as "where I share more"'],
+      summer: ['Slow-living bundle at a holiday-weekend discount','Waitlist for your fall launch','Pre-order or early-bird pricing for Q4 release'],
+      fall: ['Q4 flagship offer with scarcity','Black Friday best-deal-of-the-year','Bundle + bonus stack to lift average order value'],
+      winter: ['Year-end thank-you discount for past customers','New-year membership / intentions product','Valentine\'s self-love bundle']
+    };
+    document.getElementById('ctas').innerHTML = '<ul>' + ctas[seasonKey].map(c=>`<li>${c}</li>`).join('') + '</ul>';
+
+    document.getElementById('plan').classList.add('show');
+    document.getElementById('plan').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function entryTitle(e, niche, audience) {
+    return `${niche} × ${e.label}`;
+  }
+
+  function entryHook(e, niche, audience) {
+    return `Tie ${niche} to ${e.label}. Angle: ${e.angle}. Write it for ${audience} — make the seasonal moment the door, your product/expertise the reason they stayed.`;
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const grab = id => document.getElementById(id).innerText;
+    const text = ['SEASONAL CONTENT CALENDAR','','THEME',grab('theme'),'','CALENDAR',grab('entries'),'','SEASONAL CTAS',grab('ctas')].join('\n');
+    navigator.clipboard.writeText(text).then(() => {
+      e.target.textContent = 'Copied!';
+      setTimeout(() => e.target.textContent = 'Copy Full Calendar', 1500);
+    });
+  });
+</script>
+</body>
+</html>

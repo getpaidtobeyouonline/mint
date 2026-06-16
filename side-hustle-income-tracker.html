@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Side Hustle Income Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.top-bar{display:flex;gap:12px;max-width:660px;margin:0 auto 18px;flex-wrap:wrap;align-items:flex-end}
+.top-field{flex:1;min-width:140px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{width:100%;background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:660px;margin:0 auto 18px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.5rem;color:#5AE57A;margin-bottom:3px}
+.stat-lbl{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.prog-bar{max-width:660px;margin:0 auto 18px;background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:16px}
+.prog-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:8px}
+.prog-pct{color:#5AE57A;font-weight:600}
+.track{background:#325132;border-radius:20px;height:10px;overflow:hidden}
+.fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .6s ease}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:660px;margin:0 auto 18px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px}
+.form-row2{display:grid;grid-template-columns:1fr auto;gap:10px}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.entry{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid #3C603C}
+.entry:last-child{border-bottom:none}
+.entry-dot{width:8px;height:8px;border-radius:50%;background:#5AE57A;flex-shrink:0}
+.entry-info{flex:1;min-width:0}
+.entry-source{font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entry-meta{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.entry-amt{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;flex-shrink:0}
+.entry-del{background:transparent;border:none;color:#5A845A;cursor:pointer;font-size:.9rem;padding:4px 6px;border-radius:4px;transition:color .2s;flex-shrink:0}
+.entry-del:hover{color:#5AE57A}
+.empty{text-align:center;opacity:.4;padding:20px;font-size:.88rem}
+.source-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.source-name{font-size:.85rem;min-width:110px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.source-bar-wrap{flex:1}
+.source-track{background:#325132;border-radius:10px;height:6px;overflow:hidden}
+.source-fill{height:100%;border-radius:10px;background:linear-gradient(90deg,#5AE57A,#5AE57A)}
+.source-amt{font-size:.82rem;color:#5AE57A;font-weight:600;min-width:60px;text-align:right;flex-shrink:0}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.stats{grid-template-columns:1fr 1fr}.form-row{grid-template-columns:1fr 1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Side Hustle Income Tracker</h1>
+<p class="sub">Log every payment. Know exactly what your hustle is worth.</p>
+
+<div class="top-bar">
+  <div class="top-field">
+    <label>Month</label>
+    <input type="month" id="monthPicker" onchange="render()">
+  </div>
+  <div class="top-field">
+    <label>Monthly Goal ($)</label>
+    <input type="number" id="goalInput" placeholder="e.g. 2000" oninput="saveGoal();render()">
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="statTotal">$0</div><div class="stat-lbl">This Month</div></div>
+  <div class="stat"><div class="stat-val" id="statEntries">0</div><div class="stat-lbl">Payments</div></div>
+  <div class="stat"><div class="stat-val" id="statAvg">$0</div><div class="stat-lbl">Avg Payment</div></div>
+</div>
+
+<div class="prog-bar" id="progWrap">
+  <div class="prog-label"><span id="progText">Goal Progress</span><span class="prog-pct" id="progPct">0%</span></div>
+  <div class="track"><div class="fill" id="progFill" style="width:0%"></div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log a Payment</div>
+  <div class="form-row">
+    <div><label>Hustle / Source</label><input id="fSource" type="text" placeholder="e.g. Etsy, Coaching"></div>
+    <div><label>Amount ($)</label><input id="fAmount" type="number" min="0" placeholder="0.00"></div>
+    <div><label>Date</label><input id="fDate" type="date"></div>
+  </div>
+  <div class="form-row2">
+    <input id="fNote" type="text" placeholder="Note (optional) — e.g. logo project, 2 sessions">
+    <button class="add-btn" onclick="addEntry()">+ Add</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">This Month's Entries</div>
+  <div id="entryList"><div class="empty">No entries yet — log your first payment above.</div></div>
+</div>
+
+<div class="card" id="sourceCard" style="display:none">
+  <div class="card-title">Income by Source</div>
+  <div id="sourceList"></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const STORE='sideHustleEntries';const GSTORE='sideHustleGoals';
+let entries=JSON.parse(localStorage.getItem(STORE)||'[]');
+let goals=JSON.parse(localStorage.getItem(GSTORE)||'{}');
+
+function fmt(n){return'$'+parseFloat(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function curMonth(){return document.getElementById('monthPicker').value}
+function saveGoal(){goals[curMonth()]=document.getElementById('goalInput').value;localStorage.setItem(GSTORE,JSON.stringify(goals));}
+
+function addEntry(){
+  const src=document.getElementById('fSource').value.trim();
+  const amt=parseFloat(document.getElementById('fAmount').value);
+  const date=document.getElementById('fDate').value;
+  const note=document.getElementById('fNote').value.trim();
+  if(!src||!amt||amt<=0||!date){alert('Please fill in hustle name, amount, and date.');return;}
+  entries.push({id:Date.now(),source:src,amount:amt,date,note});
+  localStorage.setItem(STORE,JSON.stringify(entries));
+  document.getElementById('fSource').value='';
+  document.getElementById('fAmount').value='';
+  document.getElementById('fNote').value='';
+  render();
+}
+
+function delEntry(id){
+  if(!confirm('Remove this entry?'))return;
+  entries=entries.filter(e=>e.id!==id);
+  localStorage.setItem(STORE,JSON.stringify(entries));
+  render();
+}
+
+function render(){
+  const month=curMonth();
+  const monthEntries=entries.filter(e=>e.date&&e.date.startsWith(month)).sort((a,b)=>b.date.localeCompare(a.date));
+  const total=monthEntries.reduce((s,e)=>s+e.amount,0);
+  const avg=monthEntries.length?total/monthEntries.length:0;
+  const goal=parseFloat(goals[month])||0;
+  const pct=goal>0?Math.min(Math.round(total/goal*100),100):0;
+
+  document.getElementById('statTotal').textContent=fmt(total);
+  document.getElementById('statEntries').textContent=monthEntries.length;
+  document.getElementById('statAvg').textContent=fmt(avg);
+  document.getElementById('progFill').style.width=pct+'%';
+  document.getElementById('progPct').textContent=pct+'%';
+  document.getElementById('progText').textContent=goal>0?`${fmt(total)} of ${fmt(goal)} goal`:'Set a goal to track progress';
+
+  document.getElementById('entryList').innerHTML=monthEntries.length
+    ?monthEntries.map(e=>`
+      <div class="entry">
+        <div class="entry-dot"></div>
+        <div class="entry-info">
+          <div class="entry-source">${e.source}</div>
+          <div class="entry-meta">${e.date}${e.note?' · '+e.note:''}</div>
+        </div>
+        <div class="entry-amt">${fmt(e.amount)}</div>
+        <button class="entry-del" onclick="delEntry(${e.id})" title="Delete">✕</button>
+      </div>`).join('')
+    :'<div class="empty">No entries for this month yet.</div>';
+
+  // By source
+  const srcMap={};
+  monthEntries.forEach(e=>{srcMap[e.source]=(srcMap[e.source]||0)+e.amount;});
+  const sources=Object.entries(srcMap).sort((a,b)=>b[1]-a[1]);
+  const maxSrc=sources.length?sources[0][1]:1;
+  if(sources.length){
+    document.getElementById('sourceCard').style.display='block';
+    document.getElementById('sourceList').innerHTML=sources.map(([name,amt])=>`
+      <div class="source-row">
+        <div class="source-name">${name}</div>
+        <div class="source-bar-wrap"><div class="source-track"><div class="source-fill" style="width:${Math.round(amt/maxSrc*100)}%"></div></div></div>
+        <div class="source-amt">${fmt(amt)}</div>
+      </div>`).join('');
+  } else document.getElementById('sourceCard').style.display='none';
+}
+
+// Init
+const now=new Date();
+document.getElementById('monthPicker').value=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+document.getElementById('fDate').value=now.toISOString().split('T')[0];
+const savedGoal=goals[curMonth()];
+if(savedGoal)document.getElementById('goalInput').value=savedGoal;
+render();
+</script>
+</body>
+</html>

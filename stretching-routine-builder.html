@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stretching Routine Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; border-radius: 20px; padding: 7px 14px; font-size: .85rem; cursor: pointer; }
+  .chip.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 15px; margin-bottom: 8px; font-size: .9rem; }
+  .step b { color: #5AE57A; }
+  .total { text-align: center; font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin: 6px 0 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Stretching Routine Builder</h1>
+  <p class="sub">Pick the areas that feel tight. Get a timed routine you can follow start to finish.</p>
+
+  <div class="panel">
+    <label>Target areas (tap to select)</label>
+    <div class="chips" id="chips"></div>
+    <label for="hold">Hold time per stretch</label>
+    <select id="hold"><option value="20">20 seconds (quick)</option><option value="30" selected>30 seconds (standard)</option><option value="45">45 seconds (deep)</option></select>
+    <button class="btn" onclick="gen()">Build Routine</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const AREAS={
+    "Neck & shoulders":["Neck side tilt, each side","Shoulder rolls then cross-body arm stretch","Doorway chest opener"],
+    "Upper back":["Cat-cow flow","Seated spinal twist, each side","Child pose with side reach"],
+    "Lower back":["Knees-to-chest hug","Supine spinal twist, each side","Cobra or gentle backbend"],
+    "Hips":["Figure-4 glute stretch, each side","Low lunge hip flexor, each side","Butterfly stretch"],
+    "Hamstrings":["Standing forward fold","Seated single-leg reach, each side","Supine hamstring stretch with strap"],
+    "Quads & calves":["Standing quad stretch, each side","Calf stretch against wall, each side","Kneeling shin stretch"],
+    "Full body":["Standing reach-up and side bend","Sun-salutation style flow","Deep squat hold"]
+  };
+  let sel=JSON.parse(localStorage.getItem('srb_sel')||'["Neck & shoulders","Hips"]');
+  function drawChips(){
+    g('chips').innerHTML=Object.keys(AREAS).map(a=>'<span class="chip'+(sel.includes(a)?' on':'')+'" onclick="tog(\''+a.replace(/'/g,"\\'")+'\')">'+a+'</span>').join('');
+  }
+  function tog(a){ sel.includes(a)?sel=sel.filter(x=>x!==a):sel.push(a); localStorage.setItem('srb_sel',JSON.stringify(sel)); drawChips(); }
+  function gen(){
+    if(!sel.length){ alert('Pick at least one area.'); return; }
+    const hold=+g('hold').value;
+    let steps=[], n=1;
+    sel.forEach(a=>AREAS[a].forEach(s=>steps.push(s)));
+    const secs=steps.length*hold;
+    let h='<div class="panel"><div class="total">Routine: '+steps.length+' stretches · ~'+Math.round(secs/60)+' min</div>';
+    h+=steps.map(s=>'<div class="step"><b>'+(n++)+'.</b> '+esc(s)+' — <b>'+hold+'s</b></div>').join('');
+    h+='<div class="step" style="border-left-color:#BFD8BF">Breathe slowly into each stretch. Never bounce. Ease off if you feel sharp pain.</div></div>';
+    g('out').innerHTML=h;
+    window._copy=steps.map((s,i)=>(i+1)+'. '+s+' — '+hold+'s').join('\n');
+  }
+  function copyOut(){ if(!window._copy){alert('Build it first.');return;} navigator.clipboard.writeText('STRETCHING ROUTINE\n\n'+window._copy).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  drawChips(); gen();
+</script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Survey Email Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 50px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Survey Email Builder</h1>
+  <p class="sub">A short, well-framed survey email gets 10x the responses of a generic 'feedback please' send.</p>
+
+  <div class="panel">
+    <label for="why">Why you are asking (in one line)</label>
+    <input id="why" placeholder="e.g. I am planning what to build next for you">
+    <label for="qs">Your questions (one per line, max 3)</label>
+    <textarea id="qs" placeholder="What is your #1 struggle with X right now?&#10;What would 'solved' look like?&#10;What have you already tried?"></textarea>
+    <label for="link">Where they go to answer (link or 'just reply')</label>
+    <input id="link" placeholder="e.g. typeform.com/yoursurvey · or 'just hit reply'">
+    <label for="reward">Optional thank-you</label>
+    <input id="reward" placeholder="e.g. a free template / first dibs on the result">
+    <button class="btn" onclick="gen()">Build Survey Email</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['why','qs','link','reward'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('seb7_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('seb7_'+k,g(k).value)); });
+  function gen(){
+    const why=v('why')||'I want to make this more useful to you', qs=v('qs').split('\n').map(s=>s.trim()).filter(Boolean).slice(0,3);
+    const link=v('link')||'just hit reply', rew=v('reward');
+    const t='Subject: a quick question (will take 90 seconds)\n\nHey,\n\nQuick one: '+why+'.\n\nIf you have a moment, I would really value your answer to ' + (qs.length>1?'these:':'this:') + '\n\n'+
+      (qs.length?qs.map((q,i)=>(qs.length>1?(i+1)+'. ':'')+q).join('\n'):'1. [question]')+'\n\n→ '+link+'\n\n'+
+      (rew?'A small thank-you if you do: '+rew+'.\n\n':'')+
+      'Whatever you share helps me build for you, not at you.\n\n— [your name]\n\nP.S. Even one-line answers are gold.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ if(g('out').style.display==='none'){alert('Build it first.');return;} navigator.clipboard.writeText(g('out').textContent).then(()=>alert('Email copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

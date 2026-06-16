@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swipe File Organiser</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+textarea,input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+textarea:focus,input[type=text]:focus,select:focus{border-color:#5AE57A}
+textarea{resize:vertical;min-height:95px;line-height:1.55}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C9A84C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.hint{font-size:.71rem;opacity:.35;margin-top:.35rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.chip-row{display:flex;gap:.45rem;overflow-x:auto;padding:.25rem 0 .6rem;scrollbar-width:none;-ms-overflow-style:none;margin-bottom:.6rem}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{background:#3C603C;border:1px solid #4C724C;border-radius:20px;padding:.3rem .85rem;font-size:.78rem;font-weight:500;cursor:pointer;white-space:nowrap;color:#FFFFFF;font-family:'DM Sans',sans-serif;transition:border-color .2s,color .2s,background .2s}
+.chip.active{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.search-input{width:100%;background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;margin-bottom:.6rem;-webkit-appearance:none;appearance:none}
+.search-input:focus{border-color:#5AE57A}
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;min-height:1.6rem}
+.count-lbl{font-size:.78rem;opacity:.38}
+.export-btn{background:transparent;border:1px solid #4C724C;color:#FFFFFF;border-radius:6px;padding:.28rem .7rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;opacity:.5;transition:opacity .2s}
+.export-btn:hover{opacity:.9}
+.entry-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1rem 1.25rem;margin-bottom:.85rem}
+.entry-top{display:flex;justify-content:space-between;align-items:center;gap:.5rem;margin-bottom:.6rem;flex-wrap:wrap}
+.cat-badge{font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;font-weight:600;border-radius:4px;padding:.18rem .5rem;white-space:nowrap}
+.entry-acts{display:flex;align-items:center;gap:.4rem}
+.date-lbl{font-size:.7rem;opacity:.28;white-space:nowrap}
+.icon-btn{background:transparent;border:1px solid #4C724C;color:#FFFFFF;border-radius:5px;padding:.2rem .6rem;font-family:'DM Sans',sans-serif;font-size:.72rem;cursor:pointer;transition:opacity .2s}
+.icon-btn:hover{opacity:.65}
+.icon-btn.del{color:#5AE57A;border-color:#c05a5a33}
+.entry-text{font-size:.9rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;margin-bottom:.3rem}
+.entry-notes{font-size:.73rem;opacity:.36;font-style:italic;margin-top:.3rem}
+.empty{text-align:center;padding:2.5rem 1rem;opacity:.36;font-size:.9rem;line-height:1.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Swipe File Organiser</h1>
+    <p class="subtitle">Save, tag, and search the copy and content worth stealing — all in your browser, no account needed.</p>
+  </header>
+
+  <div class="card">
+    <h2>Add to Swipe File</h2>
+    <label>Copy / Content</label>
+    <textarea id="swipeText" placeholder="Paste or type the headline, hook, subject line, or copy you want to save..."></textarea>
+    <div class="hint">Tip: Cmd+Enter (Mac) or Ctrl+Enter (Windows) to save without clicking</div>
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Category</label>
+        <select id="swipeCat">
+          <option value="headline">Headline</option>
+          <option value="subject">Subject Line</option>
+          <option value="hook">Hook</option>
+          <option value="cta">CTA</option>
+          <option value="sales">Sales Copy</option>
+          <option value="social">Social Post</option>
+          <option value="bullet">Bullet Point</option>
+          <option value="story">Story Idea</option>
+          <option value="testim">Testimonial</option>
+          <option value="objection">Objection</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0">Source / Notes</label>
+        <input type="text" id="swipeNotes" placeholder="e.g. Joanna Wiebe, works for health niche">
+      </div>
+    </div>
+    <button class="btn" onclick="addEntry()">Save to Swipe File →</button>
+  </div>
+
+  <div class="chip-row" id="chipRow"></div>
+  <input type="text" class="search-input" id="searchInput" placeholder="Search your swipe file..." oninput="onSearch(this.value)">
+  <div class="toolbar">
+    <div class="count-lbl" id="countLbl">—</div>
+    <button class="export-btn" id="exportBtn" onclick="exportAll()" style="display:none">Export All as Text</button>
+  </div>
+  <div id="entries"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const escHtml = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+const cats = [
+  {id:'headline',  label:'Headline',      color:'#5AE57A'},
+  {id:'subject',   label:'Subject Line',  color:'#5AE57A'},
+  {id:'hook',      label:'Hook',          color:'#5AE57A'},
+  {id:'cta',       label:'CTA',           color:'#5AE57A'},
+  {id:'sales',     label:'Sales Copy',    color:'#5AE57A'},
+  {id:'social',    label:'Social Post',   color:'#5AE57A'},
+  {id:'bullet',    label:'Bullet Point',  color:'#5AE57A'},
+  {id:'story',     label:'Story Idea',    color:'#5AE57A'},
+  {id:'testim',    label:'Testimonial',   color:'#5AE57A'},
+  {id:'objection', label:'Objection',     color:'#5AE57A'}
+];
+
+let entries = JSON.parse(localStorage.getItem('swipe_entries') || '[]');
+let filterCat = 'all', searchQ = '';
+
+function save() { localStorage.setItem('swipe_entries', JSON.stringify(entries)); }
+
+function addEntry() {
+  const text  = document.getElementById('swipeText').value.trim();
+  const cat   = document.getElementById('swipeCat').value;
+  const notes = document.getElementById('swipeNotes').value.trim();
+  if (!text) { alert('Paste some copy to save first.'); return; }
+  entries.unshift({id: Date.now(), text, cat, notes, date: new Date().toLocaleDateString()});
+  save();
+  document.getElementById('swipeText').value = '';
+  document.getElementById('swipeNotes').value = '';
+  render();
+}
+
+function deleteEntry(id) {
+  if (!confirm('Remove this entry from your swipe file?')) return;
+  entries = entries.filter(e => e.id !== id);
+  save(); render();
+}
+
+function copyEntry(id) {
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  const btn = document.getElementById(`cb-${id}`);
+  const flash = () => { if (btn) { const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o, 2000); } };
+  navigator.clipboard
+    ? navigator.clipboard.writeText(e.text).then(flash)
+    : (() => { const ta=document.createElement('textarea'); ta.value=e.text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); flash(); })();
+}
+
+function setFilter(cat) { filterCat = cat; render(); }
+function onSearch(q)    { searchQ = q.toLowerCase(); render(); }
+
+function exportAll() {
+  if (!entries.length) return;
+  let text = `SWIPE FILE — ${new Date().toLocaleDateString()} — ${entries.length} ${entries.length===1?'entry':'entries'}\n\n`;
+  cats.forEach(c => {
+    const ce = entries.filter(e => e.cat === c.id);
+    if (!ce.length) return;
+    text += `=== ${c.label.toUpperCase()} (${ce.length}) ===\n\n`;
+    ce.forEach((e, i) => { text += `${i+1}. ${e.text}${e.notes ? `\n   [${e.notes}]` : ''}\n\n`; });
+  });
+  text += '---\nExported from Swipe File Organiser by GetPaidToBeYouOnline';
+  const done = () => alert(`${entries.length} ${entries.length===1?'entry':'entries'} copied to clipboard!`);
+  navigator.clipboard
+    ? navigator.clipboard.writeText(text).then(done)
+    : (() => { const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+
+function render() {
+  document.getElementById('chipRow').innerHTML =
+    `<button class="chip${filterCat==='all'?' active':''}" onclick="setFilter('all')">All</button>` +
+    cats.map(c => `<button class="chip${filterCat===c.id?' active':''}" onclick="setFilter('${c.id}')">${c.label}</button>`).join('');
+
+  const filtered = entries.filter(e => {
+    const mc = filterCat === 'all' || e.cat === filterCat;
+    const ms = !searchQ || e.text.toLowerCase().includes(searchQ) || (e.notes && e.notes.toLowerCase().includes(searchQ));
+    return mc && ms;
+  });
+
+  document.getElementById('countLbl').textContent = filtered.length === entries.length
+    ? `${entries.length} saved ${entries.length === 1 ? 'entry' : 'entries'}`
+    : `${filtered.length} of ${entries.length} entries`;
+  document.getElementById('exportBtn').style.display = entries.length ? '' : 'none';
+
+  if (!filtered.length) {
+    document.getElementById('entries').innerHTML = `<div class="empty">${
+      entries.length
+        ? 'No entries match — try a different category or clear your search.'
+        : 'Your swipe file is empty.<br>Paste your first piece of copy above to get started.'
+    }</div>`;
+    return;
+  }
+
+  document.getElementById('entries').innerHTML = filtered.map(e => {
+    const cat = cats.find(c => c.id === e.cat) || cats[0];
+    return `<div class="entry-card">
+      <div class="entry-top">
+        <span class="cat-badge" style="color:${cat.color};background:${cat.color}18;border:1px solid ${cat.color}33">${cat.label}</span>
+        <div class="entry-acts">
+          <span class="date-lbl">${e.date}</span>
+          <button class="icon-btn" id="cb-${e.id}" onclick="copyEntry(${e.id})">Copy</button>
+          <button class="icon-btn del" onclick="deleteEntry(${e.id})" title="Delete">✕</button>
+        </div>
+      </div>
+      <div class="entry-text">${escHtml(e.text)}</div>
+      ${e.notes ? `<div class="entry-notes">${escHtml(e.notes)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('swipeText').addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') addEntry();
+});
+
+render();
+</script>
+</body>
+</html>

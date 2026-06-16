@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self Love Practice Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .prompt { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; font-size: .92rem; font-style: italic; }
+  .count { text-align: center; margin-bottom: 12px; }
+  .count .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 12px; overflow: hidden; margin: 8px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .hab { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .89rem; }
+  .hab:last-child { border-bottom: none; }
+  .box { width: 21px; height: 21px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .hab.done .lb { text-decoration: line-through; opacity: .5; }
+  .add { display: flex; gap: 8px; margin-top: 10px; }
+  input { flex: 1; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family:'DM Sans',sans-serif; font-size: .9rem; padding: 8px 10px; border-radius: 7px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .88rem; padding: 8px 14px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .hab .x { margin-left: auto; cursor: pointer; opacity: .5; } .hab .x:hover { opacity: 1; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Self Love Practice Builder</h1>
+  <p class="sub">Self-love is a daily practice, not a feeling you wait for. Build yours and tick it off.</p>
+
+  <div class="panel">
+    <div class="prompt" id="prompt"></div>
+  </div>
+
+  <div class="panel">
+    <div class="count"><span class="n" id="pct">0%</span><div style="opacity:.7;font-size:.85rem">of today's practice done</div></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div id="list"></div>
+    <div class="add"><input id="new" placeholder="Add your own practice..." onkeydown="if(event.key==='Enter')add()"><button class="btn" onclick="add()">Add</button></div>
+    <button class="btn ghost" onclick="resetDay()" style="margin-top:10px">Reset today</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const PROMPTS=["Speak to yourself today the way you would speak to someone you love.","You do not have to earn rest or kindness — they are yours by default.","Name one thing you like about who you are, not what you do.","Your worth is not up for debate, and never was."];
+  const DEFAULTS=["Spoke to myself kindly","Did one thing purely for my own joy","Set or held a boundary","Moved or nourished my body with care","Forgave myself for something small","Rested without guilt"];
+  const today=new Date().toISOString().slice(0,10);
+  let D=JSON.parse(localStorage.getItem('slpb')||'{}');
+  if(D.day!==today)D={day:today,habits:D.habits||DEFAULTS.slice(),done:[]};
+  if(!D.habits)D.habits=DEFAULTS.slice();
+  const save=()=>localStorage.setItem('slpb',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  g('prompt').textContent='🤍 '+PROMPTS[Math.floor(Math.random()*PROMPTS.length)];
+  function toggle(i){ D.done.includes(i)?D.done=D.done.filter(x=>x!==i):D.done.push(i); save(); render(); }
+  function add(){ const t=g('new').value.trim(); if(!t)return; D.habits.push(t); g('new').value=''; save(); render(); }
+  function del(i){ D.habits.splice(i,1); D.done=D.done.filter(x=>x!==i).map(x=>x>i?x-1:x); save(); render(); }
+  function resetDay(){ D.done=[]; save(); render(); }
+  function render(){
+    g('list').innerHTML=D.habits.map((h,i)=>{ const on=D.done.includes(i);
+      return '<div class="hab'+(on?' done':'')+'"><span class="box'+(on?' on':'')+'" onclick="toggle('+i+')">'+(on?'✓':'')+'</span><span class="lb" onclick="toggle('+i+')">'+esc(h)+'</span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+    const pct=D.habits.length?Math.round(D.done.length/D.habits.length*100):0;
+    g('pct').textContent=pct+'%'; g('bar').style.width=pct+'%';
+  }
+  render();
+</script>
+</body>
+</html>

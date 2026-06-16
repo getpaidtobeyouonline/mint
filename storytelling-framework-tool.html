@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Storytelling Framework Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .framework-name {
+    font-family: 'Playfair Display', serif;
+    color: #FFFFFF;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  .framework-tag {
+    display: inline-block;
+    font-size: 11px;
+    background: #5AE57A;
+    color: #325132;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .step {
+    background: #325132;
+    border-left: 3px solid #5AE57A;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .step-num {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .step-name {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .step-prompt {
+    font-size: 13.5px;
+    opacity: 0.8;
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+  .step-text { font-size: 15px; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Storytelling Framework Tool</h1>
+  <p class="subtitle">Pick a proven framework, fill 3 fields, and get a complete, ready-to-share story.</p>
+
+  <div class="card">
+    <label>Choose your framework</label>
+    <select id="framework" onchange="describe()">
+      <option value="bab">Before-After-Bridge</option>
+      <option value="pas">Problem-Agitate-Solve</option>
+      <option value="hero">Hero's Journey (compact)</option>
+      <option value="storybrand">StoryBrand SB7</option>
+      <option value="scqa">SCQA (McKinsey)</option>
+      <option value="three">3-Act Story</option>
+    </select>
+    <div id="frameworkDesc" style="font-size:13.5px;opacity:0.8;margin:-6px 0 18px;"></div>
+
+    <label>The character (you, a client, or your reader)</label>
+    <input type="text" id="character" placeholder="e.g. a burnt-out designer trapped in a 9-5">
+    <label>The struggle or starting point</label>
+    <textarea id="struggle" placeholder="e.g. couldn't post on social without spiraling into perfectionism"></textarea>
+    <label>The transformation or solution</label>
+    <textarea id="transformation" placeholder="e.g. built a 4-week content system and now posts 5x a week with zero stress"></textarea>
+    <button onclick="generate()">Build My Story</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="framework-name" id="fName"></div>
+      <span class="framework-tag" id="fTag"></span>
+      <div id="steps"></div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyStory()">Copy Story</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const FRAMEWORKS = {
+  bab: {
+    name: 'Before-After-Bridge',
+    tag: 'Short-form · Captions · Ads',
+    desc: 'Paint the painful before, the dream after, then the bridge that gets them there.',
+    steps: [
+      {name: 'Before', prompt: 'Paint the painful current state', t: '{character} was stuck. {struggle}. Every week felt like the last — same frustration, same dead ends.'},
+      {name: 'After', prompt: 'Show the dream outcome vividly', t: 'Now? {transformation}. The change isn\'t small — it\'s the kind that shifts how the day feels.'},
+      {name: 'Bridge', prompt: 'Name what got them from one to the other', t: 'The bridge was simpler than expected: a clear system, an honest look at what wasn\'t working, and the willingness to actually change one thing at a time.'}
+    ]
+  },
+  pas: {
+    name: 'Problem-Agitate-Solve',
+    tag: 'Sales pages · Persuasive copy',
+    desc: 'Name the problem, twist the knife, then deliver the relief.',
+    steps: [
+      {name: 'Problem', prompt: 'State the problem plainly', t: '{character} had a problem most people don\'t admit out loud: {struggle}.'},
+      {name: 'Agitate', prompt: 'Make the cost of inaction vivid', t: 'And it wasn\'t just inconvenient — it was draining. The longer it dragged on, the heavier it got. Confidence took hits. Momentum disappeared. Worst of all, it started feeling permanent.'},
+      {name: 'Solve', prompt: 'Deliver the resolution', t: 'Then came the shift: {transformation}. Not a miracle. Just the right move at the right time.'}
+    ]
+  },
+  hero: {
+    name: "Hero's Journey",
+    tag: 'Long-form · Personal stories',
+    desc: 'The classic arc — ordinary world, call, struggle, breakthrough, return.',
+    steps: [
+      {name: 'Ordinary World', prompt: 'Show life before anything changed', t: 'For a long time, {character} just kept going. The days were predictable. Comfortable enough to ignore that something was off.'},
+      {name: 'The Call', prompt: 'Name what cracked open', t: 'Then one moment changed things. The kind of moment you can\'t un-see. The truth surfaced: {struggle}.'},
+      {name: 'The Struggle', prompt: 'Walk through the messy middle', t: 'What followed wasn\'t glamorous. Failed attempts. Resistance. Wondering if it was worth it. Most people quit here. {character} didn\'t.'},
+      {name: 'The Breakthrough', prompt: 'Show the turning point', t: 'And then — {transformation}. Not because of luck, but because of one shift in approach that finally clicked.'},
+      {name: 'The Return', prompt: 'Share the lesson with others', t: 'Now {character} can look back and see the whole arc clearly. The lesson? The way through isn\'t the obvious one — and it\'s worth telling.'}
+    ]
+  },
+  storybrand: {
+    name: 'StoryBrand SB7',
+    tag: 'Marketing · Positioning',
+    desc: 'The customer is the hero. You\'re the guide handing them a plan.',
+    steps: [
+      {name: 'A Character', prompt: 'Position your audience as the hero', t: '{character} wants more than they\'re willing to say out loud.'},
+      {name: 'Has a Problem', prompt: 'Name the surface and deeper problem', t: 'On the surface: {struggle}. Underneath: the quiet fear of staying stuck in it forever.'},
+      {name: 'Meets a Guide', prompt: 'Show empathy + authority', t: 'I\'ve sat in that exact place. I\'ve walked others through it. That\'s why I\'m the one writing this.'},
+      {name: 'Gives a Plan', prompt: 'Lay out the simple path forward', t: 'The plan is straightforward. Three steps, no fluff, designed to lead to: {transformation}.'},
+      {name: 'Calls to Action', prompt: 'Make the next move obvious', t: 'Start where most people don\'t — by deciding, today, that the old version of this story ends here.'},
+      {name: 'Avoids Failure', prompt: 'Show the cost of staying', t: 'Otherwise? Another year of the same. Same patterns, same plateau, same quiet frustration.'},
+      {name: 'Ends in Success', prompt: 'Paint the win', t: 'But on the other side: a version of {character} who looks back and barely recognizes who they used to be.'}
+    ]
+  },
+  scqa: {
+    name: 'SCQA',
+    tag: 'Consulting · Pitches · Threads',
+    desc: 'Set the scene, introduce the complication, raise the question, answer it.',
+    steps: [
+      {name: 'Situation', prompt: 'Anchor the reader in the context', t: '{character} was doing the work. Showing up. Hitting most of the right notes.'},
+      {name: 'Complication', prompt: 'Reveal what was actually wrong', t: 'But there was a hidden problem: {struggle}. It wasn\'t obvious from the outside, which made it worse.'},
+      {name: 'Question', prompt: 'Raise the question on the reader\'s mind', t: 'So the real question became: what would it take to break this pattern for good?'},
+      {name: 'Answer', prompt: 'Resolve with the insight', t: 'Here\'s what worked: {transformation}. And it didn\'t require burning everything down — just rewiring one piece.'}
+    ]
+  },
+  three: {
+    name: '3-Act Story',
+    tag: 'Universal · Reels · Posts',
+    desc: 'Setup, conflict, resolution. The most familiar story shape on earth.',
+    steps: [
+      {name: 'Act 1 — Setup', prompt: 'Establish who and where', t: 'Meet {character}. A few weeks ago, life looked steady. Until it didn\'t.'},
+      {name: 'Act 2 — Conflict', prompt: 'Raise the stakes', t: 'The problem hit hard: {struggle}. Everything was on the line — confidence, time, identity.'},
+      {name: 'Act 3 — Resolution', prompt: 'Land the change', t: 'And then, the shift: {transformation}. Not the ending anyone predicted — but the right one.'}
+    ]
+  }
+};
+
+function describe() {
+  const f = FRAMEWORKS[document.getElementById('framework').value];
+  document.getElementById('frameworkDesc').textContent = f.desc;
+}
+
+function generate() {
+  const character = document.getElementById('character').value.trim();
+  const struggle = document.getElementById('struggle').value.trim();
+  const transformation = document.getElementById('transformation').value.trim();
+  if (!character || !struggle || !transformation) {
+    alert('Fill in all three fields first.');
+    return;
+  }
+  const f = FRAMEWORKS[document.getElementById('framework').value];
+  document.getElementById('fName').textContent = f.name;
+  document.getElementById('fTag').textContent = f.tag;
+
+  const stepsHtml = f.steps.map((s, i) => {
+    const text = s.t
+      .replace(/{character}/g, character)
+      .replace(/{struggle}/g, struggle)
+      .replace(/{transformation}/g, transformation);
+    return `<div class="step">
+      <div class="step-num">Step ${i + 1}</div>
+      <div class="step-name">${s.name}</div>
+      <div class="step-prompt">${s.prompt}</div>
+      <div class="step-text">${text}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('steps').innerHTML = stepsHtml;
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyStory() {
+  let text = document.getElementById('fName').textContent + '\n\n';
+  document.querySelectorAll('.step').forEach(s => {
+    text += s.querySelector('.step-name').textContent + '\n';
+    text += s.querySelector('.step-text').textContent + '\n\n';
+  });
+  navigator.clipboard.writeText(text.trim()).then(() => alert('Story copied. Go tell it.'));
+}
+
+describe();
+</script>
+</body>
+</html>

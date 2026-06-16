@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Song Writing Prompt Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .prompt { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #FFFFFF; min-height: 100px; display: flex; align-items: center; justify-content: center; padding: 12px; text-align: left; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .prompt { font-size: 1.15rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Song Writing Prompt Generator</h1>
+  <p class="sub">Pick a mood and let a prompt unlock the next song.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="prompt" id="prompt">Tap "New Prompt" to begin.</div>
+    <button class="btn" onclick="next()">New Prompt</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const P={
+    'Love & longing':[
+      'Write a song to someone you almost loved.',
+      'Start the first verse with a small physical detail you noticed.',
+      'Write a chorus from the moment you realised you had let go.',
+      'Tell the story in second person — "you" — and see what shifts.',
+      'A love song that is honest about the ordinary, not the dramatic.'
+    ],
+    'Hope & change':[
+      'Write about a version of you that is just becoming.',
+      'Start a verse with "tomorrow I will".',
+      'Write a song where the bridge is a quiet promise.',
+      'Sing to the person who first believed in you.',
+      'Turn a small daily ritual into a chorus.'
+    ],
+    'Grief & memory':[
+      'Write to someone you can no longer call.',
+      'Use one specific object as the anchor of the song.',
+      'Find the gentle, not the dramatic — what you would say at the kitchen table.',
+      'Write a song that ends in gratitude, not closure.',
+      'The chorus is what you wish you had said.'
+    ],
+    'Place & journey':[
+      'Write about a road you have driven a hundred times.',
+      'Set the song at a window, looking out.',
+      'Use a city, town or street name as a refrain.',
+      'Write the song someone hums to themselves on the long way home.',
+      'A song about leaving — and what you took with you.'
+    ],
+    'Story & character':[
+      'Write a song from the point of view of a stranger you noticed today.',
+      'Open with a line of dialogue between two characters.',
+      'Tell the story of one small choice that changed everything.',
+      'Set the song in a single, unremarkable evening.',
+      'Pick a song you love and write from the opposite point of view.'
+    ]
+  };
+  let mood='Love & longing';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(P).map(m=>'<span class="pre'+(m===mood?' on':'')+'" onclick="setMood(\''+m+'\')">'+m+'</span>').join(''); }
+  function setMood(m){ mood=m; drawPresets(); next(); }
+  function next(){ const list=P[mood]; g('prompt').textContent='"'+list[Math.floor(Math.random()*list.length)]+'"'; }
+  drawPresets(); next();
+</script>
+</body>
+</html>

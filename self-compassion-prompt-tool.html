@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Compassion Prompt Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .p { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 9px; font-family: 'Playfair Display', serif; font-size: 1.05rem; line-height: 1.4; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Self-Compassion Prompt Tool</h1>
+  <p class="sub">Prompts to write into, when you have been brutal with yourself.</p>
+
+  <div class="panel">
+    <label for="mood">What you are mostly feeling</label>
+    <select id="mood"><option value="fail">Like I failed</option><option value="shame">Ashamed of myself</option><option value="behind">Behind / not enough</option><option value="overwhelm">Overwhelmed</option><option value="lonely">Alone in it</option><option value="anxious">Anxious about it</option></select>
+    <button class="btn" onclick="gen()">Give Me Prompts</button>
+    <button class="btn ghost" onclick="gen()">↻ More</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const T={
+    fail:[
+      "If a friend told me what I am telling myself right now, I would say to her: …",
+      "This is one moment in a long life. In a year I will look back and say…",
+      "What did this 'failure' actually teach me?",
+      "What is one thing I did right that I am refusing to count?"
+    ],
+    shame:[
+      "I am a human, not a project. Right now I need to hear…",
+      "What is the difference between what I did and who I am?",
+      "Who in my life would still love me knowing this? What would they say?",
+      "What would I forgive my best friend for, that I am refusing to forgive myself for?"
+    ],
+    behind:[
+      "Behind by whose timeline?",
+      "What have I actually done in the last year that past-me would be amazed by?",
+      "Who am I comparing myself to, and is that fair?",
+      "If I subtracted all the should-haves and looked only at where I am now — what is true?"
+    ],
+    overwhelm:[
+      "If only ONE thing got done today, what would make me feel okay?",
+      "What can come off the list entirely?",
+      "Where is my body holding this right now? Can I unclench just one part?",
+      "What do I need right now: rest, food, water, air, or a person?"
+    ],
+    lonely:[
+      "Who has gone through something like this before me? What did they survive?",
+      "If I were not the only one who felt this, what would that change?",
+      "What is one tiny way to reach for connection today?",
+      "What is the part of me that needs to hear: 'me too'?"
+    ],
+    anxious:[
+      "What am I actually afraid of, underneath the noise?",
+      "What is true in this exact second, that anxiety cannot touch?",
+      "What is one tiny thing I can do that the anxiety says I cannot?",
+      "If this works out, what would I tell myself now?"
+    ]
+  };
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const pool=T[g('mood').value];
+    for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    g('out').innerHTML=pool.slice(0,3).map(x=>'<div class="p">'+esc(x)+'</div>').join('');
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

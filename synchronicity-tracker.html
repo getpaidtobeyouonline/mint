@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Synchronicity Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .total { text-align: center; margin-bottom: 12px; }
+  .total .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 11px 14px; margin-bottom: 7px; }
+  .entry .d { font-size: .76rem; color: #5AE57A; margin-bottom: 3px; display: flex; justify-content: space-between; }
+  .entry .x { cursor: pointer; opacity: .5; } .entry .x:hover { opacity: 1; }
+  .entry p { font-size: .9rem; white-space: pre-wrap; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Synchronicity Tracker</h1>
+  <p class="sub">Notice the meaningful coincidences — the more you track them, the more you see.</p>
+
+  <div class="panel">
+    <label for="what">The synchronicity — what happened</label>
+    <textarea id="what" placeholder="The coincidence, sign or moment of perfect timing"></textarea>
+    <label for="meaning">What it meant to you</label>
+    <textarea id="meaning" placeholder="The nudge, message or feeling it carried"></textarea>
+    <button class="btn" onclick="save()">Log Synchronicity</button>
+  </div>
+
+  <div class="panel">
+    <div class="total"><span class="n" id="total">0</span><div style="opacity:.7;font-size:.85rem">synchronicities noticed</div></div>
+    <div id="list"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('synt')||'[]');
+  const save2=()=>localStorage.setItem('synt',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function save(){
+    if(!v('what')){ alert('Describe the synchronicity.'); return; }
+    R.unshift({date:new Date().toLocaleDateString(),what:v('what'),meaning:v('meaning')});
+    save2(); ['what','meaning'].forEach(k=>g(k).value=''); render();
+  }
+  function del(i){ R.splice(i,1); save2(); render(); }
+  function render(){
+    g('total').textContent=R.length;
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">Your synchronicities will appear here.</div>'; return; }
+    L.innerHTML=R.map((e,i)=>'<div class="entry"><div class="d"><span>'+e.date+'</span><span class="x" onclick="del('+i+')">✕</span></div>'+
+      '<p>'+esc(e.what)+(e.meaning?'\n\n<b>Meaning:</b> '+esc(e.meaning):'')+'</p></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

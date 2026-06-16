@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Science Experiment Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .exp { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; text-align: left; }
+  .exp h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.2rem; }
+  .exp p { font-size: .92rem; margin-top: 6px; white-space: pre-wrap; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .72; margin-top: 12px; text-align: left; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Science Experiment Generator</h1>
+  <p class="sub">A safe, kitchen-friendly experiment — at the tap of a button.</p>
+
+  <div class="panel">
+    <div class="exp" id="exp"><h3>Ready?</h3><p>Tap "New Experiment" for a kitchen-table idea.</p></div>
+    <button class="btn" onclick="next()">New Experiment</button>
+    <div class="note">Always have a grown-up nearby. No drinking experiment ingredients. Tie back hair, wash hands and clean up afterwards.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const E=[
+    {n:'Dancing raisins',d:'Drop a few raisins into a clear glass of fizzy water. Watch them rise, dance, then sink as the bubbles let go.\n\nYou need: clear fizzy water, a few raisins, a clear glass.\nWhy: the bubbles cling to the raisins and lift them, then pop at the surface.'},
+    {n:'Volcano in a cup',d:'Put a few spoons of baking soda in a cup. Pour in a splash of vinegar. Foaming volcano!\n\nYou need: baking soda, vinegar, a cup, a tray to catch the mess.\nWhy: an acid + a base = a fizzy reaction that makes gas.'},
+    {n:'Walking water',d:'Set up three cups in a row. Fill the outer two with water, the middle empty. Add red food colouring to one, blue to the other. Connect them with paper towel strips. Watch the colours walk and meet in the middle.\n\nYou need: 3 cups, water, food colouring, kitchen paper.\nWhy: water travels up the paper by "capillary action".'},
+    {n:'Magic milk',d:'Pour milk on a plate. Add a few drops of different food colours. Touch the middle with a cotton bud dipped in washing-up liquid. Colours explode!\n\nYou need: milk (full fat works best), plate, food colours, washing-up liquid, cotton bud.\nWhy: soap breaks the surface tension and pushes the fat around.'},
+    {n:'Rainbow in a glass',d:'Mix sugar into water in increasing amounts in four cups. Add a different food colour to each. Stack carefully, layer by layer, with a spoon. Watch the rainbow form.\n\nYou need: water, sugar, food colours, a clear glass, a spoon.\nWhy: the more sugar, the denser the water, so the layers float.'},
+    {n:'Invisible ink',d:'Squeeze lemon juice into a small bowl. Dip a cotton bud and write a secret message on white paper. Let it dry. Hold under a warm lamp (with a grown-up) and the message appears.\n\nYou need: lemon juice, paper, cotton bud, a warm lamp.\nWhy: the lemon juice weakens the paper, so it browns first when heated.'},
+    {n:'Egg in a bottle',d:'(Grown-up needed.) Light a strip of paper, drop it into a glass bottle, and place a peeled hard-boiled egg on the neck. The egg gets sucked in.\n\nYou need: glass bottle with a small mouth, peeled boiled egg, paper, lighter.\nWhy: the flame heats the air; as it cools the pressure drops and pulls the egg in.'},
+    {n:'Salt crystals',d:'Stir lots of salt into hot (not boiling, grown-up) water until no more dissolves. Tie a paper clip to a piece of string, hang it in the jar. Wait a few days. Crystals form!\n\nYou need: salt, jar, hot water, string, paper clip, a quiet shelf.\nWhy: as the water evaporates, the salt rejoins into crystal shapes.'},
+    {n:'Floating egg',d:'Fill two glasses with water. Stir lots of salt into one. Drop an egg in each — one floats, the other sinks.\n\nYou need: two clear glasses, water, salt, eggs.\nWhy: salt makes the water denser, so the egg floats.'},
+    {n:'Bouncing bubble',d:'Mix washing-up liquid with water and a touch of sugar. Blow a bubble and try to bounce it on a gloved hand.\n\nYou need: bubble mix (or water + washing-up liquid + sugar), a soft glove.\nWhy: a clean glove protects the bubble\'s skin from popping.'}
+  ];
+  function next(){ const e=E[Math.floor(Math.random()*E.length)]; document.getElementById('exp').innerHTML='<h3>'+e.n+'</h3><p>'+e.d+'</p>'; }
+  next();
+</script>
+</body>
+</html>

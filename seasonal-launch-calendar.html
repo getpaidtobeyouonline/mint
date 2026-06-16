@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seasonal Launch Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.month-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid}
+.month-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.35rem;gap:.5rem}
+.month-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.month-tag{font-size:.65rem;opacity:.35;text-align:right;flex-shrink:0}
+.month-hook{font-size:.82rem;opacity:.58;font-style:italic;line-height:1.4;margin-bottom:.6rem}
+.month-events{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.65rem}
+.event-pill{font-size:.72rem;background:#325132;border:1px solid #4C724C;border-radius:20px;padding:.2rem .6rem;opacity:.6}
+.month-angle{font-size:.83rem;opacity:.75;line-height:1.45;padding:.5rem .7rem;background:#325132;border-radius:6px;margin-bottom:.55rem}
+.month-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.5rem}
+.month-chip{font-size:.8rem;background:#325132;border-radius:6px;padding:.4rem .65rem}
+.chip-lbl{font-size:.6rem;opacity:.35;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:.1rem}
+.month-tip{font-size:.75rem;opacity:.5;line-height:1.4}
+.month-tip strong{font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.month-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Seasonal Launch Calendar</h1>
+    <p class="subtitle">Map your launches to the moments your audience is already primed to buy — with a personalised angle and format for every month.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Product</h2>
+    <label>Product Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPT(0)" id="pt0">Course</button>
+      <button class="opt"     onclick="pickPT(1)" id="pt1">Ebook</button>
+      <button class="opt"     onclick="pickPT(2)" id="pt2">Template Kit</button>
+      <button class="opt"     onclick="pickPT(3)" id="pt3">Membership</button>
+      <button class="opt"     onclick="pickPT(4)" id="pt4">Coaching</button>
+    </div>
+    <label>Product / Brand Topic</label>
+    <input type="text" id="inT" placeholder="e.g. email marketing, mindset, productivity">
+    <label>Target Audience</label>
+    <input type="text" id="inA" placeholder="e.g. coaches, freelancers, online sellers">
+    <label>Core Outcome You Deliver</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, sign 3 clients">
+    <label>Months to Plan</label>
+    <div class="opt-row">
+      <button class="opt"     onclick="pickN(3)"  id="n3">Q1 Only (3)</button>
+      <button class="opt sel" onclick="pickN(6)"  id="n6">First Half (6)</button>
+      <button class="opt"     onclick="pickN(12)" id="n12">Full Year (12)</button>
+    </div>
+    <button class="btn" onclick="generate()">Build My Launch Calendar →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="monthCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Calendar as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const ptLabel  = ['Course','Ebook','Template Kit','Membership','Coaching'];
+const bestMo   = ['September','November','January','September','September'];
+const peakWin  = ['Sep–Oct','Nov–Dec','Jan & Aug','Jan & Sep','Sep & Jan'];
+
+const months = [
+  {name:'January',   col:'#5AE57A', tag:'New Year Reset',
+   hook:'Resolution energy peaks in the first two weeks — buyers are motivated, optimistic, and ready to invest in meaningful change',
+   events:['New Year\'s Day','Blue Monday (3rd Mon)','Q1 goal-setting season'],
+   angle:'"Start the year right" — position {T} as the first move {A} make to finally {X} this year',
+   fmts:['New Year cohort','Resolution bundle','Planning kit launch','Founding member push','New year intensive'],
+   tip:'Price at entry level in week 1 — capture impulse buyers before resolution fatigue hits around week 3'},
+  {name:'February',  col:'#5AE57A', tag:'Love & Loyalty',
+   hook:'Gift-buying intent is high and emotional purchases outperform logical ones — lean into connection, self-investment, and transformation',
+   events:['Valentine\'s Day (14th)','Black History Month','End-of-January slump recovery'],
+   angle:'Frame {T} as the gift {A} give themselves — or test a "buy one, gift one" offer for {X}',
+   fmts:['Valentine cohort','Gift-yourself bundle','Love yourself kit','Gift membership','Gift a session'],
+   tip:'A "buy for a friend" add-on in February routinely outperforms solo Valentine\'s campaigns — test it this year'},
+  {name:'March',     col:'#5AE57A', tag:'Spring Momentum',
+   hook:'Spring forward energy drives action — buyers feel ready to start something new after the post-January lull',
+   events:['International Women\'s Day (8th)','Spring equinox (20th)','Tax refund season (US)'],
+   angle:'Spring reset — position {T} as the fresh start {A} have been waiting for before summer distractions arrive',
+   fmts:['Spring cohort','Spring flash sale','Spring template drop','Spring membership offer','Spring coaching sprint'],
+   tip:'IWD (March 8) is a high-engagement moment if your audience skews female — a community-led campaign outperforms a solo promotion'},
+  {name:'April',     col:'#5AE57A', tag:'Q2 Kickoff',
+   hook:'April is underrated — buyers who missed January resolutions are ready to recommit, with less inbox competition than any other month',
+   events:['End of tax season','Spring school break','Earth Day (22nd)'],
+   angle:'"Still time to start" — reframe {T} for {A} who feel behind on their goal to {X} but haven\'t given up yet',
+   fmts:['Second-chance cohort','April flash sale','Productivity bundle','Q2 membership push','April intensive'],
+   tip:'April has the lowest ad costs and least inbox competition of the year — it\'s the hidden gem in most niches'},
+  {name:'May',       col:'#5AE57A', tag:'Pre-Summer Push',
+   hook:'Last chance before the summer slowdown — buyers want to lock in progress before holidays and kids\' schedules break routines',
+   events:['Mother\'s Day (2nd Sun)','Mental Health Awareness Month','Memorial Day (US, last Mon)'],
+   angle:'"Get it done before summer" — help {A} make real progress on {X} while motivation and routine are still on their side',
+   fmts:['Pre-summer enrolment','Mother\'s Day bundle','Summer-prep kit','Pre-summer membership push','Before-summer intensive'],
+   tip:'Mother\'s Day bundles work in any niche when framed as investing in yourself or the people you lead — not just gifting'},
+  {name:'June',      col:'#5AE57A', tag:'Mid-Year Milestone',
+   hook:'Half-year checkpoint energy is real — "mid-year reset" messaging resonates strongly with goal-setters across every niche',
+   events:['Pride Month','Halfway-through-the-year moment','School summer break begins'],
+   angle:'"Halfway through the year" — help {A} audit where they are on {X} and course-correct before the Q3 drift sets in',
+   fmts:['Mid-year cohort','Half-year bundle sale','Mid-year toolkit','Mid-year membership push','Mid-year audit session'],
+   tip:'Send a "mid-year check-in" email with no pitch — pure value — then follow with your offer 48 hours later'},
+  {name:'July',      col:'#5AE57A', tag:'Summer Sale',
+   hook:'Lower competition and summer downtime create a quiet opportunity — people scroll, plan, and buy during holidays more than sellers expect',
+   events:['Independence Day (US, 4th)','Summer holidays peak','Back-to-school prep begins'],
+   angle:'Summer planning mode — position {T} as what {A} work through while the world slows down and space to focus opens up',
+   fmts:['Summer cohort','Summer flash sale','Vacation bundle','Summer membership offer','Summer VIP intensive'],
+   tip:'A 48-hour July flash sale during a holiday weekend regularly outperforms a week-long promotion — scarcity drives faster decisions'},
+  {name:'August',    col:'#5AE57A', tag:'Back-to-Work Season',
+   hook:'End of summer triggers a collective "back to it" mindset — one of the strongest organic buying windows of the entire year',
+   events:['Back-to-school month','Summer holiday wind-down','Q3 planning period'],
+   angle:'"Back to it" — spotlight {T} as the tool {A} use to build momentum on {X} in Q4 while there\'s still enough time',
+   fmts:['Back-to-school cohort','Relaunch flash sale','Back-to-work kit','August membership push','Q4 prep coaching'],
+   tip:'A "back to it" re-engagement email to past buyers in August regularly outperforms a cold-audience campaign — warm the list first'},
+  {name:'September', col:'#5AE57A', tag:'Fall Focus',
+   hook:'September is the January of the second half — fresh routines, high buying intent, and strong engagement across nearly every niche',
+   events:['Schools fully back','Q4 goal-setting begins','World Mental Health Day (Oct 10)'],
+   angle:'Fall focus — position {T} as the serious investment {A} make in Q4 to lock in {X} before year-end pressure kicks in',
+   fmts:['Fall cohort enrolment','Fall launch sale','Fall toolkit release','Founding member offer','Q4 coaching programme'],
+   tip:'September is the single strongest month for course launches — treat it like a January-level campaign with a full promotional runway'},
+  {name:'October',   col:'#5AE57A', tag:'Pre-Peak Season',
+   hook:'October is your runway to November — buyers who act now won\'t wait for Black Friday, and your margins stay healthier without deep discounting',
+   events:['Halloween (31st)','Pre-Black Friday buzz builds','Q4 urgency window opens'],
+   angle:'Beat the Black Friday noise — give {A} early access to {T} before every inbox is fighting for their attention in November',
+   fmts:['Early enrolment window','October pre-sale','Early-access kit drop','Early member offer','Pre-BFCM coaching package'],
+   tip:'An October "before the chaos" campaign to your warm list often outperforms Black Friday — lower noise, higher trust, better margins'},
+  {name:'November',  col:'#5AE57A', tag:'Peak Sales Season',
+   hook:'The highest-volume sales month of the year — buyers expect deals, inboxes are open, and urgency converts like no other time',
+   events:['Black Friday (4th Fri)','Cyber Monday','Giving Tuesday (day after BFCM)'],
+   angle:'Black Friday for digital products — make {T} the obvious choice {A} invest in before year-end to finally {X}',
+   fmts:['BFCM cohort launch','BFCM bundle sale','Black Friday kit drop','BFCM membership offer','BFCM coaching package'],
+   tip:'Run your BFCM offer for 5 days max — open Thursday, close Monday. Longer windows kill urgency and tank your conversion rate'},
+  {name:'December',  col:'#5AE57A', tag:'Year-End & Gifting',
+   hook:'December has two windows: pre-Christmas gifting (1st–20th) and post-Christmas planning (26th–31st) — both convert if you plan for both',
+   events:['Peak gift-buying (1st–20th)','Christmas Day (25th)','New Year\'s Eve planning surge'],
+   angle:'"Gift yourself a head start" — position {T} as the decision {A} make in December to hit {X} from day one in January',
+   fmts:['Dec cohort · Jan 1 start','Gift bundle sale','Year-end kit launch','December gift membership','Year-end intensive'],
+   tip:'"Buy now, start January 1" removes the bad-timing objection completely — buyers commit now, you deliver at peak motivation'},
+];
+
+let state = {pt:0, n:6};
+function pickPT(i) { state.pt=i; [0,1,2,3,4].forEach(x=>document.getElementById(`pt${x}`).classList.toggle('sel',x===i)); }
+function pickN(n)  { state.n=n;  [3,6,12].forEach(x=>document.getElementById(`n${x}`).classList.toggle('sel',x===n)); }
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  const slice = months.slice(0, state.n);
+  document.getElementById('statsBar').innerHTML =
+    st(state.n,'Months') + st(ptLabel[state.pt],'Product') + st(bestMo[state.pt],'Top Month') + st(peakWin[state.pt],'Peak Window');
+
+  document.getElementById('monthCards').innerHTML = slice.map(m => {
+    const fmt = m.fmts[state.pt];
+    return `<div class="month-card" style="border-left-color:${m.col}">
+      <div class="month-head">
+        <span class="month-name" style="color:${m.col}">${m.name}</span>
+        <span class="month-tag">${m.tag}</span>
+      </div>
+      <div class="month-hook">${m.hook}</div>
+      <div class="month-events">${m.events.map(e=>`<span class="event-pill">${e}</span>`).join('')}</div>
+      <div class="month-angle">${fill(m.angle,T,A,X)}</div>
+      <div class="month-row">
+        <div class="month-chip"><span class="chip-lbl">Recommended Format</span>${fmt}</div>
+        <div class="month-chip"><span class="chip-lbl">Season</span>${m.tag}</div>
+      </div>
+      <div class="month-tip"><strong style="color:${m.col}">Power move:</strong> ${m.tip}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  const slice = months.slice(0, state.n);
+  let text = `SEASONAL LAUNCH CALENDAR\nProduct: ${ptLabel[state.pt]} · Topic: ${T} · Audience: ${A}\nTop Month: ${bestMo[state.pt]} · Peak Window: ${peakWin[state.pt]}\n\n`;
+  slice.forEach(m => {
+    text += `${m.name.toUpperCase()} — ${m.tag}\n${'─'.repeat(36)}\n`;
+    text += `${m.hook}\n`;
+    text += `Key moments: ${m.events.join(' · ')}\n`;
+    text += `Launch angle: ${fill(m.angle,T,A,X)}\n`;
+    text += `Format: ${m.fmts[state.pt]}\n`;
+    text += `Power move: ${m.tip}\n\n`;
+  });
+  text += `---\nCreated with Seasonal Launch Calendar by GetPaidToBeYouOnline`;
+
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Calendar as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

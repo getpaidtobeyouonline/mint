@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Detox Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .day { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; display: flex; gap: 12px; cursor: pointer; }
+  .day.on { opacity: .55; } .day.on .t { text-decoration: line-through; }
+  .box { flex: none; width: 20px; height: 20px; border: 1px solid #BFD8BF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .78rem; margin-top: 2px; }
+  .day.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .t b { color: #5AE57A; } .t { font-size: .92rem; }
+  .track { background: #3C603C; border-radius: 5px; height: 8px; overflow: hidden; margin: 10px 0; }
+  .track>i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Social Media Detox Planner</h1>
+  <p class="sub">A guided reset to break the doomscroll — without quitting the platforms you work on.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="len">Detox length</label><select id="len" onchange="build()"><option value="3">3 days</option><option value="7" selected>7 days</option><option value="14">14 days</option></select></div>
+      <div><label for="mode">Mode</label><select id="mode" onchange="build()"><option value="full">Full break</option><option value="work">Work-only (no scrolling)</option></select></div>
+    </div>
+    <label for="why">Your reason (read this when tempted)</label>
+    <input id="why" placeholder="e.g. reclaim 2 hrs/day for my own projects">
+    <button class="btn ghost" onclick="resetD()">Reset Progress</button>
+  </div>
+
+  <div class="track"><i id="bar" style="width:0%"></i></div>
+  <div id="days"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const TASKS=[
+    "Audit: screen-time report + how it makes you feel. Delete 1 app from your phone (use web for work).",
+    "Greyscale your phone + remove social from the home screen. Set 2 fixed 'work windows'.",
+    "Replace one scroll trigger with a 5-min alternative (walk, water, notes). Note the urge, don't act.",
+    "No-phone first & last hour of the day. Notice what you reach for instead.",
+    "Unfollow 10 accounts that drain or compare. Follow 3 that genuinely teach you.",
+    "Single-task a work-only session: post/engage with a timer, then close it fully.",
+    "Reflect: time reclaimed, mood shift, what to keep permanently.",
+    "Re-audit screen time. Set one keep-forever rule.",
+    "Batch-create instead of grazing: produce, don't consume.",
+    "A full no-input day — create or rest only.",
+    "Curate notifications to near-zero. Only DMs that matter.",
+    "Define your 3 non-negotiable work tasks; everything else is optional.",
+    "Teach someone one thing you learned offline this week.",
+    "Design your new normal: exact windows, apps, and limits going forward."
+  ];
+  ['why'].forEach(k=>{ const s=localStorage.getItem('smd_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('smd_'+k,g(k).value)); });
+  let done=JSON.parse(localStorage.getItem('smd_done')||'{}');
+  function build() {
+    const len=+g('len').value;
+    g('days').innerHTML=Array.from({length:len},(_,i)=>{
+      const on=!!done[i];
+      return `<div class="day ${on?'on':''}" data-i="${i}"><div class="box">${on?'✓':''}</div>
+        <div class="t"><b>Day ${i+1}</b> — ${TASKS[i%TASKS.length]}</div></div>`;
+    }).join('');
+    g('days').querySelectorAll('.day').forEach(d=>d.onclick=()=>{ const i=+d.dataset.i; done[i]=!done[i]; localStorage.setItem('smd_done',JSON.stringify(done)); build(); });
+    const c=Object.values(done).filter(Boolean).length;
+    g('bar').style.width=Math.round(c/len*100)+'%';
+  }
+  function resetD(){ if(confirm('Reset detox progress?')){ done={}; localStorage.setItem('smd_done','{}'); build(); } }
+  build();
+</script>
+</body>
+</html>

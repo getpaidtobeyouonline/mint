@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solo Travel Safety Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  .item { display: flex; align-items: center; gap: 9px; padding: 6px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .87rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 18px; height: 18px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Solo Travel Safety Planner</h1>
+  <p class="sub">Solo travel is wonderful and freeing — a little planning keeps it that way.</p>
+
+  <div class="panel">
+    <h3>Safety checklist</h3>
+    <div id="checks"></div>
+  </div>
+
+  <div class="panel">
+    <h3>My safety plan</h3>
+    <label for="contact">My emergency contact back home</label>
+    <input id="contact" placeholder="Name and how to reach them">
+    <label for="checkin">My check-in routine</label>
+    <input id="checkin" placeholder="e.g. Message them every evening">
+    <label for="local">Local emergency number &amp; embassy</label>
+    <input id="local" placeholder="Look these up for your destination">
+    <label for="accom">Where I am staying (first few nights)</label>
+    <textarea id="accom" placeholder="Address and contact details"></textarea>
+    <label for="rules">My personal safety rules for this trip</label>
+    <textarea id="rules" placeholder="e.g. No solo walking after dark, trust my gut, share my location"></textarea>
+    <button class="btn" onclick="gen()">Build Safety Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const CHECKS=["Researched the destination's safe and unsafe areas","Shared my itinerary with someone at home","Saved digital and paper copies of key documents","Set up a way to stay connected (SIM / eSIM / roaming)","Know how I will get from the airport safely","Have some local cash for arrival","Told my accommodation my arrival time","Checked government travel advice for the destination"];
+  let st=JSON.parse(localStorage.getItem('stsp_chk')||'{}');
+  const F=['contact','checkin','local','accom','rules'];
+  F.forEach(k=>{ const s=localStorage.getItem('stsp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('stsp_'+k,g(k).value)); });
+  function tog(i){ st[i]=!st[i]; localStorage.setItem('stsp_chk',JSON.stringify(st)); draw(); }
+  function draw(){
+    g('checks').innerHTML=CHECKS.map((c,i)=>'<div class="item" onclick="tog('+i+')"><span class="box'+(st[i]?' on':'')+'">'+(st[i]?'✓':'')+'</span><span>'+c+'</span></div>').join('');
+  }
+  function gen(){
+    const t=`SOLO TRAVEL SAFETY PLAN\n\nEMERGENCY CONTACT (HOME):\n${v('contact')||'[name + contact]'}\n\nMY CHECK-IN ROUTINE:\n${v('checkin')||'[how and when you check in]'}\n\nLOCAL EMERGENCY NUMBER & EMBASSY:\n${v('local')||'[look these up]'}\n\nWHERE I AM STAYING:\n${v('accom')||'[address + contact]'}\n\nMY PERSONAL SAFETY RULES:\n${v('rules')||'[your rules for this trip]'}\n\n--- Always ---\nTrust your instincts — if something feels off, leave.\nKeep someone informed of your daily plan.\nYou can be open to adventure and still be careful. Enjoy it.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  draw();
+</script>
+</body>
+</html>

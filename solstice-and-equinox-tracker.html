@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solstice and Equinox Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .pt { background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .pt.next { border-color: #5AE57A; }
+  .pt .nm { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .pt .dt { font-size: .8rem; opacity: .7; }
+  .pt .th { font-size: .88rem; margin-top: 3px; }
+  .badge { font-size: .68rem; color: #325132; background: #5AE57A; border-radius: 12px; padding: 1px 8px; margin-left: 6px; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; min-height: 80px; }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 10px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Solstice and Equinox Tracker</h1>
+  <p class="sub">The four turning points of the solar year — and space to set your intentions.</p>
+
+  <div class="panel" id="points"></div>
+
+  <div class="panel">
+    <label for="note">Your reflection for the next turning point</label>
+    <textarea id="note" placeholder="What you want to honour, plant or release"></textarea>
+    <button class="btn" onclick="save()">Save Reflection</button>
+    <div id="saved" style="font-size:.8rem;opacity:.65;margin-top:8px"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const POINTS=[
+    {nm:'Spring Equinox',m:2,d:20,th:'Renewal, fresh starts, balance — plant new intentions.'},
+    {nm:'Summer Solstice',m:5,d:21,th:'Fullness, light, abundance — celebrate and shine.'},
+    {nm:'Autumn Equinox',m:8,d:22,th:'Harvest, gratitude, balance — gather in and give thanks.'},
+    {nm:'Winter Solstice',m:11,d:21,th:'Stillness, rest, inner light — reflect and restore.'}
+  ];
+  function build(){
+    const now=new Date(), y=now.getFullYear();
+    let list=POINTS.map(p=>{ let dt=new Date(y,p.m,p.d); if(dt<now)dt=new Date(y+1,p.m,p.d); return {p,dt}; });
+    list.sort((a,b)=>a.dt-b.dt);
+    const nextNm=list[0].p.nm;
+    g('points').innerHTML=POINTS.map(p=>{
+      const it=list.find(x=>x.p.nm===p.nm);
+      const isNext=p.nm===nextNm;
+      return '<div class="pt'+(isNext?' next':'')+'"><div class="nm">'+p.nm+(isNext?'<span class="badge">next</span>':'')+
+        '</div><div class="dt">'+it.dt.toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})+'</div><div class="th">'+p.th+'</div></div>';
+    }).join('');
+    window._next=nextNm;
+    const s=localStorage.getItem('saet_'+nextNm); g('note').value=s||'';
+    g('saved').textContent=s?'A reflection is saved for the '+nextNm+'.':'';
+  }
+  function save(){ localStorage.setItem('saet_'+window._next,g('note').value); g('saved').textContent='Reflection saved for the '+window._next+'.'; }
+  build();
+</script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Success Definition Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 50px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 18px; }
+  .res .def { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.25rem; line-height: 1.45; }
+  .res p { font-size: .92rem; opacity: .85; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Success Definition Tool</h1>
+  <p class="sub">If you do not define success, the world will — usually as more, more, more. Write yours.</p>
+
+  <div class="panel">
+    <label for="time">"I succeed when I spend my time…"</label>
+    <input id="time" placeholder="e.g. doing deep work, with people I love">
+    <label for="money">"I succeed financially when…"</label>
+    <input id="money" placeholder="e.g. I am not stressed about money, with room to be generous">
+    <label for="body">"I succeed in my body when…"</label>
+    <input id="body" placeholder="e.g. I feel energetic and at home in myself">
+    <label for="relate">"I succeed in my relationships when…"</label>
+    <input id="relate" placeholder="e.g. the people closest to me feel seen and supported">
+    <label for="self">"I succeed with myself when…"</label>
+    <textarea id="self" placeholder="The internal markers of having lived well"></textarea>
+    <button class="btn" onclick="gen()">Lock My Definition</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['time','money','body','relate','self'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('sdt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('sdt_'+k,g(k).value)); });
+  function gen(){
+    g('out').innerHTML='<div class="res"><div class="def">For me, success looks like:<br>'+
+      '— '+esc(v('time')||'(time)')+'<br>'+
+      '— '+esc(v('money')||'(money)')+'<br>'+
+      '— '+esc(v('body')||'(body)')+'<br>'+
+      '— '+esc(v('relate')||'(relationships)')+'<br>'+
+      '— '+esc(v('self')||'(self)')+'</div>'+
+      '<p>This is the scoreboard. Anything outside of it is somebody else\'s game. Read it before any big decision &mdash; if a choice does not move you toward more of this, it is not success, it is just busy.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Lock first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

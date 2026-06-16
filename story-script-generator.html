@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Story Script Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 780px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .scene {
+    border-left: 3px solid #5AE57A;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    background: #325132;
+    border-radius: 8px;
+  }
+  .scene-label {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+  .scene-meta {
+    font-size: 12px;
+    opacity: 0.6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .scene-text { font-size: 15px; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Story Script Generator</h1>
+  <p class="subtitle">Turn one idea into a 5-scene story script ready to film. Picks your hook, beats, and CTA.</p>
+
+  <div class="card">
+    <label>What's the story about?</label>
+    <textarea id="topic" placeholder="e.g. how I quit my 9-5 and replaced my income in 6 months"></textarea>
+    <div class="row">
+      <div>
+        <label>Platform</label>
+        <select id="platform">
+          <option>Instagram Reels</option>
+          <option>TikTok</option>
+          <option>YouTube Shorts</option>
+          <option>Instagram Story</option>
+        </select>
+      </div>
+      <div>
+        <label>Tone</label>
+        <select id="tone">
+          <option>Inspiring</option>
+          <option>Raw & Real</option>
+          <option>Funny</option>
+          <option>Educational</option>
+          <option>Vulnerable</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Goal</label>
+        <select id="goal">
+          <option>Build trust</option>
+          <option>Drive DMs</option>
+          <option>Get followers</option>
+          <option>Sell a product</option>
+          <option>Book calls</option>
+        </select>
+      </div>
+      <div>
+        <label>Length</label>
+        <select id="length">
+          <option>15s (punchy)</option>
+          <option>30s (standard)</option>
+          <option>60s (deep)</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Generate Script</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:12px;font-size:16px;">Your Script</label>
+      <div id="scenes"></div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyScript()">Copy to Clipboard</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const HOOKS = {
+  'Inspiring': ["I used to believe {topic} was impossible.", "Three years ago, I had nothing. Today, {topic}.", "If you're stuck right now — read this."],
+  'Raw & Real': ["Nobody told me the truth about {topic}.", "Here's what really happened with {topic}.", "I'm done sugarcoating this."],
+  'Funny': ["Plot twist: {topic}.", "POV: you finally tried {topic}.", "Tell me why nobody warned me about this..."],
+  'Educational': ["Most people get {topic} completely wrong.", "Here's the 1 thing that changed everything for me.", "Save this if you've ever wondered about {topic}."],
+  'Vulnerable': ["I almost didn't post this.", "This is the part nobody sees.", "I cried writing this."]
+};
+
+const BEATS = {
+  'Inspiring': ["Set the scene — show where you started.", "Reveal the turning point.", "Show the proof or transformation.", "Connect it to the viewer's life."],
+  'Raw & Real': ["Drop the uncomfortable truth.", "Tell the moment it clicked.", "Share what it actually cost you.", "Say what you wish someone had told you."],
+  'Funny': ["Set up the relatable problem.", "Lean into the absurdity.", "Hit the punchline.", "Twist it into something useful."],
+  'Educational': ["State the misconception.", "Explain the actual mechanism.", "Give a quick example.", "Hand them the takeaway."],
+  'Vulnerable': ["Open with the fear.", "Show the moment it shifted.", "Name the lesson clearly.", "Invite them in — they're not alone."]
+};
+
+const CTAS = {
+  'Build trust': "Follow for more honest takes like this.",
+  'Drive DMs': "DM me 'STORY' and I'll send you the full version.",
+  'Get followers': "Follow if you needed to hear this today.",
+  'Sell a product': "Link in bio — built this exact thing into a tool.",
+  'Book calls': "Comment 'CALL' if you want to talk through your version of this."
+};
+
+const LENGTH_MAP = {
+  '15s (punchy)': {scenes: 3, perScene: '3-4s'},
+  '30s (standard)': {scenes: 5, perScene: '5-7s'},
+  '60s (deep)': {scenes: 6, perScene: '8-12s'}
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  if (!topic) { alert('Tell us what the story is about first.'); return; }
+
+  const tone = document.getElementById('tone').value;
+  const goal = document.getElementById('goal').value;
+  const length = document.getElementById('length').value;
+  const platform = document.getElementById('platform').value;
+  const cfg = LENGTH_MAP[length];
+
+  const hook = pick(HOOKS[tone]).replace('{topic}', topic);
+  const beats = BEATS[tone];
+  const cta = CTAS[goal];
+
+  const allScenes = [
+    {label: 'Hook', meta: `0-3s · ${platform}`, text: hook}
+  ];
+
+  const beatCount = cfg.scenes - 2;
+  for (let i = 0; i < beatCount; i++) {
+    allScenes.push({
+      label: `Scene ${i + 2}`,
+      meta: `${cfg.perScene} · Beat ${i + 1}`,
+      text: beats[i % beats.length]
+    });
+  }
+
+  allScenes.push({label: 'CTA', meta: 'Last 2-3s · Direct ask', text: cta});
+
+  document.getElementById('scenes').innerHTML = allScenes.map(s => `
+    <div class="scene">
+      <div class="scene-label">${s.label}</div>
+      <div class="scene-meta">${s.meta}</div>
+      <div class="scene-text">${s.text}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyScript() {
+  const scenes = document.querySelectorAll('.scene');
+  let text = '';
+  scenes.forEach(s => {
+    text += s.querySelector('.scene-label').textContent + ' (' + s.querySelector('.scene-meta').textContent + ')\n';
+    text += s.querySelector('.scene-text').textContent + '\n\n';
+  });
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    alert('Script copied. Go film it.');
+  });
+}
+</script>
+</body>
+</html>

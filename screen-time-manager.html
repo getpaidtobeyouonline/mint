@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen Time Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .big { text-align: center; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; }
+  .bar { height: 12px; background: #5A845A; border-radius: 6px; overflow: hidden; margin: 8px 0; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg,#5AE57A,#5AE57A); width: 0; transition: width .4s; }
+  .bar i.over { background: #5AE57A; }
+  .meta { font-size: .85rem; opacity: .75; text-align: center; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; font-size: .88rem; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .big .n { font-size: 2.2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Screen Time Manager</h1>
+  <p class="sub">Set a daily allowance, log usage, and see what is left without an argument.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Daily allowance (minutes)</label><input id="allow" type="number" min="0" placeholder="e.g. 60"></div>
+      <div><label>Add usage (minutes)</label><input id="mins" type="number" min="0" placeholder="e.g. 20"></div>
+      <div><label>What for</label><input id="what" placeholder="e.g. cartoons, game, video call"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div class="panel big">
+    <div class="n" id="left">—</div>
+    <div class="meta" id="metaLine">Today's allowance left</div>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="meta" id="used"></div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="resetDay()" style="margin-top:8px">Reset Today</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  function today(){ return new Date().toISOString().slice(0,10); }
+  let D=JSON.parse(localStorage.getItem('stm')||'{"allow":60,"day":"","log":[]}');
+  if(D.day!==today()){ D.day=today(); D.log=[]; }
+  g('allow').value=D.allow;
+  g('allow').addEventListener('input',()=>{ D.allow=parseFloat(g('allow').value)||0; save(); render(); });
+  const save=()=>localStorage.setItem('stm',JSON.stringify(D));
+  function add(){ const m=parseFloat(g('mins').value)||0; if(!m){ alert('Enter minutes.'); return; }
+    D.log.unshift({m,w:g('what').value.trim(),t:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+    g('mins').value=''; g('what').value=''; save(); render(); }
+  function del(i){ D.log.splice(i,1); save(); render(); }
+  function resetDay(){ if(confirm('Reset today\'s usage?')){ D.log=[]; save(); render(); } }
+  function render(){
+    const used=D.log.reduce((s,x)=>s+x.m,0), left=Math.max(0,D.allow-used);
+    g('left').textContent=left+' min';
+    g('used').textContent=used+' of '+D.allow+' min used';
+    const pct=D.allow?Math.min(100,Math.round(used/D.allow*100)):0;
+    const f=g('fill'); f.style.width=pct+'%'; f.className=used>D.allow?'over':'';
+    if(used>D.allow){ g('metaLine').textContent='Over today\'s allowance — gentle reminder time'; } else g('metaLine').textContent='Today\'s allowance left';
+    const L=g('list');
+    L.innerHTML=D.log.length?D.log.map((x,i)=>'<div class="item"><span>'+x.t+'  ·  '+x.m+' min'+(x.w?'  ·  '+x.w:'')+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join(''):'<div class="empty">No usage logged today.</div>';
+  }
+  render();
+</script>
+</body>
+</html>

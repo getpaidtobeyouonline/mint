@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Proof Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.pt-note{font-size:.75rem;opacity:.4;text-align:center;margin-bottom:1rem;font-style:italic}
+.stage-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.stage-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.3rem;gap:.5rem}
+.stage-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.stage-where{font-size:.65rem;opacity:.35;text-align:right;line-height:1.4;flex-shrink:0;max-width:200px}
+.stage-label{font-size:.82rem;opacity:.58;margin-bottom:.65rem;line-height:1.4;font-style:italic}
+.proof-list{list-style:none;margin-bottom:.65rem}
+.proof-list li{font-size:.83rem;opacity:.72;padding:.3rem 0 .3rem 1.2rem;position:relative;line-height:1.45;border-bottom:1px solid #3C603C}
+.proof-list li:last-child{border-bottom:none}
+.proof-list li::before{content:'\2713';position:absolute;left:0;color:#5AE57A;font-size:.75rem;top:.35rem}
+.stage-tip{background:#325132;border-radius:6px;padding:.55rem .75rem;font-size:.75rem;opacity:.55;line-height:1.4}
+.stage-tip strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Social Proof Dashboard</h1>
+    <p class="subtitle">Map the right social proof to every stage of your sales funnel — from first impression to post-purchase advocacy.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Business</h2>
+    <label>Product Type</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickPT(0)" id="pt0">Course</button>
+      <button class="opt"     onclick="pickPT(1)" id="pt1">Ebook</button>
+      <button class="opt"     onclick="pickPT(2)" id="pt2">Template Kit</button>
+      <button class="opt"     onclick="pickPT(3)" id="pt3">Membership</button>
+      <button class="opt"     onclick="pickPT(4)" id="pt4">Coaching</button>
+    </div>
+    <label>Product / Brand Topic</label>
+    <input type="text" id="inT" placeholder="e.g. email marketing, mindset, productivity">
+    <label>Target Audience</label>
+    <input type="text" id="inA" placeholder="e.g. coaches, freelancers, online sellers">
+    <label>Core Outcome You Deliver</label>
+    <input type="text" id="inX" placeholder="e.g. build a profitable email list, sign 3 clients">
+    <button class="btn" onclick="generate()">Build My Social Proof Dashboard →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div class="pt-note" id="ptNote"></div>
+    <div id="stageCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Social Proof Strategy as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const ptLabel = ['Course','Ebook','Template Kit','Membership','Coaching'];
+const ptNote  = [
+  'Course creator strategy — stack proof at each stage to convert more {A} into enrolled students',
+  'Ebook seller strategy — turn {A} skepticism into purchase confidence at every touchpoint',
+  'Template kit strategy — let {A} results speak for themselves from discovery to checkout',
+  'Membership strategy — build community credibility that reduces churn and drives word-of-mouth among {A}',
+  'Coaching strategy — establish premium authority with {A} long before the sales conversation begins',
+];
+
+const stages = [
+  {name:'Discovery Stage',     col:'#5AE57A', where:'Social media · Short-form video · Paid ads · SEO',
+   label:'Build initial trust with {A} who don\'t know you yet — volume and peer proof win here',
+   types:[
+     '{A} count or student number used as a bold hook — "Join 4,200+ {A} who have already {X}"',
+     '1–2 sentence quick-win quote from a {A} — no context needed, the result does the work',
+     'Screenshots of {A} sharing their own {X} results publicly — peer proof with zero selling',
+   ],
+   tip:'Feature your biggest credibility number first — list size, student count, or years in the game'},
+  {name:'Interest Stage',      col:'#5AE57A', where:'Lead magnet pages · Opt-in pages · Email headers',
+   label:'Convert curious {A} into subscribers — prove you\'re worth their email address',
+   types:[
+     'Lead magnet download or subscriber count displayed near the opt-in ("Downloaded by 3,000+ {A}")',
+     'Short testimonial specifically about your free content — proof before the sale reduces friction',
+     'Trust signal: media mentions, platform badges, or a recognisable brand {A} already follow',
+   ],
+   tip:'Proof at the opt-in stage is underused — {A} share their email more freely when they already trust you'},
+  {name:'Consideration Stage', col:'#5AE57A', where:'Sales page · Email nurture · Webinar replay',
+   label:'Convert warm {A} into buyers by addressing doubt and amplifying desire for {X}',
+   types:[
+     'Before & after testimonials that mirror the exact transformation {A} are seeking — {X}',
+     'Case study or success story with a specific number, timeline, or named result toward {X}',
+     'Video testimonial from a {A} who overcame the main objection your buyers raise before buying',
+   ],
+   tip:'Stack 3+ testimonials on your sales page — one for each major objection your {A} have before buying'},
+  {name:'Decision Stage',      col:'#5AE57A', where:'Checkout page · Cart emails · Order bump',
+   label:'Remove last-minute doubt at the exact moment {A} are about to click buy',
+   types:[
+     '"I was nervous about ___" objection-busting quote placed directly above the buy button',
+     'Real buyer count or recent sales signal — "47 {A} joined {T} this week" builds urgency with proof',
+     'Trust badge or money-back guarantee paired with a short 5-star review from a {A} just like them',
+   ],
+   tip:'One well-placed objection-busting testimonial above the buy button can close the gap single-handedly'},
+  {name:'Post-Purchase Stage', col:'#5AE57A', where:'Welcome email · Onboarding · Community intro',
+   label:'Turn new {A} buyers into confident advocates — reinforce their decision from day one',
+   types:[
+     'Welcome message featuring a success story from a past {A} to validate their purchase decision',
+     'Milestone expectation-setter — "By day 7, most {A} have already {X}" — set early wins as the norm',
+     'Referral trigger with a real result as the hook — "{A} you know who want {X} would love this too"',
+   ],
+   tip:'Post-purchase proof reduces buyer\'s remorse and boosts completion — anchor the expectation on Day 1'},
+];
+
+let state = {pt:0};
+
+function pickPT(i) {
+  state.pt = i;
+  [0,1,2,3,4].forEach(x => document.getElementById(`pt${x}`).classList.toggle('sel', x===i));
+}
+
+function generate() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  if (!T || !A || !X) { alert('Please fill in all three fields.'); return; }
+
+  document.getElementById('statsBar').innerHTML =
+    st(5,'Funnel Stages') + st(ptLabel[state.pt],'Product') + st(15,'Proof Types') + st('All Stages','Coverage');
+  document.getElementById('ptNote').textContent = fill(ptNote[state.pt],T,A,X);
+
+  document.getElementById('stageCards').innerHTML = stages.map((s,i) => {
+    return `<div class="stage-card" style="border-left-color:${s.col}">
+      <div class="stage-head">
+        <span class="stage-name" style="color:${s.col}">${s.name}</span>
+        <span class="stage-where">${s.where}</span>
+      </div>
+      <div class="stage-label">${fill(s.label,T,A,X)}</div>
+      <ul class="proof-list">${s.types.map(t=>`<li>${fill(t,T,A,X)}</li>`).join('')}</ul>
+      <div class="stage-tip"><strong>Power move:</strong> ${fill(s.tip,T,A,X)}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const T = document.getElementById('inT').value.trim();
+  const A = document.getElementById('inA').value.trim();
+  const X = document.getElementById('inX').value.trim();
+  let text = `SOCIAL PROOF DASHBOARD\n`;
+  text += `Product: ${ptLabel[state.pt]} · Topic: ${T} · Audience: ${A}\n`;
+  text += `${fill(ptNote[state.pt],T,A,X)}\n\n`;
+  stages.forEach((s,i) => {
+    text += `${s.name.toUpperCase()}\n${s.where}\n${'─'.repeat(36)}\n`;
+    text += `${fill(s.label,T,A,X)}\n\n`;
+    s.types.forEach((t,j) => text += `${j+1}. ${fill(t,T,A,X)}\n`);
+    text += `\nPower move: ${fill(s.tip,T,A,X)}\n\n`;
+  });
+  text += `---\nCreated with Social Proof Dashboard by GetPaidToBeYouOnline`;
+
+  const btn = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Social Proof Strategy as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

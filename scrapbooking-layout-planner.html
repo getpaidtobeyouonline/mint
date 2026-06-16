@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scrapbooking Layout Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Scrapbooking Layout Planner</h1>
+  <p class="sub">Plan a scrapbook page that tells the story — not just collects the bits.</p>
+
+  <div class="panel">
+    <label for="theme">Theme of the page</label>
+    <input id="theme" placeholder="e.g. summer holiday, baby's first year, our wedding">
+    <label for="photos">Photos to include (one per line)</label>
+    <textarea id="photos" placeholder="Describe each — what makes it worth keeping"></textarea>
+    <label for="palette">Colour palette</label>
+    <input id="palette" placeholder="e.g. sea blue, sand, cream">
+    <label for="layout">Layout idea</label>
+    <textarea id="layout" placeholder="One big hero photo + 3 smaller? Grid? Diagonal?"></textarea>
+    <label for="words">Words / journaling to add</label>
+    <textarea id="words" placeholder="A few lines that capture what you want to remember"></textarea>
+    <label for="extras">Embellishments &amp; extras</label>
+    <input id="extras" placeholder="Tickets, washi tape, dried flowers, stickers">
+    <button class="btn" onclick="gen()">Build Layout Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['theme','photos','palette','layout','words','extras'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('slp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('slp_'+k,g(k).value)); });
+  function gen(){
+    const t='SCRAPBOOK LAYOUT PLAN\n\nTHEME: '+(v('theme')||'[your theme]')+
+    '\n\nPHOTOS:\n'+(v('photos')||'[your chosen photos]')+
+    '\n\nPALETTE: '+(v('palette')||'[your colours]')+
+    '\n\nLAYOUT:\n'+(v('layout')||'[your composition idea]')+
+    '\n\nWORDS / JOURNALING:\n'+(v('words')||'[the words that hold the memory]')+
+    '\n\nEMBELLISHMENTS:\n'+(v('extras')||'[the little extras]')+
+    '\n\n--- Layout tips ---\nOne hero photo earns the most space. Smaller ones support it.\nLeave white space — the eye needs somewhere to rest.\nThe journaling is the most precious bit — give it room.\nMatching colours from the photo into the paper ties it all together.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

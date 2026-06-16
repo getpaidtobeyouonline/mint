@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skin Care Routine Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .routine { background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 16px; margin-bottom: 12px; }
+  .routine h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 8px; }
+  .step { display: flex; gap: 10px; padding: 7px 0; border-bottom: 1px solid #4C724C; font-size: .9rem; }
+  .step:last-child { border-bottom: none; }
+  .step .n { color: #5AE57A; font-weight: 600; flex: none; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Skin Care Routine Builder</h1>
+  <p class="sub">Answer two questions and get a simple, evidence-based AM and PM routine.</p>
+
+  <div class="panel">
+    <label for="type">Your skin type</label>
+    <select id="type"><option value="dry">Dry</option><option value="oily">Oily</option><option value="combo">Combination</option><option value="sens">Sensitive</option><option value="normal">Normal / balanced</option></select>
+    <label for="goal">Main goal</label>
+    <select id="goal"><option value="simple">Keep it simple &amp; healthy</option><option value="aging">Address fine lines / ageing</option><option value="acne">Manage breakouts</option><option value="bright">Even tone &amp; brightness</option></select>
+    <button class="btn" onclick="gen()">Build My Routine</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+    <div class="note">General skincare guidance, not dermatological advice. Patch-test new products and introduce actives one at a time.</div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const CLEAN={dry:"Cream or gentle non-foaming cleanser",oily:"Gel or foaming cleanser",combo:"Gentle gel cleanser",sens:"Fragrance-free creamy cleanser",normal:"Gentle gel cleanser"};
+  const MOIST={dry:"Rich moisturiser with ceramides",oily:"Lightweight gel moisturiser",combo:"Light lotion, more on dry areas",sens:"Simple barrier-repair moisturiser",normal:"Standard daily moisturiser"};
+  const TREAT={simple:["AM: nothing extra needed","PM: nothing extra needed"],aging:["AM: vitamin C serum (brightening, antioxidant)","PM: retinoid 2-3 nights a week, build up slowly"],acne:["AM: niacinamide serum (optional)","PM: salicylic acid or benzoyl peroxide, alternate nights"],bright:["AM: vitamin C serum","PM: niacinamide or gentle exfoliating acid 2x a week"]};
+  function gen(){
+    const ty=g('type').value, go=g('goal').value;
+    const cl=CLEAN[ty], mo=MOIST[ty], tr=TREAT[go];
+    const am=["Cleanser — "+cl,tr[0].replace('AM: ',''),"Moisturiser — "+mo,"Sunscreen SPF 30+ (every morning, no exceptions)"].filter(x=>x&&!/nothing/.test(x));
+    const pm=["Cleanser — "+cl+(ty==='oily'||ty==='combo'?' (double cleanse if wearing SPF/makeup)':''),tr[1].replace('PM: ',''),"Moisturiser — "+mo].filter(x=>x&&!/nothing/.test(x));
+    let h='<div class="routine"><h3>☀️ Morning</h3>'+am.map((s,i)=>'<div class="step"><span class="n">'+(i+1)+'</span><span>'+esc(s)+'</span></div>').join('')+'</div>';
+    h+='<div class="routine"><h3>🌙 Evening</h3>'+pm.map((s,i)=>'<div class="step"><span class="n">'+(i+1)+'</span><span>'+esc(s)+'</span></div>').join('')+'</div>';
+    h+='<div class="routine"><h3>The rule that beats everything</h3><p style="font-size:.9rem">Consistency over complexity. Four steps done daily beat ten steps done sometimes. Give any routine 6-8 weeks before judging it.</p></div>';
+    g('out').innerHTML=h;
+    window._copy='SKINCARE ROUTINE\n\nMORNING:\n'+am.map((s,i)=>(i+1)+'. '+s).join('\n')+'\n\nEVENING:\n'+pm.map((s,i)=>(i+1)+'. '+s).join('\n');
+  }
+  function copyOut(){ if(!window._copy){alert('Build it first.');return;} navigator.clipboard.writeText(window._copy).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

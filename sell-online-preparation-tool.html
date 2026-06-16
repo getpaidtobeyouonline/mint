@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell Online Preparation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 56px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .hint { font-size: .78rem; opacity: .6; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Sell Online Preparation Tool</h1>
+  <p class="sub">Selling something secondhand? Build a clear, trustworthy listing that sells.</p>
+
+  <div class="panel">
+    <label for="item">Item name</label>
+    <input id="item" placeholder="Be specific — brand, model, what it is">
+    <div class="grid">
+      <div><label for="condition">Condition</label><input id="condition" placeholder="e.g. Used — good, minor marks"></div>
+      <div><label for="price">Your price</label><input id="price" placeholder="Research similar listings first"></div>
+    </div>
+    <label for="desc">Description (honest detail builds trust)</label>
+    <textarea id="desc" placeholder="What it is, why you are selling, any flaws — be upfront"></textarea>
+    <label for="specs">Key details / specs</label>
+    <textarea id="specs" placeholder="Size, dimensions, age, what is included"></textarea>
+    <label for="photos">Photo plan</label>
+    <input id="photos" placeholder="e.g. Front, back, close-up of any wear, in use">
+    <div class="hint">Good, well-lit photos from several angles sell items faster than anything else.</div>
+    <label for="logistics">Collection / postage</label>
+    <input id="logistics" placeholder="e.g. Collection only, or postage + cost">
+    <button class="btn" onclick="gen()">Build Listing</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['item','condition','price','desc','specs','photos','logistics'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('sopt_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('sopt_'+k,g(k).value)); });
+  function gen(){
+    if(!v('item')){ alert('Enter the item name.'); return; }
+    const t=`LISTING: ${v('item')}\n\nCondition: ${v('condition')||'[state honestly]'}\nPrice: ${v('price')||'[your price]'}\n\nDESCRIPTION:\n${v('desc')||'[honest, detailed description]'}\n\nKEY DETAILS:\n${v('specs')||'[size, age, what is included]'}\n\nCOLLECTION / POSTAGE:\n${v('logistics')||'[how the buyer gets it]'}\n\n--- Photo checklist ---\n${v('photos')||'[front, back, close-ups, any wear]'}\n\n--- Selling tips ---\nHonesty about flaws prevents returns and bad reviews.\nPrice slightly above your minimum to leave room to negotiate.\nReply quickly to questions — keen buyers move on fast.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

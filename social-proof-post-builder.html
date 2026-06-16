@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Proof Post Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 32px; font-size: 1rem; }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 70px; }
+  .hint { font-size: 0.78rem; opacity: 0.55; margin-top: 4px; font-style: italic; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .output {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .output.show { display: block; }
+  .variant { margin-bottom: 22px; }
+  .variant:last-child { margin-bottom: 0; }
+  .variant-label {
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .msg {
+    background: rgba(240, 235, 224, 0.05);
+    border-left: 3px solid #5AE57A;
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.98rem;
+    white-space: pre-wrap;
+    line-height: 1.65;
+  }
+  .copy-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 6px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .copy-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Social Proof Post Builder</h1>
+  <p class="subtitle">Turn a testimonial, a sales milestone, or a customer win into a post that celebrates without bragging — and quietly sells.</p>
+
+  <label for="type">Type Of Proof</label>
+  <select id="type">
+    <option value="testimonial">Customer testimonial / quote</option>
+    <option value="result">Customer result / transformation</option>
+    <option value="revenue">Revenue or sales milestone (yours)</option>
+    <option value="followers">Follower / list milestone</option>
+    <option value="press">Press / feature</option>
+    <option value="dm">Glowing DM / comment screenshot</option>
+  </select>
+
+  <label for="proof" id="proofLabel">The Proof Itself</label>
+  <textarea id="proof" placeholder=""></textarea>
+  <div class="hint" id="proofHint"></div>
+
+  <label for="source" id="sourceLabel">Source / Person</label>
+  <input type="text" id="source" placeholder="" />
+
+  <label for="before">Where They Started (or "before")</label>
+  <input type="text" id="before" placeholder="e.g. quoting $1500 for full brand projects, terrified to raise rates" />
+
+  <label for="product">Your Product / Offer Tied To This (optional)</label>
+  <input type="text" id="product" placeholder="e.g. The Pricing Reset" />
+
+  <label for="lesson">The Bigger Lesson (one line)</label>
+  <input type="text" id="lesson" placeholder="e.g. pricing isn't a math problem — it's an identity problem" />
+
+  <button class="build-btn" id="buildBtn">Build My Post</button>
+
+  <div class="output" id="output">
+    <div class="variant">
+      <div class="variant-label">Story Version (for caption / LinkedIn)</div>
+      <div class="msg" id="storyMsg"></div>
+      <button class="copy-btn" data-target="storyMsg">Copy</button>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Short Version (for Threads / X / IG hook)</div>
+      <div class="msg" id="shortMsg"></div>
+      <button class="copy-btn" data-target="shortMsg">Copy</button>
+    </div>
+    <div class="variant">
+      <div class="variant-label">Story Slide Text (for IG / TikTok)</div>
+      <div class="msg" id="slideMsg"></div>
+      <button class="copy-btn" data-target="slideMsg">Copy</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const meta = {
+    testimonial: { proofPh: 'Paste the testimonial word-for-word', sourceLabel: 'Customer\'s Name (or "anonymized")', sourcePh: 'Maya P., freelance designer', proofHint: 'Word-for-word > polished. Their voice carries the trust.' },
+    result: { proofPh: 'e.g. raised her project rate from $1500 to $4200 in 6 weeks', sourceLabel: 'Customer\'s Name', sourcePh: 'Maya P.', proofHint: 'Use a specific number. "More confident" doesn\'t convert; "$4,200" does.' },
+    revenue: { proofPh: 'e.g. $50,000 month / first $10k cohort / 100 sales of [product]', sourceLabel: 'Anything else worth naming (timeframe, scale)', sourcePh: 'in 90 days', proofHint: 'Numbers > adjectives. Specific > vague.' },
+    followers: { proofPh: 'e.g. 10,000 newsletter subscribers / 50k IG followers / 5,000 customers', sourceLabel: 'Timeframe / context', sourcePh: 'after 2 years of writing', proofHint: 'Frame the milestone around the audience, not the count.' },
+    press: { proofPh: 'e.g. featured in Forbes 30 Under 30 / quoted in The NYT / on the Pivot podcast', sourceLabel: 'Publication / Show', sourcePh: 'Forbes', proofHint: 'Lead with the work that earned it, not the feature itself.' },
+    dm: { proofPh: 'Paste the DM or comment word-for-word', sourceLabel: 'Anonymize as "a reader/customer" or use first name', sourcePh: 'a reader', proofHint: 'Ask permission to share. Always.' }
+  };
+
+  function updateHints() {
+    const t = document.getElementById('type').value;
+    const m = meta[t];
+    document.getElementById('proof').placeholder = m.proofPh;
+    document.getElementById('source').placeholder = m.sourcePh;
+    document.getElementById('sourceLabel').textContent = m.sourceLabel;
+    document.getElementById('proofHint').textContent = m.proofHint;
+  }
+  document.getElementById('type').addEventListener('change', updateHints);
+  updateHints();
+
+  function build() {
+    const t = document.getElementById('type').value;
+    const proof = document.getElementById('proof').value.trim() || '[the proof]';
+    const source = document.getElementById('source').value.trim() || '[source]';
+    const before = document.getElementById('before').value.trim() || '[where they started]';
+    const product = document.getElementById('product').value.trim();
+    const lesson = document.getElementById('lesson').value.trim() || '[the lesson]';
+
+    let story, short, slide;
+
+    if (t === 'testimonial') {
+      story = `${source} just sent me this:\n\n"${proof}"\n\nThe context most people don't see: ${before}.\n\nThe lesson I keep coming back to: ${lesson}.${product?`\n\n(This came out of ${product}. I'm not pitching here — but if you're in the same spot ${source} was, the link is in my bio.)`:''}`;
+      short = `Got this from ${source} today:\n\n"${proof}"\n\nThe lesson: ${lesson}.`;
+      slide = `"${proof}"\n— ${source}`;
+    } else if (t === 'result') {
+      story = `${source}'s update from this week:\n\n${proof}.\n\nHere's where she started: ${before}.\n\nWhat changed wasn't a tactic. It was this: ${lesson}.${product?`\n\nShe did it inside ${product}. Link in bio if you want the same map.`:''}`;
+      short = `${source} just ${proof}.\n\nWhere she started: ${before}.\n\nThe shift: ${lesson}.`;
+      slide = `From ${before}\n→ to ${proof}\n\n${source}'s 6-week shift`;
+    } else if (t === 'revenue') {
+      story = `Milestone moment: ${proof} ${source}.\n\nA year ago, ${before}.\n\nWhat changed: ${lesson}.\n\nNot a victory lap — a thank-you to everyone who bought, shared, or replied along the way. ${product?`(And if you've been on the fence about ${product}, this is your sign.)`:''}`;
+      short = `${proof} ${source}.\n\nA year ago: ${before}.\n\nThe lesson: ${lesson}.`;
+      slide = `${proof}\n${source}\n\nThank you.`;
+    } else if (t === 'followers') {
+      story = `${proof} ${source}.\n\nWhen I started, ${before}.\n\nThe one thing I've held onto: ${lesson}.\n\nThis isn't a celebration of the number — it's a thank-you to the people who actually read the words.${product?`\n\nIf you've been meaning to grab ${product}, the link is still in bio.`:''}`;
+      short = `${proof} ${source}.\n\nThe one thing I've held onto: ${lesson}.`;
+      slide = `${proof}\n${source}\n\nThank you for reading.`;
+    } else if (t === 'press') {
+      story = `Quiet but big: ${proof}.\n\nThe path to this wasn't glamorous: ${before}.\n\nWhat I'd tell anyone chasing this same thing: ${lesson}.${product?`\n\nThe work that got me here lives inside ${product}.`:''}`;
+      short = `${proof}.\n\nThe lesson: ${lesson}.`;
+      slide = `Featured in\n${source}\n\n"${proof.split(/[.!?]/)[0]}"`;
+    } else if (t === 'dm') {
+      story = `Got this in my DMs:\n\n"${proof}"\n— ${source}\n\nThe context: ${before}.\n\nThis is the reminder I needed today, and maybe you did too: ${lesson}.${product?`\n\n(${product} link in bio if you want to do the work too.)`:''}`;
+      short = `A DM I got today:\n\n"${proof}"\n— ${source}\n\nThe reminder: ${lesson}.`;
+      slide = `"${proof}"\n— ${source}`;
+    }
+
+    document.getElementById('storyMsg').textContent = story;
+    document.getElementById('shortMsg').textContent = short;
+    document.getElementById('slideMsg').textContent = slide;
+    document.getElementById('output').classList.add('show');
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.onclick = () => {
+      const text = document.getElementById(btn.dataset.target).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = original, 1500);
+      });
+    };
+  });
+</script>
+</body>
+</html>

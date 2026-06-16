@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscriber Milestone Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .ms { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #BFD8BF; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; display: flex; align-items: center; gap: 12px; }
+  .ms.hit { border-left-color: #5AE57A; }
+  .ms .badge { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #4C724C; display: flex; align-items: center; justify-content: center; color: #BFD8BF; font-family: 'Playfair Display', serif; font-size: 1rem; }
+  .ms.hit .badge { background: #5AE57A; color: #325132; }
+  .ms .b { font-size: .95rem; } .ms .b small { display: block; opacity: .65; font-size: .8rem; }
+  .ms.hit .b b { color: #5AE57A; }
+  .big { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Subscriber Milestone Tracker</h1>
+  <p class="sub">Big list goals feel impossible until you break them into milestones with celebrations.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="cur">Subscribers now</label><input id="cur" type="number" min="0" value="350" oninput="render()"></div>
+      <div><label for="goal">Big goal</label><input id="goal" type="number" min="1" value="10000" oninput="render()"></div>
+    </div>
+    <label for="celeb">How you will celebrate the next milestone</label>
+    <input id="celeb" placeholder="e.g. a real day off / share with the list">
+  </div>
+
+  <div class="big"><div class="n" id="next">—</div><div style="font-size:.85rem;opacity:.7" id="nxt"></div></div>
+  <div id="list"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['cur','goal','celeb'].forEach(k=>{ const s=localStorage.getItem('smt7_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('smt7_'+k,g(k).value)); });
+  function render(){
+    const cur=n('cur'), goal=Math.max(1,n('goal'));
+    const ms=[100,250,500,1000,2500,5000,10000,25000,50000,100000].filter(x=>x<=goal*1.5);
+    if(!ms.includes(goal)) ms.push(goal);
+    ms.sort((a,b)=>a-b);
+    const nextMs = ms.find(x=>x>cur);
+    g('next').textContent = nextMs?nextMs.toLocaleString():'🎉 Goal hit!';
+    g('nxt').textContent = nextMs?`${(nextMs-cur).toLocaleString()} to your next milestone`:'Set a bigger goal — you’ve outgrown this one.';
+    g('list').innerHTML=ms.map(m=>{
+      const hit=cur>=m;
+      const tip = m<=500?'Foundation — the list is real now.'
+        :m<=2500?'Engagement era — start testing offers and your nurture.'
+        :m<=10000?'Income era — a focused offer at this size pays the bills.'
+        :'Compounding era — segmentation and consistency turn this into real revenue.';
+      return `<div class="ms ${hit?'hit':''}"><div class="badge">${hit?'✓':'·'}</div><div class="b"><b>${m.toLocaleString()} subscribers</b><small>${tip}</small></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>
