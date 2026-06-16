@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Voice Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 540px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; margin-bottom: 5px; }
+    .card-sub { font-size: 0.78rem; opacity: 0.42; margin-bottom: 14px; }
+    label { display: block; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; margin-bottom: 5px; margin-top: 12px; }
+    label:first-of-type { margin-top: 0; }
+    input { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 9px 12px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: #5AE57A; }
+    .trait-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+    .trait { background: #325132; border: 2px solid #3C603C; border-radius: 20px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; transition: all 0.18s; user-select: none; }
+    .trait:hover { border-color: #4C724C; }
+    .trait.sel { border-color: #5AE57A; color: #5AE57A; background: #325132; }
+    .trait.dim { opacity: 0.28; cursor: default; }
+    .btn-gen { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; padding: 14px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 14px; }
+    .btn-gen:hover { opacity: 0.85; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .voice-header { background: #2E4D2E; border: 2px solid #5AE57A; border-radius: 12px; padding: 22px 20px; margin-bottom: 12px; }
+    .voice-archetype { font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #5AE57A; margin-bottom: 10px; }
+    .voice-desc { font-size: 0.87rem; line-height: 1.7; opacity: 0.8; }
+    .section { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 12px; }
+    .sec-title { font-family: 'Playfair Display', serif; font-size: 0.92rem; color: #5AE57A; margin-bottom: 12px; }
+    .starter { display: flex; gap: 12px; padding: 9px 0; border-bottom: 1px solid #3C603C; font-size: 0.86rem; line-height: 1.5; }
+    .starter:last-child { border-bottom: none; }
+    .starter-ctx { font-size: 0.67rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #5AE57A; flex-shrink: 0; width: 68px; padding-top: 2px; }
+    .word-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+    .word { background: #325132; border: 1px solid #4C724C; border-radius: 16px; padding: 5px 13px; font-size: 0.82rem; color: #5AE57A; }
+    .word.avoid { color: #5AE57A; border-color: #2E4D2E; background: #325132; }
+    .btn-copy { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; margin-bottom: 10px; }
+    .btn-copy:hover { border-color: #5AE57A; }
+    .btn-redo { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-redo:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Brand Voice Generator</h1>
+  <p class="subtitle">Define how your brand sounds — so it's unmistakably, consistently yours.</p>
+
+  <div class="wrap" id="form-wrap">
+    <div class="card">
+      <div class="card-title">Pick Your Voice Traits</div>
+      <div class="card-sub">Choose up to 3 that feel most true to your brand.</div>
+      <div class="trait-grid" id="trait-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Your Brand Context</div>
+      <label>Who You Help</label>
+      <input type="text" id="who" placeholder="e.g. Female entrepreneurs, beginner freelancers, creative moms" />
+      <label>What You Help Them Do</label>
+      <input type="text" id="what" placeholder="e.g. Build a profitable digital product business online" />
+      <label>Words / Phrases You Love <span style="opacity:0.4;font-weight:400;text-transform:none;font-size:0.7rem">(optional)</span></label>
+      <input type="text" id="love" placeholder="e.g. freedom, real, no-fluff, abundance" />
+      <label>Words / Phrases to Avoid <span style="opacity:0.4;font-weight:400;text-transform:none;font-size:0.7rem">(optional)</span></label>
+      <input type="text" id="avoid" placeholder="e.g. hustle, grind, passive income, guru" style="margin-top:0" />
+    </div>
+    <button class="btn-gen" onclick="generate()">Generate My Brand Voice</button>
+  </div>
+
+  <div class="results wrap" id="results"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const T = {
+      Confident:     { desc:'speaks with authority and makes bold, clear statements without hedging',          words:['proven','results','powerful','decisive','authority'],    s:['Here\'s what most people get wrong:','The truth is,','I\'ll be direct with you:'] },
+      Warm:          { desc:'feels like a trusted friend who genuinely wants to see you win',                  words:['together','support','community','heart','genuine'],      s:['I know how hard it is when','You deserve this —','I\'m in your corner.'] },
+      Bold:          { desc:'challenges the status quo and isn\'t afraid to say the quiet part out loud',      words:['bold','fearless','unapologetic','truth','game-changer'], s:['Stop doing what doesn\'t work:','Nobody tells you this, but','It\'s time to be honest about'] },
+      Playful:       { desc:'keeps things fun, light, and surprisingly memorable',                             words:['love','brilliant','magic','yes!','fun'],                 s:['Okay, real talk —','Plot twist:','Here\'s the fun part:'] },
+      Direct:        { desc:'cuts through the noise and respects the reader\'s time above all else',           words:['now','simple','fast','clear','exactly'],                s:['Here\'s how:','Three things you need to know:','Bottom line:'] },
+      Inspiring:     { desc:'paints a vivid picture of what\'s possible and moves people to act',             words:['transform','vision','possible','freedom','potential'],   s:['Imagine waking up to','What if you could','You\'re closer than you think —'] },
+      Sophisticated: { desc:'carries a refined, elevated tone that positions your brand as unmistakably premium', words:['curated','intentional','elevated','refined','exclusive'], s:['For those who value','The discerning creator knows','Excellence requires'] },
+      Rebellious:    { desc:'questions the norms and speaks for those who choose to do things differently',    words:['different','unconventional','real','own path','rules'],  s:['Forget what they told you about','The old way is broken.','You don\'t need permission to'] },
+      Nurturing:     { desc:'meets your audience exactly where they are with patience and genuine encouragement', words:['step by step','safe','progress','gentle','grow'],     s:['It\'s okay if you\'re just starting —','Take it at your own pace:','You\'re doing better than you think.'] },
+      Expert:        { desc:'builds trust through specificity, data, and hard-won experience',                 words:['research','proven','strategy','framework','tested'],    s:['After working with hundreds of','The most effective approach is','Here\'s what the data shows:'] },
+      Relatable:     { desc:'makes your audience feel deeply seen by sharing the real, unfiltered experience', words:['real talk','honestly','same','struggle','been there'],  s:['I used to think the same thing.','Can I be honest?','Nobody talks about this, but'] },
+      Witty:         { desc:'uses clever angles and unexpected humor to make your message unforgettable',      words:['actually','plot twist','spoiler','fun fact','hot take'], s:['Unpopular opinion:','Fun fact nobody asked for:','Hot take:'] },
+    };
+
+    let sel = new Set();
+    const h = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+    function renderTraits() {
+      document.getElementById('trait-grid').innerHTML = Object.keys(T).map(t =>
+        `<div class="trait${sel.has(t)?' sel':''}${!sel.has(t)&&sel.size>=3?' dim':''}" onclick="toggle('${t}')">${t}</div>`
+      ).join('');
+    }
+
+    function toggle(t) {
+      if (sel.has(t)) sel.delete(t);
+      else if (sel.size < 3) sel.add(t);
+      renderTraits();
+    }
+
+    function generate() {
+      if (!sel.size) { alert('Please select at least one voice trait.'); return; }
+      const who   = document.getElementById('who').value.trim();
+      const what  = document.getElementById('what').value.trim();
+      const love  = document.getElementById('love').value.trim().split(',').map(w=>w.trim()).filter(Boolean);
+      const avoid = document.getElementById('avoid').value.trim().split(',').map(w=>w.trim()).filter(Boolean);
+      const traits = [...sel], data = traits.map(t => T[t]);
+
+      const archetype = traits.join(' · ');
+      const descParts = data.map(d => d.desc).join(', and ');
+      const context   = who ? ` Speaking directly to ${h(who)}${what ? ' who want to ' + h(what) : ''}.` : '';
+      const desc      = `Your brand ${descParts}.${context}`;
+
+      const powerWords = [...new Set(data.flatMap(d => d.words)), ...love].slice(0, 10);
+      const starters   = ['When teaching','When selling','When connecting'].map((ctx, i) =>
+        ({ ctx, line: data[i % data.length].s[i % 3] })
+      );
+
+      document.getElementById('form-wrap').style.display = 'none';
+      const res = document.getElementById('results');
+      res.innerHTML = `
+        <div class="voice-header">
+          <div class="voice-archetype">${h(archetype)}</div>
+          <div class="voice-desc">${desc}</div>
+        </div>
+        <div class="section">
+          <div class="sec-title">Sentence Starters</div>
+          ${starters.map(s=>`<div class="starter"><span class="starter-ctx">${s.ctx}</span><span>${h(s.line)}</span></div>`).join('')}
+        </div>
+        ${powerWords.length ? `<div class="section"><div class="sec-title">Power Words</div><div class="word-cloud">${powerWords.map(w=>`<span class="word">${h(w)}</span>`).join('')}</div></div>` : ''}
+        ${avoid.length ? `<div class="section"><div class="sec-title">Words to Avoid</div><div class="word-cloud">${avoid.map(w=>`<span class="word avoid">${h(w)}</span>`).join('')}</div></div>` : ''}
+        <button class="btn-copy" onclick="copyGuide(${JSON.stringify({ archetype, desc: desc.replace(/"/g,"'"), starters, powerWords, avoid }).replace(/</g,'\\u003c')})">Copy Brand Voice Guide</button>
+        <button class="btn-redo" onclick="redo()">Generate a New Voice</button>`;
+      res.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copyGuide(d) {
+      const txt = [
+        'BRAND VOICE GUIDE',
+        `Voice: ${d.archetype}`,
+        '',
+        d.desc,
+        '',
+        'SENTENCE STARTERS',
+        ...d.starters.map(s => `${s.ctx}: "${s.line}"`),
+        ...(d.powerWords.length ? ['', 'POWER WORDS', d.powerWords.join(', ')] : []),
+        ...(d.avoid.length ? ['', 'AVOID', d.avoid.join(', ')] : []),
+      ].join('\n');
+      navigator.clipboard.writeText(txt).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy Brand Voice Guide', 2000);
+      });
+    }
+
+    function redo() {
+      sel.clear();
+      document.getElementById('form-wrap').style.display = '';
+      document.getElementById('results').classList.remove('show');
+      document.getElementById('results').innerHTML = '';
+      renderTraits();
+    }
+
+    renderTraits();
+  </script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Project Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 28px; font-size: .95rem; }
+  label { display: block; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 14px 0 6px; }
+  input, textarea {
+    width: 100%; background: #2A442A; border: 1px solid #5A845A;
+    color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem;
+    padding: 11px 13px; border-radius: 8px; resize: vertical;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 64px; }
+  .btn {
+    background: #5AE57A; color: #325132; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem;
+    padding: 12px 22px; border-radius: 8px; margin-top: 18px;
+  }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 24px; }
+  .ms { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+  .ms b { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .ms p { white-space: pre-wrap; font-size: .92rem; margin-top: 4px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .mini { background: transparent; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 5px 12px; border-radius: 6px; font-size: .8rem; }
+  .mini:hover { border-color: #5AE57A; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 22px 0; font-style: italic; }
+  pre {
+    background: #2A442A; border: 1px solid #5A845A; border-radius: 8px;
+    padding: 16px; white-space: pre-wrap; font-size: .9rem; margin-top: 8px;
+  }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 40px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Project Planner</h1>
+  <p class="sub">Turn a fuzzy idea into a clear, structured brief you can paste straight into Claude to kick off any project.</p>
+
+  <div class="panel">
+    <label for="pname">Project Name</label>
+    <input id="pname" placeholder="e.g. Launch my email course">
+
+    <label for="goal">Goal / Outcome</label>
+    <textarea id="goal" placeholder="What does done look like?"></textarea>
+
+    <label for="deliver">Key Deliverables</label>
+    <textarea id="deliver" placeholder="What will exist at the end? (one per line)"></textarea>
+
+    <label for="context">Context & Constraints</label>
+    <textarea id="context" placeholder="Tools, audience, deadline, budget, tone…"></textarea>
+  </div>
+
+  <div class="panel">
+    <label for="msname">Milestone</label>
+    <input id="msname" placeholder="e.g. Phase 1 — Research">
+    <label for="mstasks">Tasks for this milestone</label>
+    <textarea id="mstasks" placeholder="One task per line"></textarea>
+    <button class="btn" onclick="addMs()">+ Add Milestone</button>
+  </div>
+
+  <div id="list"></div>
+
+  <div class="row">
+    <button class="btn" onclick="build()">Build Claude Brief</button>
+    <button class="btn ghost" onclick="downloadMd()">Download .md</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['pname','goal','deliver','context'];
+  let ms = JSON.parse(localStorage.getItem('cpp_ms') || '[]');
+  F.forEach(id => document.getElementById(id).value = localStorage.getItem('cpp_'+id) || '');
+  F.forEach(id => document.getElementById(id).addEventListener('input', save));
+
+  function save() {
+    F.forEach(id => localStorage.setItem('cpp_'+id, document.getElementById(id).value));
+    localStorage.setItem('cpp_ms', JSON.stringify(ms));
+  }
+
+  function esc(t) { return (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function v(id) { return document.getElementById(id).value.trim(); }
+
+  function render() {
+    const l = document.getElementById('list');
+    if (!ms.length) { l.innerHTML = '<div class="empty">No milestones yet — add your first one above.</div>'; return; }
+    l.innerHTML = ms.map((m,i) => `
+      <div class="ms">
+        <b>${i+1}. ${esc(m.name)}</b>
+        <p>${esc(m.tasks)}</p>
+        <div class="row">
+          <button class="mini" onclick="move(${i},-1)" ${i===0?'disabled':''}>↑ Up</button>
+          <button class="mini" onclick="move(${i},1)" ${i===ms.length-1?'disabled':''}>↓ Down</button>
+          <button class="mini" onclick="del(${i})">✕ Delete</button>
+        </div>
+      </div>`).join('');
+  }
+
+  function addMs() {
+    const name = v('msname'), tasks = v('mstasks');
+    if (!name) { alert('Milestone name is required.'); return; }
+    ms.push({ name, tasks });
+    document.getElementById('msname').value = '';
+    document.getElementById('mstasks').value = '';
+    save(); render();
+  }
+
+  function move(i,d) { const j=i+d; [ms[i],ms[j]]=[ms[j],ms[i]]; save(); render(); }
+  function del(i) { ms.splice(i,1); save(); render(); }
+  function clearAll() {
+    if (!confirm('Clear the entire plan?')) return;
+    ms = []; F.forEach(id => document.getElementById(id).value = '');
+    save(); render(); document.getElementById('out').style.display = 'none';
+  }
+
+  function buildText() {
+    let t = `# Project Brief: ${v('pname') || 'Untitled Project'}\n\n`;
+    t += `## Goal\n${v('goal') || '(not set)'}\n\n`;
+    t += `## Deliverables\n${v('deliver') || '(not set)'}\n\n`;
+    t += `## Context & Constraints\n${v('context') || '(not set)'}\n\n`;
+    t += `## Roadmap\n`;
+    if (!ms.length) t += '(no milestones added)\n';
+    ms.forEach((m,i) => { t += `\n### ${i+1}. ${m.name}\n${m.tasks || '(no tasks)'}\n`; });
+    t += `\n---\nClaude: review this brief, flag risks or gaps, then propose the first concrete step.`;
+    return t.trim();
+  }
+
+  function build() {
+    const o = document.getElementById('out');
+    o.textContent = buildText();
+    o.style.display = 'block';
+    navigator.clipboard.writeText(buildText()).then(
+      () => {}, () => {});
+    o.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function downloadMd() {
+    const name = (v('pname') || 'project-brief').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const blob = new Blob([buildText()], { type: 'text/markdown' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '.md';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  render();
+</script>
+</body>
+</html>

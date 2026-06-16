@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collaboration Pitch Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #5AE57A;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 500;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: rgba(240, 235, 224, 0.04);
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  select option { background: #325132; color: #FFFFFF; }
+  textarea { resize: vertical; min-height: 60px; }
+  .hint { font-size: 0.78rem; opacity: 0.55; margin-top: 4px; font-style: italic; }
+  .build-btn {
+    display: block;
+    margin: 32px auto 0;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .build-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .pitch {
+    margin-top: 32px;
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    display: none;
+  }
+  .pitch.show { display: block; }
+  .pitch-label {
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .subject {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #FFFFFF;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(240, 235, 224, 0.1);
+  }
+  .body {
+    font-size: 1rem;
+    white-space: pre-wrap;
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Collaboration Pitch Builder</h1>
+  <p class="subtitle">Cold pitches get ignored. Warm, specific pitches get replies. Fill in the fields, get a pitch that doesn't sound like everyone else's.</p>
+
+  <label for="collabType">Type of Collaboration</label>
+  <select id="collabType">
+    <option value="podcast">Podcast guest spot</option>
+    <option value="iglive">IG Live / joint live</option>
+    <option value="bundle">Product bundle / cross-promo</option>
+    <option value="guestpost">Guest post / newsletter swap</option>
+    <option value="brand">Brand sponsorship</option>
+  </select>
+
+  <div class="grid">
+    <div>
+      <label for="yourName">Your Name</label>
+      <input type="text" id="yourName" placeholder="Sasha Lee" />
+    </div>
+    <div>
+      <label for="yourWork">What You Do (one line)</label>
+      <input type="text" id="yourWork" placeholder="I help freelance designers raise their rates" />
+    </div>
+  </div>
+
+  <label for="recipient">Recipient's First Name</label>
+  <input type="text" id="recipient" placeholder="Maya" />
+
+  <label for="specific">One Specific Thing About Their Work You Genuinely Admire</label>
+  <textarea id="specific" placeholder="Your episode with Renee about pricing made me re-quote a project the same afternoon — the bit about anchoring on outcomes."></textarea>
+  <div class="hint">Be specific. Reference an episode, post, or product by name. Generic flattery kills the pitch.</div>
+
+  <label for="proof">Your Most Relevant Proof Point</label>
+  <input type="text" id="proof" placeholder="e.g. 12k newsletter, recently sold out a $2k cohort, featured in [pub]" />
+
+  <label for="ask">Your Specific Ask</label>
+  <textarea id="ask" placeholder="e.g. 25-min recorded chat on the 'awkward middle' of pricing your first $5k project"></textarea>
+
+  <label for="mutual">What's In It For Them (be honest)</label>
+  <textarea id="mutual" placeholder="e.g. I'll promote the episode 3x across my newsletter and IG (28k combined) and link back to your latest course"></textarea>
+
+  <button class="build-btn" id="buildBtn">Build My Pitch</button>
+
+  <div class="pitch" id="pitchOut">
+    <div class="pitch-label">Subject Line</div>
+    <div class="subject" id="subject"></div>
+    <div class="pitch-label">Pitch Body</div>
+    <div class="body" id="body"></div>
+    <div class="actions">
+      <button class="secondary-btn" id="copyBtn">Copy Full Pitch</button>
+      <button class="secondary-btn" id="copySubjectBtn">Copy Subject Only</button>
+    </div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  function build() {
+    const type = document.getElementById('collabType').value;
+    const yourName = document.getElementById('yourName').value.trim() || '[Your Name]';
+    const yourWork = document.getElementById('yourWork').value.trim() || '[what you do]';
+    const recipient = document.getElementById('recipient').value.trim() || '[First Name]';
+    const specific = document.getElementById('specific').value.trim() || '[specific thing you admire]';
+    const proof = document.getElementById('proof').value.trim() || '[your proof point]';
+    const ask = document.getElementById('ask').value.trim() || '[your ask]';
+    const mutual = document.getElementById('mutual').value.trim() || '[what they get]';
+
+    const subjects = {
+      podcast: `Quick idea for the show, ${recipient}`,
+      iglive: `${recipient} — joint IG Live idea (15 min, fully prepped)`,
+      bundle: `Bundle idea for both our audiences, ${recipient}`,
+      guestpost: `Newsletter swap idea, ${recipient}?`,
+      brand: `Partnership idea — ${yourName} x [Brand]`
+    };
+
+    const asksContext = {
+      podcast: "I'd love to come on as a guest.",
+      iglive: "I'd love to do a 30-min joint IG Live with you.",
+      bundle: "I'd love to bundle one of our products together for a limited-time drop.",
+      guestpost: "I'd love to do a newsletter swap with you.",
+      brand: "I'd love to explore a paid partnership with you."
+    };
+
+    const body =
+`Hi ${recipient},
+
+${specific}
+
+I'm ${yourName} — ${yourWork}. ${proof ? proof + '.' : ''}
+
+${asksContext[type]} Here's the specific angle:
+
+${ask}
+
+On my end: ${mutual}
+
+If the timing is off or this isn't the right fit, totally understand — just wanted to put it in front of you in case it sparks something. Happy to send a one-pager or jump on a 10-min call.
+
+Either way, thanks for the work you put out. It's made a real difference in how I think about my own.
+
+— ${yourName}`;
+
+    document.getElementById('subject').textContent = subjects[type];
+    document.getElementById('body').textContent = body;
+    document.getElementById('pitchOut').classList.add('show');
+    document.getElementById('pitchOut').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.getElementById('buildBtn').addEventListener('click', build);
+
+  function copyText(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = original, 1500);
+    });
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', (e) => {
+    const full = `Subject: ${document.getElementById('subject').textContent}\n\n${document.getElementById('body').textContent}`;
+    copyText(full, e.target);
+  });
+
+  document.getElementById('copySubjectBtn').addEventListener('click', (e) => {
+    copyText(document.getElementById('subject').textContent, e.target);
+  });
+</script>
+</body>
+</html>

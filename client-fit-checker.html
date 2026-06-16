@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Fit Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 14px; }
+  .qt { font-size: .93rem; margin-bottom: 6px; }
+  .scale { display: flex; gap: 6px; }
+  .scale label { flex: 1; }
+  .scale input { display: none; }
+  .scale span { display: block; text-align: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 0; cursor: pointer; font-size: .9rem; }
+  .scale input:checked + span { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; opacity: .55; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  .score { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Client Fit Checker</h1>
+  <p class="sub">Rate a prospect 1 (not at all) to 5 (absolutely) before you say yes.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">Check the Fit</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    'They have the specific problem I am best at solving.',
+    'They are genuinely committed to making a change.',
+    'They can comfortably afford the investment.',
+    'They are coachable — open to feedback and doing the work.',
+    'The timing is right for them.',
+    'They have realistic expectations about the process.',
+    'I would feel energised, not drained, working with them.',
+    'They respect my time, process and boundaries.'
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((q,i)=>{
+    let h='<div class="q"><p class="qt">'+(i+1)+'. '+q+'</p><div class="scale">';
+    for(let n=1;n<=5;n++) h+='<label><input type="radio" name="q'+i+'" value="'+n+'"><span>'+n+'</span></label>';
+    h+='</div><div class="ends"><span>Not at all</span><span>Absolutely</span></div></div>';
+    g('quiz').insertAdjacentHTML('beforeend',h);
+  });
+  function result(){
+    let total=0,lows=0;
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please rate all statements.'); return; } const val=+s.value; total+=val; if(val<=2)lows++; }
+    const max=Q.length*5, pct=Math.round(total/max*100);
+    let band,msg;
+    if(pct>=85&&!lows){ band='Excellent Fit — Say Yes'; msg='This prospect ticks every box. Move forward with confidence.'; }
+    else if(pct>=70&&lows<=1){ band='Good Fit — Proceed'; msg='A strong fit overall. Address the one weaker area openly before you start.'; }
+    else if(pct>=50){ band='Proceed with Caution'; msg='Mixed signals. Be honest on the call about the gaps — and only say yes if they can be closed.'; }
+    else { band='Likely Not a Fit'; msg='The fit is weak. A polite no, or a referral elsewhere, protects you both.'; }
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<div class="score">'+total+' / '+max+'</div><h2>'+band+'</h2><p>'+msg+'</p>'+(lows?'<p style="opacity:.7;font-size:.86rem;margin-top:8px">You rated '+lows+' area'+(lows>1?'s':'')+' a 1 or 2 — any single dealbreaker outweighs a good total.</p>':'<p style="opacity:.7;font-size:.86rem;margin-top:8px">The right clients make great work possible. Saying no is a skill.</p>');
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Client Onboarding Checklist</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      padding: 40px 16px 70px;
+    }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 520px; }
+
+    /* Client header */
+    .client-bar {
+      background: #3C603C; border: 1px solid #4C724C; border-radius: 12px;
+      padding: 18px 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .client-bar input {
+      flex: 1; background: transparent; border: none; outline: none;
+      color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.15rem;
+    }
+    .client-bar input::placeholder { color: #5A845A; }
+    .client-icon { color: #5AE57A; font-size: 1.1rem; opacity: 0.8; }
+
+    /* Progress */
+    .progress-card {
+      background: #3C603C; border: 1px solid #4C724C; border-radius: 12px;
+      padding: 18px 20px; margin-bottom: 14px;
+    }
+    .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .progress-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; }
+    .progress-pct { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+    .bar { height: 5px; background: #3C603C; border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #5AE57A; border-radius: 3px; transition: width 0.3s ease; }
+
+    /* Checklist */
+    .section { margin-bottom: 14px; }
+    .section-title {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: #5AE57A; opacity: 0.7; padding: 0 4px; margin-bottom: 8px;
+    }
+    .item {
+      background: #3C603C; border: 1px solid #4C724C; border-radius: 10px;
+      padding: 13px 16px; margin-bottom: 6px; display: flex; align-items: center; gap: 13px;
+      cursor: pointer; transition: border-color 0.2s; user-select: none;
+    }
+    .item:hover { border-color: #4C724C; }
+    .item.done { opacity: 0.45; }
+    .item.done .item-text { text-decoration: line-through; }
+    .checkbox {
+      width: 20px; height: 20px; border-radius: 6px; border: 2px solid #4C724C;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; background: transparent;
+    }
+    .item.done .checkbox { background: #5AE57A; border-color: #5AE57A; }
+    .check-icon { display: none; color: #325132; font-size: 0.75rem; font-weight: 700; }
+    .item.done .check-icon { display: block; }
+    .item-text { font-size: 0.93rem; line-height: 1.4; flex: 1; }
+    .btn-del-item { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.9rem; padding: 0 2px; transition: color 0.2s; flex-shrink: 0; }
+    .btn-del-item:hover { color: #5AE57A; }
+
+    /* Add item */
+    .add-row { display: flex; gap: 8px; margin-top: 8px; }
+    .add-row input {
+      flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 8px;
+      color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.93rem;
+      padding: 10px 14px; outline: none; transition: border-color 0.2s;
+    }
+    .add-row input:focus { border-color: #5AE57A; }
+    .btn-add {
+      background: #5AE57A; color: #325132; border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: 1.1rem;
+      padding: 0 16px; cursor: pointer; transition: opacity 0.2s;
+    }
+    .btn-add:hover { opacity: 0.85; }
+    .btn-new {
+      width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF;
+      border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem;
+      padding: 11px; cursor: pointer; margin-top: 16px; transition: border-color 0.2s;
+    }
+    .btn-new:hover { border-color: #5AE57A; }
+    .complete-msg {
+      text-align: center; color: #5AE57A; font-family: 'Playfair Display', serif;
+      font-size: 1.1rem; padding: 10px 0 4px; display: none;
+    }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Client Onboarding Checklist</h1>
+  <p class="subtitle">Never drop the ball on a new client again.</p>
+
+  <div class="wrap">
+    <div class="client-bar">
+      <span class="client-icon">&#9670;</span>
+      <input type="text" id="client-name" placeholder="Client name..." maxlength="50" oninput="saveAll()" />
+    </div>
+
+    <div class="progress-card">
+      <div class="progress-top">
+        <span class="progress-label">Onboarding Progress</span>
+        <span class="progress-pct" id="pct">0%</span>
+      </div>
+      <div class="bar"><div class="bar-fill" id="bar-fill" style="width:0%"></div></div>
+    </div>
+    <div class="complete-msg" id="complete-msg">Onboarding complete — great work!</div>
+
+    <div id="sections"></div>
+
+    <div class="section">
+      <div class="section-title">Add Custom Step</div>
+      <div class="add-row">
+        <input type="text" id="custom-input" placeholder="e.g. Send intake form..." maxlength="80" />
+        <button class="btn-add" onclick="addCustom()">+</button>
+      </div>
+    </div>
+
+    <button class="btn-new" onclick="newClient()">&#10005; &nbsp;Clear for New Client</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const DEFAULTS = [
+      { section: 'Before Day 1', items: [
+        'Send welcome email with next steps',
+        'Confirm payment received',
+        'Share product / course access link',
+      ]},
+      { section: 'Day 1', items: [
+        'Add to private community or group',
+        'Send resource folder link',
+        'Confirm they\'ve logged in and accessed the product',
+      ]},
+      { section: 'First Week', items: [
+        'Add to email nurture sequence',
+        'Schedule kickoff or check-in call',
+        'Send 3-day follow-up message',
+      ]},
+      { section: 'After 30 Days', items: [
+        'Request testimonial or review',
+        'Offer upsell or next step',
+      ]},
+    ];
+
+    let state = { client: '', sections: [] };
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem('onboarding_v1');
+        if (saved) state = JSON.parse(saved);
+        else initDefault();
+      } catch(e) { initDefault(); }
+    }
+
+    function initDefault() {
+      state = {
+        client: '',
+        sections: DEFAULTS.map(s => ({
+          title: s.section,
+          items: s.items.map(text => ({ text, done: false, id: uid() }))
+        }))
+      };
+    }
+
+    function uid() { return Math.random().toString(36).slice(2); }
+
+    function saveAll() {
+      state.client = document.getElementById('client-name').value;
+      localStorage.setItem('onboarding_v1', JSON.stringify(state));
+      updateProgress();
+    }
+
+    function toggle(secIdx, itemId) {
+      const item = state.sections[secIdx].items.find(i => i.id === itemId);
+      if (item) item.done = !item.done;
+      saveAll();
+      render();
+    }
+
+    function deleteItem(secIdx, itemId) {
+      state.sections[secIdx].items = state.sections[secIdx].items.filter(i => i.id !== itemId);
+      saveAll();
+      render();
+    }
+
+    function addCustom() {
+      const val = document.getElementById('custom-input').value.trim();
+      if (!val) return;
+      const last = state.sections.find(s => s.title === 'Custom');
+      if (last) { last.items.push({ text: val, done: false, id: uid() }); }
+      else { state.sections.push({ title: 'Custom', items: [{ text: val, done: false, id: uid() }] }); }
+      document.getElementById('custom-input').value = '';
+      saveAll();
+      render();
+    }
+
+    function newClient() {
+      if (!confirm('Clear all progress for a new client?')) return;
+      initDefault();
+      saveAll();
+      render();
+      document.getElementById('client-name').value = '';
+    }
+
+    function updateProgress() {
+      const all  = state.sections.flatMap(s => s.items);
+      const done = all.filter(i => i.done).length;
+      const pct  = all.length ? Math.round((done / all.length) * 100) : 0;
+      document.getElementById('pct').textContent = pct + '%';
+      document.getElementById('bar-fill').style.width = pct + '%';
+      document.getElementById('complete-msg').style.display = (pct === 100 && all.length) ? 'block' : 'none';
+    }
+
+    function render() {
+      document.getElementById('client-name').value = state.client || '';
+      const wrap = document.getElementById('sections');
+      wrap.innerHTML = state.sections.map((sec, si) => `
+        <div class="section">
+          <div class="section-title">${sec.title}</div>
+          ${sec.items.map(item => `
+            <div class="item${item.done ? ' done' : ''}" onclick="toggle(${si},'${item.id}')">
+              <div class="checkbox"><span class="check-icon">&#10003;</span></div>
+              <span class="item-text">${item.text}</span>
+              <button class="btn-del-item" onclick="event.stopPropagation();deleteItem(${si},'${item.id}')" title="Remove">&#10005;</button>
+            </div>`).join('')}
+        </div>`).join('');
+      updateProgress();
+    }
+
+    document.getElementById('custom-input').addEventListener('keydown', e => { if (e.key === 'Enter') addCustom(); });
+    loadState();
+    render();
+  </script>
+</body>
+</html>

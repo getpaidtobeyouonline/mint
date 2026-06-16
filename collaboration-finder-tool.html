@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collaboration Finder Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .card h4 { font-size: .76rem; color: #5AE57A; text-transform: uppercase; margin-bottom: 4px; }
+  .card ul { margin: 0 0 0 18px; font-size: .92rem; }
+  .pros { background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 10px 13px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .pros input { flex: 1; min-width: 140px; }
+  .pros .st { font-size: .76rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; cursor: pointer; }
+  .pros .x { cursor: pointer; opacity: .5; } .pros .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 14px 0; font-style: italic; font-size: .88rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Collaboration Finder Tool</h1>
+  <p class="sub">Pinpoint your ideal collab partner profile, get outreach angles, and track your pipeline.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="niche">Your niche</label><input id="niche" placeholder="e.g. budget travel"></div>
+      <div><label for="size">Your audience size</label><select id="size"><option>Under 1k</option><option>1k–10k</option><option>10k–50k</option><option>50k+</option></select></div>
+    </div>
+    <label for="offer">What you bring to a collab</label>
+    <input id="offer" placeholder="e.g. engaged niche audience, video skills">
+    <button class="btn" onclick="gen()">Find My Collab Profile</button>
+  </div>
+
+  <div id="out"></div>
+
+  <div class="panel">
+    <label>Prospect pipeline</label>
+    <div class="grid">
+      <div><input id="pname" placeholder="Account / creator name"></div>
+      <div style="flex:0"><button class="btn" onclick="addPros()" style="margin-top:0">+ Add</button></div>
+    </div>
+    <div id="pl" style="margin-top:12px"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['niche','size','offer'].forEach(k=>{ const s=localStorage.getItem('cft_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cft_'+k,g(k).value)); });
+  let pros=JSON.parse(localStorage.getItem('cft_pros')||'[]');
+  const ST=['To research','Reached out','In talks','Collab done'];
+
+  function gen() {
+    const niche=v('niche')||'your niche', size=g('size').value, offer=v('offer')||'your strengths';
+    g('out').innerHTML=`<div class="card"><h4>Ideal partner profile</h4><ul>
+      <li>Same audience size tier (${size}) or one tier up — peers collaborate, big accounts rarely reply to cold asks</li>
+      <li>Adjacent niche to <b>${esc(niche)}</b>, not a direct competitor (shared audience, different angle)</li>
+      <li>Similar values & posting quality so the swap feels equal</li>
+      <li>Active and engaged community, not just a big follower number</li></ul></div>
+      <div class="card"><h4>Outreach angles that work</h4><ul>
+      <li>Shoutout / story swap (lowest friction, start here)</li>
+      <li>Joint live or Q&A — both audiences show up</li>
+      <li>Guest post / takeover for a day</li>
+      <li>Co-created freebie or challenge to grow both lists</li>
+      <li>Bundle or giveaway with 2–3 aligned creators</li></ul></div>
+      <div class="card"><h4>Your pitch in one line</h4><p style="font-size:.92rem">"I bring ${esc(offer)} — here's a specific idea that helps your audience too: [idea]."</p></div>`;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function addPros(){ const nm=v('pname'); if(!nm)return; pros.push({nm,s:0}); g('pname').value=''; save(); renderP(); }
+  function cyc(i){ pros[i].s=(pros[i].s+1)%ST.length; save(); renderP(); }
+  function delP(i){ pros.splice(i,1); save(); renderP(); }
+  function save(){ localStorage.setItem('cft_pros',JSON.stringify(pros)); }
+  function renderP(){
+    const L=g('pl');
+    if(!pros.length){ L.innerHTML='<div class="empty">No prospects yet.</div>'; return; }
+    L.innerHTML=pros.map((p,i)=>`<div class="pros"><span style="flex:1;font-size:.9rem">${esc(p.nm)}</span>
+      <span class="st" onclick="cyc(${i})">${ST[p.s]}</span><span class="x" onclick="delP(${i})">✕</span></div>`).join('');
+  }
+  renderP();
+</script>
+</body>
+</html>

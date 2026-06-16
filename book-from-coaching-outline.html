@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book from Coaching Outline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 54px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.4rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Book from Coaching Outline</h1>
+  <p class="sub">Shape the book inside your coaching work — chapter by chapter.</p>
+
+  <div class="panel">
+    <label for="title">Book working title</label>
+    <input id="title" placeholder="The book's working title">
+    <label for="reader">Your reader &amp; their problem</label>
+    <textarea id="reader" placeholder="Who reads this and what they are struggling with"></textarea>
+    <label for="promise">The promise of the book</label>
+    <textarea id="promise" placeholder="Where the reader will be by the last page"></textarea>
+    <label for="chapters">Chapters (one per line)</label>
+    <textarea id="chapters" placeholder="Often your framework — one chapter per step"></textarea>
+    <label for="goal">What the book should do for your business</label>
+    <input id="goal" placeholder="e.g. authority, leads, speaking, a calling card">
+    <button class="btn" onclick="gen()">Build Outline</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['title','reader','promise','chapters','goal'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('bco_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('bco_'+k,g(k).value)); });
+  function gen(){
+    const ch=v('chapters').split('\n').filter(x=>x.trim()).map((x,i)=>'  Chapter '+(i+1)+': '+x.trim()).join('\n')||'  [your chapters]';
+    const t='BOOK OUTLINE\n\nTITLE: '+(v('title')||'[working title]')+
+    '\n\nFOR THE READER WHO:\n'+(v('reader')||'[reader and their problem]')+
+    '\n\nTHE PROMISE:\n'+(v('promise')||'[where they will be by the end]')+
+    '\n\nINTRODUCTION\n  The problem, why it matters, and what the book delivers.\n\nCHAPTERS:\n'+ch+
+    '\n\nCONCLUSION\n  The recap, the encouragement, and the reader’s next step.\n\nWHAT THE BOOK DOES FOR THE BUSINESS:\n'+(v('goal')||'[authority, leads, speaking]')+
+    '\n\n--- Book tips ---\nYour signature framework is the spine of the book — one chapter per step.\nWrite it the way you coach: stories, examples, then the lesson.\nA book is the best business card you will ever hand out — write to serve, not to impress.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

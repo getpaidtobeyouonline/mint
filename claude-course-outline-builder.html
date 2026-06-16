@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Course Outline Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 4px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 150px; }
+  .row { display: flex; gap: 8px; } .row input { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stat { font-size: .85rem; opacity: .75; margin-bottom: 12px; }
+  .stat b { color: #5AE57A; }
+  .mod { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 14px 16px; margin-bottom: 12px; }
+  .mod .mh { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; cursor: pointer; }
+  .mod .mn { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .mod .md { font-size: .82rem; opacity: .65; }
+  .les { background: #325132; border: 1px solid #3C603C; border-radius: 7px; padding: 9px 12px; margin-top: 8px; }
+  .les .lt { font-weight: 500; font-size: .92rem; }
+  .les .lo { font-size: .8rem; opacity: .62; }
+  .acts { display: flex; gap: 13px; margin-top: 6px; font-size: .78rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 18px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Course Outline Builder</h1>
+  <p class="sub">Structure a course module by module — then export the outline plus a Claude prompt to draft every lesson.</p>
+
+  <div class="panel">
+    <h2>Course details</h2>
+    <label for="title">Course title</label>
+    <input id="title" placeholder="e.g. From Zero to First $1k with AI">
+    <label for="aud">Who it's for</label>
+    <input id="aud" placeholder="e.g. complete beginners with no audience">
+    <label for="outcome">After this course, they can…</label>
+    <textarea id="outcome" placeholder="The transformation / end result"></textarea>
+    <div class="grid">
+      <div><label for="level">Level</label><select id="level"><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></div>
+      <div><label for="fmt">Format</label><select id="fmt"><option>Self-paced video</option><option>Text / written</option><option>Cohort-based</option><option>Workshop</option></select></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Add a module</h2>
+    <div class="row"><input id="mName" placeholder="Module name"><button class="btn" onclick="addMod()" style="margin-top:0">+ Add</button></div>
+    <input id="mOut" placeholder="What this module gets them (optional)" style="margin-top:8px">
+  </div>
+
+  <div class="panel">
+    <h2>Add a lesson</h2>
+    <label for="lMod">Into module</label>
+    <select id="lMod"></select>
+    <label for="lTitle">Lesson title</label>
+    <input id="lTitle" placeholder="e.g. Picking a niche in 20 minutes">
+    <label for="lObj">Learning objective</label>
+    <input id="lObj" placeholder="By the end they can…">
+    <button class="btn" onclick="addLes()" id="lBtn">+ Add Lesson</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="lCancel" style="display:none">Cancel</button>
+  </div>
+
+  <div class="stat" id="stat"></div>
+  <div id="course"></div>
+
+  <button class="btn" onclick="exportMd()">Export Outline (.md)</button>
+  <button class="btn ghost" onclick="exportKit()">Export Lesson-Build Kit</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let meta = JSON.parse(localStorage.getItem('ccob_meta') || '{}');
+  let mods = JSON.parse(localStorage.getItem('ccob_mods') || '[]');
+  let collapsed = {}, editing = null;
+  const MK = ['title','aud','outcome','level','fmt'];
+  MK.forEach(k => { if (meta[k]) g(k).value = meta[k]; g(k).addEventListener('input', saveMeta); });
+  function saveMeta() { meta = {}; MK.forEach(k=>meta[k]=v(k)); localStorage.setItem('ccob_meta', JSON.stringify(meta)); }
+  function save() { localStorage.setItem('ccob_mods', JSON.stringify(mods)); }
+
+  function addMod() { const n=v('mName'); if(!n){alert('Name the module.');return;} mods.push({name:n,out:v('mOut'),lessons:[]}); g('mName').value=''; g('mOut').value=''; save(); render(); }
+  function delMod(i){ if(confirm(`Delete module "${mods[i].name}"?`)){ mods.splice(i,1); save(); render(); } }
+  function renameMod(i){ const n=prompt('Module name:',mods[i].name); if(n===null)return; const o=prompt('Module outcome:',mods[i].out||''); mods[i].name=n.trim()||mods[i].name; if(o!==null)mods[i].out=o.trim(); save(); render(); }
+  function moveMod(i,d){ const j=i+d; if(j<0||j>=mods.length)return; [mods[i],mods[j]]=[mods[j],mods[i]]; save(); render(); }
+
+  function addLes() {
+    if (!mods.length) { alert('Add a module first.'); return; }
+    const mi=+g('lMod').value, t=v('lTitle');
+    if (!t) { alert('Lesson title is required.'); return; }
+    const obj = { title:t, obj:v('lObj') };
+    if (editing) mods[editing.m].lessons[editing.l] = obj;
+    else mods[mi].lessons.push(obj);
+    cancelEdit(); save(); render();
+  }
+  function editLes(m,l){ const x=mods[m].lessons[l]; g('lMod').value=m; g('lTitle').value=x.title; g('lObj').value=x.obj||''; editing={m,l}; g('lBtn').textContent='✓ Update Lesson'; g('lCancel').style.display='inline-block'; g('lTitle').scrollIntoView({behavior:'smooth',block:'center'}); }
+  function cancelEdit(){ editing=null; g('lBtn').textContent='+ Add Lesson'; g('lCancel').style.display='none'; g('lTitle').value=''; g('lObj').value=''; }
+  function delLes(m,l){ if(confirm('Delete this lesson?')){ mods[m].lessons.splice(l,1); save(); render(); } }
+  function clearAll(){ if(confirm('Clear the whole course?')){ mods=[]; save(); render(); } }
+  function toggle(i){ collapsed[i]=!collapsed[i]; render(); }
+
+  function lessonPrompt(modName, les) {
+    return `You're helping build an online course. Course: "${v('title')||'Untitled'}" for ${v('aud')||'the target learner'}. `+
+      `By the end of the course they can: ${v('outcome')||'(outcome not set)'}. Level: ${g('level').value}; format: ${g('fmt').value}.\n\n`+
+      `Write the lesson "${les.title}" (Module: ${modName}). Objective: ${les.obj||'(not set)'}.\n\n`+
+      `Produce: a 1-line hook, 3–5 key teaching points, one concrete example or exercise, and a short recap. `+
+      `Keep it ${g('level').value.toLowerCase()}-appropriate and actionable. Ask me anything unclear before writing.`;
+  }
+
+  function render() {
+    g('lMod').innerHTML = mods.map((m,i)=>`<option value="${i}">${esc(m.name)}</option>`).join('') || '<option>— add a module —</option>';
+    const totL = mods.reduce((s,m)=>s+m.lessons.length,0);
+    g('stat').innerHTML = mods.length ? `<b>${mods.length}</b> modules · <b>${totL}</b> lessons · est. <b>${Math.round(totL*8/60*10)/10}–${Math.round(totL*12/60*10)/10} hrs</b> of content` : '';
+    const C = g('course');
+    if (!mods.length) { C.innerHTML='<div class="empty">No modules yet — add one to start your outline.</div>'; return; }
+    C.innerHTML = mods.map((m,mi)=>`
+      <div class="mod">
+        <div class="mh" onclick="toggle(${mi})">
+          <div><span class="mn">${mi+1}. ${esc(m.name)}</span> <span class="md">(${m.lessons.length} lesson${m.lessons.length!==1?'s':''})</span>
+            ${m.out?`<div class="md">→ ${esc(m.out)}</div>`:''}</div>
+          <div class="md">${collapsed[mi]?'▸':'▾'}</div>
+        </div>
+        <div class="acts"><span onclick="moveMod(${mi},-1)">↑</span><span onclick="moveMod(${mi},1)">↓</span><span onclick="renameMod(${mi})">✎ Edit</span><span onclick="delMod(${mi})">✕ Delete</span></div>
+        ${collapsed[mi]?'':(m.lessons.length?m.lessons.map((p,li)=>`
+          <div class="les"><div class="lt">${mi+1}.${li+1} ${esc(p.title)}</div>
+            ${p.obj?`<div class="lo">${esc(p.obj)}</div>`:''}
+            <div class="acts"><span onclick="copyLP(${mi},${li})">⧉ Copy build prompt</span><span onclick="editLes(${mi},${li})">✎ Edit</span><span onclick="delLes(${mi},${li})">✕ Delete</span></div>
+          </div>`).join(''):'<div class="empty">No lessons in this module yet.</div>')}
+      </div>`).join('');
+  }
+  function copyLP(m,l){ navigator.clipboard.writeText(lessonPrompt(mods[m].name, mods[m].lessons[l])).then(()=>alert('Lesson build prompt copied — paste into Claude.'),()=>alert('Copy failed.')); }
+
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+  function exportMd() {
+    if (!mods.length) { alert('Add modules first.'); return; }
+    const totL = mods.reduce((s,m)=>s+m.lessons.length,0);
+    let t = `# ${v('title')||'Untitled Course'}\n\n**For:** ${v('aud')||'(not set)'}\n**Outcome:** ${v('outcome')||'(not set)'}\n**Level:** ${g('level').value} · **Format:** ${g('fmt').value}\n${mods.length} modules · ${totL} lessons\n\n## Curriculum\n`;
+    mods.forEach((m,mi)=>{ t+=`\n### Module ${mi+1}: ${m.name}\n`; if(m.out)t+=`*${m.out}*\n`; m.lessons.forEach((p,li)=>{ t+=`- ${mi+1}.${li+1} **${p.title}**${p.obj?` — ${p.obj}`:''}\n`; }); });
+    dl(new Blob([t.trim()],{type:'text/markdown'}), (v('title')||'course-outline').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.md');
+  }
+  function exportKit() {
+    if (!mods.some(m=>m.lessons.length)) { alert('Add some lessons first.'); return; }
+    let t = `# Lesson-Build Kit — ${v('title')||'Untitled Course'}\n\nPaste each prompt into Claude to draft that lesson.\n`;
+    mods.forEach((m,mi)=> m.lessons.forEach((p,li)=>{ t+=`\n---\n\n## ${mi+1}.${li+1} ${p.title}\n\n\`\`\`\n${lessonPrompt(m.name,p)}\n\`\`\`\n`; }));
+    dl(new Blob([t.trim()],{type:'text/markdown'}), (v('title')||'course')+'-build-kit.md'.replace(/[^a-z0-9.\-]+/gi,'-'));
+  }
+
+  render();
+</script>
+</body>
+</html>

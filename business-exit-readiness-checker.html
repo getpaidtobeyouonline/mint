@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Exit Readiness Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:8px}
+.sub{text-align:center;opacity:.65;margin-bottom:28px;font-size:.93rem;line-height:1.5}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:620px;margin:0 auto 16px}
+.cat-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #4C724C}
+.question{margin-bottom:18px}
+.q-text{font-size:.9rem;line-height:1.5;margin-bottom:10px}
+.options{display:flex;gap:8px}
+.opt{flex:1}
+.opt input{display:none}
+.opt label{display:block;text-align:center;padding:9px 6px;border:1px solid #4C724C;border-radius:8px;font-size:.76rem;cursor:pointer;transition:all .2s;color:#BFD8BF;background:#325132;line-height:1.3}
+.opt input:checked+label{border-color:#5AE57A;color:#5AE57A;background:#C9A84C15;font-weight:600}
+.opt label:hover{border-color:#5A845A;color:#FFFFFF}
+.btn{width:100%;max-width:620px;display:block;margin:0 auto 28px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#results{max-width:620px;margin:0 auto;display:none}
+.score-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:28px;text-align:center;margin-bottom:16px}
+.score-ring{position:relative;width:130px;height:130px;margin:0 auto 16px}
+.ring-svg{width:130px;height:130px;transform:rotate(-90deg)}
+.ring-track{fill:none;stroke:#3C603C;stroke-width:10}
+.ring-fill{fill:none;stroke:#5AE57A;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .8s ease}
+.ring-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-pct{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;line-height:1}
+.ring-lbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em}
+.status-badge{display:inline-block;font-size:.78rem;font-weight:700;padding:5px 16px;border-radius:20px;margin-bottom:12px;letter-spacing:.04em}
+.status-desc{font-size:.88rem;opacity:.75;line-height:1.65;max-width:420px;margin:0 auto}
+.bars-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:16px}
+.bars-card h3{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:16px}
+.bar-row{margin-bottom:12px}
+.bar-top{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:5px}
+.bar-name{display:flex;align-items:center;gap:6px}
+.bar-track{background:#325132;border-radius:10px;height:7px;overflow:hidden}
+.bar-fill{height:100%;border-radius:10px;transition:width .7s ease}
+.mult-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;margin-bottom:16px}
+.mult-card h3{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:14px}
+.mult-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.mult-box{background:#325132;border-radius:8px;padding:12px;text-align:center;border:1px solid #3C603C;transition:border .3s}
+.mult-box.highlight{border-color:#5AE57A;background:#C9A84C0D}
+.mult-val{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;margin-bottom:3px}
+.mult-lbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.recs-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:16px}
+.recs-card h3{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:14px}
+.rec{display:flex;gap:10px;margin-bottom:12px;align-items:flex-start}
+.rec-num{background:#5AE57A;color:#325132;border-radius:50%;width:22px;height:22px;font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rec-text{font-size:.86rem;line-height:1.65}
+.restart-btn{width:100%;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .2s;margin-bottom:12px}
+.restart-btn:hover{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.options{flex-direction:column}.mult-grid{grid-template-columns:1fr 1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+<h1>Business Exit Readiness Checker</h1>
+<p class="sub">18 questions · 6 categories · find out how ready your business is to sell, hand over, or step back</p>
+
+<div id="quiz"></div>
+<button class="btn" onclick="showResults()">Check My Exit Readiness →</button>
+
+<div id="results">
+  <div class="score-card">
+    <div class="score-ring">
+      <svg class="ring-svg" viewBox="0 0 130 130">
+        <circle class="ring-track" cx="65" cy="65" r="55"/>
+        <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="55" stroke-dasharray="345.4" stroke-dashoffset="345.4"/>
+      </svg>
+      <div class="ring-num"><div class="ring-pct" id="ringPct">0%</div><div class="ring-lbl">Ready</div></div>
+    </div>
+    <div class="status-badge" id="statusBadge"></div>
+    <div class="status-desc" id="statusDesc"></div>
+  </div>
+
+  <div class="bars-card">
+    <h3>Readiness by Category</h3>
+    <div id="barsEl"></div>
+  </div>
+
+  <div class="mult-card">
+    <h3>Where You Stand on the Value Spectrum</h3>
+    <div class="mult-grid" id="multGrid"></div>
+  </div>
+
+  <div class="recs-card">
+    <h3>Your Top Priority Actions</h3>
+    <div id="recsEl"></div>
+  </div>
+
+  <button class="restart-btn" onclick="restart()">Retake the Assessment</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+const cats=[
+  {
+    title:'💰 Financial Health',key:'finance',
+    qs:['Do you have 3+ years of clean, organised financial records?','Is your revenue consistent and growing year over year?','Do you have a profit margin above 20%?','No single client or customer makes up more than 20% of your revenue?'],
+    recs:['Get your books professionally cleaned and audited for the past 3 years — messy financials kill deals before they start.','Build a revenue narrative: show month-over-month and year-over-year growth with commentary on what drove it.','Review your pricing and cost structure — buyers pay a premium for businesses with strong, sustainable margins.','Actively diversify your client base. Concentrated revenue is the biggest red flag in any acquisition process.']
+  },
+  {
+    title:'⚙️ Systems & Operations',key:'ops',
+    qs:['Are your core business processes documented so anyone could follow them?','Can the business run for 2+ weeks without you personally involved?','Do you have scalable technology or systems in place?','Is customer service and fulfilment independent of you personally?'],
+    recs:['Document every key process using Loom videos or written SOPs. Buyers buy systems, not people.','Test your own replaceability — take a real week off and see what breaks. Fix those things.','Audit your tech stack for scalability. Automation and platforms that don\'t require proportional headcount as you grow are valuable.','Build a customer experience that doesn\'t depend on your personal relationships or reputation.']
+  },
+  {
+    title:'👥 Customer Base',key:'customers',
+    qs:['Do you have a diversified customer base with 10+ active clients or customers?','Do you have recurring revenue or contracts extending beyond 12 months?','Is your customer acquisition process documented and repeatable without you?'],
+    recs:['A concentrated customer base is a deal killer — actively work to acquire more clients before going to market.','Introduce retainer agreements, annual plans, or subscription pricing to convert one-time revenue to recurring.','Document your sales and marketing process end-to-end. A buyer needs to see that new customers can be acquired without you.']
+  },
+  {
+    title:'🧠 Team & Leadership',key:'team',
+    qs:['Do you have key employees who could lead the business after you exit?','Have you documented your own role so it could be filled by someone else?','Do you have a clear organisational structure with defined roles?'],
+    recs:['Identify your key person risks — start cross-training, documenting, and possibly promoting a successor now.','Write a detailed role description for yourself and start delegating systematically. Buyers won\'t pay top price for a business that needs you.','Build or formalise your org chart, even if it\'s just you and one other person. Clarity on structure builds buyer confidence.']
+  },
+  {
+    title:'⚖️ Legal & IP',key:'legal',
+    qs:['Is your intellectual property (brand, methods, content) legally protected?','Are your client and supplier contracts professional, written, and assignable?','Is your business structure clean and appropriate for a transaction?'],
+    recs:['Register your trademarks, copyright key content, and document any proprietary methods. Unprotected IP destroys valuation.','Audit every client and supplier contract — assignability clauses are essential for a clean sale.','Work with a business attorney to ensure your entity structure is clean, liabilities are clear, and everything is in order for due diligence.']
+  },
+  {
+    title:'🏆 Brand & Market',key:'brand',
+    qs:['Does your business have a strong brand independent of your personal name or reputation?','Can you clearly articulate your competitive advantage and market position?','Is your business operating in a growing market with favourable trends?'],
+    recs:['If the brand IS you, start shifting it to the business name. Use your name to build the brand, not be the brand.','Write a clear competitive positioning statement. Buyers want to know why customers choose you over alternatives.','Document the market opportunity — industry growth rates, tailwinds, and why now is a good time to be in this space.']
+  }
+];
+
+function buildQuiz(){
+  document.getElementById('quiz').innerHTML=cats.map((cat,ci)=>`
+    <div class="card">
+      <div class="cat-title">${cat.title}</div>
+      ${cat.qs.map((q,qi)=>`
+        <div class="question">
+          <div class="q-text">${qi+1}. ${q}</div>
+          <div class="options">
+            ${[['no','Not yet',0],['partial','Partially',1],['yes','Yes',2]].map(([v,l,s])=>`
+              <div class="opt"><input type="radio" name="q${ci}_${qi}" id="q${ci}_${qi}_${v}" value="${s}">
+              <label for="q${ci}_${qi}_${v}">${l}</label></div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+const statuses=[
+  {min:0,max:34,label:'Not Ready Yet',color:'#5AE57A',bg:'#ff666622',desc:'Your business has significant gaps that would prevent or heavily discount a sale. This is the time to build — not sell. Use this report as your 2-year roadmap.'},
+  {min:35,max:54,label:'Early Stage',color:'#5AE57A',bg:'#f0a50022',desc:'You have a foundation but important gaps remain across multiple areas. A buyer would see too much risk at this stage. Focus on the highest-impact actions below.'},
+  {min:55,max:74,label:'Getting There',color:'#5AE57A',bg:'#C9A84C22',desc:'You\'re making real progress. A sale is possible but you\'d likely leave significant money on the table. Close the key gaps to command a premium valuation.'},
+  {min:75,max:89,label:'Nearly Ready',color:'#5AE57A',bg:'#88cc4422',desc:'Strong foundations with a few remaining gaps. You could go to market now, but another 6–12 months of focused improvement would significantly increase your multiple.'},
+  {min:90,max:100,label:'Exit Ready',color:'#5AE57A',bg:'#44cc6622',desc:'Your business is well-positioned for a successful exit. Clean financials, strong systems, and a business that runs without you — this is what buyers pay a premium for.'}
+];
+
+const multiples=[
+  {range:'1–2×',lbl:'Revenue-based',thresh:35},
+  {range:'2–4×',lbl:'EBITDA basic',thresh:55},
+  {range:'4–6×',lbl:'EBITDA strong',thresh:75},
+  {range:'6×+',lbl:'Premium exit',thresh:90},
+];
+
+function showResults(){
+  const catScores=cats.map((cat,ci)=>{
+    let raw=0;
+    cat.qs.forEach((_,qi)=>{const sel=document.querySelector(`input[name="q${ci}_${qi}"]:checked`);raw+=sel?parseInt(sel.value):0;});
+    return{...cat,raw,max:cat.qs.length*2,pct:Math.round(raw/(cat.qs.length*2)*100)};
+  });
+  const totalRaw=catScores.reduce((s,c)=>s+c.raw,0);
+  const totalMax=catScores.reduce((s,c)=>s+c.max,0);
+  const pct=Math.round(totalRaw/totalMax*100);
+  const status=statuses.find(s=>pct>=s.min&&pct<=s.max)||statuses[4];
+
+  // Ring
+  const circumference=345.4;
+  document.getElementById('ringFill').style.strokeDashoffset=circumference-(circumference*pct/100);
+  document.getElementById('ringPct').textContent=pct+'%';
+  const badge=document.getElementById('statusBadge');
+  badge.textContent=status.label;
+  badge.style.background=status.bg;badge.style.color=status.color;badge.style.border=`1px solid ${status.color}44`;
+  document.getElementById('statusDesc').textContent=status.desc;
+
+  // Bars
+  const barColors=['#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A','#5AE57A'];
+  document.getElementById('barsEl').innerHTML=catScores.map((c,i)=>`
+    <div class="bar-row">
+      <div class="bar-top"><span class="bar-name">${c.title}</span><span style="color:${barColors[i]}">${c.pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${c.pct}%;background:${barColors[i]}"></div></div>
+    </div>`).join('');
+
+  // Multiples
+  document.getElementById('multGrid').innerHTML=multiples.map(m=>`
+    <div class="mult-box ${pct>=m.thresh?'highlight':''}">
+      <div class="mult-val">${m.range}</div>
+      <div class="mult-lbl">${m.lbl}</div>
+    </div>`).join('');
+
+  // Recs — bottom 3 categories
+  const sorted=[...catScores].sort((a,b)=>a.pct-b.pct).slice(0,3);
+  document.getElementById('recsEl').innerHTML=sorted.map((c,i)=>{
+    const ci=cats.findIndex(cat=>cat.key===c.key);
+    const worstQ=c.qs.reduce((wIdx,_,qi)=>{
+      const sel=document.querySelector(`input[name="q${ci}_${qi}"]:checked`);
+      const score=sel?parseInt(sel.value):0;
+      const wSel=document.querySelector(`input[name="q${ci}_${wIdx}"]:checked`);
+      const wScore=wSel?parseInt(wSel.value):0;
+      return score<wScore?qi:wIdx;},0);
+    return`<div class="rec"><div class="rec-num">${i+1}</div><div class="rec-text"><strong>${cats[ci].title.replace(/.*\s/,'')}</strong> — ${cats[ci].recs[worstQ]}</div></div>`;
+  }).join('');
+
+  document.getElementById('quiz').style.display='none';
+  document.querySelector('.btn').style.display='none';
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+  setTimeout(()=>{
+    const circumference=345.4;
+    document.getElementById('ringFill').style.strokeDashoffset=circumference-(circumference*pct/100);
+  },100);
+}
+
+function restart(){
+  document.getElementById('quiz').style.display='block';
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('results').style.display='none';
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

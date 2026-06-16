@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Boundary Setting Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+.subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 22px; }
+.stats-row { display: flex; gap: 10px; max-width: 580px; margin: 0 auto 16px; }
+.stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 11px; text-align: center; }
+.stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+.stat-l { font-size: 0.67rem; color: #BFD8BF; margin-top: 2px; }
+.add-btn { display: block; max-width: 580px; margin: 0 auto 12px; width: 100%; background: #3C603C; border: 1px dashed #4C724C; color: #5AE57A; border-radius: 10px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; transition: all 0.15s; }
+.add-btn:hover { border-color: #C9A84C55; background: #3C603C; }
+.add-form { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px; max-width: 580px; margin: 0 auto 14px; display: none; }
+.add-form.open { display: block; }
+.form-label { font-size: 0.72rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 7px; margin-top: 13px; }
+.form-label:first-child { margin-top: 0; }
+.area-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.achip { padding: 5px 11px; border-radius: 20px; border: 1px solid #4C724C; font-size: 0.79rem; cursor: pointer; background: #325132; color: #BFD8BF; transition: all 0.15s; }
+.achip.sel { border-color: var(--ac,#5AE57A); color: var(--ac,#5AE57A); }
+textarea, .finput { width: 100%; background: #325132; border: 1px solid #4C724C; border-radius: 8px; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 0.87rem; padding: 10px 12px; outline: none; }
+textarea { resize: vertical; min-height: 62px; }
+textarea:focus, .finput:focus { border-color: #C9A84C55; }
+.form-row { display: flex; gap: 8px; margin-top: 14px; }
+.btn-primary { flex: 1; background: #5AE57A; color: #325132; border: none; border-radius: 8px; padding: 11px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; }
+.btn-ghost { background: #325132; color: #BFD8BF; border: 1px solid #4C724C; border-radius: 8px; padding: 11px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+.bcard { background: #3C603C; border: 1px solid #3C603C; border-left: 3px solid var(--bc,#4C724C); border-radius: 10px; max-width: 580px; margin: 0 auto 8px; overflow: hidden; }
+.bcard-top { display: flex; align-items: center; gap: 8px; padding: 12px 14px 0; }
+.area-chip { font-size: 0.71rem; color: var(--bc,#BFD8BF); padding: 3px 8px; border-radius: 10px; background: #325132; flex-shrink: 0; }
+.status-badge { font-size: 0.72rem; margin-left: auto; flex-shrink: 0; }
+.expand-btn { font-size: 0.7rem; color: #5A845A; cursor: pointer; padding: 2px 6px; flex-shrink: 0; }
+.bcard-stmt { font-size: 0.9rem; color: #F0EBE0cc; line-height: 1.45; padding: 7px 14px 11px; }
+.log-btns { display: flex; gap: 6px; padding: 0 14px 12px; }
+.log-btn { flex: 1; background: #325132; border: 1px solid #3C603C; border-radius: 7px; color: #BFD8BF; font-family: 'DM Sans', sans-serif; font-size: 0.77rem; padding: 7px 4px; cursor: pointer; transition: all 0.15s; }
+.log-btn:hover { border-color: var(--lc,#5AE57A); color: var(--lc,#5AE57A); }
+.bcard-detail { border-top: 1px solid #325132; padding: 13px 14px; display: none; }
+.bcard-detail.open { display: block; }
+.detail-lbl { font-size: 0.69rem; color: #BFD8BF; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; margin-top: 11px; }
+.detail-lbl:first-child { margin-top: 0; }
+.detail-text { font-size: 0.84rem; color: #F0EBE0aa; line-height: 1.5; }
+.detail-script { font-size: 0.84rem; color: #C9A84Ccc; font-style: italic; line-height: 1.5; }
+.log-hist { display: flex; flex-direction: column; gap: 5px; }
+.log-hist-row { display: flex; align-items: center; gap: 8px; font-size: 0.79rem; color: #BFD8BF; }
+.delete-btn { margin-top: 13px; background: none; border: 1px solid #4C724C; color: #5A845A; border-radius: 6px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; }
+.delete-btn:hover { border-color: #5AE57A; color: #5AE57A; }
+.empty-state { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 36px 0; max-width: 580px; margin: 0 auto; line-height: 1.7; }
+footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Boundary Planner</h1>
+<p class="subtitle">Define your limits. Say it clearly. Track how well you hold the line.</p>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statTotal">0</div><div class="stat-l">boundaries</div></div>
+  <div class="stat-box"><div class="stat-n" id="statHeld" style="color:#5AE57A">0</div><div class="stat-l">held this week</div></div>
+  <div class="stat-box"><div class="stat-n" id="statSlipped" style="color:#5AE57A">0</div><div class="stat-l">slipped this week</div></div>
+</div>
+
+<button class="add-btn" id="addToggleBtn" onclick="toggleAdd()">+ Add a Boundary</button>
+
+<div class="add-form" id="addForm">
+  <div class="form-label">Area</div>
+  <div class="area-chips" id="areaChips"></div>
+  <div class="form-label">The boundary</div>
+  <textarea id="fStmt" placeholder="e.g. I don't check work messages after 7 pm" rows="2"></textarea>
+  <div class="form-label">Why it matters <span style="color:#4C724C">(optional)</span></div>
+  <input class="finput" id="fWhy" type="text" placeholder="e.g. My evenings belong to my family">
+  <div class="form-label">What to say when it's challenged <span style="color:#4C724C">(optional)</span></div>
+  <input class="finput" id="fScript" type="text" placeholder="e.g. I'm offline after 7 — I'll respond first thing tomorrow">
+  <div class="form-row">
+    <button class="btn-ghost" onclick="toggleAdd()">Cancel</button>
+    <button class="btn-primary" onclick="submitAdd()">Add Boundary</button>
+  </div>
+</div>
+
+<div id="boundaryList"></div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const AREAS=[
+  {id:'work',    icon:'💼',label:'Work',      color:'#5AE57A'},
+  {id:'family',  icon:'🏠',label:'Family',    color:'#5AE57A'},
+  {id:'social',  icon:'👥',label:'Social',    color:'#5AE57A'},
+  {id:'digital', icon:'📱',label:'Digital',   color:'#5AE57A'},
+  {id:'health',  icon:'💪',label:'Health',    color:'#5AE57A'},
+  {id:'money',   icon:'💰',label:'Financial', color:'#5AE57A'},
+];
+const OM={held:{label:'Held it',color:'#5AE57A',icon:'✓'},tested:{label:'Tested',color:'#5AE57A',icon:'⚡'},slipped:{label:'Slipped',color:'#5AE57A',icon:'✗'}};
+
+let boundaries=JSON.parse(localStorage.getItem('bsp_b')||'[]');
+let logs=JSON.parse(localStorage.getItem('bsp_l')||'[]');
+let selArea='work', showAdd=false, expandedId=null, deleteTarget=null, deleteTimer=null;
+
+function save(){localStorage.setItem('bsp_b',JSON.stringify(boundaries));localStorage.setItem('bsp_l',JSON.stringify(logs));}
+
+function getStatus(bId){
+  const w=logs.filter(l=>l.boundaryId===bId&&Date.now()-l.ts<7*86400000);
+  if(!w.length) return{label:'Not Tracked',color:'#5A845A',icon:'○'};
+  if(w.some(l=>l.outcome==='slipped')) return{label:'Needs Work',color:'#5AE57A',icon:'✗'};
+  if(w.some(l=>l.outcome==='tested')) return{label:'Being Tested',color:'#5AE57A',icon:'⚡'};
+  return{label:'Holding Strong',color:'#5AE57A',icon:'✓'};
+}
+
+function toggleAdd(){
+  showAdd=!showAdd;
+  document.getElementById('addForm').classList.toggle('open',showAdd);
+  document.getElementById('addToggleBtn').textContent=showAdd?'− Cancel':'+ Add a Boundary';
+  if(showAdd){setTimeout(()=>document.getElementById('fStmt').focus(),50);}
+}
+
+function selectArea(id){
+  selArea=id;
+  document.querySelectorAll('.achip').forEach(c=>{
+    const a=AREAS.find(a=>a.id===c.dataset.id);
+    c.classList.toggle('sel',c.dataset.id===id);
+    if(a) c.style.setProperty('--ac',a.color);
+  });
+}
+
+function submitAdd(){
+  const stmt=document.getElementById('fStmt').value.trim();
+  if(!stmt) return;
+  boundaries.unshift({id:'b'+Date.now(),area:selArea,statement:stmt,why:document.getElementById('fWhy').value.trim(),script:document.getElementById('fScript').value.trim(),created:new Date().toISOString().slice(0,10)});
+  save();
+  ['fStmt','fWhy','fScript'].forEach(id=>document.getElementById(id).value='');
+  showAdd=false;document.getElementById('addForm').classList.remove('open');
+  document.getElementById('addToggleBtn').textContent='+ Add a Boundary';
+  expandedId=null;render();
+}
+
+function logOutcome(bId,outcome){
+  logs.unshift({id:'l'+Date.now(),ts:Date.now(),date:new Date().toISOString().slice(0,10),boundaryId:bId,outcome});
+  save();render();
+}
+
+function toggleExpand(bId){expandedId=expandedId===bId?null:bId;render();}
+
+function deleteBoundary(bId){
+  if(deleteTarget===bId){
+    clearTimeout(deleteTimer);deleteTarget=null;
+    boundaries=boundaries.filter(b=>b.id!==bId);
+    logs=logs.filter(l=>l.boundaryId!==bId);
+    if(expandedId===bId) expandedId=null;
+    save();render();return;
+  }
+  deleteTarget=bId;render();
+  deleteTimer=setTimeout(()=>{deleteTarget=null;render();},3000);
+}
+
+function fmtDate(ts){return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function render(){
+  const weekLogs=logs.filter(l=>Date.now()-l.ts<7*86400000);
+  document.getElementById('statTotal').textContent=boundaries.length;
+  document.getElementById('statHeld').textContent=weekLogs.filter(l=>l.outcome==='held').length;
+  document.getElementById('statSlipped').textContent=weekLogs.filter(l=>l.outcome==='slipped').length;
+
+  const el=document.getElementById('boundaryList');
+  if(!boundaries.length){el.innerHTML='<p class="empty-state">No boundaries defined yet.<br>Add your first one above.</p>';return;}
+
+  el.innerHTML=boundaries.map(b=>{
+    const area=AREAS.find(a=>a.id===b.area)||AREAS[0];
+    const st=getStatus(b.id);
+    const isExp=expandedId===b.id;
+    const isDel=deleteTarget===b.id;
+    const recentLogs=logs.filter(l=>l.boundaryId===b.id).slice(0,5);
+    return`<div class="bcard" style="--bc:${area.color}">
+      <div class="bcard-top">
+        <span class="area-chip">${area.icon} ${area.label}</span>
+        <span class="status-badge" style="color:${st.color}">${st.icon} ${st.label}</span>
+        <span class="expand-btn" onclick="toggleExpand('${b.id}')">${isExp?'▴':'▾'}</span>
+      </div>
+      <div class="bcard-stmt">${b.statement}</div>
+      <div class="log-btns">
+        <button class="log-btn" style="--lc:#5AE57A" onclick="logOutcome('${b.id}','held')">✓ Held it</button>
+        <button class="log-btn" style="--lc:#5AE57A" onclick="logOutcome('${b.id}','tested')">⚡ Tested</button>
+        <button class="log-btn" style="--lc:#5AE57A" onclick="logOutcome('${b.id}','slipped')">✗ Slipped</button>
+      </div>
+      <div class="bcard-detail${isExp?' open':''}">
+        ${b.why?`<div class="detail-lbl">Why it matters</div><div class="detail-text">${b.why}</div>`:''}
+        ${b.script?`<div class="detail-lbl">What to say</div><div class="detail-script">"${b.script}"</div>`:''}
+        <div class="detail-lbl">Recent logs</div>
+        ${recentLogs.length?`<div class="log-hist">${recentLogs.map(l=>`<div class="log-hist-row"><span style="color:${OM[l.outcome].color}">${OM[l.outcome].icon} ${OM[l.outcome].label}</span><span style="margin-left:auto">${fmtDate(l.ts)}</span></div>`).join('')}</div>`:'<div style="color:#5A845A;font-size:0.8rem;padding:2px 0">No logs yet.</div>'}
+        <button class="delete-btn" onclick="deleteBoundary('${b.id}')">${isDel?'Tap again to confirm':'Delete boundary'}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Build area chips
+document.getElementById('areaChips').innerHTML=AREAS.map(a=>`<div class="achip${a.id===selArea?' sel':''}" data-id="${a.id}" style="--ac:${a.color}" onclick="selectArea('${a.id}')">${a.icon} ${a.label}</div>`).join('');
+
+render();
+</script>
+</body>
+</html>

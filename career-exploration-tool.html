@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Exploration Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Career Exploration Tool</h1>
+  <p class="sub">Not sure what path fits? Map your strengths, interests and values to find directions worth exploring.</p>
+
+  <div class="panel">
+    <label for="strengths">What am I genuinely good at?</label>
+    <textarea id="strengths" placeholder="Skills, talents, things people come to you for"></textarea>
+    <label for="enjoy">What do I enjoy doing — even unpaid?</label>
+    <textarea id="enjoy" placeholder="Activities that energise rather than drain you"></textarea>
+    <label for="values">What do I want from work? (values)</label>
+    <textarea id="values" placeholder="e.g. Flexibility, impact, security, creativity, income"></textarea>
+    <label for="environ">My ideal work environment</label>
+    <input id="environ" placeholder="e.g. Remote, small team, outdoors, varied days">
+    <label for="dealbreak">My deal-breakers</label>
+    <input id="dealbreak" placeholder="What you will not accept in a role">
+    <label for="curious">Roles or fields I am curious about</label>
+    <textarea id="curious" placeholder="Anything that has caught your eye, however vague"></textarea>
+    <button class="btn" onclick="gen()">Build Exploration Map</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['strengths','enjoy','values','environ','dealbreak','curious'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('cet_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cet_'+k,g(k).value)); });
+  function gen(){
+    const t=`MY CAREER EXPLORATION MAP\n\nMY STRENGTHS:\n${v('strengths')||'[what you are good at]'}\n\nWHAT I ENJOY:\n${v('enjoy')||'[what energises you]'}\n\nWHAT I VALUE IN WORK:\n${v('values')||'[your non-negotiable values]'}\n\nIDEAL ENVIRONMENT:\n${v('environ')||'[where you do your best]'}\n\nDEAL-BREAKERS:\n${v('dealbreak')||'[what you will not accept]'}\n\nFIELDS I AM CURIOUS ABOUT:\n${v('curious')||'[directions to investigate]'}\n\n--- Your next steps ---\n1. Where strengths + enjoyment + values overlap — that is your sweet spot. Name 2-3 roles there.\n2. For each, do a 30-minute search: what does the day-to-day look like?\n3. Find one person in that field and ask them 15 minutes of questions.\n4. Try a small taste before a big leap — a course, a project, a shadow day.`;
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

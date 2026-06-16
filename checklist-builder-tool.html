@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist Builder Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text],select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,select:focus{border-color:#5AE57A}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C9A84C' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem;align-items:start}
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.4rem}
+.tc{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.65rem .85rem;cursor:pointer;transition:border-color .2s,background .2s}
+.tc.sel{border-color:#5AE57A;background:#325132}
+.tc-name{font-size:.85rem;font-weight:600;margin-bottom:.18rem}
+.tc-desc{font-size:.71rem;opacity:.5;line-height:1.35}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-bottom:1.25rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.name-box{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem}
+.name-row{display:flex;align-items:flex-start;justify-content:space-between;gap:.75rem;margin-bottom:.45rem}
+.cl-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:#5AE57A;line-height:1.3;flex:1}
+.btn-sm{background:transparent;border:1px solid #C9A84C44;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0}
+.btn-sm:hover{opacity:.7}
+.tagline{font-size:.875rem;opacity:.65;line-height:1.55}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;margin-bottom:1.25rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:.85rem .6rem;text-align:center}
+.s-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;line-height:1;font-weight:700}
+.s-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;opacity:.45;margin-top:.3rem}
+.cl-sec{margin-bottom:1.1rem}
+.cl-sec:last-child{margin-bottom:0}
+.cl-sec-name{font-size:.71rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600;margin-bottom:.55rem}
+.cl-item{display:flex;align-items:flex-start;gap:.65rem;padding:.42rem 0;border-bottom:1px solid #325132}
+.cl-item:last-child{border-bottom:none;padding-bottom:0}
+.chk{width:15px;height:15px;border:1.5px solid #4C724C;border-radius:3px;flex-shrink:0;margin-top:.15rem}
+.cl-text{font-size:.88rem;line-height:1.45;opacity:.9}
+.copy-btn{width:100%;background:transparent;border:1px solid #C9A84C55;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.g2{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.name-row{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Checklist Builder Tool</h1>
+    <p class="subtitle">Build a complete, organized checklist for any topic — structured by section, ready to sell or use as a lead magnet.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Checklist Details</h2>
+    <label>Checklist Topic</label>
+    <input type="text" id="topic" placeholder="e.g. product launch, morning routine, new business setup, podcast recording">
+    <label>Target Audience</label>
+    <input type="text" id="audience" placeholder="e.g. coaches, new entrepreneurs, content creators">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Number of Items</label>
+        <select id="count">
+          <option value="10">10 Items — Compact</option>
+          <option value="20" selected>20 Items — Standard</option>
+          <option value="30">30 Items — Comprehensive</option>
+        </select>
+      </div>
+      <div>
+        <label style="margin-top:0">Checklist Type</label>
+        <div class="type-grid">
+          <div class="tc sel" onclick="pickType('process')" id="ct-process"><div class="tc-name">Process</div><div class="tc-desc">Step-by-step task list</div></div>
+          <div class="tc" onclick="pickType('resource')" id="ct-resource"><div class="tc-name">Resource List</div><div class="tc-desc">Tools, links & systems</div></div>
+          <div class="tc" onclick="pickType('qc')" id="ct-qc"><div class="tc-name">Quality Control</div><div class="tc-desc">Review & sign-off list</div></div>
+          <div class="tc" onclick="pickType('habit')" id="ct-habit"><div class="tc-name">Habit Tracker</div><div class="tc-desc">Daily & weekly habits</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Build My Checklist →</button>
+
+  <div class="results" id="results">
+
+    <div class="name-box">
+      <div class="name-row">
+        <div class="cl-title" id="clTitle">—</div>
+        <button class="btn-sm" onclick="regenTitle()">↻ New Title</button>
+      </div>
+      <div class="tagline" id="clTagline">—</div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="card">
+      <h2 id="clHead">Checklist</h2>
+      <div id="checklist"></div>
+    </div>
+
+    <button class="copy-btn" onclick="copyChecklist()">Copy Checklist as Text</button>
+
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap = s => s ? s.replace(/\b\w/g, c => c.toUpperCase()) : s;
+const fill = (str, T, A) => str.replace(/\{T\}/g, T).replace(/\{A\}/g, A);
+const rnd = arr => arr[Math.floor(Math.random() * arr.length)];
+
+const data = {
+  process:[
+    'Define your {T} goal and the exact outcome you want to achieve','Research {T} best practices and identify [3+] proven approaches',
+    'Gather all tools, resources, and materials needed for {T}','Set a clear timeline with milestones and a firm deadline',
+    'Identify the top [3] risks and write a plan to handle each','Brief your team, VA, or accountability partner on the {T} plan',
+    'Set up all accounts, platforms, and tools needed for {T}','Create core templates, swipe files, and working systems',
+    'Configure any automations, integrations, or workflows','Build a tracking system for key {T} metrics and progress',
+    'Run a test or dry run of your {T} system before going live','Document your {T} process for repeatability and delegation',
+    'Complete Phase 1 of your {T} plan as scheduled','Check in on progress against your milestone targets',
+    'Communicate updates to your team or audience as needed','Log any issues, blockers, or key decisions as you go',
+    'Adjust the plan based on new feedback or information','Stay consistent with your daily or weekly {T} non-negotiables',
+    'Review all work against your original {T} brief and goals','Check for errors, gaps, or incomplete items',
+    'Get a second opinion or review from a trusted person','Test the final output with a sample audience or pilot group',
+    'Confirm all requirements and success criteria are fully met','Make final adjustments based on review and testing feedback',
+    'Publish or deliver your completed {T} output','Measure final results against your original {T} goals',
+    'Document wins, key lessons, and insights from this project','Identify [3] things to do differently in the next {T} cycle',
+    'Celebrate completion and share results with your community','Set the next {T} goal and begin planning the next cycle'
+  ],
+  resource:[
+    'Sign up for and configure your primary {T} platform or tool','Set up your {T} folder structure and file naming system',
+    'Create a master doc with all key {T} links, logins, and resources','Bookmark or install the top [3] most-used {T} tools',
+    'Set up a project management system for all {T} tasks','Create a one-page overview of your entire {T} tool stack',
+    'Identify [3] trusted {T} experts or creators to follow closely','Find the #1 book, course, or resource for {T} mastery',
+    'Join a community, group, or mastermind focused on {T}','Subscribe to the best newsletter or podcast for {T} updates',
+    'Save [3] tutorials for your most complex {T} tasks','Block recurring calendar time for {T} learning and development',
+    'Create or download a template for your most repetitive {T} task','Build a swipe file of the best {T} examples and inspiration',
+    'Set up copy-paste scripts for common {T} communications','Create a {T} FAQ doc for questions you answer repeatedly',
+    'Build a master {T} checklist for recurring projects','Document your core {T} process as a repeatable SOP',
+    'Identify your go-to {T} expert or mentor for when you get stuck','Find an accountability partner for your {T} goals',
+    'Join a relevant {T} community where you can ask questions','Set up a regular check-in or review call for {T} progress',
+    'Create a list of {T} freelancers or services you can outsource to','Decide which {T} tasks to delegate and to whom',
+    'Create a one-page {T} quick-reference cheat sheet for daily use','Save your most important {T} benchmarks and statistics',
+    'Build a {T} glossary of key terms you reference regularly','Create a {T} troubleshooting guide for common problems',
+    'Build a {T} contact list of key people and collaborators','Schedule a quarterly review to update your {T} resource library'
+  ],
+  qc:[
+    'Confirm all {T} requirements are clearly defined and documented','Verify all stakeholders agree on scope, deliverables, and timeline',
+    'Check that all prerequisites and dependencies are in place','Confirm budget, resources, and approvals are secured upfront',
+    'Verify all legal, brand, or compliance requirements are noted','Confirm success criteria are measurable and agreed by all parties',
+    'Check that {T} output meets all specified quality standards','Verify formatting, naming, and style guidelines are followed',
+    'Confirm all data, statistics, or references are accurate','Check for consistency in tone, voice, and messaging throughout',
+    'Verify all images or media meet the required specifications','Confirm all links, buttons, and interactive elements work correctly',
+    'Run a full end-to-end test of the {T} process or deliverable','Test across all required devices, browsers, or platforms',
+    'Conduct user testing with [3+] people from your target audience','Check all edge cases and error scenarios are handled correctly',
+    'Verify all integrations, automations, and APIs work correctly','Document and resolve all issues found during testing',
+    'Get sign-off from all required stakeholders or decision-makers','Confirm all revision requests from reviews are completed',
+    'Get final proofreading or fact-check completed by a second person','Confirm all brand, legal, or compliance approvals are obtained',
+    'Complete a final checklist review with the core project team','Record the approval date, approvers, and version number',
+    'Create or update the {T} documentation and user guide','Archive all working files, drafts, and review notes',
+    'Document all known issues and planned future improvements','Update the {T} knowledge base with lessons learned',
+    'Create a post-delivery monitoring or support plan','Schedule a retrospective review [30/60/90] days post-delivery'
+  ],
+  habit:[
+    'Wake up at your target time — no snooze button','Complete your {T} morning activation or warm-up routine',
+    'Review your top [3] priorities for the day ahead','Do [10–20] minutes of movement, stretching, or exercise',
+    'Complete [5–10] minutes of journaling or intentional reflection','Avoid phone and social media for the first [30] minutes',
+    'Complete your #1 most important {T} task before noon','Take [3] intentional breaks away from screens during the day',
+    'Drink [8] glasses of water and protect your energy levels','Log your {T} progress in your tracker or journal',
+    'End work at your set finish time — honour your boundaries','Do [one] intentional act related to your {T} goal today',
+    'Complete a weekly {T} review: wins, challenges, and lessons','Plan and schedule your top [3] priorities for the week ahead',
+    'Do a full inbox and task list clear-out','Reach out to [1] person in your {T} community or network',
+    'Review your {T} metrics and progress toward your targets','Batch one category of {T} tasks for greater efficiency',
+    'Review progress toward your [90-day] {T} goals','Evaluate and adjust your {T} systems and habits as needed',
+    'Organize and optimize your {T} workspace, tools, and files','Invest in [one] {T} skill, course, or learning opportunity',
+    'Review your schedule — cut anything not aligned with your {T} goals','Celebrate and document your biggest {T} win this month',
+    'Track your {T} habit consistency rate (aim for [80%+] this week)','Share your {T} progress update with your accountability partner',
+    'Identify the [#1] habit that\'s been hardest to maintain and why','Simplify any {T} habit that keeps getting skipped',
+    'Re-read your {T} vision and "why" to reconnect with your purpose','Plan your reward for hitting your {T} consistency streak target'
+  ]
+};
+
+const secLabels = {
+  process:  ['Preparation','Setup & Configuration','Execution','Quality Review','Completion & Next Steps'],
+  resource: ['Core Tools & Platforms','Learning & Development','Templates & Systems','Support & Delegation','Reference & Review'],
+  qc:       ['Requirements','Standards & Specifications','Testing & Validation','Review & Approval','Documentation'],
+  habit:    ['Morning Habits','Daily Non-Negotiables','Weekly Practices','Monthly Reviews','Accountability']
+};
+const secColors  = {process:'#5AE57A', resource:'#5AE57A', qc:'#5AE57A', habit:'#5AE57A'};
+const typeLabel  = {process:'Process Checklist', resource:'Resource List', qc:'Quality Control', habit:'Habit Tracker'};
+const fmtLabel   = {process:'PDF', resource:'PDF', qc:'Spreadsheet', habit:'Printable'};
+
+const nameForms = [
+  (T)      => `The ${cap(T)} Checklist`,
+  (T,A)    => `The ${cap(A)}'s ${cap(T)} Checklist`,
+  (T,_,ty) => `The Complete ${cap(T)} ${typeLabel[ty]}`,
+  (T)      => `Your ${cap(T)} Done-Right Checklist`,
+  (T,A)    => `The ${cap(T)} Checklist for ${cap(A)}`,
+  (T)      => `The Ultimate ${cap(T)} Checklist`
+];
+const taglines = [
+  (T,A,n) => `${n} actionable items that guide ${A} through every step of ${T} — organized, prioritized, and ready to use.`,
+  (T,A,n) => `Stop missing steps. This ${n}-item ${T} checklist gives ${A} a clear, reliable process from start to finish.`,
+  (T,A,n) => `The ${n}-item ${T} checklist that helps ${A} stay organized, consistent, and on track every single time.`
+];
+
+let state = {}, titleIdx = 0, chkType = 'process';
+
+function pickType(t) {
+  chkType = t;
+  ['process','resource','qc','habit'].forEach(id => document.getElementById(`ct-${id}`).classList.toggle('sel', id === t));
+}
+
+function generate() {
+  const T = document.getElementById('topic').value.trim();
+  const A = document.getElementById('audience').value.trim();
+  const n = parseInt(document.getElementById('count').value);
+  if (!T) { alert('Please enter a checklist topic.'); return; }
+  if (!A) { alert('Please enter your target audience.'); return; }
+  titleIdx = Math.floor(Math.random() * nameForms.length);
+  state = {T, A, n, type: chkType};
+  render();
+  const res = document.getElementById('results');
+  res.classList.add('show');
+  res.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function render() {
+  const {T, A, n, type} = state;
+  const CT = cap(T), CA = cap(A);
+  const c = secColors[type];
+  document.getElementById('clTitle').textContent = nameForms[titleIdx](T, A, type);
+  document.getElementById('clTagline').textContent = rnd(taglines)(T, A, n);
+  document.getElementById('clHead').innerHTML = `${n} Items <span style="font-family:'DM Sans',sans-serif;font-weight:400;opacity:.4;font-size:.8rem">— 5 sections</span>`;
+
+  document.getElementById('stats').innerHTML =
+    st(n,'Total Items') + st('5','Sections') + st(`~${Math.round(n/5.5)}`,'Est. Pages') + st(fmtLabel[type],'Best Format');
+
+  const perSec = n / 5;
+  let html = '';
+  secLabels[type].forEach((name, s) => {
+    const items = data[type].slice(s * 6, s * 6 + perSec);
+    html += `<div class="cl-sec">
+      <div class="cl-sec-name" style="color:${c}">${name}</div>
+      ${items.map(item => `<div class="cl-item"><div class="chk"></div><div class="cl-text">${fill(item, CT, CA)}</div></div>`).join('')}
+    </div>`;
+  });
+  document.getElementById('checklist').innerHTML = html;
+}
+
+function st(val, lbl) {
+  return `<div class="stat"><div class="s-val">${val}</div><div class="s-lbl">${lbl}</div></div>`;
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % nameForms.length;
+  const {T, A, type} = state;
+  document.getElementById('clTitle').textContent = nameForms[titleIdx](T, A, type);
+}
+
+function copyChecklist() {
+  const {T, A, n, type} = state;
+  const CT = cap(T), CA = cap(A);
+  const perSec = n / 5;
+  const title = nameForms[titleIdx](T, A, type);
+  let text = `${title}\n${n} items | ${typeLabel[type]} | GetPaidToBeYouOnline\n\n`;
+  secLabels[type].forEach((name, s) => {
+    const items = data[type].slice(s * 6, s * 6 + perSec);
+    text += `${name.toUpperCase()}\n`;
+    items.forEach(item => { text += `□  ${fill(item, CT, CA)}\n`; });
+    text += '\n';
+  });
+  text += '---\nCreated with GetPaidToBeYouOnline Checklist Builder';
+  const btn = document.querySelector('.copy-btn');
+  const flash = () => { const o=btn.textContent; btn.textContent='Copied!'; setTimeout(()=>btn.textContent=o,2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(flash) : (() => {const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);flash();})();
+}
+</script>
+</body>
+</html>

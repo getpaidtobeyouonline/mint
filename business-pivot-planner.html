@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Pivot Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.stepper{display:flex;justify-content:center;max-width:480px;margin:0 auto 26px}
+.step{flex:1;text-align:center;position:relative}
+.dot{width:28px;height:28px;border-radius:50%;border:2px solid #4C724C;background:#325132;color:#BFD8BF;font-size:.75rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 4px;position:relative;z-index:1;transition:all .3s}
+.dot.active{border-color:#5AE57A;background:#5AE57A;color:#325132}
+.dot.done{border-color:#5AE57A;background:#C9A84C1A;color:#5AE57A}
+.step-line{position:absolute;top:14px;left:50%;right:-50%;height:2px;background:#4C724C;z-index:0}
+.step:last-child .step-line{display:none}
+.slbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em}
+.slbl.active{color:#5AE57A}
+.panel{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;max-width:600px;margin:0 auto 16px;display:none}
+.panel.active{display:block}
+.panel-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;margin-bottom:6px}
+.panel-hint{font-size:.82rem;opacity:.55;margin-bottom:20px;line-height:1.5}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select,textarea{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;resize:vertical;transition:border .2s}
+textarea{min-height:66px}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#5AE57A}
+input::placeholder,textarea::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.radio-group{display:flex;flex-direction:column;gap:7px;margin-bottom:16px}
+.ropt{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#325132;border:1px solid #4C724C;border-radius:8px;cursor:pointer;transition:border .2s;font-size:.88rem}
+.ropt:hover{border-color:#BFD8BF}
+.ropt input{width:auto;margin:0;accent-color:#5AE57A}
+.ropt.sel{border-color:#5AE57A;background:#C9A84C0A}
+.nav{display:flex;gap:10px;max-width:600px;margin:0 auto}
+.nbtn{flex:1;padding:13px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:all .2s;border:none}
+.next{background:#5AE57A;color:#325132}.next:hover{opacity:.85}
+.back{background:transparent;border:1px solid #4C724C !important;color:#BFD8BF}.back:hover{border-color:#5AE57A !important;color:#5AE57A}
+#result{max-width:600px;margin:20px auto 0;display:none}
+.score-banner{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;text-align:center;margin-bottom:14px}
+.score-num{font-family:'Playfair Display',serif;font-size:3.5rem;color:#5AE57A;line-height:1}
+.score-lbl{font-size:.72rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em;margin-top:4px;margin-bottom:10px}
+.verdict{font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:8px}
+.verdict-desc{font-size:.85rem;opacity:.75;line-height:1.6;max-width:420px;margin:0 auto}
+.rsec{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:20px;margin-bottom:12px}
+.rsec-title{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A;margin-bottom:12px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.col-box{background:#325132;border-radius:8px;padding:14px}
+.col-lbl{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.keep-lbl{color:#5AE57A}.leave-lbl{color:#5AE57A}
+.col-item{font-size:.83rem;line-height:1.6;padding:3px 0;border-bottom:1px solid #3C603C;display:flex;gap:6px}
+.col-item::before{flex-shrink:0}
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.day-box{background:#325132;border-radius:8px;padding:14px;text-align:center}
+.day-num{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;margin-bottom:4px}
+.day-lbl{font-size:.65rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px}
+.day-action{font-size:.78rem;line-height:1.5;text-align:left}
+.risk-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #3C603C;font-size:.85rem}
+.risk-row:last-child{border-bottom:none}
+.risk-badge{font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:12px}
+.low{background:#44cc6622;color:#5AE57A}.med{background:#f0a50022;color:#5AE57A}.high{background:#ff444422;color:#5AE57A}
+.copy-btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-bottom:10px}
+.copy-btn:hover{opacity:.85}
+.restart-btn{width:100%;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:.85rem;cursor:pointer}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row,.two-col,.day-grid{grid-template-columns:1fr}h1{font-size:1.7rem}.slbl{display:none}}
+</style>
+</head>
+<body>
+<h1>Business Pivot Planner</h1>
+<p class="sub">Think it through clearly — then pivot with purpose, not panic</p>
+
+<div class="stepper">
+  <div class="step"><div class="dot active" id="d1">1</div><div class="step-line"></div><div class="slbl active" id="l1">Now</div></div>
+  <div class="step"><div class="dot" id="d2">2</div><div class="step-line"></div><div class="slbl" id="l2">Next</div></div>
+  <div class="step"><div class="dot" id="d3">3</div><div class="step-line"></div><div class="slbl" id="l3">Reality</div></div>
+  <div class="step"><div class="dot" id="d4">4</div><div class="step-line"></div><div class="slbl" id="l4">Plan</div></div>
+</div>
+
+<div class="panel active" id="s1">
+  <div class="panel-title">Where You Are Now</div>
+  <div class="panel-hint">Be honest — understanding your current state clearly is the first step to a purposeful pivot.</div>
+  <label>What is your current business or main offer?</label>
+  <input id="current" type="text" placeholder="e.g. 1:1 social media management for small businesses">
+  <label>Why are you considering a pivot?</label>
+  <select id="whyPivot">
+    <option>Not making enough money</option>
+    <option>Burned out and drained by the work</option>
+    <option>The market has shifted or dried up</option>
+    <option>I want to serve a different audience</option>
+    <option>I've discovered a new passion or skill</option>
+    <option>My current model doesn't scale</option>
+    <option>I want more freedom and flexibility</option>
+  </select>
+  <label>What IS working that you want to keep?</label>
+  <textarea id="keep" placeholder="e.g. my audience, my content skills, my existing client relationships, my brand name"></textarea>
+  <label>What is NOT working that you want to leave behind?</label>
+  <textarea id="leave" placeholder="e.g. 1:1 delivery, trading time for money, clients who don't value my work"></textarea>
+</div>
+
+<div class="panel" id="s2">
+  <div class="panel-title">Where You're Going</div>
+  <div class="panel-hint">Describe the new direction as clearly as you can — even if the details aren't fully formed yet.</div>
+  <label>What is the new offer or direction you're considering?</label>
+  <textarea id="newOffer" placeholder="e.g. a group programme teaching entrepreneurs to manage their own social media"></textarea>
+  <div class="row">
+    <div><label>New target audience</label><input id="newAudience" type="text" placeholder="e.g. service-based solopreneurs"></div>
+    <div><label>Skills that transfer</label><input id="transfer" type="text" placeholder="e.g. content strategy, writing, teaching"></div>
+  </div>
+  <label>What new skills, tools, or assets do you need to build or acquire?</label>
+  <textarea id="gaps" placeholder="e.g. course platform, group coaching skills, funnel setup, new pricing model"></textarea>
+</div>
+
+<div class="panel" id="s3">
+  <div class="panel-title">The Reality Check</div>
+  <div class="panel-hint">Honest answers here will save you months of heading in the wrong direction.</div>
+  <label>Have you validated this new direction?</label>
+  <div class="radio-group">
+    <label class="ropt"><input type="radio" name="val" value="yes"> Yes — people are already asking for it or I've had paying interest</label>
+    <label class="ropt"><input type="radio" name="val" value="partial"> Partially — I've had good conversations but no money has changed hands</label>
+    <label class="ropt"><input type="radio" name="val" value="no"> No — it's still an idea and I haven't tested it yet</label>
+  </div>
+  <label>How many months of financial runway do you have?</label>
+  <select id="runway">
+    <option value="0">Less than 1 month</option>
+    <option value="1">1–2 months</option>
+    <option value="3" selected>3–6 months</option>
+    <option value="6">6–12 months</option>
+    <option value="12">12+ months</option>
+  </select>
+  <label>What's your pivot timeline?</label>
+  <select id="timeline">
+    <option value="now">Immediate — I need to change now</option>
+    <option value="3mo">Within 3 months — planned and paced</option>
+    <option value="6mo">Within 6 months — gradual and careful</option>
+    <option value="gradual">Gradual — keeping current income while I build</option>
+  </select>
+</div>
+
+<div class="panel" id="s4">
+  <div class="panel-title">Your Transition Plan</div>
+  <div class="panel-hint">The gap between a pivot idea and a pivot reality is a clear action plan.</div>
+  <label>How will you handle your current clients or commitments?</label>
+  <select id="clients">
+    <option>Complete existing work then transition — no new clients in current model</option>
+    <option>Grandfather current clients and stop taking new ones</option>
+    <option>Wind down immediately with proper notice</option>
+    <option>I have no current clients — clean slate</option>
+    <option>Keep some current work to fund the transition</option>
+  </select>
+  <label>What is your #1 action this week to move toward the pivot?</label>
+  <input id="week1" type="text" placeholder="e.g. talk to 5 people in my new target audience, build a landing page, price my new offer">
+  <label>What does success look like in 30 days?</label>
+  <input id="day30" type="text" placeholder="e.g. first beta client signed, new offer published, waitlist of 10 people">
+  <label>What is your biggest fear about this pivot?</label>
+  <input id="fear" type="text" placeholder="e.g. losing income, what people will think, starting over">
+</div>
+
+<div class="nav" id="nav">
+  <button class="nbtn back" id="backBtn" onclick="back()" style="display:none">← Back</button>
+  <button class="nbtn next" id="nextBtn" onclick="next()">Next →</button>
+</div>
+
+<div id="result">
+  <div class="score-banner">
+    <div class="score-num" id="rScore">0</div>
+    <div class="score-lbl">Pivot Readiness Score</div>
+    <div class="verdict" id="rVerdict"></div>
+    <div class="verdict-desc" id="rDesc"></div>
+  </div>
+  <div class="rsec">
+    <div class="rsec-title">Keep vs Leave Behind</div>
+    <div class="two-col">
+      <div class="col-box"><div class="col-lbl keep-lbl">✓ Keep</div><div id="keepList"></div></div>
+      <div class="col-box"><div class="col-lbl leave-lbl">✕ Leave</div><div id="leaveList"></div></div>
+    </div>
+  </div>
+  <div class="rsec">
+    <div class="rsec-title">Risk Assessment</div>
+    <div id="risks"></div>
+  </div>
+  <div class="rsec">
+    <div class="rsec-title">30 / 60 / 90 Day Actions</div>
+    <div class="day-grid">
+      <div class="day-box"><div class="day-num">30</div><div class="day-lbl">Days</div><div class="day-action" id="d30"></div></div>
+      <div class="day-box"><div class="day-num">60</div><div class="day-lbl">Days</div><div class="day-action" id="d60"></div></div>
+      <div class="day-box"><div class="day-num">90</div><div class="day-lbl">Days</div><div class="day-action" id="d90"></div></div>
+    </div>
+  </div>
+  <button class="copy-btn" onclick="copyPlan()">Copy My Pivot Plan</button>
+  <button class="restart-btn" onclick="restart()">Start a New Plan</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+<script>
+let step=1;
+function v(id){return(document.getElementById(id)||{}).value||''}
+function rv(name){return document.querySelector(`input[name=${name}]:checked`)?.value}
+
+function setStep(n){
+  for(let i=1;i<=4;i++){
+    document.getElementById('s'+i).classList.toggle('active',i===n);
+    const d=document.getElementById('d'+i),l=document.getElementById('l'+i);
+    d.classList.toggle('active',i===n);d.classList.toggle('done',i<n);
+    l.classList.toggle('active',i===n);
+  }
+  document.getElementById('backBtn').style.display=n>1?'':'none';
+  document.getElementById('nextBtn').textContent=n===4?'Build My Pivot Plan →':'Next →';
+  step=n;
+}
+function next(){if(step<4){setStep(step+1);window.scrollTo({top:0,behavior:'smooth'});}else buildPlan();}
+function back(){if(step>1){setStep(step-1);window.scrollTo({top:0,behavior:'smooth'});}}
+document.addEventListener('change',e=>{if(e.target.classList.contains('ropt')||e.target.closest('.ropt')){document.querySelectorAll('.ropt').forEach(r=>r.classList.toggle('sel',r.querySelector('input')?.checked));}});
+
+function buildPlan(){
+  let score=0;
+  const validation=rv('val');
+  const runway=parseInt(v('runway'));
+  const timeline=v('timeline');
+  const keep=v('keep');const leave=v('leave');
+  const newOffer=v('newOffer');const gaps=v('gaps');const fear=v('fear');
+
+  if(validation==='yes')score+=35;else if(validation==='partial')score+=20;else score+=5;
+  if(runway>=6)score+=25;else if(runway>=3)score+=18;else if(runway>=1)score+=10;else score+=2;
+  if(keep)score+=10;if(leave)score+=5;if(newOffer)score+=10;if(v('week1'))score+=10;if(v('day30'))score+=5;
+  score=Math.min(100,score);
+
+  document.getElementById('rScore').textContent=score;
+  let verdict,desc;
+  if(score>=75){verdict='Ready to Pivot';desc='Your groundwork is strong — validated direction, clear vision, and enough runway to execute. Move with intention and momentum.';}
+  else if(score>=50){verdict='Pivot with Caution';desc='The direction is clear but a few gaps need attention before you go all in. Shore up your validation and runway before cutting ties with your current income.';}
+  else{verdict='Not Quite Ready Yet';desc='The idea is there but the foundations aren\'t. Focus on validating demand and building financial cushion before making any irreversible moves.';}
+  document.getElementById('rVerdict').textContent=verdict;
+  document.getElementById('rDesc').textContent=desc;
+
+  const keepItems=keep?keep.split(/[,\n]+/).map(s=>s.trim()).filter(Boolean):['Your existing skills','Your audience & network'];
+  const leaveItems=leave?leave.split(/[,\n]+/).map(s=>s.trim()).filter(Boolean):['What isn\'t serving you','Current model constraints'];
+  document.getElementById('keepList').innerHTML=keepItems.slice(0,4).map(i=>`<div class="col-item">✓ ${i}</div>`).join('');
+  document.getElementById('leaveList').innerHTML=leaveItems.slice(0,4).map(i=>`<div class="col-item">✕ ${i}</div>`).join('');
+
+  const risks=[
+    {label:'Validation',risk:validation==='yes'?'Low':validation==='partial'?'Medium':'High',cls:validation==='yes'?'low':validation==='partial'?'med':'high'},
+    {label:'Financial Runway',risk:runway>=6?'Low':runway>=3?'Medium':'High',cls:runway>=6?'low':runway>=3?'med':'high'},
+    {label:'Skill Gaps',risk:gaps&&gaps.length>20?'Medium':'Low',cls:gaps&&gaps.length>20?'med':'low'},
+    {label:'Timeline Pressure',risk:timeline==='now'?'High':timeline==='3mo'?'Medium':'Low',cls:timeline==='now'?'high':timeline==='3mo'?'med':'low'},
+  ];
+  document.getElementById('risks').innerHTML=risks.map(r=>`<div class="risk-row"><span>${r.label}</span><span class="risk-badge ${r.cls}">${r.risk}</span></div>`).join('');
+
+  const d30actions=v('week1')||'Validate your new offer with 3–5 conversations';
+  const d60actions=newOffer?`Soft-launch ${newOffer.slice(0,40)}...`:'Make your first beta offer to a warm audience';
+  const d90actions=v('day30')||'Sign first paying client in new model';
+  document.getElementById('d30').textContent=`• ${d30actions}\n• Handle ${v('clients').split('—')[0]}\n• Tell your audience something is changing`;
+  document.getElementById('d60').textContent=`• ${d60actions}\n• Gather feedback & refine\n• Build systems for new model`;
+  document.getElementById('d90').textContent=`• ${d90actions}\n• Review & adjust\n• Commit fully or course-correct`;
+
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  document.getElementById('nav').style.display='none';
+  document.getElementById('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function copyPlan(){
+  const lines=[
+    'BUSINESS PIVOT PLAN',`Readiness Score: ${document.getElementById('rScore').textContent}/100`,'─'.repeat(40),'',
+    'CURRENT BUSINESS',v('current'),'',`WHY PIVOTING: ${v('whyPivot')}`,'',
+    'KEEPING','• '+v('keep').split(/[,\n]+/).join('\n• '),'',
+    'LEAVING BEHIND','• '+v('leave').split(/[,\n]+/).join('\n• '),'',
+    'NEW DIRECTION',v('newOffer'),'',`New Audience: ${v('newAudience')}`,`Skills Needed: ${v('gaps')}`,'',
+    '30 / 60 / 90 DAY PLAN',
+    `30 Days: ${v('week1')||'Validate with conversations'}`,
+    `60 Days: Soft-launch new offer & gather feedback`,
+    `90 Days: ${v('day30')||'Sign first client in new model'}`,'',
+    '─'.repeat(40),'Powered by GetPaidToBeYouOnline',
+  ].join('\n');
+  navigator.clipboard.writeText(lines).then(()=>{
+    const b=document.querySelector('.copy-btn');
+    b.textContent='Copied!';setTimeout(()=>b.textContent='Copy My Pivot Plan',1800);
+  });
+}
+
+function restart(){
+  document.querySelectorAll('.panel').forEach(p=>{p.style.display='';p.classList.remove('active');});
+  document.getElementById('nav').style.display='';
+  document.getElementById('result').style.display='none';
+  document.querySelectorAll('input:not([type=radio]),textarea,select').forEach(el=>el.value=el.tagName==='SELECT'?el.options[0]?.value:'');
+  document.querySelectorAll('.ropt').forEach(r=>{r.classList.remove('sel');r.querySelector('input').checked=false;});
+  setStep(1);window.scrollTo({top:0,behavior:'smooth'});
+}
+setStep(1);
+</script>
+</body>
+</html>

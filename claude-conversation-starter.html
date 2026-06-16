@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Conversation Starter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 24px; font-size: .95rem; }
+  label { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 14px 0 6px; }
+  input, textarea, select {
+    width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 60px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin-top: 18px; margin-right: 8px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 7px 13px; border-radius: 20px; font-size: .85rem; }
+  .chip:hover { border-color: #5AE57A; color: #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-size: .95rem; font-family: 'DM Sans', sans-serif; }
+  .label-q { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin: 0 0 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Conversation Starter</h1>
+  <p class="sub">Stop opening with a vague one-liner. Build a sharp, structured first message that gets a great answer the first time.</p>
+
+  <div class="panel">
+    <div class="label-q">Quick starters — tap one to load it</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="panel">
+    <label for="goal">What do you want Claude to do?</label>
+    <select id="goal">
+      <option value="brainstorm">Brainstorm ideas</option>
+      <option value="write">Write something</option>
+      <option value="analyze">Analyze / give feedback</option>
+      <option value="learn">Explain or teach me</option>
+      <option value="plan">Make a plan</option>
+      <option value="code">Help with code</option>
+      <option value="decide">Help me decide</option>
+      <option value="practice">Let me practice / roleplay</option>
+    </select>
+
+    <label for="topic">Topic or goal (required)</label>
+    <textarea id="topic" placeholder="e.g. launching a paid newsletter for designers"></textarea>
+
+    <label for="who">Audience or who it's for (optional)</label>
+    <input id="who" placeholder="e.g. busy freelance designers">
+
+    <label for="ctx">Context, constraints, or details (optional)</label>
+    <textarea id="ctx" placeholder="e.g. I have 3 hrs/week and no email list yet"></textarea>
+
+    <button class="btn" onclick="gen()">Build My Starter</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const v = id => document.getElementById(id).value.trim();
+
+  const builders = {
+    brainstorm: (t,w,c) => `I want to brainstorm: ${t}.${w?` This is for ${w}.`:''}${c?` Context: ${c}.`:''}\n\nGive me 7 distinct, non-obvious angles — not variations of the same idea. For each, add one line on why it could work. Then ask me which two to develop further.`,
+    write: (t,w,c) => `Act as an expert writer. Write: ${t}.${w?` The audience is ${w}.`:''}${c?` Context and constraints: ${c}.`:''}\n\nBefore drafting, ask me any clarifying questions. Then write a strong first version, and tell me what you'd improve with more input.`,
+    analyze: (t,w,c) => `I want your honest analysis of: ${t}.${w?` It's aimed at ${w}.`:''}${c?` Context: ${c}.`:''}\n\nPoint out the strengths, the biggest risks or weaknesses, and what I'm likely missing. Be direct — prioritize the most important issue first.`,
+    learn: (t,w,c) => `Explain this to me clearly: ${t}.${w?` Pitch it for someone like ${w}.`:''}${c?` Context: ${c}.`:''}\n\nUse one concrete analogy and one real example. Then ask me a question to check I actually understood it.`,
+    plan: (t,w,c) => `Help me make a plan to: ${t}.${w?` This is for ${w}.`:''}${c?` Constraints: ${c}.`:''}\n\nGive a step-by-step plan with clear milestones. Flag the single riskiest step and how to de-risk it. Ask me anything you need before finalizing.`,
+    code: (t,w,c) => `Act as a senior engineer. I need to: ${t}.${c?` Stack and context: ${c}.`:''}\n\nExplain your approach and trade-offs before writing any code. Call out edge cases and how you'd test it. Ask me about anything ambiguous first.`,
+    decide: (t,w,c) => `Help me decide: ${t}.${c?` Options and context: ${c}.`:''}\n\nLay out the key trade-offs in a clear comparison, give me a specific recommendation with your reasoning, and tell me what new information would change your answer.`,
+    practice: (t,w,c) => `Roleplay with me so I can practice: ${t}.${w?` Play the role of ${w}.`:''}${c?` Scenario context: ${c}.`:''}\n\nStay fully in character and push back realistically — don't go easy on me. When I say "done", break character and give me specific feedback.`
+  };
+
+  const quick = [
+    ["🧠 Pressure-test my idea","analyze","my current business idea","a skeptical investor","I want blunt feedback, not encouragement"],
+    ["✍️ Write my offer","write","a sales page for my digital product","people who buy info products","keep it punchy and benefit-led"],
+    ["📚 Teach me fast","learn","a concept I keep avoiding","a smart beginner","I learn best with analogies"],
+    ["🗺️ 30-day plan","plan","reach my next income goal","just me, solo","I have limited time each week"],
+    ["⚖️ Decide for me","decide","which project to focus on next","",""],
+    ["🎭 Practice the pitch","practice","pitching my service to a client","a busy small-business owner","they're price-sensitive"]
+  ];
+
+  const chips = document.getElementById('chips');
+  chips.innerHTML = quick.map((q,i)=>`<button class="chip" data-i="${i}">${q[0]}</button>`).join('');
+  chips.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const q = quick[+b.dataset.i];
+    document.getElementById('goal').value = q[1];
+    document.getElementById('topic').value = q[2];
+    document.getElementById('who').value = q[3];
+    document.getElementById('ctx').value = q[4];
+    gen();
+  });
+
+  function gen() {
+    const t = v('topic');
+    if (!t) { alert('Add a topic or goal first.'); return; }
+    const out = document.getElementById('out');
+    out.textContent = builders[v('goal')](t, v('who'), v('ctx'));
+    out.style.display = 'block';
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyOut() {
+    const out = document.getElementById('out');
+    if (out.style.display === 'none' || !out.textContent) { alert('Build a starter first.'); return; }
+    navigator.clipboard.writeText(out.textContent).then(
+      () => alert('Copied! Paste it into Claude to begin.'),
+      () => alert('Copy failed — select and copy manually.'));
+  }
+</script>
+</body>
+</html>

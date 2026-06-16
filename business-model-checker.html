@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Model Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 40px 16px 70px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 30px; }
+    .wrap { width: 100%; max-width: 540px; }
+    .dim-card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 10px; }
+    .dim-hd { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .dim-num { width: 24px; height: 24px; border-radius: 50%; background: #4C724C; color: #5AE57A; font-size: 0.7rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .dim-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: #5AE57A; }
+    .dim-q { font-size: 0.87rem; opacity: 0.65; margin-bottom: 12px; line-height: 1.45; }
+    .opt { background: #325132; border: 2px solid #3C603C; border-radius: 10px; padding: 11px 14px; margin-bottom: 7px; cursor: pointer; font-size: 0.88rem; line-height: 1.4; transition: border-color 0.18s; user-select: none; }
+    .opt:last-child { margin-bottom: 0; }
+    .opt:hover { border-color: #4C724C; }
+    .opt.selected { border-color: #5AE57A; background: #325132; }
+    .btn-check { width: 100%; background: #5AE57A; color: #325132; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700; padding: 14px; cursor: pointer; transition: opacity 0.2s; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px; margin-bottom: 14px; }
+    .btn-check:hover { opacity: 0.85; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .score-ring { width: 130px; height: 130px; border-radius: 50%; border: 3px solid #5AE57A; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; background: #3C603C; }
+    .score-num { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+    .score-sub { font-size: 0.7rem; opacity: 0.36; margin-top: 2px; }
+    .verdict { font-family: 'Playfair Display', serif; font-size: 1.45rem; text-align: center; margin-bottom: 6px; }
+    .verdict-sub { text-align: center; opacity: 0.48; font-size: 0.85rem; margin-bottom: 22px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #5AE57A; margin-bottom: 14px; }
+    .br { margin-bottom: 12px; }
+    .br:last-child { margin-bottom: 0; }
+    .br-top { display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 5px; }
+    .br-lbl { opacity: 0.65; }
+    .br-val { font-weight: 600; }
+    .br-val.gold { color: #5AE57A; }
+    .br-val.mid  { color: #5AE57A; }
+    .br-val.low  { color: #5AE57A; }
+    .track { height: 5px; background: #3C603C; border-radius: 3px; overflow: hidden; }
+    .fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+    .fill.gold { background: #5AE57A; }
+    .fill.mid  { background: #5AE57A; }
+    .fill.low  { background: #5AE57A; }
+    .fix { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid #3C603C; font-size: 0.86rem; line-height: 1.55; }
+    .fix:last-child { border-bottom: none; }
+    .fix-lbl { font-weight: 600; color: #5AE57A; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .fix-dot { color: #5AE57A; flex-shrink: 0; margin-top: 2px; }
+    .btn-redo { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-redo:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Business Model Checker</h1>
+  <p class="subtitle">Audit your business across 6 dimensions. Find the gaps before they find you.</p>
+
+  <div class="wrap" id="form-wrap">
+    <div id="dims"></div>
+    <button class="btn-check" onclick="check()">Check My Business Model</button>
+  </div>
+
+  <div class="results wrap" id="results"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const DIMS = [
+      { title: 'Revenue Streams', q: 'How many distinct ways does your business generate income?', opts: [
+        { t: 'Just one product or income source', p: 2 },
+        { t: '2–3 different offers or income streams', p: 3.5 },
+        { t: '4 or more — products, coaching, affiliates, and beyond', p: 5 },
+      ], tip: 'Add a second income stream — a complementary product, a membership, or an affiliate deal. Single-stream businesses are fragile by design.' },
+
+      { title: 'Scalability', q: 'Can your revenue grow without you working proportionally more hours?', opts: [
+        { t: 'No — more revenue means more of my time', p: 1 },
+        { t: 'Somewhat — some offers run automatically, others don\'t', p: 3 },
+        { t: 'Yes — most income is from digital products that sell without me', p: 5 },
+      ], tip: 'Shift more revenue to products that sell while you sleep. Even one automated offer fundamentally changes your income ceiling.' },
+
+      { title: 'Recurring Revenue', q: 'How much of your monthly income is predictable and recurring?', opts: [
+        { t: 'None — I start from zero every single month', p: 1 },
+        { t: 'Some — a membership or retainer, but it\'s a small percentage', p: 3 },
+        { t: 'Solid — recurring income covers at least 50% of my monthly goal', p: 5 },
+      ], tip: 'Launch a low-ticket membership. Even $47/month from 20 members gives you $940 of guaranteed revenue before the month begins.' },
+
+      { title: 'Audience Ownership', q: 'Do you own your audience, or does a platform hold them for you?', opts: [
+        { t: 'Platform-dependent — my audience lives mainly on social media', p: 1 },
+        { t: 'Mixed — some email subscribers, but social is still my main channel', p: 3 },
+        { t: 'Owned — I have an email list I can reach anytime, independent of algorithms', p: 5 },
+      ], tip: 'Grow your email list now. A 1,000-person list you own beats 10,000 followers on a platform that can shadowban or delete you tomorrow.' },
+
+      { title: 'Profit Margins', q: 'How much of your revenue do you actually keep after all costs?', opts: [
+        { t: 'Low — under 40% after tools, ads, and expenses', p: 2 },
+        { t: 'Moderate — roughly 40–70% margins', p: 3.5 },
+        { t: 'High — 70%+ profit on most of what I sell', p: 5 },
+      ], tip: 'Audit your tool stack and ad spend. Digital products should run at 70%+ margins — if yours don\'t, something is quietly bleeding profit.' },
+
+      { title: 'Platform Risk', q: 'How dependent are you on a single platform, client, or income source?', opts: [
+        { t: 'High — one platform or client drives 80%+ of my revenue', p: 1 },
+        { t: 'Moderate — 2–3 sources, but one still clearly dominates', p: 3 },
+        { t: 'Well-spread — no single source accounts for more than 50%', p: 5 },
+      ], tip: 'Diversify your traffic and income. If Instagram disappeared tomorrow, would your business survive? Build it so it would.' },
+    ];
+
+    let sel = new Array(DIMS.length).fill(null);
+
+    function renderForm() {
+      document.getElementById('dims').innerHTML = DIMS.map((d, i) => `
+        <div class="dim-card">
+          <div class="dim-hd"><div class="dim-num">${i + 1}</div><div class="dim-title">${d.title}</div></div>
+          <div class="dim-q">${d.q}</div>
+          ${d.opts.map((o, oi) => `
+            <div class="opt${sel[i] === oi ? ' selected' : ''}" onclick="pick(${i},${oi})">${o.t}</div>
+          `).join('')}
+        </div>`).join('');
+    }
+
+    function pick(di, oi) { sel[di] = oi; renderForm(); }
+
+    function check() {
+      const missing = sel.findIndex(s => s === null);
+      if (missing !== -1) { alert(`Please answer all 6 questions. Question ${missing + 1} is still unanswered.`); return; }
+
+      const scores = DIMS.map((d, i) => d.opts[sel[i]].p);
+      const total  = scores.reduce((a, b) => a + b, 0);
+      const score  = Math.round((total / (DIMS.length * 5)) * 100) / 10;
+
+      const [verdict, sub] = score >= 8
+        ? ['Strong Model', 'Well-structured and built to scale — keep reinforcing the weak spots.']
+        : score >= 6
+        ? ['Solid with Gaps', 'Good foundation — a few structural fixes will significantly strengthen it.']
+        : score >= 4
+        ? ['Needs Restructuring', 'Several key pillars are weak. Fix these before trying to scale.']
+        : ['High Risk Model', 'Fundamental gaps could threaten the business. Start here immediately.'];
+
+      const ranked = DIMS.map((d, i) => ({ ...d, s: scores[i] })).sort((a, b) => a.s - b.s);
+      const fixes  = ranked.slice(0, score < 6 ? 3 : 2);
+      const cls    = s => s <= 2 ? 'low' : s <= 3.5 ? 'mid' : 'gold';
+
+      document.getElementById('form-wrap').style.display = 'none';
+      const res = document.getElementById('results');
+      res.innerHTML = `
+        <div class="score-ring">
+          <div class="score-num">${score}</div>
+          <div class="score-sub">out of 10</div>
+        </div>
+        <div class="verdict">${verdict}</div>
+        <div class="verdict-sub">${sub}</div>
+        <div class="card">
+          <div class="card-title">Model Breakdown</div>
+          ${DIMS.map((d, i) => {
+            const s = scores[i], c = cls(s);
+            return `<div class="br">
+              <div class="br-top"><span class="br-lbl">${d.title}</span><span class="br-val ${c}">${s}/5</span></div>
+              <div class="track"><div class="fill ${c}" style="width:${(s/5)*100}%"></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="card">
+          <div class="card-title">Where to Focus First</div>
+          ${fixes.map(f => `
+            <div class="fix">
+              <span class="fix-dot">&#9670;</span>
+              <div><div class="fix-lbl">${f.title}</div>${f.tip}</div>
+            </div>`).join('')}
+        </div>
+        <button class="btn-redo" onclick="redo()">Check a Different Model</button>`;
+      res.classList.add('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function redo() {
+      sel = new Array(DIMS.length).fill(null);
+      document.getElementById('form-wrap').style.display = '';
+      document.getElementById('results').classList.remove('show');
+      document.getElementById('results').innerHTML = '';
+      renderForm();
+    }
+
+    renderForm();
+  </script>
+</body>
+</html>

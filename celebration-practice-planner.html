@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Celebration Practice Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .row>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stat { font-size: .9rem; opacity: .85; margin: 10px 0; } .stat b { color: #5AE57A; }
+  .win { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 7px; display: flex; justify-content: space-between; gap: 10px; font-size: .9rem; }
+  .win .x { cursor: pointer; opacity: .5; } .win .x:hover { opacity: 1; color: #5AE57A; }
+  .note { background:#2E4D2E;border:1px solid #4F8A55;border-radius:8px;padding:11px 14px;font-size:.86rem;margin-bottom:12px; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Celebration Practice Planner</h1>
+  <p class="sub">If you do not celebrate the small wins, your brain learns there is no reward for effort. Log them, see the streak.</p>
+
+  <div class="note">Celebrating tiny wins is not vanity — it is how habits encode. Mark each one in under 10 seconds. That is the practice.</div>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label for="nm">A small win today</label><input id="nm" placeholder="The smaller the better"></div>
+      <div><label for="how">How you celebrated</label><input id="how" placeholder="A fist pump counts"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div class="stat" id="stat"></div>
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let W=JSON.parse(localStorage.getItem('cpp_w')||'[]');
+  const save=()=>localStorage.setItem('cpp_w',JSON.stringify(W));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const nm=v('nm'); if(!nm){alert('Add a win.');return;} W.push({d:new Date().toISOString().slice(0,10),nm,how:v('how')}); g('nm').value=''; g('how').value=''; save(); render(); }
+  function del(i){ W.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ W=[]; save(); render(); } }
+  function render(){
+    const days=[...new Set(W.map(x=>x.d))];
+    g('stat').innerHTML = W.length?`<b>${W.length}</b> wins celebrated · across <b>${days.length}</b> day${days.length===1?'':'s'}`:'';
+    const L=g('list');
+    if(!W.length){ L.innerHTML='<div class="empty">No wins logged yet — start tiny.</div>'; return; }
+    L.innerHTML=[...W].map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="win"><span><b style="color:#5AE57A">${x.d}</b> · ${esc(x.nm)}${x.how?' <span style="opacity:.7">— '+esc(x.how)+'</span>':''}</span><span class="x" onclick="del(${i})">✕</span></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

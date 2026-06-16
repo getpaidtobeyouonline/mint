@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Deal Rate Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .res { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 20px; }
+  .res .n { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; line-height: 1; }
+  .res .rng { font-size: .92rem; opacity: .8; margin-top: 6px; }
+  .bd { text-align: left; background: #325132; border: 1px solid #3C603C; border-radius: 8px; padding: 12px 14px; margin-top: 12px; font-size: .86rem; }
+  .bd div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .note { font-size: .82rem; opacity: .7; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brand Deal Rate Calculator</h1>
+  <p class="sub">Stop guessing (or undercharging). Get a defensible sponsored-post rate range.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="fol">Followers</label><input id="fol" type="number" min="0" value="10000" oninput="calc()"></div>
+      <div><label for="er">Engagement rate (%)</label><input id="er" type="number" min="0" step="0.1" value="3.5" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="type">Deliverable</label><select id="type" onchange="calc()"><option value="1">1 in-feed post</option><option value="1.4">1 reel / video</option><option value="0.5">1 story frame set</option><option value="2.2">Post + reel bundle</option></select></div>
+      <div><label for="niche">Niche value</label><select id="niche" onchange="calc()"><option value="1">General lifestyle</option><option value="1.4">Mid (fitness, food)</option><option value="1.9">High (finance, B2B, tech)</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="excl">Exclusivity / usage rights?</label><select id="excl" onchange="calc()"><option value="1">No</option><option value="1.5">Yes (+50%)</option></select></div>
+      <div><label for="rush">Rush turnaround?</label><select id="rush" onchange="calc()"><option value="1">No</option><option value="1.25">Yes (+25%)</option></select></div>
+    </div>
+  </div>
+
+  <div class="res">
+    <div class="n" id="rate">$0</div>
+    <div class="rng" id="rng">recommended rate</div>
+    <div class="bd" id="bd"></div>
+    <div class="note">Baseline ≈ $100 per 10k followers, adjusted for engagement, format, niche, and terms. Always price the value to the brand, not just your size.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  ['fol','er','type','niche','excl','rush'].forEach(k=>{ const s=localStorage.getItem('bdrc_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['fol','er','type','niche','excl','rush'].forEach(k=>localStorage.setItem('bdrc_'+k,g(k).value));
+    const base = n('fol')/10000*100;
+    const engMult = Math.max(0.6, Math.min(2.2, n('er')/2));   // 2% ~ baseline
+    const rate = base*engMult*n('type')*n('niche')*n('excl')*n('rush');
+    const r = Math.max(50, rate);
+    g('rate').textContent='$'+Math.round(r).toLocaleString();
+    g('rng').textContent=`fair range $${Math.round(r*0.8).toLocaleString()} – $${Math.round(r*1.3).toLocaleString()}`;
+    g('bd').innerHTML=[
+      ['Size base', '$'+Math.round(base)],
+      ['Engagement ×', engMult.toFixed(2)],
+      ['Format ×', n('type')],
+      ['Niche ×', n('niche')],
+      ['Exclusivity ×', n('excl')],
+      ['Rush ×', n('rush')]
+    ].map(([l,x])=>`<div><span>${l}</span><span style="color:#5AE57A">${x}</span></div>`).join('');
+  }
+  calc();
+</script>
+</body>
+</html>

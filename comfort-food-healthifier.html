@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comfort Food Healthifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .swap { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 8px; }
+  .swap h4 { color: #5AE57A; font-size: .92rem; margin-bottom: 4px; }
+  .swap li { font-size: .89rem; margin-left: 16px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Comfort Food Healthifier</h1>
+  <p class="sub">Love the dish, lighten the load. Get simple swaps that keep the comfort.</p>
+
+  <div class="panel">
+    <label for="dish">Pick a comfort food</label>
+    <select id="dish" onchange="gen()">
+      <option value="mac">Mac &amp; cheese</option>
+      <option value="pizza">Pizza</option>
+      <option value="burger">Burger &amp; fries</option>
+      <option value="curry">Creamy curry</option>
+      <option value="pasta">Creamy pasta</option>
+      <option value="dessert">Cake / dessert</option>
+      <option value="fried">Fried chicken</option>
+    </select>
+    <button class="btn" onclick="gen()">Show Me Swaps</button>
+    <div class="note">These are general lighter-cooking ideas, not dietary advice. The goal is balance — comfort food still deserves a place.</div>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const D={
+    mac:{n:"Mac & Cheese",swaps:["Stir in pureed butternut squash or cauliflower to cut the cheese needed","Use wholewheat pasta for more fibre","Add steamed broccoli or peas for volume and nutrients","Top with breadcrumbs instead of extra cheese"]},
+    pizza:{n:"Pizza",swaps:["Load up on vegetable toppings, go lighter on cheese and processed meat","Try a wholemeal or thin base","Add a big side salad to fill up on","Make it at home so you control the portions"]},
+    burger:{n:"Burger & Fries",swaps:["Bake the fries (or use sweet potato) instead of deep-frying","Add salad, tomato and onion to the burger","Use a wholemeal bun or a lettuce wrap","Mix grated veg into the patty mince"]},
+    curry:{n:"Creamy Curry",swaps:["Swap some cream for yogurt or light coconut milk","Bulk it out with extra vegetables and lentils","Serve with a smaller portion of rice + extra veg","Use a brothy curry style rather than heavy cream"]},
+    pasta:{n:"Creamy Pasta",swaps:["Make the sauce with blended cottage cheese or yogurt","Add greens — spinach, peas, courgette","Use wholewheat pasta and a sensible portion","Boost flavour with garlic, herbs and lemon, not just cream"]},
+    dessert:{n:"Cake / Dessert",swaps:["Reduce the sugar — most recipes work with a third less","Swap some flour for ground oats or almonds","Add fruit for natural sweetness and moisture","Enjoy a smaller portion, slowly and mindfully"]},
+    fried:{n:"Fried Chicken",swaps:["Oven-bake or air-fry coated in seasoned breadcrumbs","Use skinless chicken to cut some fat","Marinate in yogurt and spices for flavour and tenderness","Serve with salad or slaw instead of more fried sides"]}
+  };
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function gen(){
+    const d=D[g('dish').value];
+    g('out').innerHTML='<div class="panel"><div class="swap"><h4>Lighter '+d.n+'</h4><ul>'+d.swaps.map(s=>'<li>'+esc(s)+'</li>').join('')+'</ul></div>'+
+      '<div class="swap" style="border-left-color:#BFD8BF"><h4>Remember</h4><p style="font-size:.89rem">You do not have to healthify everything. Sometimes the real comfort dish, enjoyed fully and without guilt, is exactly right.</p></div></div>';
+  }
+  gen();
+</script>
+</body>
+</html>

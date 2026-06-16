@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chore Distribution Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .person { margin-bottom: 12px; }
+  .person .ph { display: flex; justify-content: space-between; font-size: .9rem; margin-bottom: 4px; }
+  .person .ph b { color: #5AE57A; }
+  .bar { background: #3C603C; border-radius: 4px; height: 10px; overflow: hidden; }
+  .bar>i { display: block; height: 100%; background: #5AE57A; }
+  .chore { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin: 4px 0; display: flex; justify-content: space-between; font-size: .86rem; gap: 8px; }
+  .chore .x { cursor: pointer; opacity: .5; } .chore .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chore Distribution Planner</h1>
+  <p class="sub">Share the load fairly. See at a glance who is carrying how much.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Chore</label><input id="chore" placeholder="e.g. Wash dishes"></div>
+      <div><label>Assigned to</label><input id="who" placeholder="Name"></div>
+      <div><label>Effort 1-5</label><select id="eff"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:8px">Workload balance</div>
+    <div id="balance"></div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:10px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('cdp')||'[]');
+  const save=()=>localStorage.setItem('cdp',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('chore')||!v('who')){ alert('Enter a chore and a person.'); return; }
+    R.push({c:v('chore'),w:v('who'),e:+g('eff').value}); g('chore').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all chores?')){ R=[]; save(); render(); } }
+  function render(){
+    const B=g('balance'), L=g('list');
+    if(!R.length){ B.innerHTML='<div class="empty">Add chores to see the balance.</div>'; L.innerHTML='<div class="empty">No chores added yet.</div>'; return; }
+    const load={}; R.forEach(x=>load[x.w]=(load[x.w]||0)+x.e);
+    const max=Math.max(...Object.values(load));
+    B.innerHTML=Object.entries(load).sort((a,b)=>b[1]-a[1]).map(([w,n])=>
+      '<div class="person"><div class="ph"><b>'+esc(w)+'</b><span>'+n+' effort pts</span></div><div class="bar"><i style="width:'+(n/max*100)+'%"></i></div></div>').join('');
+    L.innerHTML=[...R].map((x,i)=>({x,i})).sort((a,b)=>a.x.w<b.x.w?-1:1).map(({x,i})=>
+      '<div class="chore"><span><b style="color:#5AE57A">'+esc(x.w)+'</b> · '+esc(x.c)+'</span><span>effort '+x.e+' <span class="x" onclick="del('+i+')">✕</span></span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

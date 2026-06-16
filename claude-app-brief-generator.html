@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude App Brief Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 13px 0 5px; }
+  .hint { text-transform: none; letter-spacing: 0; opacity: .55; font-size: .8rem; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .96rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 20px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 16px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-size: .9rem; font-family: 'DM Sans', sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude App Brief Generator</h1>
+  <p class="sub">Describe the app you want and get a tight, build-ready spec Claude can turn into a working tool — no rambling required.</p>
+
+  <div class="panel">
+    <label for="name">App Name</label>
+    <input id="name" placeholder="e.g. Invoice Quick-Calc">
+
+    <label for="pitch">One-line pitch <span class="hint">— what it does in a sentence</span></label>
+    <input id="pitch" placeholder="e.g. Turn billable hours into a clean invoice total in seconds">
+
+    <label for="user">Primary user & the job they hire it for</label>
+    <textarea id="user" placeholder="Who uses it and the outcome they want"></textarea>
+
+    <label for="core">The ONE core action that must work flawlessly</label>
+    <textarea id="core" placeholder="The single key flow — keep it to one thing"></textarea>
+
+    <label for="inputs">Inputs <span class="hint">— what the user provides</span></label>
+    <textarea id="inputs" placeholder="e.g. hourly rate, hours, optional tax %"></textarea>
+
+    <label for="outputs">Outputs <span class="hint">— what they get back</span></label>
+    <textarea id="outputs" placeholder="e.g. itemized total, copyable summary"></textarea>
+
+    <label for="data">Data handling</label>
+    <select id="data">
+      <option value="none">No saving — fresh each visit</option>
+      <option value="local">Save in the browser (localStorage)</option>
+      <option value="port">Save in browser + export/import a file</option>
+    </select>
+
+    <label for="must">Must-haves <span class="hint">(one per line)</span></label>
+    <textarea id="must" placeholder="Each non-negotiable feature on its own line"></textarea>
+
+    <label for="nice">Nice-to-haves <span class="hint">(one per line)</span></label>
+    <textarea id="nice" placeholder="Optional extras if there's room"></textarea>
+
+    <label for="non">Constraints / non-goals</label>
+    <textarea id="non" placeholder="What it should NOT do or include"></textarea>
+  </div>
+
+  <button class="btn" onclick="build()">Generate Brief</button>
+  <button class="btn ghost" onclick="loadExample()">Load Example</button>
+  <button class="btn ghost" onclick="copyB()">Copy</button>
+  <button class="btn ghost" onclick="dlMd()">Download .md</button>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['name','pitch','user','core','inputs','outputs','data','must','nice','non'];
+  F.forEach(id => { const s = localStorage.getItem('cabg_'+id); if (s!==null) document.getElementById(id).value = s; });
+  F.forEach(id => document.getElementById(id).addEventListener('input', save));
+  function save() { F.forEach(id => localStorage.setItem('cabg_'+id, document.getElementById(id).value)); }
+  const v = id => document.getElementById(id).value.trim();
+  const lines = id => v(id).split('\n').map(s=>s.trim()).filter(Boolean);
+
+  const dataNote = {
+    none: "No persistence — state resets on reload. No backend.",
+    local: "Persist all user data in localStorage so it survives reloads. No backend, no accounts.",
+    port: "Persist in localStorage AND support exporting/importing the data as a downloadable file. No backend."
+  };
+
+  function briefText() {
+    const must = lines('must'), nice = lines('nice');
+    return `# App Build Brief: ${v('name')||'Untitled App'}\n\n`+
+      `**Pitch:** ${v('pitch')||'(not set)'}\n\n`+
+      `## Primary user & job-to-be-done\n${v('user')||'(not set)'}\n\n`+
+      `## Core action (must work flawlessly)\n${v('core')||'(not set)'}\n\n`+
+      `## Inputs\n${v('inputs')||'(not set)'}\n\n`+
+      `## Outputs\n${v('outputs')||'(not set)'}\n\n`+
+      `## Data handling\n${dataNote[v('data')]}\n\n`+
+      `## Must-haves\n${must.length?must.map(m=>`- ${m}`).join('\n'):'- (none listed)'}\n\n`+
+      `## Nice-to-haves\n${nice.length?nice.map(m=>`- ${m}`).join('\n'):'- (none)'}\n\n`+
+      `## Constraints / non-goals\n${v('non')||'(none specified)'}\n\n`+
+      `---\n## Instructions for Claude\n`+
+      `Build this as a single self-contained HTML file — no external files, no backend, mobile responsive, works in any browser. `+
+      `Nail the core action first; treat must-haves as required and nice-to-haves as optional only if they don't add complexity. `+
+      `Keep the UI simple and the code clean. Ask me any clarifying questions before you start, then build something I could use as-is.`;
+  }
+
+  function build() {
+    if (!v('name')) { alert('Give the app a name first.'); return; }
+    const o = document.getElementById('out');
+    o.textContent = briefText();
+    o.style.display = 'block';
+    o.scrollIntoView({ behavior: 'smooth' });
+  }
+  function copyB() {
+    navigator.clipboard.writeText(briefText()).then(
+      ()=>alert('Brief copied — paste it into Claude to build.'),
+      ()=>alert('Copy failed.'));
+  }
+  function dlMd() {
+    const n = (v('name')||'app-brief').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const b = new Blob([briefText()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  function loadExample() {
+    if (F.some(id=>v(id)) && !confirm('Replace your current inputs with the example?')) return;
+    const ex = {
+      name: "Tip Split Pro",
+      pitch: "Split a bill with tip across any number of people, instantly.",
+      user: "Anyone out with friends who wants a fair, fast split without doing mental math.",
+      core: "Enter the bill total, tip %, and number of people — see the per-person amount update live.",
+      inputs: "Bill total, tip percentage, number of people, optional 'round up' toggle.",
+      outputs: "Tip amount, grand total, and exact per-person amount.",
+      data: "none",
+      must: "Live recalculation as values change\nPreset tip buttons (15/18/20%)\nClear, large result display",
+      nice: "Round-up-per-person option\nShareable summary text",
+      non: "No login, no saved history, no currency conversion"
+    };
+    Object.keys(ex).forEach(k => document.getElementById(k).value = ex[k]);
+    save();
+    build();
+  }
+</script>
+</body>
+</html>

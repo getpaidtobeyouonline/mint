@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chakra Balance Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 16px; }
+  .qt { font-size: .95rem; margin-bottom: 3px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 13px; height: 13px; border-radius: 50%; flex: none; }
+  .qd { font-size: .8rem; opacity: .6; margin-bottom: 6px; }
+  .scale { display: flex; gap: 6px; }
+  .scale label { flex: 1; }
+  .scale input { display: none; }
+  .scale span { display: block; text-align: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 0; cursor: pointer; font-size: .9rem; }
+  .scale input:checked + span { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; opacity: .55; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.2rem; margin-bottom: 8px; }
+  .rrow { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chakra Balance Checker</h1>
+  <p class="sub">Rate how open and balanced each energy centre feels right now, 1 to 5.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">See My Balance</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const CH=[
+    {n:'Root',c:'#5AE57A',d:'Safety, grounding, stability'},
+    {n:'Sacral',c:'#5AE57A',d:'Creativity, emotion, pleasure'},
+    {n:'Solar Plexus',c:'#5AE57A',d:'Confidence, will, personal power'},
+    {n:'Heart',c:'#5AE57A',d:'Love, compassion, connection'},
+    {n:'Throat',c:'#5AE57A',d:'Truth, expression, voice'},
+    {n:'Third Eye',c:'#5AE57A',d:'Intuition, insight, clarity'},
+    {n:'Crown',c:'#5AE57A',d:'Spirit, purpose, connection to something greater'}
+  ];
+  const g=id=>document.getElementById(id);
+  CH.forEach((c,i)=>{
+    let h='<div class="q"><div class="qt"><span class="dot" style="background:'+c.c+'"></span>'+c.n+' Chakra</div><div class="qd">'+c.d+'</div><div class="scale">';
+    for(let n=1;n<=5;n++) h+='<label><input type="radio" name="q'+i+'" value="'+n+'"><span>'+n+'</span></label>';
+    h+='</div><div class="ends"><span>Blocked</span><span>Flowing</span></div></div>';
+    g('quiz').insertAdjacentHTML('beforeend',h);
+  });
+  function result(){
+    const vals=[];
+    for(let i=0;i<CH.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please rate all seven chakras.'); return; } vals.push(+s.value); }
+    const r=g('result'); r.style.display='block';
+    let rows=CH.map((c,i)=>{
+      const v=vals[i], st=v<=2?'needs attention':v===3?'balancing':'flowing well';
+      return '<div class="rrow"><span class="dot" style="background:'+c.c+'"></span><b style="color:'+c.c+'">'+c.n+'</b><span style="opacity:.75">— '+st+' ('+v+'/5)</span></div>';
+    }).join('');
+    const low=CH.filter((c,i)=>vals[i]<=2).map(c=>c.n);
+    r.innerHTML='<h2>Your Chakra Balance</h2>'+rows+'<p style="opacity:.8;font-size:.88rem;margin-top:10px">'+
+      (low.length?'Give loving attention to your '+low.join(', ')+' chakra'+(low.length>1?'s':'')+' — through meditation, movement, journaling or time in nature.':'Lovely — all seven centres feel reasonably open. Keep nurturing your practice.')+'</p>'+
+      '<p style="opacity:.55;font-size:.78rem;margin-top:8px">A gentle self-reflection, not a diagnosis. Trust your own felt sense.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

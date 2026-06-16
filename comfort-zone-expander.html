@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comfort Zone Expander</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .level { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 9px; }
+  .level h4 { color: #5AE57A; font-size: .84rem; margin-bottom: 4px; }
+  .level p { font-size: .94rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Comfort Zone Expander</h1>
+  <p class="sub">Pick the edge you keep avoiding, get a 4-level ladder to push it — without blowing up.</p>
+
+  <div class="panel">
+    <label for="area">What edge are you avoiding?</label>
+    <input id="area" placeholder="e.g. speaking on video / asking for the sale / saying no">
+    <button class="btn" onclick="gen()">Build My Ladder</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['area'].forEach(k=>{ const s=localStorage.getItem('cze_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cze_'+k,g(k).value)); });
+  function gen(){
+    const a=v('area')||'your edge';
+    const L=[
+      ["LEVEL 1 · Toe in","Do the smallest version of this where no one is watching. Practice "+a+" in private, just to feel it. Goal: get used to the sensation, not the result."],
+      ["LEVEL 2 · Low-stakes rep","Do it in a place where the worst outcome is mild. Practice "+a+" with one trusted person. Goal: real-world reps with low cost."],
+      ["LEVEL 3 · Public stretch","Now do it where people you do not know see it. Goal: prove you can survive being seen doing "+a+" imperfectly."],
+      ["LEVEL 4 · Edge of comfort","Do it in the highest-stakes version you have been avoiding. Goal: not perfection — it is being the kind of person who does "+a+" anyway."]
+    ];
+    g('out').innerHTML=L.map(x=>'<div class="level"><h4>'+x[0]+'</h4><p>'+esc(x[1])+'</p></div>').join('')+
+      '<div class="level" style="border-left-color:#BFD8BF"><h4>The rule</h4><p>Move up a level only when the current one stops feeling scary. Skipping levels gets you a one-time hit and back to baseline. Climbing keeps the gains.</p></div>';
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  gen();
+</script>
+</body>
+</html>

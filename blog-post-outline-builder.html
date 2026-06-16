@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Post Outline Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .secondary {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .post-title {
+    font-family: 'Playfair Display', serif;
+    color: #FFFFFF;
+    font-size: 22px;
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .post-meta {
+    font-size: 13px;
+    opacity: 0.7;
+    margin-bottom: 18px;
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .post-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .post-meta .dot { color: #5AE57A; }
+  .section {
+    border-left: 3px solid #5AE57A;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+    background: #325132;
+    border-radius: 6px;
+  }
+  .section-h {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  .section-tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 8px;
+  }
+  .section ul { list-style: none; padding-left: 0; }
+  .section ul li {
+    padding: 6px 0 6px 18px;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .section ul li:before {
+    content: "•";
+    position: absolute;
+    left: 4px;
+    color: #5AE57A;
+  }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Blog Post Outline Builder</h1>
+  <p class="subtitle">Turn a topic into a full, structured blog outline ready to write — in under 10 seconds.</p>
+
+  <div class="card">
+    <label>Blog topic</label>
+    <input type="text" id="topic" placeholder="e.g. how to start a newsletter from scratch">
+    <label>Target reader</label>
+    <input type="text" id="audience" placeholder="e.g. solo creators just starting out">
+    <label>Main takeaway (what they'll know after reading)</label>
+    <textarea id="takeaway" placeholder="e.g. a 4-step launch plan they can use this week"></textarea>
+    <div class="row">
+      <div>
+        <label>Length</label>
+        <select id="length">
+          <option>Quick read (700 words)</option>
+          <option>Standard (1,200 words)</option>
+          <option>Deep dive (2,000 words)</option>
+        </select>
+      </div>
+      <div>
+        <label>Style</label>
+        <select id="style">
+          <option>How-To</option>
+          <option>Listicle</option>
+          <option>Story-Driven</option>
+          <option>Opinion</option>
+          <option>Ultimate Guide</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Build My Outline</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div id="header"></div>
+      <div id="outline"></div>
+      <button class="secondary" onclick="generate()">Regenerate</button>
+      <button class="secondary" onclick="copyOutline()">Copy Outline</button>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const STYLE_FRAMES = {
+  'How-To': ['Hook + Problem', 'Why Most People Fail', 'The Method (Step-by-Step)', 'Common Mistakes', 'Quick Example', 'Wrap + CTA'],
+  'Listicle': ['Hook + Promise', 'Point 1', 'Point 2', 'Point 3', 'Point 4', 'Point 5', 'Bonus + Wrap'],
+  'Story-Driven': ['Cold Open (Scene)', 'The Stakes', 'The Turning Point', 'What I Learned', 'How To Apply It', 'Closing Reflection'],
+  'Opinion': ['The Bold Claim', 'Why This Matters Now', 'The Evidence', 'Counterargument + Rebuttal', 'What To Do Instead', 'Final Word'],
+  'Ultimate Guide': ['Intro + Who This Is For', 'Foundations', 'The Core Framework', 'Advanced Strategies', 'Tools & Resources', 'FAQs', 'Action Plan']
+};
+
+const TITLE_TEMPLATES = {
+  'How-To': ["How To {topic}: A Practical Guide For {audience}", "The Right Way To {topic} (Without The Overwhelm)"],
+  'Listicle': ["7 Things {audience} Need To Know About {topic}", "5 Lessons On {topic} I Wish I Learned Sooner"],
+  'Story-Driven': ["What {topic} Actually Taught Me", "The Day I Finally Cracked {topic}"],
+  'Opinion': ["Why {topic} Is Broken (And How To Fix It)", "Everything {audience} Get Wrong About {topic}"],
+  'Ultimate Guide': ["The Ultimate Guide To {topic} For {audience}", "{topic}: Everything {audience} Need In One Place"]
+};
+
+const BULLETS = {
+  'Hook + Problem': ['Open with a relatable pain point', 'Make the cost of staying stuck vivid', 'Promise the payoff of this post'],
+  'Why Most People Fail': ['Name the common trap', 'Explain why it feels right but isn\'t', 'Set up the better way'],
+  'The Method (Step-by-Step)': ['Step 1: the foundation move', 'Step 2: the multiplier move', 'Step 3: the locking-it-in move'],
+  'Common Mistakes': ['The "skip the basics" mistake', 'The "do it alone" mistake', 'The "quit too early" mistake'],
+  'Quick Example': ['Show one mini case', 'Walk through the before/after', 'Tie it back to the reader'],
+  'Wrap + CTA': ['Summarize the 3 key shifts', 'Give one immediate next step', 'Invite them to your email/freebie/community'],
+  'Hook + Promise': ['Lead with a curiosity gap', 'Promise what they\'ll get by the end', 'Quick credibility marker'],
+  'Point 1': ['State the point boldly', 'Why it matters', 'Mini example'],
+  'Point 2': ['State the point boldly', 'Why it matters', 'Mini example'],
+  'Point 3': ['State the point boldly', 'Why it matters', 'Mini example'],
+  'Point 4': ['State the point boldly', 'Why it matters', 'Mini example'],
+  'Point 5': ['State the point boldly', 'Why it matters', 'Mini example'],
+  'Bonus + Wrap': ['Drop one unexpected bonus point', 'Summarize the list', 'CTA to download / subscribe'],
+  'Cold Open (Scene)': ['Drop the reader into a moment', 'Use sensory detail', 'End with tension'],
+  'The Stakes': ['What was on the line', 'What you stood to lose', 'Why it gripped you'],
+  'The Turning Point': ['The realization', 'The decision', 'The first action you took'],
+  'What I Learned': ['Lesson 1 (named clearly)', 'Lesson 2 (named clearly)', 'Lesson 3 (named clearly)'],
+  'How To Apply It': ['Translate the lessons into action', 'Give a small starting move', 'Anticipate the resistance'],
+  'Closing Reflection': ['Tie back to the opening scene', 'Name what changed in you', 'Pose one question to the reader'],
+  'The Bold Claim': ['State the claim plainly', 'Name who won\'t like it', 'Promise to back it up'],
+  'Why This Matters Now': ['What\'s shifted in the world', 'Why old advice is failing', 'What\'s at stake'],
+  'The Evidence': ['Data point or pattern 1', 'Data point or pattern 2', 'Personal observation'],
+  'Counterargument + Rebuttal': ['Steelman the other side', 'Concede what\'s fair', 'Show where it falls apart'],
+  'What To Do Instead': ['The new principle', '2-3 concrete moves', 'How to start this week'],
+  'Final Word': ['Restate the claim', 'Leave them with a sharp line', 'CTA'],
+  'Intro + Who This Is For': ['Who this guide serves', 'Who it\'s NOT for', 'What you\'ll walk away with'],
+  'Foundations': ['Core concept 1', 'Core concept 2', 'Common misconception cleared up'],
+  'The Core Framework': ['The 3-part model', 'Why each piece matters', 'Where most people skip'],
+  'Advanced Strategies': ['Strategy for scaling', 'Strategy for compounding', 'Strategy for staying consistent'],
+  'Tools & Resources': ['Tool 1 + how to use it', 'Tool 2 + how to use it', 'Free vs paid breakdown'],
+  'FAQs': ['Top 3 questions readers ask', 'Quick clear answers', 'Link out for deeper dives'],
+  'Action Plan': ['Week 1 priority', 'Week 2 priority', 'Where to go after this guide']
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function generate() {
+  const topic = document.getElementById('topic').value.trim();
+  const audience = document.getElementById('audience').value.trim() || 'creators';
+  const takeaway = document.getElementById('takeaway').value.trim();
+  const length = document.getElementById('length').value;
+  const style = document.getElementById('style').value;
+  if (!topic) { alert('Add a topic first.'); return; }
+
+  const title = pick(TITLE_TEMPLATES[style]).replace(/{topic}/g, topic).replace(/{audience}/g, audience);
+  const sections = STYLE_FRAMES[style];
+  const readMin = length.includes('700') ? '3-4 min' : length.includes('1,200') ? '6-7 min' : '10-12 min';
+
+  document.getElementById('header').innerHTML = `
+    <div class="post-title">${title}</div>
+    <div class="post-meta">
+      <span><span class="dot">●</span> ${style}</span>
+      <span><span class="dot">●</span> ${length}</span>
+      <span><span class="dot">●</span> ${readMin} read</span>
+    </div>
+    ${takeaway ? `<div style="opacity:0.85;font-size:14px;margin-bottom:18px;font-style:italic;">Reader walks away with: ${takeaway}</div>` : ''}
+  `;
+
+  document.getElementById('outline').innerHTML = sections.map((s, i) => `
+    <div class="section">
+      <div class="section-tag">Section ${i + 1}</div>
+      <div class="section-h">${s}</div>
+      <ul>${(BULLETS[s] || []).map(b => `<li>${b}</li>`).join('')}</ul>
+    </div>
+  `).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+
+function copyOutline() {
+  const title = document.querySelector('.post-title').textContent;
+  let text = title + '\n\n';
+  document.querySelectorAll('.section').forEach((sec, i) => {
+    text += `${i + 1}. ${sec.querySelector('.section-h').textContent}\n`;
+    sec.querySelectorAll('li').forEach(li => { text += `   - ${li.textContent}\n`; });
+    text += '\n';
+  });
+  navigator.clipboard.writeText(text.trim()).then(() => alert('Outline copied. Go write it.'));
+}
+</script>
+</body>
+</html>

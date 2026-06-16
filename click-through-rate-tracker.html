@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Click Through Rate Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .7rem; opacity: .65; text-transform: uppercase; }
+  .row { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .row.win { border-left-color: #5AE57A; } .row.low { border-left-color: #5AE57A; }
+  .row .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .row .nm { font-weight: 500; } .row .ctr { font-family: 'Playfair Display', serif; color: #5AE57A; }
+  .row .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .row .x { cursor: pointer; opacity: .5; } .row .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Click Through Rate Tracker</h1>
+  <p class="sub">Log each email's clicks and find which campaigns actually move people to act.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Email / campaign</label><input id="nm" placeholder="e.g. Launch day 1"></div>
+      <div><label for="del">Delivered</label><input id="del" type="number" min="0"></div>
+      <div><label for="op">Opens</label><input id="op" type="number" min="0"></div>
+      <div><label for="cl">Clicks</label><input id="cl" type="number" min="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sAvg">—</div><div class="l">Avg CTR</div></div>
+    <div class="stat"><div class="v" id="sCTOR">—</div><div class="l">Avg click-to-open</div></div>
+    <div class="stat"><div class="v" id="sBest">—</div><div class="l">Best CTR</div></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let P=JSON.parse(localStorage.getItem('cttr')||'[]');
+  const save=()=>localStorage.setItem('cttr',JSON.stringify(P));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const ctr=p=>p.d>0?p.c/p.d*100:0;
+  const ctor=p=>p.o>0?p.c/p.o*100:0;
+  function add(){ const nm=v('nm'); if(!nm){alert('Name the email.');return;} P.push({nm,d:nu('del'),o:nu('op'),c:nu('cl')}); ['nm','del','op','cl'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ P.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all?')){ P=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!P.length){ L.innerHTML='<div class="empty">No emails logged yet.</div>'; g('sAvg').textContent=g('sCTOR').textContent=g('sBest').textContent='—'; return; }
+    const avg=P.reduce((s,p)=>s+ctr(p),0)/P.length;
+    const avgo=P.reduce((s,p)=>s+ctor(p),0)/P.length;
+    const best=[...P].sort((a,b)=>ctr(b)-ctr(a))[0];
+    g('sAvg').textContent=avg.toFixed(2)+'%';
+    g('sCTOR').textContent=avgo.toFixed(1)+'%';
+    g('sBest').textContent=ctr(best).toFixed(2)+'%';
+    L.innerHTML=[...P].map((p,i)=>({p,i})).sort((a,b)=>ctr(b.p)-ctr(a.p)).map(({p,i})=>{
+      const r=ctr(p), cls=r>=avg*1.2?'win':r<avg*0.6?'low':'';
+      return `<div class="row ${cls}"><div class="top"><span class="nm">${esc(p.nm)}</span><span class="ctr">${r.toFixed(2)}% CTR</span></div>
+        <div class="meta">📨 ${p.d.toLocaleString()} delivered · 👁 ${p.o.toLocaleString()} · 🖱 ${p.c.toLocaleString()} · click-to-open ${ctor(p).toFixed(1)}% <span class="x" onclick="del(${i})">✕</span></div></div>`;
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

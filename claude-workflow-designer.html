@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Workflow Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 4px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 150px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .chain { font-size: .85rem; opacity: .85; background: #2E4D2E; border: 1px solid #2E4D2E; border-radius: 8px; padding: 11px 14px; margin-bottom: 14px; word-break: break-word; }
+  .chain b { color: #5AE57A; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 13px 15px; margin-bottom: 10px; }
+  .step .sh { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .step .sn { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; }
+  .step .ty { font-size: .7rem; border: 1px solid #5AE57A; color: #5AE57A; padding: 1px 8px; border-radius: 20px; }
+  .step .meta { font-size: .82rem; opacity: .68; margin-top: 3px; }
+  .step .instr { font-size: .88rem; margin-top: 5px; white-space: pre-wrap; }
+  .acts { display: flex; gap: 13px; margin-top: 7px; font-size: .78rem; }
+  .acts span { cursor: pointer; opacity: .65; } .acts span:hover { opacity: 1; color: #5AE57A; }
+  .warn { color: #5AE57A; font-size: .82rem; margin-top: 4px; }
+  .empty { text-align: center; opacity: .5; padding: 20px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Workflow Designer</h1>
+  <p class="sub">Design a chained Claude workflow — each step feeds the next — and export a run-ready playbook.</p>
+
+  <div class="panel">
+    <h2>Workflow</h2>
+    <label for="wname">Name</label>
+    <input id="wname" placeholder="e.g. Turn a transcript into a launch email">
+    <label for="wgoal">Goal / final deliverable</label>
+    <input id="wgoal" placeholder="What the whole workflow produces">
+  </div>
+
+  <div class="panel">
+    <h2>Add a step</h2>
+    <label for="sName">Step name</label>
+    <input id="sName" placeholder="e.g. Extract key points">
+    <div class="grid">
+      <div><label for="sType">Type</label>
+        <select id="sType"><option>Generate</option><option>Analyze</option><option>Transform</option><option>Decide</option><option>Review / QA</option></select></div>
+      <div><label for="sRef">Uses input from</label><select id="sRef"></select></div>
+    </div>
+    <label for="sInstr">Instruction for this step</label>
+    <textarea id="sInstr" placeholder="What Claude should do here"></textarea>
+    <label for="sOut">Expected output</label>
+    <input id="sOut" placeholder="e.g. a 5-bullet summary">
+    <button class="btn" onclick="addStep()" id="sBtn">+ Add Step</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="sCancel" style="display:none">Cancel</button>
+  </div>
+
+  <div class="chain" id="chain" style="display:none"></div>
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportMd()">Export Run Playbook</button>
+  <button class="btn ghost" onclick="copyPb()">Copy Playbook</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let steps = JSON.parse(localStorage.getItem('cwd_steps') || '[]');
+  let nextId = +(localStorage.getItem('cwd_nid') || 1);
+  let editing = -1;
+  ['wname','wgoal'].forEach(k => { const s=localStorage.getItem('cwd_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>{localStorage.setItem('cwd_'+k,g(k).value); renderChain();}); });
+  function save(){ localStorage.setItem('cwd_steps',JSON.stringify(steps)); localStorage.setItem('cwd_nid',nextId); }
+  const typeRole = { 'Generate':'content generation','Analyze':'analysis','Transform':'transformation','Decide':'decision-making','Review / QA':'quality review' };
+
+  function refOptions(excludeIdx) {
+    let o = '<option value="input">Initial input</option>';
+    steps.forEach((s,i)=>{ if (excludeIdx!==undefined && i>=excludeIdx) return; o += `<option value="${s.id}">Step ${i+1}: ${esc(s.name)}</option>`; });
+    return o;
+  }
+  function refreshRefSelect() { g('sRef').innerHTML = refOptions(editing>=0?editing:undefined); }
+
+  function addStep() {
+    const name = v('sName'); if (!name) { alert('Name the step.'); return; }
+    const obj = { id: editing>=0?steps[editing].id:nextId, name, type:g('sType').value, ref:g('sRef').value, instr:v('sInstr'), out:v('sOut') };
+    if (editing>=0) steps[editing]=obj; else { steps.push(obj); nextId++; }
+    cancelEdit(); save(); render();
+  }
+  function editStep(i){ const s=steps[i]; editing=i; refreshRefSelect(); g('sName').value=s.name; g('sType').value=s.type; g('sRef').value=s.ref; g('sInstr').value=s.instr; g('sOut').value=s.out; g('sBtn').textContent='✓ Update Step'; g('sCancel').style.display='inline-block'; g('sName').scrollIntoView({behavior:'smooth',block:'center'}); }
+  function cancelEdit(){ editing=-1; g('sBtn').textContent='+ Add Step'; g('sCancel').style.display='none'; ['sName','sInstr','sOut'].forEach(x=>g(x).value=''); refreshRefSelect(); }
+  function delStep(i){ if(confirm('Delete this step?')){ steps.splice(i,1); if(editing===i)cancelEdit(); save(); render(); } }
+  function move(i,d){ const j=i+d; if(j<0||j>=steps.length)return; [steps[i],steps[j]]=[steps[j],steps[i]]; save(); render(); }
+  function clearAll(){ if(confirm('Clear the whole workflow?')){ steps=[]; nextId=1; save(); render(); } }
+
+  function refLabel(ref) {
+    if (ref==='input') return 'Initial input';
+    const idx = steps.findIndex(s=>String(s.id)===String(ref));
+    return idx>=0 ? `Step ${idx+1} ("${steps[idx].name}")` : '⚠ missing step';
+  }
+  function refBroken(ref, selfIdx) {
+    if (ref==='input') return false;
+    const idx = steps.findIndex(s=>String(s.id)===String(ref));
+    return idx<0 || idx>=selfIdx; // missing or points to itself/later
+  }
+
+  function renderChain() {
+    const c = g('chain');
+    if (!steps.length) { c.style.display='none'; return; }
+    c.style.display='block';
+    c.innerHTML = `<b>Flow:</b> Initial input → ` + steps.map((s,i)=>`S${i+1}`).join(' → ') +
+      ` → <b>${esc(v('wgoal')||'deliverable')}</b>`;
+  }
+
+  function render() {
+    refreshRefSelect(); renderChain();
+    const L = g('list');
+    if (!steps.length) { L.innerHTML='<div class="empty">No steps yet — add the first step of your workflow.</div>'; return; }
+    L.innerHTML = steps.map((s,i)=>{
+      const broken = refBroken(s.ref,i);
+      return `<div class="step">
+        <div class="sh"><span class="sn">${i+1}. ${esc(s.name)}</span><span class="ty">${esc(s.type)}</span></div>
+        <div class="meta">Input ← ${esc(refLabel(s.ref))}${s.out?` · Output: ${esc(s.out)}`:''}</div>
+        ${s.instr?`<div class="instr">${esc(s.instr)}</div>`:''}
+        ${broken?'<div class="warn">⚠ This step\'s input reference is invalid — fix the chain.</div>':''}
+        <div class="acts"><span onclick="move(${i},-1)">↑</span><span onclick="move(${i},1)">↓</span><span onclick="editStep(${i})">✎ Edit</span><span onclick="delStep(${i})">✕ Delete</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  function stepPrompt(s, i) {
+    const inputDesc = s.ref==='input'
+      ? 'the initial input provided at the start of this workflow'
+      : `the output produced by ${refLabel(s.ref)}`;
+    return `STEP ${i+1} — ${s.name} [${s.type}]\n`+
+      `Workflow goal: ${v('wgoal')||'(not set)'}.\n`+
+      `You are acting in a ${typeRole[s.type]||'specialist'} capacity.\n`+
+      `Input: use ${inputDesc} (paste it below).\n`+
+      `Task: ${s.instr||'(not set)'}\n`+
+      `Produce: ${s.out||'a clear, well-structured result'}.\n`+
+      `If the input is missing or unclear, say so instead of guessing.\n\n[ paste input here ]`;
+  }
+  function playbook() {
+    let t = `# Workflow Playbook: ${v('wname')||'Untitled'}\n\nGoal: ${v('wgoal')||'(not set)'}\nFlow: Initial input → ${steps.map((_,i)=>'S'+(i+1)).join(' → ')} → deliverable\n\nRun each step in Claude in order, pasting the prior step's output where indicated.\n`;
+    steps.forEach((s,i)=>{ t += `\n---\n\n\`\`\`\n${stepPrompt(s,i)}\n\`\`\`\n`; });
+    return t.trim();
+  }
+  function exportMd() {
+    if (!steps.length) { alert('Add steps first.'); return; }
+    const b=new Blob([playbook()],{type:'text/markdown'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(v('wname')||'workflow').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-playbook.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+  function copyPb() {
+    if (!steps.length) { alert('Add steps first.'); return; }
+    navigator.clipboard.writeText(playbook()).then(()=>alert('Playbook copied!'),()=>alert('Copy failed.'));
+  }
+
+  render();
+</script>
+</body>
+</html>

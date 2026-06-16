@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Goal Setter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 52px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Career Goal Setter</h1>
+  <p class="sub">Turn a fuzzy career wish into a sharp, trackable goal.</p>
+
+  <div class="panel">
+    <label for="goal">Your career goal</label>
+    <input id="goal" placeholder="Be specific — a role, skill, income, or move">
+    <label for="why">Why it matters to you</label>
+    <textarea id="why" placeholder="The deeper reason — your fuel when it gets hard"></textarea>
+    <label for="success">What success looks like (measurable)</label>
+    <input id="success" placeholder="How you will know you have arrived">
+    <label for="milestones">Milestones along the way</label>
+    <textarea id="milestones" placeholder="The 2-4 markers between here and there"></textarea>
+    <label for="obstacles">Likely obstacles</label>
+    <textarea id="obstacles" placeholder="What could get in the way — and your plan for it"></textarea>
+    <label for="first">Your first step this week</label>
+    <input id="first" placeholder="The smallest action you can take now">
+    <label for="date">Target date</label>
+    <input id="date" type="date">
+    <button class="btn" onclick="gen()">Build Goal Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['goal','why','success','milestones','obstacles','first','date'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('cgs_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('cgs_'+k,g(k).value)); });
+  function gen(){
+    if(!v('goal')){ alert('Enter your goal.'); return; }
+    const t='CAREER GOAL PLAN\n\nMY GOAL:\n'+v('goal')+
+    '\n\nWHY IT MATTERS:\n'+(v('why')||'[your deeper reason]')+
+    '\n\nSUCCESS LOOKS LIKE:\n'+(v('success')||'[measurable definition of done]')+
+    '\n\nMILESTONES:\n'+(v('milestones')||'[markers along the way]')+
+    '\n\nOBSTACLES & MY PLAN:\n'+(v('obstacles')||'[likely blockers and responses]')+
+    '\n\nFIRST STEP THIS WEEK:\n'+(v('first')||'[your smallest next action]')+
+    (v('date')?'\n\nTARGET DATE: '+v('date'):'')+
+    '\n\n--- Keep it alive ---\nReview this every month. Adjust the route, not the destination.\nA goal you do not look at is just a wish. Take the first step today.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

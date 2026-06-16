@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Budget Qualifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:26px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:600px;margin:0 auto 16px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;margin-bottom:16px;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.radio-group{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.radio-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;background:#325132;border:1px solid #4C724C;border-radius:8px;cursor:pointer;transition:border .2s}
+.radio-opt:hover{border-color:#BFD8BF}
+.radio-opt input[type=radio]{margin-top:2px;accent-color:#5AE57A;flex-shrink:0}
+.radio-opt.selected{border-color:#5AE57A;background:#C9A84C0A}
+.opt-text{font-size:.88rem;line-height:1.4}
+.opt-sub{font-size:.72rem;color:#BFD8BF;margin-top:2px}
+.flags{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+.flag-opt{display:flex;align-items:center;gap:10px;padding:10px 13px;background:#325132;border:1px solid #4C724C;border-radius:8px;cursor:pointer;transition:all .2s}
+.flag-opt:hover{border-color:#5AE57A}
+.flag-opt input{width:auto;margin:0;accent-color:#5AE57A;flex-shrink:0}
+.flag-opt.checked{border-color:#ff444460;background:#ff44440A}
+.flag-opt span{font-size:.85rem}
+.btn{width:100%;max-width:600px;display:block;margin:0 auto 20px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:14px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#result{max-width:600px;margin:0 auto;display:none}
+.verdict{border-radius:14px;padding:26px;text-align:center;margin-bottom:16px;border:1px solid}
+.verdict.green{background:#44cc6612;border-color:#44cc6640}
+.verdict.yellow{background:#f0a50012;border-color:#f0a50040}
+.verdict.red{background:#ff444412;border-color:#ff444440}
+.verdict-icon{font-size:2.5rem;margin-bottom:8px}
+.verdict-label{font-family:'Playfair Display',serif;font-size:1.6rem;margin-bottom:8px}
+.verdict.green .verdict-label{color:#5AE57A}
+.verdict.yellow .verdict-label{color:#5AE57A}
+.verdict.red .verdict-label{color:#5AE57A}
+.verdict-desc{font-size:.88rem;opacity:.8;line-height:1.6;max-width:400px;margin:0 auto 12px}
+.score-pill{display:inline-block;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:700;padding:4px 16px;border-radius:20px}
+.verdict.green .score-pill{background:#44cc6622;color:#5AE57A}
+.verdict.yellow .score-pill{background:#f0a50022;color:#5AE57A}
+.verdict.red .score-pill{background:#ff444422;color:#5AE57A}
+.reasons-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:16px}
+.reasons-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:14px}
+.reason{display:flex;gap:10px;margin-bottom:10px;font-size:.86rem;line-height:1.5;align-items:flex-start}
+.reason-icon{flex-shrink:0;margin-top:1px}
+.next-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:16px}
+.next-card h3{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:12px}
+.next-step{font-size:.9rem;line-height:1.7;opacity:.9}
+.next-step strong{color:#5AE57A}
+.restart-btn{width:100%;background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:8px;padding:12px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;transition:all .2s}
+.restart-btn:hover{border-color:#5AE57A;color:#5AE57A}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:480px){.row{grid-template-columns:1fr}h1{font-size:1.7rem}}
+</style>
+</head>
+<body>
+
+<h1>Client Budget Qualifier</h1>
+<p class="sub">Stop second-guessing — know in 60 seconds if a client is worth pursuing</p>
+
+<!-- Numbers -->
+<div class="card" id="qCards">
+<div style="background:#3C603C;border-radius:10px;padding:22px;margin-bottom:16px;border:1px solid #4C724C">
+  <div class="card-title">The Numbers</div>
+  <div class="row">
+    <div><label>Client's Stated Budget ($)</label><input id="cBudget" type="number" placeholder="e.g. 2500" oninput="syncCheck()"></div>
+    <div><label>Your Minimum Price ($)</label><input id="myMin" type="number" placeholder="e.g. 2000" oninput="syncCheck()"></div>
+  </div>
+  <label>Project Timeline</label>
+  <select id="timeline">
+    <option value="rushed">Rushed — needs it in under 2 weeks</option>
+    <option value="standard" selected>Standard — 2 to 8 weeks</option>
+    <option value="flexible">Flexible — 2+ months, no hard deadline</option>
+  </select>
+</div>
+
+<!-- Signals -->
+<div style="background:#3C603C;border-radius:10px;padding:22px;margin-bottom:16px;border:1px solid #4C724C">
+  <div class="card-title">The Signals</div>
+  <label>Are you speaking with the decision maker?</label>
+  <div class="radio-group" id="dm">
+    <label class="radio-opt"><input type="radio" name="dm" value="yes"> <div class="opt-text">Yes — they can say yes on the spot<span class="opt-sub">Best case</span></div></label>
+    <label class="radio-opt"><input type="radio" name="dm" value="approval"> <div class="opt-text">They need to get approval first<span class="opt-sub">Adds delay and risk</span></div></label>
+    <label class="radio-opt"><input type="radio" name="dm" value="unknown"> <div class="opt-text">Unclear — haven't asked yet<span class="opt-sub">Worth finding out</span></div></label>
+  </div>
+  <label>How clear is their project brief?</label>
+  <div class="radio-group" id="brief">
+    <label class="radio-opt"><input type="radio" name="brief" value="clear"> <div class="opt-text">Very clear — they know exactly what they want<span class="opt-sub">Easy to scope and quote</span></div></label>
+    <label class="radio-opt"><input type="radio" name="brief" value="rough"> <div class="opt-text">Rough idea — direction but not the details<span class="opt-sub">Normal for early conversations</span></div></label>
+    <label class="radio-opt"><input type="radio" name="brief" value="none"> <div class="opt-text">No idea yet — figuring it out as they go<span class="opt-sub">Scope creep risk</span></div></label>
+  </div>
+  <label>Have they hired someone like you before?</label>
+  <div class="radio-group" id="exp">
+    <label class="radio-opt"><input type="radio" name="exp" value="yes"> <div class="opt-text">Yes — they understand the process and value<span class="opt-sub">Fewer education conversations</span></div></label>
+    <label class="radio-opt"><input type="radio" name="exp" value="no"> <div class="opt-text">No — this is their first time<span class="opt-sub">May need more hand-holding</span></div></label>
+    <label class="radio-opt"><input type="radio" name="exp" value="unknown"> <div class="opt-text">Not sure<span class="opt-sub"></span></div></label>
+  </div>
+</div>
+
+<!-- Red Flags -->
+<div style="background:#3C603C;border-radius:10px;padding:22px;border:1px solid #4C724C">
+  <div class="card-title">Red Flags — Check Any That Apply</div>
+  <div class="flags">
+    <label class="flag-opt"><input type="checkbox" class="flag" value="8"> <span>Asked for free spec work, samples, or a "trial"</span></label>
+    <label class="flag-opt"><input type="checkbox" class="flag" value="8"> <span>Getting quotes from 5+ providers at the same time</span></label>
+    <label class="flag-opt"><input type="checkbox" class="flag" value="10"> <span>Said "small budget but great exposure/experience"</span></label>
+    <label class="flag-opt"><input type="checkbox" class="flag" value="10"> <span>Mentioned being unhappy with or firing a previous provider</span></label>
+    <label class="flag-opt"><input type="checkbox" class="flag" value="7"> <span>Wants to "start small" with no clear path to full project</span></label>
+    <label class="flag-opt"><input type="checkbox" class="flag" value="8"> <span>Pushed back on contract, deposit, or standard terms</span></label>
+  </div>
+</div>
+</div>
+
+<button class="btn" onclick="qualify()">Qualify This Client →</button>
+
+<div id="result">
+  <div class="verdict" id="verdictBox">
+    <div class="verdict-icon" id="vIcon"></div>
+    <div class="verdict-label" id="vLabel"></div>
+    <div class="verdict-desc" id="vDesc"></div>
+    <span class="score-pill" id="vScore"></span>
+  </div>
+  <div class="reasons-card"><h3>Score Breakdown</h3><div id="reasons"></div></div>
+  <div class="next-card"><h3>Recommended Next Step</h3><div class="next-step" id="nextStep"></div></div>
+  <button class="restart-btn" onclick="restart()">Qualify Another Client</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+function syncCheck(){
+  document.querySelectorAll('.radio-opt,.flag-opt').forEach(el=>{
+    const inp=el.querySelector('input');
+    if(inp.type==='radio')el.classList.toggle('selected',inp.checked);
+    else el.classList.toggle('checked',inp.checked);
+  });
+}
+document.addEventListener('change',syncCheck);
+
+function getRatio(){
+  const b=parseFloat(document.getElementById('cBudget').value)||0;
+  const m=parseFloat(document.getElementById('myMin').value)||0;
+  return m>0?b/m:b>0?1.5:0;
+}
+
+function qualify(){
+  let score=0;const reasons=[];
+  const budget=parseFloat(document.getElementById('cBudget').value)||0;
+  const min=parseFloat(document.getElementById('myMin').value)||0;
+  const timeline=document.getElementById('timeline').value;
+  const dm=document.querySelector('input[name=dm]:checked')?.value;
+  const brief=document.querySelector('input[name=brief]:checked')?.value;
+  const exp=document.querySelector('input[name=exp]:checked')?.value;
+  const flags=[...document.querySelectorAll('.flag:checked')];
+
+  // Budget (35pts)
+  if(budget&&min){
+    const r=budget/min;
+    if(r>=1.2){score+=35;reasons.push({icon:'✅',text:`Budget of $${budget.toLocaleString()} is above your minimum — room to negotiate up.`});}
+    else if(r>=1){score+=28;reasons.push({icon:'✅',text:`Budget meets your minimum of $${min.toLocaleString()}.`});}
+    else if(r>=0.75){score+=14;reasons.push({icon:'⚠️',text:`Budget is ${Math.round(r*100)}% of your minimum — needs negotiation or scope reduction.`});}
+    else{score+=0;reasons.push({icon:'🚩',text:`Budget of $${budget.toLocaleString()} is significantly below your minimum of $${min.toLocaleString()}.`});}
+  } else {score+=15;reasons.push({icon:'⚠️',text:'No budget or minimum entered — score estimated at midpoint.'});}
+
+  // Timeline (15pts)
+  if(timeline==='flexible'){score+=15;reasons.push({icon:'✅',text:'Flexible timeline gives you room to deliver quality work without pressure.'});}
+  else if(timeline==='standard'){score+=10;reasons.push({icon:'✅',text:'Standard timeline — workable with good project management.'});}
+  else{score+=5;reasons.push({icon:'⚠️',text:'Rushed timeline — make sure a rush fee is included in your quote.'});}
+
+  // Decision maker (20pts)
+  if(dm==='yes'){score+=20;reasons.push({icon:'✅',text:'You\'re speaking directly with the decision maker — faster path to yes.'});}
+  else if(dm==='approval'){score+=10;reasons.push({icon:'⚠️',text:'They need approval — budget for delays and potential ghosting after first call.'});}
+  else if(dm==='unknown'){score+=5;reasons.push({icon:'⚠️',text:'Decision maker unknown — ask before investing more time in this lead.'});}
+
+  // Brief (15pts)
+  if(brief==='clear'){score+=15;reasons.push({icon:'✅',text:'Clear brief means less back-and-forth and lower scope creep risk.'});}
+  else if(brief==='rough'){score+=8;reasons.push({icon:'⚠️',text:'Rough brief — a paid discovery session or detailed proposal may help clarify scope.'});}
+  else if(brief==='none'){score+=2;reasons.push({icon:'🚩',text:'No clear brief is a major scope creep risk — proceed only with iron-clad contract terms.'});}
+
+  // Experience (10pts)
+  if(exp==='yes'){score+=10;reasons.push({icon:'✅',text:'Previous experience with similar services — they understand the value and process.'});}
+  else if(exp==='no'){score+=5;reasons.push({icon:'ℹ️',text:'First-time buyer — budget time for education, expectation-setting, and process explanation.'});}
+  else{score+=6;}
+
+  // Red flags (-8 to -10 each)
+  const flagLoss=flags.reduce((s,f)=>s+parseInt(f.value),0);
+  if(flags.length){
+    score=Math.max(0,score-flagLoss);
+    reasons.push({icon:'🚩',text:`${flags.length} red flag${flags.length>1?'s':''} detected — deducted ${flagLoss} points. These are patterns of difficult clients.`});
+  }
+
+  score=Math.min(100,Math.max(0,score));
+
+  let cls,icon,label,desc,next;
+  if(score>=70){
+    cls='green';icon='✦';label='Strong Fit';
+    desc='This client checks the key boxes. Their budget, brief, and signals suggest a healthy working relationship.';
+    next=`<strong>Move forward with confidence.</strong> Send your proposal or schedule a paid discovery call. Make sure your contract covers revision rounds and scope boundaries. ${timeline==='rushed'?'<br><br><strong>Include your rush fee</strong> — don\'t absorb urgency without compensation.':''}`;
+  } else if(score>=45){
+    cls='yellow';icon='◈';label='Proceed with Caution';
+    desc='There are some green lights but a few concerns worth addressing before committing your time.';
+    const issues=[];
+    if(getRatio()<1&&budget&&min)issues.push('address the budget gap before doing any work');
+    if(dm==='approval')issues.push('confirm who has final sign-off');
+    if(brief==='none')issues.push('get a written brief before scoping');
+    if(flags.length)issues.push('trust your gut on the red flags');
+    next=`<strong>Don\'t walk away yet — but protect yourself.</strong>${issues.length?' Before moving forward: '+issues.map((i,x)=>`<br>${x+1}. ${i.charAt(0).toUpperCase()+i.slice(1)}`).join('')+'.':''} Require a deposit upfront and make sure your contract is airtight.`;
+  } else {
+    cls='red';icon='✕';label='Hard Pass';
+    desc='The numbers, signals, or red flags on this client don\'t add up. Pursuing this lead will likely cost you more than it earns.';
+    next=`<strong>Your time is worth more than this.</strong> Politely decline and redirect your energy toward better-fit leads. You can say: <em>"Thanks so much for reaching out — based on your timeline and budget, I don\'t think I\'m the best fit for this project, but I wish you all the best finding the right person."</em>`;
+  }
+
+  document.getElementById('verdictBox').className=`verdict ${cls}`;
+  document.getElementById('vIcon').textContent=icon;
+  document.getElementById('vLabel').textContent=label;
+  document.getElementById('vDesc').textContent=desc;
+  document.getElementById('vScore').textContent=`Fit Score: ${score}/100`;
+  document.getElementById('reasons').innerHTML=reasons.map(r=>`<div class="reason"><span class="reason-icon">${r.icon}</span><span>${r.text}</span></div>`).join('');
+  document.getElementById('nextStep').innerHTML=next;
+
+  document.getElementById('qCards').style.display='none';
+  document.querySelector('.btn').style.display='none';
+  document.getElementById('result').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart(){
+  document.getElementById('qCards').style.display='block';
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('result').style.display='none';
+  document.querySelectorAll('input[type=radio],input[type=checkbox]').forEach(i=>i.checked=false);
+  document.querySelectorAll('.radio-opt,.flag-opt').forEach(el=>el.classList.remove('selected','checked'));
+  ['cBudget','myMin'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('timeline').value='standard';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>

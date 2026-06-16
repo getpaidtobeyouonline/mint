@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Brief Optimiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 12px 14px; border-radius: 8px; resize: vertical; min-height: 140px; }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .score { text-align: center; }
+  .score .big { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+  .score .vd { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; margin-top: 4px; }
+  .track { background: #3C603C; border-radius: 5px; height: 9px; overflow: hidden; margin-top: 12px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .chk { display: flex; gap: 10px; padding: 8px 0; border-top: 1px solid #3C603C; font-size: .92rem; }
+  .chk:first-child { border-top: none; }
+  .mk { flex: none; width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .82rem; }
+  .mk.y { background: #2E4D2E; color: #5AE57A; border: 1px solid #5AE57A; }
+  .mk.n { background: #2E4D2E; color: #5AE57A; border: 1px solid #5AE57A; }
+  .chk .t b { color: #5AE57A; }
+  .chk .t small { display: block; opacity: .6; font-size: .82rem; }
+  textarea#opt { min-height: 220px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Brief Optimiser</h1>
+  <p class="sub">Paste a brief you'd hand to Claude. See what's missing and get a restructured, ready-to-run version.</p>
+
+  <div class="panel">
+    <label for="in">Your brief</label>
+    <textarea id="in" placeholder="Paste the project, content, or task brief…" oninput="autosave()"></textarea>
+    <button class="btn" onclick="run()">Optimise Brief</button>
+    <button class="btn ghost" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div class="panel score" id="scorebox" style="display:none">
+    <div class="big" id="score">0</div><div class="vd" id="verdict"></div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+  </div>
+
+  <div class="panel" id="checks" style="display:none"></div>
+
+  <div class="panel" id="optWrap" style="display:none">
+    <label for="opt">Optimised brief <span style="text-transform:none;opacity:.55">— fill every [ADD: …]</span></label>
+    <textarea id="opt"></textarea>
+    <button class="btn" onclick="copyOpt()">Copy Optimised Brief</button>
+    <button class="btn ghost" onclick="copyReport()">Copy Report</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  g('in').value = localStorage.getItem('cbo_in') || '';
+  function autosave(){ localStorage.setItem('cbo_in', g('in').value); }
+
+  // [title, regex, guidance]
+  const SECTIONS = [
+    ["Objective", /\b(objective|goal|aim|purpose|the task is|i want to|i need to|so that|in order to)\b/i,
+      "State the single outcome this brief must achieve, and why it matters."],
+    ["Deliverable & format", /\b(deliverable|output|format|produce|create a|write a|build a|draft a|as a (doc|table|list|report|post|email|page)|markdown|bullets?|slides?)\b/i,
+      "Name the exact artifact and its shape (e.g. a 1-page memo, a 5-bullet list, JSON)."],
+    ["Success criteria", /\b(success|acceptance|criteria|done when|good looks like|must (be|have|include)|definition of done|quality bar|should be able to)\b/i,
+      "Define what 'done and good' means so the output can be judged objectively."],
+    ["Audience", /\b(audience|for (a|an|my|the|people|users|beginners|customers|founders|clients)|reader|aimed at|target|persona)\b/i,
+      "Specify exactly who the output is for — it changes everything about tone and depth."],
+    ["Context / background", /\b(context|background|currently|so far|the situation|we have|right now|previously|existing|today we)\b/i,
+      "Give the relevant situation and any prior work Claude needs to not start blind."],
+    ["Constraints / non-goals", /\b(constraint|non-goal|do not|don'?t|avoid|out of scope|exclude|must not|no more than|budget|only use|stick to)\b/i,
+      "List what to avoid or leave out — negative constraints prevent the usual wrong turns."],
+    ["Scope / timeframe", /\b(deadline|by (monday|tuesday|wednesday|thursday|friday|saturday|sunday|tomorrow|next|the \d)|within \d|scope|timeframe|\d+\s*(days?|weeks?|hours?|words?|pages?)|length)\b/i,
+      "Bound the size or time — a length/scope limit prevents rambling or over-building."],
+    ["Ask if unclear", /\b(ask|clarif|if (unclear|unsure|ambiguous|anything)|questions? (first|before)|confirm (your )?understanding|check with me)\b/i,
+      "Explicitly tell Claude to ask questions before proceeding if anything is ambiguous."]
+  ];
+
+  function run() {
+    const t = g('in').value.trim();
+    if (!t) { alert('Paste a brief first.'); return; }
+    const res = SECTIONS.map(([title,rx,guide]) => ({ title, guide, ok: rx.test(t) }));
+    const score = Math.round(res.filter(r=>r.ok).length / res.length * 100);
+    g('scorebox').style.display='block';
+    g('score').textContent = score;
+    g('bar').style.width = score+'%';
+    g('verdict').textContent = score>=88?'Tight brief — ready to run':score>=63?'Solid — close a few gaps':score>=38?'Loose — needs structure':'Vague — Claude will guess';
+    g('checks').style.display='block';
+    g('checks').innerHTML = res.map(r=>`
+      <div class="chk"><div class="mk ${r.ok?'y':'n'}">${r.ok?'✓':'!'}</div>
+        <div class="t"><b>${r.title}</b><small>${r.ok?'Covered — keep this in the optimised version.':r.guide}</small></div></div>`).join('');
+
+    let opt = `# Optimised Brief\n\n`;
+    res.forEach(r => {
+      opt += `## ${r.title}\n`;
+      opt += r.ok ? `_(You covered this — paste/refine your wording here.)_\n\n`
+                  : `[ADD: ${r.guide}]\n\n`;
+    });
+    opt += `---\n## Original brief (for reference)\n${t}\n\n`;
+    opt += `---\n## For Claude\nRestate your understanding of this brief in 2 lines, ask any clarifying questions, then proceed. Flag anything still ambiguous before producing the deliverable.`;
+    g('opt').value = opt;
+    g('optWrap').style.display='block';
+    window._rep = { score, res };
+    g('scorebox').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function copyOpt(){ navigator.clipboard.writeText(g('opt').value).then(()=>alert('Optimised brief copied!'),()=>alert('Copy failed.')); }
+  function copyReport(){
+    const r = window._rep; if (!r) return;
+    const miss = r.res.filter(x=>!x.ok);
+    let t = `BRIEF READINESS: ${r.score}/100\n\nMISSING:\n` +
+      (miss.length ? miss.map(x=>`- ${x.title}: ${x.guide}`).join('\n') : 'Nothing — every element is covered.');
+    navigator.clipboard.writeText(t).then(()=>alert('Report copied!'),()=>alert('Copy failed.'));
+  }
+  function clearAll(){ g('in').value=''; localStorage.removeItem('cbo_in'); ['scorebox','checks','optWrap'].forEach(id=>g(id).style.display='none'); }
+</script>
+</body>
+</html>

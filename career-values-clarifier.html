@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Career Values Clarifier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .count { text-align: center; font-size: .85rem; color: #5AE57A; margin-bottom: 10px; }
+  .vals { display: flex; flex-wrap: wrap; gap: 8px; }
+  .v { background: #2A442A; border: 1px solid #5A845A; border-radius: 20px; padding: 7px 14px; cursor: pointer; font-size: .88rem; }
+  .v.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .v.dim { opacity: .4; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Career Values Clarifier</h1>
+  <p class="sub">Pick the five career values that matter most — your compass for every decision.</p>
+
+  <div class="panel">
+    <div class="count" id="count">Pick up to 5</div>
+    <div class="vals" id="vals"></div>
+    <button class="btn" onclick="gen()">See My Top Five</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const VALUES=['Autonomy','Income','Security','Creativity','Impact','Growth','Recognition','Work-life balance','Status','Variety','Helping others','Leadership','Expertise','Flexibility','Collaboration','Challenge','Independence','Purpose','Stability','Adventure','Learning','Belonging','Influence','Integrity'];
+  const KEY='cvc'; let sel=JSON.parse(localStorage.getItem(KEY)||'[]');
+  const g=id=>document.getElementById(id);
+  function render(){
+    g('vals').innerHTML=VALUES.map(v=>{
+      const on=sel.includes(v), dim=!on&&sel.length>=5;
+      return '<div class="v'+(on?' on':'')+(dim?' dim':'')+'" onclick="tog(\''+v+'\')">'+v+'</div>';
+    }).join('');
+    g('count').textContent=sel.length+' / 5 selected';
+  }
+  function tog(v){
+    if(sel.includes(v)) sel=sel.filter(x=>x!==v);
+    else { if(sel.length>=5){ return; } sel.push(v); }
+    localStorage.setItem(KEY,JSON.stringify(sel)); render();
+  }
+  function gen(){
+    if(!sel.length){ alert('Pick at least one value.'); return; }
+    const t='MY CORE CAREER VALUES\n\n'+sel.map((v,i)=>(i+1)+'. '+v).join('\n')+
+    '\n\nHOW TO USE THIS\nWhen weighing a job, a project or a move, ask:\n"Does this honour my top values — or quietly cost me one?"\n\nThe best roles feed your top two or three.\nLasting career frustration is almost always a values clash.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('See your top five first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+  render();
+</script>
+</body>
+</html>

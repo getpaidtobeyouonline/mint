@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathwork Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .wrap { max-width: 520px; width: 100%; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin-right: 8px; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 14px; padding: 30px 26px; }
+  .circle { width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,.18) 0%, rgba(201,168,76,.02) 70%); border: 2px solid #5AE57A; margin: 20px auto; display: flex; align-items: center; justify-content: center; transition: transform 4s linear, opacity .25s; }
+  .circle.grow { transform: scale(1.35); } .circle.shrink { transform: scale(0.85); }
+  .phase { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.4rem; }
+  .count { font-size: 1rem; opacity: .75; margin-top: 6px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin: 14px 6px 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 26px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .circle { width: 180px; height: 180px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Breathwork Timer</h1>
+  <p class="sub">Pick a pattern, follow the circle. 5 minutes shifts your nervous system more than 5 hours of thinking about it.</p>
+
+  <div class="panel">
+    <div><label for="pat">Pattern</label>
+      <select id="pat">
+        <option value="box">Box: 4-4-4-4 (calm focus)</option>
+        <option value="478">4-7-8 (deep relaxation)</option>
+        <option value="cool">Cooling: 4-in / 8-out (anxiety)</option>
+        <option value="coh">Coherent: 5-in / 5-out (balanced)</option>
+      </select>
+    </div>
+    <div class="circle" id="circle"><div><div class="phase" id="phase">Ready</div><div class="count" id="count">Press start</div></div></div>
+    <button class="btn" id="start" onclick="toggle()">Start</button>
+    <button class="btn ghost" onclick="reset()">Reset</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const PAT={
+    box:[["Breathe in",4,"grow"],["Hold",4,""],["Breathe out",4,"shrink"],["Hold",4,""]],
+    "478":[["Breathe in",4,"grow"],["Hold",7,""],["Breathe out",8,"shrink"]],
+    cool:[["Breathe in",4,"grow"],["Breathe out",8,"shrink"]],
+    coh:[["Breathe in",5,"grow"],["Breathe out",5,"shrink"]]
+  };
+  const g=id=>document.getElementById(id);
+  let running=false, pi=0, secs=0, timer=null;
+  function run(){
+    const p=PAT[g('pat').value]; const cur=p[pi];
+    g('phase').textContent=cur[0]; g('count').textContent=cur[1]-secs;
+    const c=g('circle'); c.classList.remove('grow','shrink'); if(cur[2]) c.classList.add(cur[2]);
+    c.style.transition='transform '+cur[1]+'s linear';
+  }
+  function tick(){
+    const p=PAT[g('pat').value]; const cur=p[pi];
+    secs++;
+    if(secs>=cur[1]){ secs=0; pi=(pi+1)%p.length; run(); }
+    else g('count').textContent=cur[1]-secs;
+  }
+  function toggle(){ if(!running){ running=true; g('start').textContent='Pause'; run(); timer=setInterval(tick,1000); } else { running=false; g('start').textContent='Resume'; clearInterval(timer); } }
+  function reset(){ running=false; clearInterval(timer); pi=0; secs=0; g('start').textContent='Start'; g('phase').textContent='Ready'; g('count').textContent='Press start'; g('circle').classList.remove('grow','shrink'); }
+</script>
+</body>
+</html>

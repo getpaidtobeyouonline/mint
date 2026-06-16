@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Business Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 13px 0 5px; }
+  .hint { text-transform: none; letter-spacing: 0; opacity: .55; font-size: .8rem; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 52px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+  .meter { display: flex; align-items: center; gap: 10px; font-size: .82rem; opacity: .8; margin-bottom: 14px; }
+  .track { flex: 1; background: #3C603C; border-radius: 5px; height: 8px; overflow: hidden; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .94rem; padding: 12px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .bp { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .bp h4 { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 4px; }
+  .bp p { font-size: .95rem; white-space: pre-wrap; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Business Blueprint</h1>
+  <p class="sub">Compress your AI business into one clear page — then have Claude stress-test it for you.</p>
+
+  <div class="panel">
+    <label for="f_name">Business name</label>
+    <input id="f_name" placeholder="Working name">
+    <label for="f_problem">Problem <span class="hint">— the painful problem you solve</span></label>
+    <textarea id="f_problem" placeholder="The #1 problem worth paying to fix"></textarea>
+    <label for="f_customer">Target customer <span class="hint">— be specific</span></label>
+    <input id="f_customer" placeholder="Exactly who has this problem">
+    <label for="f_uvp">Unique value proposition <span class="hint">— one line</span></label>
+    <input id="f_uvp" placeholder="The outcome you deliver + your edge">
+    <label for="f_offer">The offer</label>
+    <input id="f_offer" placeholder="What they buy and in what form">
+    <label for="f_ai">AI leverage / unfair advantage</label>
+    <textarea id="f_ai" placeholder="How AI makes this faster, cheaper, or better than rivals — your moat"></textarea>
+    <label for="f_rev">Revenue model</label>
+    <input id="f_rev" placeholder="How you charge (one-time, retainer, subscription…)">
+    <label for="f_chan">Channel</label>
+    <input id="f_chan" placeholder="How customers will actually find you">
+    <label for="f_metric">Key metric</label>
+    <input id="f_metric" placeholder="The one number that proves it's working">
+    <label for="f_milestone">First milestone</label>
+    <input id="f_milestone" placeholder="Next concrete proof point + by when">
+  </div>
+
+  <div class="meter"><span id="mtxt">0/10 filled</span><div class="track"><i id="mbar" style="width:0%"></i></div></div>
+
+  <button class="btn" onclick="build()">Generate Blueprint</button>
+  <button class="btn ghost" onclick="copyBp()">Copy Blueprint</button>
+  <button class="btn ghost" onclick="copyStress()">Copy Stress-Test Prompt</button>
+  <button class="btn ghost" onclick="dlMd()">Download .md</button>
+
+  <div id="out"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const FIELDS = [
+    ['name','Business'],['problem','Problem'],['customer','Target customer'],['uvp','Unique value proposition'],
+    ['offer','The offer'],['ai','AI leverage / unfair advantage'],['rev','Revenue model'],
+    ['chan','Channel'],['metric','Key metric'],['milestone','First milestone']
+  ];
+  const g = id => document.getElementById(id), v = k => g('f_'+k).value.trim();
+  FIELDS.forEach(([k]) => { const s=localStorage.getItem('cbb_'+k); if(s!==null)g('f_'+k).value=s; g('f_'+k).addEventListener('input',()=>{localStorage.setItem('cbb_'+k,g('f_'+k).value); meter();}); });
+
+  function meter() {
+    const filled = FIELDS.filter(([k])=>v(k)).length;
+    g('mtxt').textContent = `${filled}/${FIELDS.length} filled`;
+    g('mbar').style.width = (filled/FIELDS.length*100)+'%';
+  }
+
+  function blueprintMd() {
+    let t = `# Business Blueprint: ${v('name')||'Untitled'}\n\n`;
+    FIELDS.slice(1).forEach(([k,l]) => { t += `## ${l}\n${v(k)||'_(not set)_'}\n\n`; });
+    return t.trim();
+  }
+  function stressPrompt() {
+    return `You are a blunt, experienced startup advisor. Here is my one-page AI business blueprint.\n\n`+
+      blueprintMd().replace(/^# /,'').replace(/^## /gm,'### ') +
+      `\n\nDo this:\n1. Name the single riskiest assumption I'm making.\n2. Point to the weakest section and why.\n3. Tell me one thing to cut to make it sharper.\n4. Give me the fastest, cheapest test to de-risk it this week.\nBe direct — I want the truth, not encouragement.`;
+  }
+
+  function build() {
+    if (!v('name') && FIELDS.filter(([k])=>v(k)).length<2) { alert('Fill in a few sections first.'); return; }
+    g('out').innerHTML = `<div class="panel">`+
+      FIELDS.slice(1).map(([k,l])=>`<div class="bp"><h4>${l}</h4><p>${esc(v(k)||'—')}</p></div>`).join('') +
+      `</div>`;
+    g('out').scrollIntoView({ behavior:'smooth' });
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+  function copyBp(){ navigator.clipboard.writeText(blueprintMd()).then(()=>alert('Blueprint copied!'),()=>alert('Copy failed.')); }
+  function copyStress(){ navigator.clipboard.writeText(stressPrompt()).then(()=>alert('Stress-test prompt copied — paste it into Claude.'),()=>alert('Copy failed.')); }
+  function dlMd() {
+    const t = blueprintMd() + `\n\n---\n\n# Claude Stress-Test Prompt\n\n\`\`\`\n${stressPrompt()}\n\`\`\``;
+    const b = new Blob([t],{type:'text/markdown'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=(v('name')||'business-blueprint').toLowerCase().replace(/[^a-z0-9]+/g,'-')+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  meter();
+</script>
+</body>
+</html>

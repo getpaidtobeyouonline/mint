@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Voice Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  textarea, select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  textarea { min-height: 160px; resize: vertical; }
+  textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .match-block { text-align: center; padding: 8px 0 18px; }
+  .match-pct {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 70px;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .match-label { font-size: 13px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .verdict { font-family: 'Playfair Display', serif; font-size: 22px; margin-top: 6px; }
+  .summary { opacity: 0.85; font-size: 14px; margin-top: 4px; }
+  .slider-row {
+    margin-bottom: 16px;
+  }
+  .slider-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+  .slider-track {
+    position: relative;
+    height: 8px;
+    background: #4C724C;
+    border-radius: 4px;
+  }
+  .target-marker, .actual-marker {
+    position: absolute;
+    top: -4px;
+    height: 16px;
+    border-radius: 2px;
+    transition: left 0.5s;
+  }
+  .target-marker {
+    width: 3px;
+    background: #BFD8BF;
+  }
+  .actual-marker {
+    width: 6px;
+    background: #5AE57A;
+    border-radius: 3px;
+    top: -8px;
+    height: 24px;
+  }
+  .slider-key {
+    display: flex;
+    gap: 14px;
+    font-size: 11px;
+    margin-top: 10px;
+    opacity: 0.75;
+  }
+  .key-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .feedback { list-style: none; }
+  .feedback li {
+    padding: 11px 0 11px 28px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .feedback li:last-child { border-bottom: none; }
+  .feedback li.good:before { content: "✓"; color: #5AE57A; position: absolute; left: 4px; font-weight: 700; }
+  .feedback li.fix:before { content: "→"; color: #5AE57A; opacity: 0.85; position: absolute; left: 4px; font-weight: 700; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Brand Voice Checker</h1>
+  <p class="subtitle">Pick your brand voice. Paste your content. See how closely it matches — and what to fix.</p>
+
+  <div class="card">
+    <label>Your brand voice</label>
+    <select id="voice">
+      <option value="warm">Warm & Personal</option>
+      <option value="bold">Bold & Direct</option>
+      <option value="playful">Playful & Witty</option>
+      <option value="expert">Expert & Authoritative</option>
+      <option value="calm">Calm & Reassuring</option>
+      <option value="raw">Raw & Honest</option>
+    </select>
+    <label>Paste your content</label>
+    <textarea id="content" placeholder="Paste a caption, email, blog snippet — anything you want to check."></textarea>
+    <button onclick="check()">Check My Voice</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <div class="match-block">
+        <div class="match-label">Voice match score</div>
+        <div class="match-pct" id="matchPct">0%</div>
+        <div class="verdict" id="verdict">—</div>
+        <div class="summary" id="summary"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:14px;">Voice Profile vs Your Content</label>
+      <div id="sliders"></div>
+      <div class="slider-key">
+        <span><span class="key-dot" style="background:#BFD8BF;"></span> Brand target</span>
+        <span><span class="key-dot" style="background:#5AE57A;"></span> Your content</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">What's On Brand</label>
+      <ul class="feedback" id="onBrand"></ul>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:10px;">What to Adjust</label>
+      <ul class="feedback" id="adjust"></ul>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const VOICE_TARGETS = {
+  warm:    {formal: 25, energy: 50, warmth: 90, directness: 50, depth: 60},
+  bold:    {formal: 35, energy: 85, warmth: 40, directness: 95, depth: 60},
+  playful: {formal: 15, energy: 85, warmth: 75, directness: 65, depth: 35},
+  expert:  {formal: 80, energy: 50, warmth: 35, directness: 70, depth: 90},
+  calm:    {formal: 50, energy: 25, warmth: 80, directness: 45, depth: 65},
+  raw:     {formal: 15, energy: 65, warmth: 70, directness: 85, depth: 75}
+};
+
+const VOICE_NAMES = {
+  warm: 'Warm & Personal', bold: 'Bold & Direct', playful: 'Playful & Witty',
+  expert: 'Expert & Authoritative', calm: 'Calm & Reassuring', raw: 'Raw & Honest'
+};
+
+function analyseText(text) {
+  const lower = text.toLowerCase();
+  const words = text.split(/\s+/).filter(Boolean);
+  const wc = words.length || 1;
+  const sentences = text.split(/[.!?\n]+/).filter(s => s.trim());
+  const avgWps = wc / (sentences.length || 1);
+
+  const personalCount = (lower.match(/\b(i|my|me|we|our|you|your)\b/g) || []).length;
+  const contractions = (lower.match(/'(re|ve|ll|s|d|m|t)\b/g) || []).length;
+  const exclaims = (text.match(/!/g) || []).length;
+  const questions = (text.match(/\?/g) || []).length;
+  const emojis = (text.match(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu) || []).length;
+  const longWords = words.filter(w => w.length > 8).length;
+  const slang = (lower.match(/\b(yeah|gonna|wanna|kinda|sorta|honestly|literally|stuff|nope|yep|hey)\b/g) || []).length;
+  const heart = (lower.match(/\b(love|grateful|honest|real|together|friend|share|listen|hold|feel)\b/g) || []).length;
+
+  const formal = Math.min(100, Math.max(0, 50 - contractions * 6 - slang * 8 + (longWords / wc) * 200 - exclaims * 4));
+  const energy = Math.min(100, 30 + exclaims * 8 + (avgWps < 10 ? 20 : 0) + emojis * 6 + (slang * 4));
+  const warmth = Math.min(100, 25 + (personalCount / wc) * 200 + heart * 10 + emojis * 4);
+  const directness = Math.min(100, 30 + (avgWps < 12 ? 30 : avgWps < 18 ? 15 : 0) + (questions * 6) + (slang * 3));
+  const depth = Math.min(100, 25 + (wc > 80 ? 30 : wc / 4) + longWords * 2 + (avgWps > 14 ? 15 : 0));
+
+  return {
+    formal: Math.round(formal),
+    energy: Math.round(energy),
+    warmth: Math.round(warmth),
+    directness: Math.round(directness),
+    depth: Math.round(depth)
+  };
+}
+
+const LABELS = {
+  formal: ['Casual', 'Formal'],
+  energy: ['Quiet', 'High energy'],
+  warmth: ['Cool', 'Warm'],
+  directness: ['Layered', 'Direct'],
+  depth: ['Light', 'Deep']
+};
+
+function check() {
+  const text = document.getElementById('content').value.trim();
+  const voice = document.getElementById('voice').value;
+  if (!text) { alert('Paste your content first.'); return; }
+
+  const actual = analyseText(text);
+  const target = VOICE_TARGETS[voice];
+
+  const dims = Object.keys(target);
+  let totalDiff = 0;
+  dims.forEach(d => { totalDiff += Math.abs(actual[d] - target[d]); });
+  const avgDiff = totalDiff / dims.length;
+  const match = Math.max(0, Math.round(100 - avgDiff));
+
+  let verdict, summary;
+  if (match >= 80) { verdict = 'On brand'; summary = `Reads cleanly as ${VOICE_NAMES[voice]}. Ship it.`; }
+  else if (match >= 65) { verdict = 'Mostly on brand'; summary = 'Close to your voice — a few tweaks would tighten it.'; }
+  else if (match >= 50) { verdict = 'Drifting'; summary = `Reads off-voice in spots. Worth a revision pass before publishing.`; }
+  else { verdict = 'Off brand'; summary = `This doesn't sound like ${VOICE_NAMES[voice]}. Rewrite recommended.`; }
+
+  document.getElementById('matchPct').textContent = match + '%';
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('summary').textContent = summary;
+
+  document.getElementById('sliders').innerHTML = dims.map(d => `
+    <div class="slider-row">
+      <div class="slider-head">
+        <span>${LABELS[d][0]}</span>
+        <span style="opacity:0.7;">${d.charAt(0).toUpperCase() + d.slice(1)}</span>
+        <span>${LABELS[d][1]}</span>
+      </div>
+      <div class="slider-track">
+        <div class="target-marker" style="left:calc(${target[d]}% - 1.5px);"></div>
+        <div class="actual-marker" style="left:calc(${actual[d]}% - 3px);"></div>
+      </div>
+    </div>
+  `).join('');
+
+  const onBrand = [];
+  const adjust = [];
+  dims.forEach(d => {
+    const diff = actual[d] - target[d];
+    const absDiff = Math.abs(diff);
+    if (absDiff < 15) {
+      onBrand.push(`${d.charAt(0).toUpperCase() + d.slice(1)} matches your brand target.`);
+    } else {
+      const direction = diff > 0 ? LABELS[d][1].toLowerCase() : LABELS[d][0].toLowerCase();
+      const opposite = diff > 0 ? LABELS[d][0].toLowerCase() : LABELS[d][1].toLowerCase();
+      adjust.push(`Too ${direction} on the ${d} dimension — dial it back toward ${opposite}.`);
+    }
+  });
+
+  if (!onBrand.length) onBrand.push('Few aligned dimensions — consider a full rewrite using your voice samples.');
+  if (!adjust.length) adjust.push('Nothing to fix. This piece is dialed-in.');
+
+  document.getElementById('onBrand').innerHTML = onBrand.map(t => `<li class="good">${t}</li>`).join('');
+  document.getElementById('adjust').innerHTML = adjust.map(t => `<li class="fix">${t}</li>`).join('');
+
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Burnout Prevention Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 14px; }
+  .qt { font-size: .93rem; margin-bottom: 6px; }
+  .scale { display: flex; gap: 6px; }
+  .scale label { flex: 1; }
+  .scale input { display: none; }
+  .scale span { display: block; text-align: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 0; cursor: pointer; font-size: .9rem; }
+  .scale input:checked + span { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; opacity: .55; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  .score { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Burnout Prevention Checker</h1>
+  <p class="sub">Rate each statement 1 (never) to 5 (very often) for an honest check-in.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">Check My Risk</button>
+    <div class="result" id="result"></div>
+    <div class="note">This is a self-reflection tool, not a medical or clinical assessment. If you are struggling, please talk to a doctor or someone you trust.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    'I feel drained before the workday has even started.',
+    'I struggle to switch off from work in the evenings or at weekends.',
+    'Small tasks feel heavier than they used to.',
+    'I feel cynical or detached about my work.',
+    'My sleep is affected by work stress.',
+    'I have stopped doing things I used to enjoy outside work.',
+    'I feel I am running on empty rather than recharging.',
+    'I get irritable or short-tempered more easily.',
+    'I doubt whether my work makes a difference.',
+    'I keep pushing through instead of resting.'
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((q,i)=>{
+    let h='<div class="q"><p class="qt">'+(i+1)+'. '+q+'</p><div class="scale">';
+    for(let n=1;n<=5;n++) h+='<label><input type="radio" name="q'+i+'" value="'+n+'"><span>'+n+'</span></label>';
+    h+='</div><div class="ends"><span>Never</span><span>Very often</span></div></div>';
+    g('quiz').insertAdjacentHTML('beforeend',h);
+  });
+  function result(){
+    let total=0;
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please rate all statements.'); return; } total+=+s.value; }
+    const max=Q.length*5, pct=Math.round(total/max*100);
+    let band,msg;
+    if(pct>=75){ band='High Strain — Act Now'; msg='Several strong warning signs are showing. Treat rest as urgent: reduce load where you can, protect sleep, and reach out for support this week.'; }
+    else if(pct>=55){ band='Elevated — Take It Seriously'; msg='You are carrying real strain. Build in recovery now, before it deepens — boundaries, breaks, and time genuinely off.'; }
+    else if(pct>=35){ band='Some Pressure — Stay Watchful'; msg='You are coping but the load is noticeable. Keep your recharge habits strong and watch your highest-scoring areas.'; }
+    else { band='Low Risk — Keep It Up'; msg='You are managing your energy well. Keep protecting the habits and boundaries that keep you steady.'; }
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<div class="score">'+total+' / '+max+'</div><h2>'+band+'</h2><p>'+msg+'</p><p style="opacity:.7;font-size:.86rem;margin-top:8px">Look at the statements you scored 4 or 5 — those are where to focus first.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

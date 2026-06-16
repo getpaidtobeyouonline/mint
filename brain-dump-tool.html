@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Dump Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 600px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 6px; }
+  .card-hint { font-size: 0.8rem; color: #BFD8BF; font-style: italic; margin-bottom: 16px; }
+
+  /* Phase indicators */
+  .phases { display: flex; gap: 0; max-width: 600px; margin: 0 auto 24px; border-radius: 10px; overflow: hidden; border: 1px solid #4C724C; }
+  .phase-step { flex: 1; padding: 9px 6px; text-align: center; font-size: 0.78rem; color: #5A845A; background: #325132; transition: all 0.2s; }
+  .phase-step.active { background: #C9A84C22; color: #5AE57A; font-weight: 500; }
+  .phase-step.done { background: #2E4D2E; color: #5AE57A; }
+
+  /* Dump phase */
+  .dump-input { width: 100%; background: #325132; border: 1px solid #4C724C; color: #FFFFFF; padding: 11px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; margin-bottom: 10px; }
+  .dump-input:focus { border-color: #5AE57A; }
+  .dump-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #3C603C; }
+  .dump-item:last-child { border-bottom: none; }
+  .dump-num { color: #4C724C; font-size: 0.78rem; width: 22px; flex-shrink: 0; }
+  .dump-text { flex: 1; font-size: 0.9rem; color: #F0EBE0aa; }
+  .del-btn { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; padding: 2px 5px; }
+  .del-btn:hover { color: #5AE57A; }
+  .dump-count { font-size: 0.8rem; color: #BFD8BF; margin-bottom: 12px; }
+  .btn-gold { background: #5AE57A; color: #325132; border: none; padding: 11px 28px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.95rem; cursor: pointer; }
+  .btn-gold:hover { background: #5AE57A; }
+  .btn-gold:disabled { opacity: 0.4; cursor: default; }
+
+  /* Process phase */
+  .process-card { background: #325132; border: 1px solid #4C724C; border-radius: 10px; padding: 28px 22px; text-align: center; margin-bottom: 16px; }
+  .process-item-text { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #FFFFFF; line-height: 1.4; margin-bottom: 4px; }
+  .process-progress { font-size: 0.78rem; color: #5A845A; margin-bottom: 20px; }
+  .process-bar { background: #3C603C; border-radius: 4px; height: 4px; margin-bottom: 24px; overflow: hidden; }
+  .process-fill { height: 100%; background: #5AE57A; border-radius: 4px; transition: width 0.4s; }
+  .cat-btns { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .cat-btn { border: 2px solid; border-radius: 8px; padding: 9px 16px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; cursor: pointer; background: transparent; transition: all 0.15s; }
+  .cat-btn:hover { opacity: 0.8; }
+  .cat-task    { border-color: #5AE57A; color: #5AE57A; }   .cat-task:hover    { background: #C9A84C22; }
+  .cat-idea    { border-color: #5AE57A; color: #5AE57A; }   .cat-idea:hover    { background: #7dd69a22; }
+  .cat-worry   { border-color: #5AE57A; color: #5AE57A; }   .cat-worry:hover   { background: #e0707022; }
+  .cat-someday { border-color: #5AE57A; color: #5AE57A; }   .cat-someday:hover { background: #6aaae022; }
+  .cat-drop    { border-color: #4C724C;    color: #BFD8BF;    }   .cat-drop:hover    { background: #ffffff0a; }
+
+  /* Review phase */
+  .review-section { margin-bottom: 20px; }
+  .review-head { font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .review-head::after { content: ''; flex: 1; height: 1px; background: currentColor; opacity: 0.15; }
+  .review-item { font-size: 0.92rem; padding: 7px 0; border-bottom: 1px solid #3C603C; color: #F0EBE0aa; }
+  .review-item:last-child { border-bottom: none; }
+  .action-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .copy-note { font-size: 0.78rem; color: #BFD8BF; margin-top: 8px; height: 16px; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.88rem; padding: 14px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Brain Dump Tool</h1>
+<p class="subtitle">Empty your head. Sort what matters. Reclaim your focus.</p>
+
+<div class="phases">
+  <div class="phase-step active" id="ph0">① Dump</div>
+  <div class="phase-step" id="ph1">② Process</div>
+  <div class="phase-step" id="ph2">③ Review</div>
+</div>
+
+<!-- Dump phase -->
+<div id="dumpPhase">
+  <div class="card">
+    <div class="card-title">Empty Your Mind</div>
+    <div class="card-hint">Type anything — tasks, ideas, worries, random thoughts. Don't judge, just dump.</div>
+    <input class="dump-input" id="dumpInput" placeholder="What's on your mind? Press Enter to add…" maxlength="200" autofocus />
+    <div class="dump-count" id="dumpCount"></div>
+    <div id="dumpList"></div>
+  </div>
+  <div style="max-width:600px;margin:0 auto;text-align:right">
+    <button class="btn-gold" id="processBtn" onclick="startProcess()" disabled>Process My Dump →</button>
+  </div>
+</div>
+
+<!-- Process phase -->
+<div id="processPhase" style="display:none">
+  <div class="card">
+    <div class="card-title">What is this?</div>
+    <div class="card-hint">Read each item and decide where it belongs. No overthinking.</div>
+    <div class="process-bar"><div class="process-fill" id="procFill"></div></div>
+    <div class="process-card">
+      <div class="process-progress" id="procProgress"></div>
+      <div class="process-item-text" id="procText"></div>
+    </div>
+    <div class="cat-btns">
+      <button class="cat-btn cat-task"    onclick="categorise('task')"   >✦ Do It</button>
+      <button class="cat-btn cat-idea"    onclick="categorise('idea')"   >💡 Idea</button>
+      <button class="cat-btn cat-worry"   onclick="categorise('worry')"  >⚡ Worry</button>
+      <button class="cat-btn cat-someday" onclick="categorise('someday')">☁ Someday</button>
+      <button class="cat-btn cat-drop"    onclick="categorise('drop')"   >✕ Drop</button>
+    </div>
+  </div>
+</div>
+
+<!-- Review phase -->
+<div id="reviewPhase" style="display:none">
+  <div class="card">
+    <div class="card-title" style="margin-bottom:20px">Your Sorted Dump</div>
+    <div id="reviewContent"></div>
+    <div class="action-row" style="margin-top:16px;padding-top:14px;border-top:1px solid #3C603C">
+      <button class="btn-gold" onclick="copyAll()">Copy All</button>
+      <button class="btn-ghost" onclick="startFresh()">Start Fresh</button>
+    </div>
+    <div class="copy-note" id="copyNote"></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const CATS = {
+    task:    { label: 'Do It',   color: '#5AE57A' },
+    idea:    { label: 'Ideas',   color: '#5AE57A' },
+    worry:   { label: 'Worries', color: '#5AE57A' },
+    someday: { label: 'Someday', color: '#5AE57A' },
+    drop:    { label: 'Dropped', color: '#5A845A'    },
+  };
+
+  let items = JSON.parse(localStorage.getItem('bdt_items') || '[]');
+  let phase = localStorage.getItem('bdt_phase') || 'dump';
+  let procQueue = [];
+  let procIdx = 0;
+
+  function save() {
+    localStorage.setItem('bdt_items', JSON.stringify(items));
+    localStorage.setItem('bdt_phase', phase);
+  }
+
+  function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // --- DUMP ---
+  function addItem() {
+    const input = document.getElementById('dumpInput');
+    const text = input.value.trim(); if (!text) return;
+    items.push({ id: Date.now(), text, cat: null });
+    save(); renderDump(); input.value = ''; input.focus();
+  }
+
+  function removeItem(id) { items = items.filter(i => i.id !== id); save(); renderDump(); }
+
+  function renderDump() {
+    const unprocessed = items.filter(i => i.cat === null);
+    document.getElementById('processBtn').disabled = unprocessed.length === 0;
+    document.getElementById('dumpCount').textContent = unprocessed.length
+      ? `${unprocessed.length} item${unprocessed.length !== 1 ? 's' : ''} added` : '';
+    document.getElementById('dumpList').innerHTML = unprocessed.length
+      ? unprocessed.map((it, i) => `
+          <div class="dump-item">
+            <span class="dump-num">${i+1}.</span>
+            <span class="dump-text">${esc(it.text)}</span>
+            <button class="del-btn" onclick="removeItem(${it.id})">✕</button>
+          </div>`).join('')
+      : '';
+  }
+
+  // --- PROCESS ---
+  function startProcess() {
+    procQueue = items.filter(i => i.cat === null).map(i => i.id);
+    procIdx = 0; phase = 'process'; save(); showPhase();
+  }
+
+  function categorise(cat) {
+    const id = procQueue[procIdx];
+    const item = items.find(i => i.id === id);
+    if (item) item.cat = cat;
+    procIdx++;
+    if (procIdx >= procQueue.length) { phase = 'review'; save(); showPhase(); }
+    else { save(); renderProcess(); }
+  }
+
+  function renderProcess() {
+    const id = procQueue[procIdx];
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    const done = procIdx, total = procQueue.length;
+    document.getElementById('procProgress').textContent = `${done} of ${total} processed`;
+    document.getElementById('procFill').style.width = (done / total * 100) + '%';
+    document.getElementById('procText').textContent = item.text;
+  }
+
+  // --- REVIEW ---
+  function renderReview() {
+    const order = ['task','idea','worry','someday','drop'];
+    let html = '';
+    order.forEach(cat => {
+      const group = items.filter(i => i.cat === cat);
+      if (!group.length) return;
+      const c = CATS[cat];
+      html += `<div class="review-section">
+        <div class="review-head" style="color:${c.color}">${c.label} (${group.length})</div>
+        ${group.map(i => `<div class="review-item">${esc(i.text)}</div>`).join('')}
+      </div>`;
+    });
+    document.getElementById('reviewContent').innerHTML = html || '<p class="empty">Nothing categorised.</p>';
+  }
+
+  function copyAll() {
+    const order = ['task','idea','worry','someday'];
+    const lines = [];
+    order.forEach(cat => {
+      const group = items.filter(i => i.cat === cat);
+      if (!group.length) return;
+      lines.push(`\n${CATS[cat].label.toUpperCase()}`);
+      group.forEach(i => lines.push(`- ${i.text}`));
+    });
+    navigator.clipboard.writeText(lines.join('\n').trim()).then(() => {
+      const note = document.getElementById('copyNote');
+      note.textContent = 'Copied to clipboard ✓';
+      setTimeout(() => note.textContent = '', 2500);
+    });
+  }
+
+  function startFresh() {
+    if (!confirm('Clear everything and start a new brain dump?')) return;
+    items = []; phase = 'dump'; procQueue = []; procIdx = 0;
+    save(); showPhase();
+  }
+
+  // --- PHASE CONTROL ---
+  function setPhaseIndicator(active) {
+    ['ph0','ph1','ph2'].forEach((id, i) => {
+      const el = document.getElementById(id);
+      const phases = ['dump','process','review'];
+      el.className = 'phase-step' + (phases[i] === active ? ' active' : i < phases.indexOf(active) ? ' done' : '');
+    });
+  }
+
+  function showPhase() {
+    document.getElementById('dumpPhase').style.display    = phase === 'dump'    ? '' : 'none';
+    document.getElementById('processPhase').style.display = phase === 'process' ? '' : 'none';
+    document.getElementById('reviewPhase').style.display  = phase === 'review'  ? '' : 'none';
+    setPhaseIndicator(phase);
+    if (phase === 'dump')    renderDump();
+    if (phase === 'process') renderProcess();
+    if (phase === 'review')  renderReview();
+  }
+
+  document.getElementById('dumpInput').addEventListener('keydown', e => { if (e.key === 'Enter') addItem(); });
+  showPhase();
+</script>
+</body>
+</html>

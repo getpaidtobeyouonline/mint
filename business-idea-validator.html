@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Business Idea Validator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+      padding: 40px 16px 70px;
+    }
+    h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.7rem,5vw,2.5rem); color: #5AE57A; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; opacity: 0.55; font-size: 0.88rem; margin-bottom: 28px; }
+    .wrap { width: 100%; max-width: 520px; }
+    .step-label { font-size: 0.73rem; opacity: 0.38; text-align: center; margin-bottom: 10px; letter-spacing: 0.06em; text-transform: uppercase; }
+    .prog-bar { height: 3px; background: #3C603C; border-radius: 2px; margin-bottom: 30px; overflow: hidden; }
+    .prog-fill { height: 100%; background: #5AE57A; border-radius: 2px; transition: width 0.4s ease; }
+    .question { display: none; }
+    .question.active { display: block; }
+    .q-text { font-family: 'Playfair Display', serif; font-size: clamp(1.05rem,3vw,1.3rem); line-height: 1.45; margin-bottom: 22px; }
+    .option {
+      background: #3C603C; border: 2px solid #3C603C; border-radius: 12px;
+      padding: 15px 18px; margin-bottom: 10px; cursor: pointer; font-size: 0.92rem;
+      line-height: 1.45; transition: border-color 0.18s, background 0.18s; user-select: none;
+    }
+    .option:hover { border-color: #4C724C; }
+    .option.selected { border-color: #5AE57A; background: #2E4D2E; }
+    .nav { display: flex; gap: 10px; margin-top: 22px; }
+    .btn-next {
+      flex: 1; background: #5AE57A; color: #325132; border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700;
+      padding: 13px; cursor: pointer; transition: opacity 0.2s;
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .btn-next:disabled { opacity: 0.28; cursor: not-allowed; }
+    .btn-next:not(:disabled):hover { opacity: 0.85; }
+    .btn-back {
+      background: transparent; border: 1px solid #4C724C; color: #FFFFFF;
+      border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
+      padding: 13px 18px; cursor: pointer; transition: border-color 0.2s;
+    }
+    .btn-back:hover { border-color: #5AE57A; }
+    .results { display: none; }
+    .results.show { display: block; }
+    .score-ring {
+      width: 140px; height: 140px; border-radius: 50%; border: 3px solid #5AE57A;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      margin: 0 auto 22px; background: #3C603C;
+    }
+    .score-num { font-family: 'Playfair Display', serif; font-size: 2.8rem; color: #5AE57A; line-height: 1; }
+    .score-sub { font-size: 0.75rem; opacity: 0.38; margin-top: 2px; }
+    .verdict { font-family: 'Playfair Display', serif; font-size: 1.5rem; text-align: center; margin-bottom: 6px; }
+    .verdict-sub { text-align: center; opacity: 0.5; font-size: 0.87rem; margin-bottom: 24px; }
+    .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+    .card-title { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #5AE57A; margin-bottom: 14px; }
+    .b-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #3C603C; font-size: 0.86rem; }
+    .b-row:last-child { border-bottom: none; }
+    .b-label { opacity: 0.6; }
+    .dots { display: flex; gap: 5px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #4C724C; }
+    .dot.on { background: #5AE57A; }
+    .insight { background: #325132; border-left: 3px solid #5AE57A; border-radius: 4px; padding: 14px 16px; margin-bottom: 12px; font-size: 0.87rem; line-height: 1.65; opacity: 0.85; }
+    .btn-restart { width: 100%; background: transparent; border: 1px solid #4C724C; color: #FFFFFF; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.87rem; padding: 11px; cursor: pointer; transition: border-color 0.2s; }
+    .btn-restart:hover { border-color: #5AE57A; }
+    footer { margin-top: 48px; font-size: 0.7rem; opacity: 0.3; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>Business Idea Validator</h1>
+  <p class="subtitle">7 questions. Find out if your idea is ready to build.</p>
+
+  <div class="wrap">
+    <div class="step-label" id="step-label"></div>
+    <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    <div id="q-wrap"></div>
+    <div class="nav" id="nav">
+      <button class="btn-back" id="btn-back" onclick="back()">← Back</button>
+      <button class="btn-next" id="btn-next" onclick="next()" disabled>Next →</button>
+    </div>
+    <div class="results" id="results"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+
+  <script>
+    const QS = [
+      { label: 'Problem Urgency',  q: 'How painful is the problem you\'re solving?', opts: [
+        { t: 'Burning and urgent — people actively search for solutions to it', p: 5 },
+        { t: 'A real frustration, but not top of mind for most people',         p: 3 },
+        { t: 'More of a nice-to-have than a need-to-have',                       p: 1 },
+      ]},
+      { label: 'Audience Clarity', q: 'How well do you know your target buyer?', opts: [
+        { t: 'Very specific — I can describe them in detail and find them online', p: 5 },
+        { t: 'I have a general audience in mind',                                   p: 3 },
+        { t: 'I haven\'t narrowed it down yet',                                     p: 1 },
+      ]},
+      { label: 'Proof of Demand',  q: 'Is anyone already paying for something like this?', opts: [
+        { t: 'Yes — competitors exist and are clearly doing well',       p: 5 },
+        { t: 'I\'ve seen a few paid solutions but the market feels thin', p: 3 },
+        { t: 'I haven\'t researched this yet',                            p: 1 },
+      ]},
+      { label: 'Creator Edge',     q: 'Why are YOU the right person to build this?', opts: [
+        { t: 'I have lived experience, results, and credibility in this space', p: 5 },
+        { t: 'I have relevant skills or background knowledge',                  p: 3 },
+        { t: 'It\'s mostly an opportunity I spotted',                            p: 1 },
+      ]},
+      { label: 'Speed to Market',  q: 'How fast could you ship a first version?', opts: [
+        { t: 'Within 2 weeks', p: 5 },
+        { t: '1–2 months',     p: 3 },
+        { t: '3+ months',      p: 1 },
+      ]},
+      { label: 'Revenue Clarity',  q: 'How clear is your path to making money?', opts: [
+        { t: 'Clear product, clear price, clear buyer',     p: 5 },
+        { t: 'I have a general idea of how I\'ll monetize', p: 3 },
+        { t: 'Still figuring out the revenue model',         p: 1 },
+      ]},
+      { label: 'Staying Power',    q: 'How long could you create content around this topic?', opts: [
+        { t: 'Indefinitely — I\'m genuinely obsessed', p: 5 },
+        { t: 'A year or two for sure',                  p: 3 },
+        { t: 'Until I hit my income goal',              p: 1 },
+      ]},
+    ];
+
+    let cur = 0, ans = new Array(QS.length).fill(null);
+
+    function render() {
+      document.getElementById('q-wrap').innerHTML = QS.map((q, i) => `
+        <div class="question${i === cur ? ' active' : ''}">
+          <div class="q-text">${q.q}</div>
+          ${q.opts.map((o, oi) => `
+            <div class="option${ans[i] === oi ? ' selected' : ''}" onclick="pick(${i},${oi})">${o.t}</div>
+          `).join('')}
+        </div>`).join('');
+      document.getElementById('step-label').textContent = `Question ${cur + 1} of ${QS.length}`;
+      document.getElementById('prog-fill').style.width = ((cur / QS.length) * 100) + '%';
+      document.getElementById('btn-back').style.visibility = cur > 0 ? 'visible' : 'hidden';
+      document.getElementById('btn-next').disabled = ans[cur] === null;
+      document.getElementById('btn-next').textContent = cur === QS.length - 1 ? 'See Results →' : 'Next →';
+    }
+
+    function pick(qi, oi) { ans[qi] = oi; render(); }
+
+    function next() {
+      if (ans[cur] === null) return;
+      if (cur < QS.length - 1) { cur++; render(); }
+      else showResults();
+    }
+
+    function back() { if (cur > 0) { cur--; render(); } }
+
+    function showResults() {
+      document.getElementById('nav').style.display = 'none';
+      document.getElementById('q-wrap').style.display = 'none';
+      document.getElementById('step-label').style.display = 'none';
+      document.querySelector('.prog-bar').style.display = 'none';
+
+      const total = ans.reduce((s, a, i) => s + (a !== null ? QS[i].opts[a].p : 0), 0);
+      const max = QS.length * 5, pct = Math.round((total / max) * 100);
+      const [verdict, sub, insight] = pct >= 80
+        ? ['Green Light', 'Strong fundamentals. Ship it.',
+           'You have a clear problem, a defined buyer, and proof the market exists. Stop validating and start building. Your first version doesn\'t need to be perfect — it needs to exist.']
+        : pct >= 60
+        ? ['Strong Potential', 'Solid foundation — address the gaps before building.',
+           'Your idea has real promise, but a few weak spots could cost you later. Focus on the areas where you scored lowest. Clarity now saves weeks of building the wrong thing.']
+        : pct >= 40
+        ? ['Needs Work', 'Validate more before you build anything.',
+           'There are significant gaps between where your idea is and where it needs to be. Talk to 5 potential customers this week and pressure-test your assumptions before investing time in a product.']
+        : ['Rethink the Angle', 'The fundamentals aren\'t there yet.',
+           'This idea needs more research before building. That\'s not failure — it\'s the whole point of validating early. The best pivot happens before you\'ve built anything.'];
+
+      document.getElementById('results').innerHTML = `
+        <div class="score-ring">
+          <div class="score-num">${total}</div>
+          <div class="score-sub">out of ${max}</div>
+        </div>
+        <div class="verdict">${verdict}</div>
+        <div class="verdict-sub">${sub}</div>
+        <div class="card">
+          <div class="card-title">Score Breakdown</div>
+          ${QS.map((q, i) => {
+            const pts = ans[i] !== null ? QS[i].opts[ans[i]].p : 0;
+            return `<div class="b-row">
+              <span class="b-label">${q.label}</span>
+              <div class="dots">${[1,2,3,4,5].map(n => `<div class="dot${n <= pts ? ' on' : ''}"></div>`).join('')}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="insight">${insight}</div>
+        <button class="btn-restart" onclick="restart()">Validate Another Idea</button>`;
+      document.getElementById('results').classList.add('show');
+    }
+
+    function restart() {
+      cur = 0; ans = new Array(QS.length).fill(null);
+      ['nav','q-wrap','step-label'].forEach(id => document.getElementById(id).style.display = '');
+      document.querySelector('.prog-bar').style.display = '';
+      document.getElementById('results').classList.remove('show');
+      document.getElementById('results').innerHTML = '';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

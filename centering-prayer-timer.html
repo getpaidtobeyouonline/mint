@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Centering Prayer Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 520px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; text-align: center; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .presets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: 14px 0; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 7px 16px; cursor: pointer; font-size: .9rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .clock { font-family: 'Playfair Display', serif; font-size: 3.6rem; color: #5AE57A; margin: 6px 0; }
+  .word { font-family: 'Playfair Display', serif; font-size: 1.2rem; opacity: .7; min-height: 28px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 24px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .clock { font-size: 3rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Centering Prayer Timer</h1>
+  <p class="sub">Rest in silence. When thoughts come, gently return to your sacred word.</p>
+
+  <div class="panel">
+    <label for="word">Your sacred word</label>
+    <input id="word" placeholder="A simple word of consent — e.g. peace, here, abba">
+    <div class="presets" id="presets"></div>
+    <div class="clock" id="clock">20:00</div>
+    <div class="word" id="wordShow"></div>
+    <div>
+      <button class="btn" id="startBtn" onclick="toggle()">Begin</button>
+      <button class="btn ghost" onclick="reset()">Reset</button>
+    </div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const MINS=[10,15,20,30]; let dur=1200, rem=1200, tick=null, running=false;
+  g('word').addEventListener('input',()=>{ const w=g('word').value.trim(); g('wordShow').textContent=w?'· '+w+' ·':''; localStorage.setItem('cprt_word',w); });
+  (function(){ const w=localStorage.getItem('cprt_word'); if(w){ g('word').value=w; g('wordShow').textContent='· '+w+' ·'; } })();
+  function drawPresets(){ g('presets').innerHTML=MINS.map(m=>'<span class="pre'+(m*60===dur?' on':'')+'" onclick="setDur('+m+')">'+m+' min</span>').join(''); }
+  function setDur(m){ if(running)return; dur=m*60; rem=dur; show(); drawPresets(); }
+  function show(){ const mm=Math.floor(rem/60),ss=rem%60; g('clock').textContent=mm+':'+(ss<10?'0':'')+ss; }
+  function toggle(){ running?pause():start(); }
+  function start(){ if(rem<=0)rem=dur; running=true; g('startBtn').textContent='Pause';
+    tick=setInterval(()=>{ rem--; show(); if(rem<=0){ done(); } },1000); }
+  function pause(){ running=false; g('startBtn').textContent='Begin'; clearInterval(tick); }
+  function reset(){ pause(); rem=dur; show(); }
+  function done(){ pause(); chime(); rem=dur; show(); }
+  function chime(){
+    try{ const a=new (window.AudioContext||window.webkitAudioContext)();
+      [0,0.9].forEach(t=>{ const o=a.createOscillator(),gn=a.createGain();
+        o.frequency.value=432; o.type='sine'; o.connect(gn); gn.connect(a.destination);
+        gn.gain.setValueAtTime(0.0001,a.currentTime+t); gn.gain.exponentialRampToValueAtTime(0.3,a.currentTime+t+0.05);
+        gn.gain.exponentialRampToValueAtTime(0.0001,a.currentTime+t+0.8);
+        o.start(a.currentTime+t); o.stop(a.currentTime+t+0.9); });
+    }catch(e){ alert('Your prayer time is complete.'); }
+  }
+  drawPresets(); show();
+</script>
+</body>
+</html>

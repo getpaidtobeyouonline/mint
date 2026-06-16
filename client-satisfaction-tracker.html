@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Satisfaction Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 2rem 1rem; }
+    h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: clamp(1.8rem, 4vw, 2.6rem); text-align: center; margin-bottom: 0.4rem; }
+    .subtitle { text-align: center; opacity: 0.65; margin-bottom: 1.75rem; font-size: 0.9rem; }
+    .container { max-width: 700px; margin: 0 auto; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .stat { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-label { font-size: 0.75rem; opacity: 0.5; margin-bottom: 0.3rem; }
+    .stat-val { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+    .add-card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.3rem; margin-bottom: 1.25rem; }
+    .add-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 1rem; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; margin-bottom: 0.65rem; }
+    label { display: block; font-size: 0.78rem; opacity: 0.55; margin-bottom: 0.3rem; }
+    input[type="text"], input[type="date"], select, textarea { width: 100%; background: #3C603C; border: 1px solid #4C724C; color: #FFFFFF; padding: 0.6rem 0.85rem; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: #5AE57A; }
+    select option { background: #3C603C; }
+    input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
+    textarea { resize: vertical; }
+    .star-row { margin-bottom: 0.75rem; }
+    .stars { display: flex; gap: 0.25rem; margin-top: 0.3rem; }
+    .star { font-size: 1.75rem; cursor: pointer; color: #4C724C; transition: color 0.12s; line-height: 1; user-select: none; }
+    .star.lit { color: #5AE57A; }
+    .refer-row { display: flex; gap: 0.5rem; margin-top: 0.3rem; }
+    .refer-btn { background: #3C603C; border: 1px solid #4C724C; color: #BFD8BF; padding: 0.4rem 0.9rem; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.8rem; transition: all 0.2s; }
+    .refer-btn.active { border-color: #5AE57A; color: #5AE57A; background: rgba(201,168,76,.1); }
+    .field-mb { margin-bottom: 0.65rem; }
+    .add-btn { background: #5AE57A; color: #325132; border: none; padding: 0.75rem; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 700; cursor: pointer; width: 100%; margin-top: 0.4rem; transition: opacity 0.2s; }
+    .add-btn:hover { opacity: 0.85; }
+    .filters { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filter-btn { background: #345534; border: 1px solid #3C603C; color: #BFD8BF; padding: 0.35rem 0.8rem; border-radius: 20px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; transition: all 0.2s; }
+    .filter-btn:hover { border-color: #5AE57A; color: #FFFFFF; }
+    .filter-btn.active { background: #5AE57A; border-color: #5AE57A; color: #325132; font-weight: 700; }
+    .client-card { background: #345534; border: 1px solid #3C603C; border-radius: 10px; padding: 1.1rem; margin-bottom: 0.6rem; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.45rem; gap: 0.5rem; }
+    .client-name { font-family: 'Playfair Display', serif; font-size: 1rem; }
+    .client-sub { font-size: 0.78rem; opacity: 0.45; margin-top: 0.1rem; }
+    .card-stars { color: #5AE57A; font-size: 1rem; letter-spacing: 0.05em; white-space: nowrap; }
+    .card-meta { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.4rem; }
+    .card-date { font-size: 0.72rem; opacity: 0.35; }
+    .badge { font-size: 0.7rem; padding: 0.15rem 0.6rem; border-radius: 10px; }
+    .b-yes   { background: rgba(111,207,142,.15); color: #5AE57A; }
+    .b-maybe { background: rgba(201,168,76,.15);  color: #5AE57A; }
+    .b-no    { background: rgba(224,112,112,.15); color: #5AE57A; }
+    .card-notes { font-size: 0.82rem; opacity: 0.55; margin-top: 0.5rem; line-height: 1.55; font-style: italic; }
+    .del-btn { background: transparent; border: none; color: #4C724C; cursor: pointer; font-size: 0.85rem; transition: color 0.2s; flex-shrink: 0; padding: 0 0.2rem; }
+    .del-btn:hover { color: #5AE57A; }
+    .empty { text-align: center; opacity: 0.35; padding: 2.5rem 1rem; font-size: 0.9rem; }
+    .btn-row { display: flex; gap: 0.65rem; margin: 0.5rem 0 2.5rem; }
+    .btn-outline { background: transparent; border: 1px solid #5AE57A; color: #5AE57A; padding: 0.7rem 1rem; border-radius: 8px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; flex: 1; transition: all 0.2s; }
+    .btn-outline:hover { background: #5AE57A; color: #325132; }
+    .btn-muted { border-color: #4C724C !important; color: #BFD8BF !important; }
+    .btn-muted:hover { background: #5AE57A !important; border-color: #5AE57A !important; color: #FFFFFF !important; }
+    footer { text-align: center; opacity: 0.35; font-size: 0.78rem; margin-top: 1rem; }
+    @media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } .stat-val { font-size: 1.1rem; } }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Client Satisfaction Tracker</h1>
+  <p class="subtitle">Log feedback, track ratings, and know exactly which clients love working with you.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-label">Avg Rating</div><div class="stat-val" id="statAvg">—</div></div>
+    <div class="stat"><div class="stat-label">Total Clients</div><div class="stat-val" id="statTotal">0</div></div>
+    <div class="stat"><div class="stat-label">Happy Rate</div><div class="stat-val" id="statHappy">—</div></div>
+  </div>
+
+  <div class="add-card">
+    <div class="add-title">Log Client Feedback</div>
+    <div class="grid2">
+      <div><label>Client Name</label><input type="text" id="cName" placeholder="Client name"></div>
+      <div><label>Project / Service</label><input type="text" id="cProject" placeholder="e.g. Brand Strategy"></div>
+    </div>
+    <div class="grid2">
+      <div><label>Date</label><input type="date" id="cDate"></div>
+      <div><label>Service Type</label>
+        <select id="cType">
+          <option>Coaching</option><option>Digital Product</option><option>Done-for-You</option>
+          <option>Consulting</option><option>Course</option><option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="star-row">
+      <label>Satisfaction Rating</label>
+      <div class="stars" id="starInput">
+        <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+        <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span>
+        <span class="star" data-v="5">★</span>
+      </div>
+    </div>
+    <div class="field-mb">
+      <label>Would they refer you?</label>
+      <div class="refer-row">
+        <button class="refer-btn" onclick="setRefer('Yes',this)">👍 Yes</button>
+        <button class="refer-btn" onclick="setRefer('Maybe',this)">🤔 Maybe</button>
+        <button class="refer-btn" onclick="setRefer('No',this)">👎 No</button>
+      </div>
+    </div>
+    <div><label>Notes / Feedback (optional)</label><textarea id="cNotes" rows="2" placeholder="What did they say? Any highlights or concerns…"></textarea></div>
+    <button class="add-btn" onclick="addClient()">+ Log Feedback</button>
+  </div>
+
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+    <button class="filter-btn" onclick="setFilter(5,this)">★★★★★</button>
+    <button class="filter-btn" onclick="setFilter(4,this)">★★★★</button>
+    <button class="filter-btn" onclick="setFilter(3,this)">★★★</button>
+    <button class="filter-btn" onclick="setFilter(2,this)">★★ &amp; below</button>
+    <button class="filter-btn" onclick="setFilter('refer',this)">Would Refer</button>
+  </div>
+
+  <div id="clientList"></div>
+
+  <div class="btn-row">
+    <button class="btn-outline" id="copyBtn" onclick="copyReport()">Copy Report</button>
+    <button class="btn-outline btn-muted" onclick="confirmClear()">Clear All</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const KEY = 'gpbyo_clients_v1';
+  let clients  = JSON.parse(localStorage.getItem(KEY) || '[]');
+  let filter   = 'All';
+  let rating   = 0;
+  let referral = '';
+
+  document.getElementById('cDate').valueAsDate = new Date();
+
+  const starEls = document.querySelectorAll('#starInput .star');
+  starEls.forEach(s => {
+    s.addEventListener('click', () => { rating = +s.dataset.v; paintStars(rating); });
+    s.addEventListener('mouseenter', () => paintStars(+s.dataset.v));
+  });
+  document.getElementById('starInput').addEventListener('mouseleave', () => paintStars(rating));
+
+  function paintStars(n) { starEls.forEach(s => s.classList.toggle('lit', +s.dataset.v <= n)); }
+
+  function setRefer(val, btn) {
+    referral = val;
+    document.querySelectorAll('.refer-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(clients)); }
+  function starsStr(n) { return '★'.repeat(n)+'☆'.repeat(5-n); }
+
+  function addClient() {
+    const name    = document.getElementById('cName').value.trim();
+    const project = document.getElementById('cProject').value.trim();
+    const date    = document.getElementById('cDate').value;
+    const type    = document.getElementById('cType').value;
+    const notes   = document.getElementById('cNotes').value.trim();
+    if (!name) { document.getElementById('cName').focus(); return; }
+    if (!rating) { alert('Please select a star rating.'); return; }
+
+    clients.unshift({ id: Date.now(), name, project, date, type, rating, referral, notes });
+    save();
+    document.getElementById('cName').value    = '';
+    document.getElementById('cProject').value = '';
+    document.getElementById('cNotes').value   = '';
+    rating = 0; referral = '';
+    paintStars(0);
+    document.querySelectorAll('.refer-btn').forEach(b => b.classList.remove('active'));
+    render();
+  }
+
+  function deleteClient(id) { clients = clients.filter(c => c.id !== id); save(); render(); }
+
+  function setFilter(f, btn) {
+    filter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  function render() {
+    const n     = clients.length;
+    const avg   = n ? (clients.reduce((s,c)=>s+c.rating,0)/n) : 0;
+    const happy = n ? Math.round(clients.filter(c=>c.rating>=4).length/n*100) : 0;
+
+    document.getElementById('statAvg').textContent   = n ? avg.toFixed(1)+' ★' : '—';
+    document.getElementById('statTotal').textContent = n;
+    document.getElementById('statHappy').textContent = n ? happy+'%' : '—';
+
+    let shown = clients;
+    if      (filter===5)       shown = clients.filter(c=>c.rating===5);
+    else if (filter===4)       shown = clients.filter(c=>c.rating===4);
+    else if (filter===3)       shown = clients.filter(c=>c.rating===3);
+    else if (filter===2)       shown = clients.filter(c=>c.rating<=2);
+    else if (filter==='refer') shown = clients.filter(c=>c.referral==='Yes');
+
+    const list = document.getElementById('clientList');
+    if (!shown.length) {
+      list.innerHTML = `<div class="empty">${n?'No clients match this filter.':'No feedback logged yet — add your first client above.'}</div>`;
+      return;
+    }
+
+    const rLabel = { Yes:'👍 Would refer', Maybe:'🤔 Maybe refer', No:'👎 Would not refer' };
+    const rClass = { Yes:'b-yes', Maybe:'b-maybe', No:'b-no' };
+
+    list.innerHTML = shown.map(c=>`
+      <div class="client-card">
+        <div class="card-top">
+          <div>
+            <div class="client-name">${c.name}</div>
+            <div class="client-sub">${[c.project,c.type].filter(Boolean).join(' · ')}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:0.6rem;flex-shrink:0">
+            <span class="card-stars">${starsStr(c.rating)}</span>
+            <button class="del-btn" onclick="deleteClient(${c.id})">✕</button>
+          </div>
+        </div>
+        <div class="card-meta">
+          <span class="card-date">${c.date}</span>
+          ${c.referral?`<span class="badge ${rClass[c.referral]}">${rLabel[c.referral]}</span>`:''}
+        </div>
+        ${c.notes?`<div class="card-notes">"${c.notes}"</div>`:''}
+      </div>`).join('');
+  }
+
+  function copyReport() {
+    const n      = clients.length;
+    const avg    = n ? (clients.reduce((s,c)=>s+c.rating,0)/n).toFixed(1) : '—';
+    const happy  = n ? Math.round(clients.filter(c=>c.rating>=4).length/n*100)+'%' : '—';
+    const refers = clients.filter(c=>c.referral==='Yes').length;
+    let text = `CLIENT SATISFACTION REPORT\n${'─'.repeat(30)}\nAvg Rating:    ${avg} / 5\nTotal Clients: ${n}\nHappy Rate:    ${happy}\nWould Refer:   ${refers}\n\n`;
+    clients.forEach(c => {
+      text += `${c.name}  ${starsStr(c.rating)}\n`;
+      if (c.project) text += `  ${c.project} · ${c.type}\n`;
+      if (c.referral) text += `  Referral: ${c.referral}\n`;
+      if (c.notes) text += `  "${c.notes}"\n`;
+      text += '\n';
+    });
+    navigator.clipboard.writeText(text).then(()=>{
+      const b=document.getElementById('copyBtn'); b.textContent='Copied!';
+      setTimeout(()=>b.textContent='Copy Report',1600);
+    });
+  }
+
+  function confirmClear() {
+    if (confirm('Delete all client records? This cannot be undone.')) { clients=[]; save(); render(); }
+  }
+
+  render();
+</script>
+</body>
+</html>

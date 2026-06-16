@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Breathwork Practice Timer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 520px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 24px 20px; margin-bottom: 16px; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; text-align: left; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .orb { width: 200px; height: 200px; border-radius: 50%; margin: 22px auto; background: radial-gradient(circle, #5AE57A 0%, #5AE57A 80%); display: flex; align-items: center; justify-content: center; transition: transform 1s ease-in-out; }
+  .orb .phase { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #325132; font-weight: 700; }
+  .count { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; }
+  .meta { opacity: .75; font-size: .9rem; margin: 4px 0 14px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 26px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } .orb { width: 160px; height: 160px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Breathwork Practice Timer</h1>
+  <p class="sub">Pick a pattern, follow the orb. Slow breathing calms the nervous system in minutes.</p>
+
+  <div class="panel">
+    <label for="pat">Breathing pattern</label>
+    <select id="pat">
+      <option value="4,4,4,4">Box breathing — 4·4·4·4 (calm focus)</option>
+      <option value="4,7,8,0">4-7-8 — relaxing, for sleep</option>
+      <option value="4,0,6,0">Coherent — in 4, out 6 (balance)</option>
+      <option value="4,2,4,2">Gentle — 4·2·4·2 (beginners)</option>
+    </select>
+    <label for="mins">Session length</label>
+    <select id="mins"><option value="2">2 minutes</option><option value="3" selected>3 minutes</option><option value="5">5 minutes</option><option value="10">10 minutes</option></select>
+
+    <div class="orb" id="orb"><span class="phase" id="phase">Ready</span></div>
+    <div class="count" id="count">—</div>
+    <div class="meta" id="meta">Press start when you are settled</div>
+    <button class="btn" id="go" onclick="toggle()">Start</button>
+    <button class="btn ghost" onclick="reset()">Reset</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const NAMES=['Breathe in','Hold','Breathe out','Hold'];
+  let timer=null, running=false, phase=0, left=0, endAt=0;
+  function pattern(){ return g('pat').value.split(',').map(Number); }
+  function toggle(){ running?stop():start(); }
+  function start(){
+    const p=pattern();
+    running=true; g('go').textContent='Pause';
+    endAt=Date.now()+(+g('mins').value)*60000;
+    phase=0; left=p[0];
+    while(p[phase]===0)phase=(phase+1)%4;
+    left=p[phase];
+    paint();
+    timer=setInterval(tick,1000);
+  }
+  function stop(){ running=false; clearInterval(timer); g('go').textContent='Resume'; }
+  function reset(){ running=false; clearInterval(timer); g('go').textContent='Start'; g('phase').textContent='Ready'; g('count').textContent='—'; g('meta').textContent='Press start when you are settled'; g('orb').style.transform='scale(1)'; }
+  function tick(){
+    left--;
+    if(Date.now()>=endAt){ clearInterval(timer); running=false; g('phase').textContent='Done'; g('count').textContent='✓'; g('meta').textContent='Session complete — notice how you feel'; g('go').textContent='Start'; g('orb').style.transform='scale(1)'; return; }
+    if(left<=0){ const p=pattern(); do{ phase=(phase+1)%4; }while(p[phase]===0); left=p[phase]; }
+    paint();
+  }
+  function paint(){
+    g('phase').textContent=NAMES[phase];
+    g('count').textContent=left;
+    const remain=Math.max(0,Math.round((endAt-Date.now())/1000));
+    g('meta').textContent=Math.floor(remain/60)+':'+String(remain%60).padStart(2,'0')+' remaining';
+    g('orb').style.transform= phase===0?'scale(1.25)':phase===2?'scale(0.75)':g('orb').style.transform||'scale(1)';
+  }
+</script>
+</body>
+</html>

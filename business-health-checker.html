@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Health Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:32px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;text-align:center;margin-bottom:8px}
+.sub{text-align:center;opacity:.65;margin-bottom:32px;font-size:.93rem;line-height:1.5}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;max-width:620px;margin:0 auto 20px}
+.cat-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#5AE57A;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #4C724C}
+.question{margin-bottom:20px}
+.q-text{font-size:.93rem;line-height:1.5;margin-bottom:10px;color:#FFFFFF}
+.options{display:flex;gap:8px;flex-wrap:wrap}
+.opt{flex:1;min-width:80px}
+.opt input{display:none}
+.opt label{display:block;text-align:center;padding:9px 6px;border:1px solid #4C724C;border-radius:8px;font-size:.78rem;cursor:pointer;transition:all .2s;color:#BFD8BF;background:#325132}
+.opt input:checked+label{border-color:#5AE57A;color:#5AE57A;background:#C9A84C18;font-weight:600}
+.opt label:hover{border-color:#BFD8BF;color:#FFFFFF}
+.btn{width:100%;max-width:620px;display:block;margin:0 auto 32px;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:15px;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn:hover{opacity:.85}
+#results{max-width:620px;margin:0 auto;display:none}
+.score-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:28px;text-align:center;margin-bottom:20px}
+.score-num{font-family:'Playfair Display',serif;font-size:4rem;color:#5AE57A;line-height:1}
+.score-label{font-size:.8rem;color:#BFD8BF;margin-top:4px;margin-bottom:16px}
+.status{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:8px}
+.status-desc{font-size:.9rem;opacity:.7;line-height:1.6;max-width:400px;margin:0 auto}
+.bar-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;margin-bottom:20px}
+.bar-card h3{font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:18px;font-size:1rem}
+.bar-row{margin-bottom:14px}
+.bar-label{display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:5px}
+.bar-track{background:#325132;border-radius:20px;height:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .8s ease}
+.recs-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:24px;margin-bottom:20px}
+.recs-card h3{font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:16px;font-size:1rem}
+.rec{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.rec-num{background:#5AE57A;color:#325132;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.rec-text{font-size:.88rem;line-height:1.6;opacity:.9}
+.retry-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:13px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:8px}
+.retry-btn:hover{background:#5AE57A;color:#325132}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+</style>
+</head>
+<body>
+
+<h1>Business Health Checker</h1>
+<p class="sub">15 questions · 5 categories · instant score & action plan</p>
+
+<div id="quiz">
+</div>
+<button class="btn" onclick="getResults()">Check My Business Health →</button>
+
+<div id="results">
+  <div class="score-card">
+    <div class="score-num" id="scoreNum"></div>
+    <div class="score-label">out of 100</div>
+    <div class="status" id="statusLabel"></div>
+    <div class="status-desc" id="statusDesc"></div>
+  </div>
+  <div class="bar-card">
+    <h3>Score Breakdown by Area</h3>
+    <div id="bars"></div>
+  </div>
+  <div class="recs-card">
+    <h3>Your Top 3 Action Steps</h3>
+    <div id="recs"></div>
+  </div>
+  <button class="retry-btn" onclick="restart()">Retake the Assessment</button>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const cats = [
+  {
+    title:'💰 Revenue & Pricing',
+    key:'revenue',
+    questions:[
+      'Do you have a clear, confident pricing strategy?',
+      'Do you have at least one consistent income stream?',
+      'Do you know your monthly revenue goal and track it?'
+    ],
+    recs:[
+      'Audit your pricing — if you feel uncomfortable charging it, it\'s probably too low. Research what results-based pricing looks like in your industry.',
+      'Create one simple, consistent offer and focus all energy on selling that before adding more.',
+      'Set a monthly revenue goal and check it weekly. What gets measured gets managed.'
+    ]
+  },
+  {
+    title:'📣 Marketing & Visibility',
+    key:'marketing',
+    questions:[
+      'Do you show up consistently on at least one platform?',
+      'Do you have a clear message that attracts your ideal client?',
+      'Do you have a way to capture leads or grow your audience?'
+    ],
+    recs:[
+      'Pick ONE platform and commit to showing up 3–5x per week for 90 days. Consistency beats perfection.',
+      'Rewrite your bio using this formula: I help [who] [do what] so they can [result]. Test it in your next post.',
+      'Add a simple lead magnet (freebie, checklist, quiz) to start building a list you own.'
+    ]
+  },
+  {
+    title:'⭐ Client Experience',
+    key:'clients',
+    questions:[
+      'Do you have a clear process for onboarding new clients or customers?',
+      'Do you regularly receive testimonials or referrals?',
+      'Do clients know exactly what to expect when they work with you?'
+    ],
+    recs:[
+      'Create a simple welcome email or onboarding document that sets expectations from day one.',
+      'After your next delivery, ask one client for a testimonial. Make it easy — send them three prompt questions.',
+      'Write out your client journey from first contact to final delivery. Gaps are where trust breaks down.'
+    ]
+  },
+  {
+    title:'⚙️ Systems & Operations',
+    key:'systems',
+    questions:[
+      'Do you have tools or systems in place to run your business efficiently?',
+      'Do you track your finances (income, expenses, profit) regularly?',
+      'Do you have a weekly business routine or schedule you stick to?'
+    ],
+    recs:[
+      'Pick one area of chaos — DMs, invoicing, scheduling — and automate or systematise it this week.',
+      'Open a simple spreadsheet today and log every payment in and out. Financial clarity is power.',
+      'Block "CEO time" into your calendar weekly — even 90 minutes of focused business-building changes everything.'
+    ]
+  },
+  {
+    title:'🧠 Mindset & Clarity',
+    key:'mindset',
+    questions:[
+      'Do you have a clear vision for where your business is going in the next 12 months?',
+      'Do you feel confident talking about what you do and who you help?',
+      'Do you take consistent action even when motivation is low?'
+    ],
+    recs:[
+      'Write your 12-month vision in one paragraph. Post it somewhere you\'ll see every morning.',
+      'Practice your pitch out loud daily until it feels natural — confidence is a skill, not a trait.',
+      'Build a non-negotiable weekly action habit. One hour a day of consistent action beats a perfect plan left unexecuted.'
+    ]
+  }
+];
+
+const statuses = [
+  {min:0,max:39,label:'Needs a Reset',desc:'Your foundation needs some work — but that\'s exactly what this tool is for. Focus on one area at a time and momentum will follow.'},
+  {min:40,max:59,label:'Building Momentum',desc:'You\'ve got pieces in place, but gaps are slowing you down. Tighten your systems, sharpen your message, and results will compound.'},
+  {min:60,max:79,label:'Growing Strong',desc:'You\'re running a real business. A few targeted improvements in your weak areas will unlock the next level of growth.'},
+  {min:80,max:100,label:'Thriving Business',desc:'Your foundations are solid. Focus on scaling what\'s working and protecting your time as you grow.'}
+];
+
+function buildQuiz(){
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = cats.map((cat,ci)=>`
+    <div class="card">
+      <div class="cat-title">${cat.title}</div>
+      ${cat.questions.map((q,qi)=>`
+        <div class="question">
+          <div class="q-text">${qi+1}. ${q}</div>
+          <div class="options">
+            ${[['no','Not yet',0],['sometimes','Sometimes',1],['yes','Always',2]].map(([val,text,score])=>`
+              <div class="opt">
+                <input type="radio" name="q${ci}_${qi}" id="q${ci}_${qi}_${val}" value="${score}">
+                <label for="q${ci}_${qi}_${val}">${text}</label>
+              </div>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function getResults(){
+  const catScores=[];let totalRaw=0;
+  for(let ci=0;ci<cats.length;ci++){
+    let catRaw=0,catMax=cats[ci].questions.length*2;
+    for(let qi=0;qi<cats[ci].questions.length;qi++){
+      const sel=document.querySelector(`input[name="q${ci}_${qi}"]:checked`);
+      catRaw+=sel?parseInt(sel.value):0;
+    }
+    catScores.push({key:cats[ci].key,title:cats[ci].title,raw:catRaw,max:catMax,pct:Math.round(catRaw/catMax*100)});
+    totalRaw+=catRaw;
+  }
+  const totalPct=Math.round(totalRaw/30*100);
+  const status=statuses.find(s=>totalPct>=s.min&&totalPct<=s.max)||statuses[3];
+
+  document.getElementById('scoreNum').textContent=totalPct;
+  document.getElementById('statusLabel').textContent=status.label;
+  document.getElementById('statusDesc').textContent=status.desc;
+
+  document.getElementById('bars').innerHTML=catScores.map(c=>`
+    <div class="bar-row">
+      <div class="bar-label"><span>${c.title}</span><span>${c.pct}%</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${c.pct}%"></div></div>
+    </div>`).join('');
+
+  const sorted=[...catScores].sort((a,b)=>a.pct-b.pct).slice(0,3);
+  document.getElementById('recs').innerHTML=sorted.map((c,i)=>{
+    const ci=cats.findIndex(cat=>cat.key===c.key);
+    const worstQ=cats[ci].questions.reduce((wIdx,_,qi)=>{
+      const sel=document.querySelector(`input[name="q${ci}_${qi}"]:checked`);
+      const score=sel?parseInt(sel.value):0;
+      const wSel=document.querySelector(`input[name="q${ci}_${wIdx}"]:checked`);
+      const wScore=wSel?parseInt(wSel.value):0;
+      return score<wScore?qi:wIdx;
+    },0);
+    return `<div class="rec"><div class="rec-num">${i+1}</div><div class="rec-text"><strong>${cats[ci].title.replace(/.*\s/,'')}</strong> — ${cats[ci].recs[worstQ]}</div></div>`;
+  }).join('');
+
+  document.getElementById('quiz').style.display='none';
+  document.querySelector('.btn').style.display='none';
+  document.getElementById('results').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restart(){
+  document.getElementById('quiz').style.display='block';
+  document.querySelector('.btn').style.display='block';
+  document.getElementById('results').style.display='none';
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+buildQuiz();
+</script>
+</body>
+</html>

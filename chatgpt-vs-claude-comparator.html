@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatGPT vs Claude Comparator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 32px 20px; min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.1rem;
+    color: #5AE57A; text-align: center; margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: .8; margin-bottom: 28px; font-size: .95rem; }
+  h2 {
+    font-family: 'Playfair Display', serif; font-size: 1.35rem;
+    color: #5AE57A; margin: 36px 0 14px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; font-size: .95rem; }
+  select {
+    width: 100%; background: #2A442A; color: #FFFFFF;
+    border: 1px solid #4C724C; border-radius: 8px;
+    padding: 13px 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem;
+  }
+  select:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A; color: #325132; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem;
+    padding: 14px 24px; border-radius: 8px; cursor: pointer;
+    width: 100%; margin-top: 16px; transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  .verdict {
+    background: #2A442A; border: 1px solid #5AE57A; border-radius: 8px;
+    padding: 20px; margin-top: 22px; display: none;
+  }
+  .verdict.show { display: block; }
+  .verdict .pick { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .9rem; }
+  th, td { text-align: left; padding: 11px 10px; border-bottom: 1px solid #4C724C; }
+  th { color: #5AE57A; font-weight: 500; }
+  td:first-child { opacity: .85; }
+  footer { text-align: center; margin-top: 44px; opacity: .55; font-size: .82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ChatGPT vs Claude Comparator</h1>
+  <p class="sub">Tell us what you're trying to do. Get a straight answer on which one to reach for.</p>
+
+  <label for="task">What do you need it for?</label>
+  <select id="task">
+    <option value="">— choose a task —</option>
+    <option value="longwrite">Long-form writing &amp; editing</option>
+    <option value="code">Coding &amp; debugging</option>
+    <option value="docs">Analyzing long documents</option>
+    <option value="brainstorm">Brainstorming &amp; ideation</option>
+    <option value="research">Web research &amp; current events</option>
+    <option value="images">Generating images</option>
+    <option value="data">Data analysis &amp; spreadsheets</option>
+    <option value="reasoning">Careful reasoning &amp; nuance</option>
+  </select>
+  <button onclick="recommend()">Get My Recommendation</button>
+
+  <div id="verdict" class="verdict">
+    <div class="pick" id="pick"></div>
+    <div id="why"></div>
+  </div>
+
+  <h2>Side-by-Side</h2>
+  <table>
+    <tr><th>Dimension</th><th>ChatGPT</th><th>Claude</th></tr>
+    <tr><td>Long-form prose</td><td>Solid</td><td>Strongest</td></tr>
+    <tr><td>Coding</td><td>Strong</td><td>Strongest</td></tr>
+    <tr><td>Context window</td><td>Large</td><td>Very large</td></tr>
+    <tr><td>Live web access</td><td>Yes (built in)</td><td>Yes (in app)</td></tr>
+    <tr><td>Image generation</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Tone &amp; nuance</td><td>Good</td><td>Excellent</td></tr>
+    <tr><td>Following instructions</td><td>Good</td><td>Excellent</td></tr>
+  </table>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  var data = {
+    longwrite: ['Claude', 'Claude tends to produce more natural, less formulaic prose and holds a consistent voice over long pieces. Great for drafts, editing, and rewrites.'],
+    code:      ['Claude', 'Claude is exceptionally strong at writing, explaining, and debugging code, especially across large files. ChatGPT is a close second and a fine alternative.'],
+    docs:      ['Claude', 'Claude’s very large context window makes it ideal for digesting long PDFs, contracts, and reports without losing the thread.'],
+    brainstorm:['Either — lean ChatGPT', 'Both brainstorm well. ChatGPT often throws out a wider spread of ideas fast; Claude refines them with more nuance. Start in ChatGPT, polish in Claude.'],
+    research:  ['ChatGPT', 'ChatGPT’s built-in browsing is fast and frictionless for current events and quick fact-finding. Always verify key claims.'],
+    images:    ['ChatGPT', 'Only ChatGPT generates images. Claude is text-only, so this one isn’t a contest.'],
+    data:      ['Either — lean ChatGPT', 'ChatGPT can run code to crunch spreadsheets and make charts. Claude reasons about data clearly but won’t execute it for you.'],
+    reasoning: ['Claude', 'For nuanced, careful, instruction-faithful reasoning where tone and accuracy matter, Claude is the safer pick.']
+  };
+
+  function recommend(){
+    var key = document.getElementById('task').value;
+    if(!key){ alert('Pick a task first.'); return; }
+    var r = data[key];
+    document.getElementById('pick').textContent = 'Use ' + r[0];
+    document.getElementById('why').textContent = r[1];
+    document.getElementById('verdict').classList.add('show');
+  }
+</script>
+</body>
+</html>

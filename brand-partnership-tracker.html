@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Partnership Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; align-items: flex-end; flex-wrap: wrap; } .addrow>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 110px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; }
+  .stat .l { font-size: .69rem; opacity: .65; text-transform: uppercase; }
+  .deal { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; margin-bottom: 8px; }
+  .deal .top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: baseline; }
+  .deal .nm { font-weight: 500; }
+  .pill { font-size: .72rem; padding: 2px 9px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; cursor: pointer; }
+  .deal .meta { font-size: .8rem; opacity: .68; margin-top: 3px; }
+  .deal .x { cursor: pointer; opacity: .5; } .deal .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brand Partnership Tracker</h1>
+  <p class="sub">Every pitch, deal, and deliverable in one pipeline — so nothing (and no invoice) slips.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div style="flex:2"><label for="nm">Brand</label><input id="nm" placeholder="e.g. Brightleaf"></div>
+      <div><label for="val">Deal value ($)</label><input id="val" type="number" min="0"></div>
+      <div><label for="st">Stage</label><select id="st"><option>Pitched</option><option>Negotiating</option><option>Booked</option><option>Delivered</option><option>Paid</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sN">0</div><div class="l">Deals</div></div>
+    <div class="stat"><div class="v" id="sPipe">$0</div><div class="l">Pipeline</div></div>
+    <div class="stat"><div class="v" id="sBooked">$0</div><div class="l">Booked+</div></div>
+    <div class="stat"><div class="v" id="sPaid">$0</div><div class="l">Paid</div></div>
+  </div>
+
+  <div id="list"></div>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  const ST=['Pitched','Negotiating','Booked','Delivered','Paid'];
+  let D=JSON.parse(localStorage.getItem('bpt')||'[]');
+  const save=()=>localStorage.setItem('bpt',JSON.stringify(D));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const m=x=>'$'+Math.round(x).toLocaleString();
+  function add(){ const nm=v('nm'); if(!nm){alert('Add a brand.');return;} D.push({nm,val:parseFloat(g('val').value)||0,s:g('st').value}); g('nm').value=''; g('val').value=''; save(); render(); }
+  function cyc(i){ D[i].s=ST[(ST.indexOf(D[i].s)+1)%ST.length]; save(); render(); }
+  function del(i){ D.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all deals?')){ D=[]; save(); render(); } }
+  function render(){
+    g('sN').textContent=D.length;
+    g('sPipe').textContent=m(D.reduce((s,d)=>s+d.val,0));
+    g('sBooked').textContent=m(D.filter(d=>['Booked','Delivered','Paid'].includes(d.s)).reduce((s,d)=>s+d.val,0));
+    g('sPaid').textContent=m(D.filter(d=>d.s==='Paid').reduce((s,d)=>s+d.val,0));
+    const L=g('list');
+    if(!D.length){ L.innerHTML='<div class="empty">No partnerships tracked yet.</div>'; return; }
+    L.innerHTML=D.map((d,i)=>`<div class="deal"><div class="top"><span class="nm">${esc(d.nm)}</span><span class="pill" onclick="cyc(${i})">${d.s}</span></div>
+      <div class="meta">${m(d.val)} <span class="x" onclick="del(${i})">✕ remove</span></div></div>`).join('');
+  }
+  render();
+</script>
+</body>
+</html>

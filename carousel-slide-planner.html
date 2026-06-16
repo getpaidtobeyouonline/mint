@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carousel Slide Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .sub { opacity: 0.85; max-width: 540px; margin: 0 auto; }
+  .card {
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #5AE57A;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid rgba(240, 235, 224, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 18px;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  button:hover { transform: translateY(-1px); opacity: 0.92; }
+  button.ghost {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .slides {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+  .slide {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 10px;
+    padding: 16px;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .slide-num {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: #5AE57A;
+    margin-bottom: 8px;
+    opacity: 0.85;
+  }
+  .slide-role {
+    font-size: 0.68rem;
+    color: #5AE57A;
+    background: rgba(201, 168, 76, 0.15);
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+  .slide-title {
+    font-family: 'Playfair Display', serif;
+    color: #FFFFFF;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .slide-body { font-size: 0.85rem; opacity: 0.88; line-height: 1.45; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .actions button { flex: 1; min-width: 140px; width: auto; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Carousel Slide Planner</h1>
+    <p class="sub">Turn any idea into a save-worthy 8-slide carousel — hook, teach, recap, and convert.</p>
+  </header>
+
+  <div class="card" id="inputCard">
+    <label for="topic">Carousel topic</label>
+    <input id="topic" type="text" placeholder="e.g. how to price digital products, ditching the morning scroll" />
+
+    <label for="audience">Who it's for</label>
+    <input id="audience" type="text" placeholder="e.g. creator-educators, new freelancers" />
+
+    <label for="points">3 key teaching points (comma-separated)</label>
+    <textarea id="points" placeholder="e.g. anchor on value not hours, bundle outcomes not features, raise prices in tiers"></textarea>
+
+    <label for="cta">Final CTA</label>
+    <input id="cta" type="text" placeholder="e.g. Save this. Comment PRICE for the full template." />
+
+    <button onclick="generate()">Plan My Carousel</button>
+  </div>
+
+  <div id="output" class="hidden"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  function buildSlides(topic, audience, points, cta) {
+    const [p1, p2, p3] = points;
+    return [
+      { role: "Hook",      title: `Most ${audience} get ${topic} wrong.`, body: "Open bold. One sentence. Big text. Make them swipe." },
+      { role: "Tension",   title: `And it's costing them more than they realize.`, body: `Name the pain ${audience} feel when ${topic} isn't working — be specific and visual.` },
+      { role: "Promise",   title: `Here's the 3-part fix.`, body: "Set expectations. Tell them exactly what they'll learn by swiping to the end." },
+      { role: "Point 1",   title: p1 || "Point 1", body: `Explain why this matters first. One quick story or example to make it stick.` },
+      { role: "Point 2",   title: p2 || "Point 2", body: `Show what changes when ${audience} apply this. Give a concrete before/after.` },
+      { role: "Point 3",   title: p3 || "Point 3", body: `Tie it together. This is the move that compounds over time.` },
+      { role: "Recap",     title: `Quick recap before you forget.`, body: `1. ${p1 || "Point 1"}\n2. ${p2 || "Point 2"}\n3. ${p3 || "Point 3"}` },
+      { role: "CTA",       title: cta || "Save this. Share with a friend.", body: "End with one clear ask. Make it easy to act in 3 seconds or less." }
+    ];
+  }
+
+  function generate() {
+    const topic = document.getElementById('topic').value.trim();
+    const audience = document.getElementById('audience').value.trim();
+    const pointsRaw = document.getElementById('points').value.trim();
+    const cta = document.getElementById('cta').value.trim();
+
+    if (!topic || !audience || !pointsRaw) {
+      alert('Please fill in topic, audience, and key points.');
+      return;
+    }
+
+    const points = pointsRaw.split(',').map(s => s.trim()).filter(Boolean);
+    const slides = buildSlides(topic, audience, points, cta);
+
+    let html = `<div class="card">
+      <h2 style="font-family:'Playfair Display',serif;color:#5AE57A;font-size:1.5rem;margin-bottom:6px;">Your 8-Slide Carousel</h2>
+      <p style="opacity:0.8;margin-bottom:18px;font-size:0.92rem;">Hook → Tension → Promise → 3 Teaching Points → Recap → CTA. The structure most top creators use.</p>
+      <div class="slides">`;
+
+    slides.forEach((s, i) => {
+      html += `<div class="slide">
+        <div class="slide-num">Slide ${i + 1} of 8</div>
+        <span class="slide-role">${s.role}</span>
+        <div class="slide-title">${escapeHtml(s.title)}</div>
+        <div class="slide-body">${escapeHtml(s.body).replace(/\n/g, '<br>')}</div>
+      </div>`;
+    });
+
+    html += `</div>
+      <div class="actions">
+        <button class="ghost" onclick="copyPlan()">Copy Outline</button>
+        <button class="ghost" onclick="downloadPlan()">Download .txt</button>
+        <button class="ghost" onclick="reset()">Start Over</button>
+      </div>
+    </div>`;
+
+    const out = document.getElementById('output');
+    out.innerHTML = html;
+    out.classList.remove('hidden');
+    document.getElementById('inputCard').classList.add('hidden');
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function planAsText() {
+    return Array.from(document.querySelectorAll('.slide')).map((el, i) => {
+      const role = el.querySelector('.slide-role').innerText;
+      const title = el.querySelector('.slide-title').innerText;
+      const body = el.querySelector('.slide-body').innerText;
+      return `SLIDE ${i + 1} — ${role}\nTitle: ${title}\nBody: ${body}\n`;
+    }).join('\n');
+  }
+
+  function copyPlan() {
+    navigator.clipboard.writeText(planAsText()).then(() => alert('Carousel outline copied.'));
+  }
+
+  function downloadPlan() {
+    const blob = new Blob([planAsText()], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'carousel-outline.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function reset() {
+    document.getElementById('output').classList.add('hidden');
+    document.getElementById('inputCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

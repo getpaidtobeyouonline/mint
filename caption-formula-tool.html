@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caption Formula Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { text-align: center; margin-bottom: 32px; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #5AE57A;
+    margin-bottom: 12px;
+  }
+  .sub { opacity: 0.85; max-width: 540px; margin: 0 auto; }
+  .card {
+    background: rgba(240, 235, 224, 0.04);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #5AE57A;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
+  }
+  input, select, textarea {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid rgba(240, 235, 224, 0.2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 18px;
+  }
+  textarea { resize: vertical; min-height: 90px; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    letter-spacing: 0.5px;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  button:hover { transform: translateY(-1px); opacity: 0.92; }
+  button.ghost {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    margin-top: 10px;
+  }
+  .formula-name {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 1.5rem;
+    margin-bottom: 4px;
+  }
+  .formula-desc { opacity: 0.8; font-size: 0.9rem; margin-bottom: 16px; }
+  .caption-box {
+    background: #325132;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    border-radius: 8px;
+    padding: 18px 20px;
+    white-space: pre-wrap;
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 14px;
+  }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .actions button { flex: 1; min-width: 130px; width: auto; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Caption Formula Tool</h1>
+    <p class="sub">Plug in your topic, pick a proven copywriting formula, and get a finished caption that actually converts.</p>
+  </header>
+
+  <div class="card" id="inputCard">
+    <label for="topic">What's your post about?</label>
+    <input id="topic" type="text" placeholder="e.g. my new pricing course, why morning routines matter" />
+
+    <label for="audience">Who you're talking to</label>
+    <input id="audience" type="text" placeholder="e.g. freelance designers, busy moms" />
+
+    <label for="benefit">The transformation or benefit</label>
+    <textarea id="benefit" placeholder="e.g. confidently charge 3x your old rates without losing clients"></textarea>
+
+    <label for="cta">Call to action</label>
+    <input id="cta" type="text" placeholder="e.g. Comment PRICE for the link, Save this for later" />
+
+    <label for="formula">Pick a formula</label>
+    <select id="formula">
+      <option value="AIDA">AIDA — Attention, Interest, Desire, Action</option>
+      <option value="PAS">PAS — Problem, Agitate, Solution</option>
+      <option value="BAB">BAB — Before, After, Bridge</option>
+      <option value="HOOK">Hook + Story + Lesson</option>
+      <option value="LIST">Listicle (3-point teaching)</option>
+    </select>
+
+    <button onclick="generate()">Build My Caption</button>
+  </div>
+
+  <div id="output" class="hidden"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const FORMULAS = {
+    AIDA: {
+      name: "AIDA",
+      desc: "Attention → Interest → Desire → Action. A classic for sales-driving posts.",
+      build: (t, a, b, c) =>
+`Stop scrolling, ${a}. 👀
+
+Most ${a} think ${t} is something you figure out alone — and it's exactly why they stay stuck.
+
+Imagine being able to ${b}. Not "someday" — within weeks. That's what changes when you stop guessing and start using a system that actually works.
+
+${c}`
+    },
+    PAS: {
+      name: "PAS",
+      desc: "Problem → Agitate → Solution. Powerful when your audience feels real pain.",
+      build: (t, a, b, c) =>
+`If you're a ${a} struggling with ${t}, read this.
+
+Here's the truth: it doesn't get easier on its own. Every week you wait is another week of second-guessing, undercharging, or watching others lap you. The cost isn't just money — it's confidence.
+
+The fix? A clearer path. One that helps you ${b} without burning out. That's exactly what this is for.
+
+${c}`
+    },
+    BAB: {
+      name: "BAB",
+      desc: "Before → After → Bridge. Transformation stories sell hard.",
+      build: (t, a, b, c) =>
+`Before: I was the ${a} who kept circling the same problem with ${t}. I tried every free tip. Nothing stuck.
+
+After: I learned to ${b}. The shift wasn't motivation — it was finally having a method I trusted.
+
+The bridge? One simple framework I now use every single week. Want it?
+
+${c}`
+    },
+    HOOK: {
+      name: "Hook + Story + Lesson",
+      desc: "Open with a hook, tell a quick story, end with a teachable takeaway.",
+      build: (t, a, b, c) =>
+`I almost gave up on ${t} last year.
+
+I was doing what every ${a} is "supposed" to do — and getting nowhere. Then one small change flipped the whole thing. Suddenly I could ${b}, and the pressure lifted.
+
+The lesson: you don't need more hustle. You need a better filter for what's worth your time.
+
+${c}`
+    },
+    LIST: {
+      name: "3-Point Listicle",
+      desc: "Save-worthy structure. Promises value upfront, delivers in 3 punches.",
+      build: (t, a, b, c) =>
+`3 things every ${a} should know about ${t}:
+
+1. The fastest path isn't more effort — it's removing what's leaking your time.
+2. Your offer isn't "too expensive." It's under-explained. Fix the explanation, not the price.
+3. Consistency beats clever every single time — small, repeated reps compound into the ability to ${b}.
+
+Save this. Re-read it next Monday morning.
+
+${c}`
+    }
+  };
+
+  function generate() {
+    const t = document.getElementById('topic').value.trim();
+    const a = document.getElementById('audience').value.trim();
+    const b = document.getElementById('benefit').value.trim();
+    const c = document.getElementById('cta').value.trim();
+    const key = document.getElementById('formula').value;
+
+    if (!t || !a || !b || !c) {
+      alert('Please fill in all four fields first.');
+      return;
+    }
+
+    const f = FORMULAS[key];
+    const caption = f.build(t, a, b, c);
+
+    const out = document.getElementById('output');
+    out.innerHTML = `<div class="card">
+      <div class="formula-name">${f.name}</div>
+      <div class="formula-desc">${f.desc}</div>
+      <div class="caption-box" id="captionBox">${caption.replace(/</g, '&lt;')}</div>
+      <div class="actions">
+        <button class="ghost" onclick="copyCaption()">Copy Caption</button>
+        <button class="ghost" onclick="reset()">Try Another</button>
+      </div>
+    </div>`;
+    out.classList.remove('hidden');
+    document.getElementById('inputCard').classList.add('hidden');
+    out.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function copyCaption() {
+    const txt = document.getElementById('captionBox').innerText;
+    navigator.clipboard.writeText(txt).then(() => alert('Caption copied to clipboard.'));
+  }
+
+  function reset() {
+    document.getElementById('output').classList.add('hidden');
+    document.getElementById('inputCard').classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

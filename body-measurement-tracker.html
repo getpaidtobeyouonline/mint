@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Body Measurement Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: 4px; }
+  th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid #4C724C; }
+  th:first-child, td:first-child { text-align: left; }
+  th { color: #5AE57A; font-size: .72rem; text-transform: uppercase; }
+  .delta { font-size: .78rem; }
+  .x { cursor: pointer; opacity: .5; } .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } table { font-size: .78rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Body Measurement Tracker</h1>
+  <p class="sub">Log measurements monthly. Trends tell the truth — single readings lie.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Date</label><input id="dt" type="date"></div>
+      <div><label>Weight</label><input id="wt" type="number" step="0.1" placeholder="—"></div>
+      <div><label>Waist</label><input id="ws" type="number" step="0.1" placeholder="—"></div>
+      <div><label>Hips</label><input id="hp" type="number" step="0.1" placeholder="—"></div>
+      <div><label>Chest</label><input id="ch" type="number" step="0.1" placeholder="—"></div>
+      <div><label>Arm</label><input id="ar" type="number" step="0.1" placeholder="—"></div>
+    </div>
+    <button class="btn" onclick="add()">+ Save Measurement</button>
+    <div class="note">Numbers are data, not a verdict on your worth. Weigh in the same conditions each time.</div>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let R=JSON.parse(localStorage.getItem('bmt')||'[]');
+  const save=()=>localStorage.setItem('bmt',JSON.stringify(R));
+  g('dt').value=new Date().toISOString().slice(0,10);
+  function add(){
+    const o={d:g('dt').value||new Date().toISOString().slice(0,10),wt:g('wt').value,ws:g('ws').value,hp:g('hp').value,ch:g('ch').value,ar:g('ar').value};
+    if(!o.wt&&!o.ws&&!o.hp&&!o.ch&&!o.ar){ alert('Enter at least one measurement.'); return; }
+    const ex=R.find(x=>x.d===o.d); if(ex)Object.assign(ex,o); else R.push(o);
+    ['wt','ws','hp','ch','ar'].forEach(k=>g(k).value=''); save(); render();
+  }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all measurements?')){ R=[]; save(); render(); } }
+  function cell(cur,prev){
+    if(cur===''||cur==null) return '<td>—</td>';
+    let d='';
+    if(prev!==''&&prev!=null){ const diff=(+cur-+prev).toFixed(1); if(diff!=0) d=' <span class="delta" style="color:'+(diff<0?'#5AE57A':'#5AE57A')+'">'+(diff>0?'+':'')+diff+'</span>'; }
+    return '<td>'+cur+d+'</td>';
+  }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No measurements logged yet.</div>'; return; }
+    const S=[...R].sort((a,b)=>a.d<b.d?-1:1);
+    let h='<table><tr><th>Date</th><th>Weight</th><th>Waist</th><th>Hips</th><th>Chest</th><th>Arm</th><th></th></tr>';
+    [...S].reverse().forEach((x)=>{
+      const i=R.indexOf(x), pi=S.indexOf(x)-1, p=pi>=0?S[pi]:{};
+      h+='<tr><td><b style="color:#5AE57A">'+x.d+'</b></td>'+cell(x.wt,p.wt)+cell(x.ws,p.ws)+cell(x.hp,p.hp)+cell(x.ch,p.ch)+cell(x.ar,p.ar)+'<td><span class="x" onclick="del('+i+')">✕</span></td></tr>';
+    });
+    L.innerHTML=h+'</table>';
+  }
+  render();
+</script>
+</body>
+</html>

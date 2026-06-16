@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caffeine Intake Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 600px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; align-items: flex-end; } .row>div { flex: 1; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .glass { text-align: center; }
+  .glass .n { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .glass .of { opacity: .7; font-size: .9rem; }
+  .track { background: #3C603C; border-radius: 5px; height: 14px; overflow: hidden; margin: 12px 0 6px; }
+  .track>i { display: block; height: 100%; transition: width .3s; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .86rem; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .8; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Caffeine Intake Tracker</h1>
+  <p class="sub">Log your caffeine through the day against a sensible daily limit.</p>
+
+  <div class="panel">
+    <div class="glass">
+      <div><span class="n" id="total">0</span><span class="of"> / 400 mg</span></div>
+      <div class="track"><i id="bar" style="width:0%;background:#5AE57A"></i></div>
+      <div class="of" id="msg"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Drink</label><select id="drink">
+        <option value="95">Coffee — brewed (95mg)</option>
+        <option value="63">Espresso shot (63mg)</option>
+        <option value="120">Large coffee (120mg)</option>
+        <option value="47">Black tea (47mg)</option>
+        <option value="28">Green tea (28mg)</option>
+        <option value="35">Cola (35mg)</option>
+        <option value="80">Energy drink (80mg)</option>
+        <option value="5">Decaf (5mg)</option>
+      </select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+    <div id="list" style="margin-top:10px"></div>
+    <button class="btn ghost" onclick="resetDay()" style="margin-top:8px">Reset Day</button>
+    <div class="note">Caffeine values are typical estimates. ~400mg/day is a common healthy-adult guideline; less if pregnant or caffeine-sensitive.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const LABELS={95:'Brewed coffee',63:'Espresso',120:'Large coffee',47:'Black tea',28:'Green tea',35:'Cola',80:'Energy drink',5:'Decaf'};
+  const today=new Date().toISOString().slice(0,10);
+  let D=JSON.parse(localStorage.getItem('cit')||'{}');
+  if(D.day!==today)D={day:today,items:[]};
+  const save=()=>localStorage.setItem('cit',JSON.stringify(D));
+  function add(){ const mg=+g('drink').value; D.items.push({n:LABELS[mg],mg}); save(); render(); }
+  function del(i){ D.items.splice(i,1); save(); render(); }
+  function resetDay(){ if(confirm('Reset today?')){ D={day:today,items:[]}; save(); render(); } }
+  function render(){
+    const total=D.items.reduce((s,x)=>s+x.mg,0);
+    g('total').textContent=total;
+    const pct=Math.min(100,total/400*100);
+    g('bar').style.width=pct+'%';
+    g('bar').style.background= total>400?'#5AE57A':total>300?'#5AE57A':'#5AE57A';
+    g('msg').textContent= total>400?'Over the typical daily guideline':total>300?'Getting close to the guideline':(400-total)+'mg before the guideline';
+    const L=g('list');
+    if(!D.items.length){ L.innerHTML='<div class="empty">Nothing logged yet today.</div>'; return; }
+    L.innerHTML=[...D.items].reverse().map(x=>{ const i=D.items.indexOf(x);
+      return '<div class="row2"><span>'+x.n+'</span><span><b style="color:#5AE57A">'+x.mg+'mg</b> <span class="x" onclick="del('+i+')">✕</span></span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

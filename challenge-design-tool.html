@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Challenge Design Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text]{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.7rem .9rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.95rem;outline:none;transition:border-color .2s}
+input[type=text]:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.85rem}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem}
+.opt{flex:1;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.results{display:none}
+.results.show{display:block}
+.title-row{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.ch-name{font-family:'Playfair Display',serif;font-size:1.2rem;color:#FFFFFF;flex:1}
+.regen-btn{background:transparent;border:1px solid #4C724C;color:#5AE57A;border-radius:6px;padding:.3rem .75rem;font-family:'DM Sans',sans-serif;font-size:.74rem;cursor:pointer;white-space:nowrap;transition:opacity .2s}
+.regen-btn:hover{opacity:.7}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.1rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.ch-card{background:#3C603C;border:1px solid #4C724C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem;border-left:3px solid #5AE57A}
+.ch-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.3rem}
+.ch-num{font-size:.68rem;font-weight:600;opacity:.38;text-transform:uppercase;letter-spacing:.08em}
+.ch-phase{font-size:.68rem;font-weight:600;opacity:.48}
+.ch-title{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:.65rem}
+.ch-row{display:flex;gap:.45rem;margin-bottom:.4rem;align-items:flex-start}
+.ch-lbl{font-size:.65rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.35;min-width:56px;flex-shrink:0;padding-top:.12rem}
+.ch-txt{font-size:.83rem;opacity:.75;line-height:1.5}
+.ch-hint{font-size:.72rem;opacity:.35;font-style:italic;margin-top:.45rem}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.2rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Challenge Design Tool</h1>
+    <p class="subtitle">Design a complete day-by-day challenge — with daily tasks, teaching focus, and engagement prompts — ready to run or sell.</p>
+  </header>
+
+  <div class="card">
+    <h2>Challenge Details</h2>
+    <label>Challenge Topic</label>
+    <input type="text" id="inTopic" placeholder="e.g. morning routine, content creation, sales mindset">
+    <div class="g2">
+      <div>
+        <label style="margin-top:0">Target Audience</label>
+        <input type="text" id="inAud" placeholder="e.g. busy mums, new freelancers">
+      </div>
+      <div>
+        <label style="margin-top:0">Challenge Outcome</label>
+        <input type="text" id="inGoal" placeholder="e.g. land their first client">
+      </div>
+    </div>
+    <label>Challenge Length</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickLen(5)"  id="l5">5 Days</button>
+      <button class="opt"     onclick="pickLen(7)"  id="l7">7 Days</button>
+      <button class="opt"     onclick="pickLen(30)" id="l30">30 Days</button>
+    </div>
+    <label>Delivery Format</label>
+    <div class="opt-row">
+      <button class="opt sel" onclick="pickFmt('self')" id="fself">Self-Paced</button>
+      <button class="opt"     onclick="pickFmt('live')" id="flive">Live Daily</button>
+    </div>
+    <button class="btn" onclick="generate()">Design My Challenge →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="title-row">
+      <div class="ch-name" id="chName"></div>
+      <button class="regen-btn" onclick="regenTitle()">↻ New Name</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+    <div id="chCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyChallenge()">Copy Full Challenge Plan as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const cap  = s => s.replace(/\b\w/g, c => c.toUpperCase());
+const fill = (s,T,A,X) => s.replace(/\{T\}/g,T).replace(/\{A\}/g,A).replace(/\{X\}/g,X);
+const st   = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+
+const fw = {
+  5:[
+    {col:'#5AE57A', theme:'Why {T} Changes Everything for {A}',   task:'Write your current {T} reality and your {X} goal in one clear sentence',          teach:'The real reason {A} struggle with {T} — and the mindset shift that fixes it',    engage:'Drop in the group: where are you with {T} right now? Be honest.'},
+    {col:'#5AE57A', theme:'Your First {T} Win Today',              task:'Take the first small {T} step that moves you visibly toward {X}',                  teach:'The fastest path to early {T} momentum that most {A} overlook',                  engage:'Share your Day 2 win in the group — even the tiny ones count!'},
+    {col:'#5AE57A', theme:'The {T} Method That Works',             task:'Apply the {T} framework to your own situation using today\'s guided template',      teach:'The exact {T} method that leads to {X} — broken down step by step',             engage:'What surprised you most about the {T} method so far?'},
+    {col:'#5AE57A', theme:'Put {T} Into Real Practice',            task:'Complete a full {T} cycle from start to finish — document your result honestly',    teach:'How {A} use {T} consistently so effort turns into {X}',                          engage:'Post your Day 4 result in the group — wins and struggles both welcome!'},
+    {col:'#5AE57A', theme:'You Did It — What\'s Next',             task:'Review your {T} progress, write your 30-day {X} plan, and celebrate today',        teach:'How {A} keep {T} momentum going after the challenge ends',                       engage:'Share your biggest {T} breakthrough from these 5 days!'},
+  ],
+  7:[
+    {col:'#5AE57A', theme:'Welcome: Your {T} Journey Starts Now',  task:'Introduce yourself in the group and write your {X} commitment statement',           teach:'Why {T} is the game-changer {A} have been looking for',                         engage:'Drop your name, your {T} starting point, and what {X} means to you.'},
+    {col:'#5AE57A', theme:'Know Your {T} Starting Point',          task:'Complete the {T} self-assessment and identify your biggest gap toward {X}',          teach:'The 3 {T} levels for {A} — and why knowing yours changes everything',           engage:'Which {T} level are you at right now? Drop it in the group.'},
+    {col:'#5AE57A', theme:'Your First {T} Win',                    task:'Complete the Day 3 quick-win exercise: one {T} action with a visible result',         teach:'The psychology of early wins — why this {T} step unlocks everything else',      engage:'Share your Day 3 win — no result is too small!'},
+    {col:'#5AE57A', theme:'{T} Method: Part 1',                    task:'Apply Pillar 1 of the {T} framework to your specific situation',                    teach:'Pillar 1: the foundation that makes {X} possible for {A}',                      engage:'What\'s your biggest takeaway from {T} Pillar 1?'},
+    {col:'#5AE57A', theme:'{T} Method: Part 2',                    task:'Apply Pillar 2 and combine it with yesterday\'s Pillar 1 progress',                  teach:'Pillar 2: the step that turns {T} foundation into real {X} results',            engage:'How does Pillar 2 change your {T} approach? Share in the group.'},
+    {col:'#5AE57A', theme:'Put It All Together',                    task:'Run a complete {T} session using both Pillars — document your result',              teach:'How {A} integrate the full {T} method to reach {X} consistently',               engage:'Post your full {T} result — what worked and what to adjust.'},
+    {col:'#5AE57A', theme:'Day 7: Celebrate & Plan Forward',        task:'Write your post-challenge {T} plan: 3 weekly actions toward {X}',                   teach:'How to keep {T} momentum going without burning out as a {A}',                   engage:'Share your #1 {T} breakthrough from the 7 days — we\'re celebrating you!'},
+  ],
+  30:[
+    {col:'#5AE57A', wk:'Week 1', phase:'Foundation', title:'Build Your {T} Foundation',          focus:'Establish your {T} baseline, mindset, and first wins for {A}',                milestone:'{A} have a clear {T} starting point and have completed their first result', arc:'Orientation → Quick Win → Core Concept → Practice → Review → Bonus → Rest'},
+    {col:'#5AE57A', wk:'Week 2', phase:'Build',       title:'Master the Core {T} Skills',         focus:'Learn and practise the essential {T} techniques step by step',                 milestone:'{A} can execute the full {T} method with growing confidence',              arc:'New Skill → Deep Practice → Troubleshoot → Apply → Peer Review → Bonus → Rest'},
+    {col:'#5AE57A', wk:'Week 3', phase:'Apply',       title:'Put {T} Into Real Practice',          focus:'Apply {T} in real conditions and generate measurable {X} results',             milestone:'{A} have a real {T} result and know exactly what to improve',              arc:'Real-World Apply → Iterate → Case Study → Challenge → Share → Bonus → Rest'},
+    {col:'#5AE57A', wk:'Week 4', phase:'Results',     title:'Lock In {X} and Build Your System',   focus:'Create a repeatable {T} habit and 90-day {X} plan as a {A}',                  milestone:'{A} have a {T} system they can run every week toward {X}',                 arc:'Review → Optimise → System Build → Habit Set → Celebrate → Next Steps → Close'},
+  ]
+};
+
+const fmtTips = {
+  self: ['Record and schedule this content ahead of time','Send as an email and post in the group','Batch-record all days before the challenge starts'],
+  live: ['Go live in your group — 10 to 20 minutes is enough','Show up live then send the replay via email','Host a short Q&A after your live to boost retention'],
+};
+const fmtLabel = {self:'Self-Paced', live:'Live Daily'};
+
+const titleFns = [
+  (T,A,X,n) => `The ${n}-Day ${cap(T)} Challenge`,
+  (T,A,X,n) => `${cap(X)} in ${n} Days: The ${cap(T)} Challenge for ${cap(A)}`,
+  (T,A,X,n) => `The ${cap(A)} ${cap(T)} Challenge`,
+  (T,A,X,n) => `The ${n}-Day ${cap(T)} Transformation`,
+  (T,A,X,n) => `The ${cap(T)} Sprint: A ${n}-Day Challenge for ${cap(A)}`,
+  (T,A,X,n) => `From Zero to ${cap(X)}: The ${n}-Day ${cap(T)} Challenge`,
+];
+
+let state = {len:5, fmt:'self', T:'', A:'', X:''};
+let titleIdx = 0;
+
+function pickLen(n) {
+  state.len = n;
+  [5,7,30].forEach(x => document.getElementById(`l${x}`).classList.toggle('sel', x===n));
+}
+function pickFmt(f) {
+  state.fmt = f;
+  ['self','live'].forEach(x => document.getElementById(`f${x}`).classList.toggle('sel', x===f));
+}
+
+function generate() {
+  const T = document.getElementById('inTopic').value.trim();
+  const A = document.getElementById('inAud').value.trim();
+  const X = document.getElementById('inGoal').value.trim();
+  if (!T || !A || !X) { alert('Fill in all three fields to design your challenge.'); return; }
+  state.T = T; state.A = A; state.X = X; titleIdx = 0;
+  renderAll();
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function regenTitle() {
+  titleIdx = (titleIdx + 1) % titleFns.length;
+  document.getElementById('chName').textContent = titleFns[titleIdx](state.T, state.A, state.X, state.len);
+}
+
+function renderAll() {
+  const {len, fmt, T, A, X} = state;
+  const is30 = len === 30;
+  const items = fw[len];
+  const weeks = is30 ? 4 : Math.ceil(len / 7);
+  const tips  = fmtTips[fmt];
+
+  document.getElementById('chName').textContent = titleFns[titleIdx](T, A, X, len);
+  document.getElementById('statsBar').innerHTML =
+    st(len,'Days') + st(len,'Daily Tasks') + st(weeks, weeks===1?'Week':'Weeks') + st(fmtLabel[fmt],'Format');
+
+  document.getElementById('chCards').innerHTML = items.map((item, i) => {
+    if (is30) {
+      const dStart = i*7+1, dEnd = Math.min(i*7+7, 30);
+      return `<div class="ch-card" style="border-left-color:${item.col}">
+        <div class="ch-top">
+          <span class="ch-num">${item.wk} · Days ${dStart}–${dEnd}</span>
+          <span class="ch-phase" style="color:${item.col}">${item.phase}</span>
+        </div>
+        <div class="ch-title" style="color:${item.col}">${fill(item.title,T,A,X)}</div>
+        <div class="ch-row"><span class="ch-lbl">Focus</span><span class="ch-txt">${fill(item.focus,T,A,X)}</span></div>
+        <div class="ch-row"><span class="ch-lbl">Milestone</span><span class="ch-txt">${fill(item.milestone,T,A,X)}</span></div>
+        <div class="ch-row"><span class="ch-lbl">Daily Arc</span><span class="ch-txt">${item.arc}</span></div>
+        <div class="ch-hint">💡 ${tips[i % tips.length]}</div>
+      </div>`;
+    }
+    return `<div class="ch-card" style="border-left-color:${item.col}">
+      <div class="ch-top">
+        <span class="ch-num">Day ${i+1}</span>
+      </div>
+      <div class="ch-title" style="color:${item.col}">${fill(item.theme,T,A,X)}</div>
+      <div class="ch-row"><span class="ch-lbl">Task</span><span class="ch-txt">${fill(item.task,T,A,X)}</span></div>
+      <div class="ch-row"><span class="ch-lbl">Teach</span><span class="ch-txt">${fill(item.teach,T,A,X)}</span></div>
+      <div class="ch-row"><span class="ch-lbl">Engage</span><span class="ch-txt">${fill(item.engage,T,A,X)}</span></div>
+      <div class="ch-hint">💡 ${tips[i % tips.length]}</div>
+    </div>`;
+  }).join('');
+}
+
+function copyChallenge() {
+  const {len, fmt, T, A, X} = state;
+  const is30 = len === 30;
+  const tips  = fmtTips[fmt];
+  let text = `CHALLENGE PLAN\n${titleFns[titleIdx](T,A,X,len)}\nTopic: ${T}  |  Audience: ${A}  |  Length: ${len} days  |  Format: ${fmtLabel[fmt]}\n\n`;
+  fw[len].forEach((item, i) => {
+    if (is30) {
+      const dStart = i*7+1, dEnd = Math.min(i*7+7,30);
+      text += `${item.wk.toUpperCase()} (Days ${dStart}–${dEnd}): ${fill(item.title,T,A,X)}\n`;
+      text += `Focus: ${fill(item.focus,T,A,X)}\n`;
+      text += `Milestone: ${fill(item.milestone,T,A,X)}\n`;
+      text += `Daily Arc: ${item.arc}\n`;
+    } else {
+      text += `DAY ${i+1}: ${fill(item.theme,T,A,X)}\n`;
+      text += `Task: ${fill(item.task,T,A,X)}\n`;
+      text += `Teach: ${fill(item.teach,T,A,X)}\n`;
+      text += `Engage: ${fill(item.engage,T,A,X)}\n`;
+    }
+    text += `💡 ${tips[i % tips.length]}\n\n`;
+  });
+  text += '---\nCreated with Challenge Design Tool by GetPaidToBeYouOnline';
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Full Challenge Plan as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brand Aesthetic Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input[type=color] { padding: 4px; height: 42px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .sw { display: flex; gap: 8px; margin: 10px 0; }
+  .sw div { flex: 1; height: 48px; border-radius: 8px; border: 1px solid #5A845A; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .76rem; text-transform: uppercase; margin-bottom: 4px; }
+  .blk p { font-size: .93rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Brand Aesthetic Planner</h1>
+  <p class="sub">Lock a recognisable look so every post is instantly "you" in the feed.</p>
+
+  <div class="panel">
+    <label for="vibe">Vibe in 3 words</label>
+    <input id="vibe" placeholder="e.g. warm, premium, calm">
+    <div class="grid">
+      <div><label for="c1">Primary</label><input id="c1" type="color" value="#5AE57A" oninput="render()"></div>
+      <div><label for="c2">Secondary</label><input id="c2" type="color" value="#325132" oninput="render()"></div>
+      <div><label for="c3">Accent</label><input id="c3" type="color" value="#FFFFFF" oninput="render()"></div>
+      <div><label for="c4">Neutral</label><input id="c4" type="color" value="#BFD8BF" oninput="render()"></div>
+    </div>
+    <div class="sw" id="sw"></div>
+    <div class="grid">
+      <div><label for="fontH">Heading font</label><input id="fontH" placeholder="e.g. Playfair Display"></div>
+      <div><label for="fontB">Body font</label><input id="fontB" placeholder="e.g. DM Sans"></div>
+    </div>
+    <label for="motif">Recurring visual motif</label>
+    <input id="motif" placeholder="e.g. bold text on photo, hand-drawn arrows">
+    <button class="btn" onclick="render()">Build Style Guide</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['vibe','c1','c2','c3','c4','fontH','fontB','motif'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('bap_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('bap_'+k,g(k).value)); });
+  function render(){
+    g('sw').innerHTML=['c1','c2','c3','c4'].map(c=>`<div style="background:${g(c).value}"></div>`).join('');
+    g('out').innerHTML=`<div class="blk"><h4>Vibe</h4><p>${esc(v('vibe')||'—')}</p></div>
+      <div class="blk"><h4>Palette</h4><p>Primary ${g('c1').value} · Secondary ${g('c2').value} · Accent ${g('c3').value} · Neutral ${g('c4').value}. Use primary for 60% of a post, secondary 30%, accent 10%.</p></div>
+      <div class="blk"><h4>Type</h4><p>Headings: ${esc(v('fontH')||'—')} · Body: ${esc(v('fontB')||'—')}. Never more than 2 fonts.</p></div>
+      <div class="blk"><h4>Signature motif</h4><p>${esc(v('motif')||'—')} — repeat it on every post so people recognise you before they read the handle.</p></div>
+      <div class="blk" style="border-left-color:#BFD8BF"><h4>The consistency rule</h4><p>Pick 3 reusable templates and stick to them for 30 days. A recognisable feed beats a "creative" one that looks like 9 different accounts.</p></div>`;
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyOut(){ const t=g('out').innerText; if(!t){alert('Build first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Style guide copied!'),()=>alert('Copy failed.')); }
+  render();
+</script>
+</body>
+</html>

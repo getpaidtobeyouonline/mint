@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coaching Business Audit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 18px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .q { margin-bottom: 14px; }
+  .qt { font-size: .93rem; margin-bottom: 6px; }
+  .scale { display: flex; gap: 6px; }
+  .scale label { flex: 1; }
+  .scale input { display: none; }
+  .scale span { display: block; text-align: center; background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 0; cursor: pointer; font-size: .9rem; }
+  .scale input:checked + span { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .ends { display: flex; justify-content: space-between; font-size: .72rem; opacity: .55; margin-top: 3px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; }
+  .result { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; margin-top: 14px; display: none; }
+  .result h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.3rem; }
+  .score { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.4rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Coaching Business Audit</h1>
+  <p class="sub">Rate each statement 1 (not true) to 5 (very true) for an honest health check.</p>
+
+  <div class="panel">
+    <div id="quiz"></div>
+    <button class="btn" onclick="result()">Get My Score</button>
+    <div class="result" id="result"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const Q=[
+    'I have a clear, specific ideal client.',
+    'I have a signature offer with a clear transformation and price.',
+    'I have a reliable, repeatable way to generate leads.',
+    'My discovery or sales process consistently converts.',
+    'My pricing genuinely reflects the value I deliver.',
+    'I have systems for onboarding, delivery and offboarding.',
+    'I collect testimonials and client results consistently.',
+    'My income is fairly predictable month to month.',
+    'I have offers beyond 1:1 — or a clear plan to add them.',
+    'I protect my time, energy and boundaries well.'
+  ];
+  const g=id=>document.getElementById(id);
+  Q.forEach((q,i)=>{
+    let h='<div class="q"><p class="qt">'+(i+1)+'. '+q+'</p><div class="scale">';
+    for(let n=1;n<=5;n++) h+='<label><input type="radio" name="q'+i+'" value="'+n+'"><span>'+n+'</span></label>';
+    h+='</div><div class="ends"><span>Not true</span><span>Very true</span></div></div>';
+    g('quiz').insertAdjacentHTML('beforeend',h);
+  });
+  function result(){
+    let total=0;
+    for(let i=0;i<Q.length;i++){ const s=document.querySelector('input[name=q'+i+']:checked'); if(!s){ alert('Please rate all statements.'); return; } total+=+s.value; }
+    const max=Q.length*5, pct=Math.round(total/max*100);
+    let band,msg;
+    if(pct>=80){ band='Strong, Healthy Business'; msg='Your foundations are solid. Focus now on leverage and growth — scaling beyond your hours.'; }
+    else if(pct>=60){ band='Solid — Tighten the Gaps'; msg='A good business with clear weak spots. Fix your two lowest-scoring areas first.'; }
+    else if(pct>=40){ band='Foundations Need Work'; msg='The basics need attention. Prioritise your offer, your lead source and your sales process.'; }
+    else { band='Time to Rebuild the Core'; msg='Start with the essentials: a clear ideal client, one strong offer, and one reliable way to get leads.'; }
+    const r=g('result'); r.style.display='block';
+    r.innerHTML='<div class="score">'+total+' / '+max+'</div><h2>'+band+'</h2><p>'+msg+'</p><p style="opacity:.7;font-size:.86rem;margin-top:8px">Your lowest-scoring statements are your priority list for the next quarter.</p>';
+    r.scrollIntoView({behavior:'smooth'});
+  }
+</script>
+</body>
+</html>

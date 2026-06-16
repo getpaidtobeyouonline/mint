@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chord Progression Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 12px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .out { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; text-align: center; margin-top: 14px; display: none; }
+  .name { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .roman { font-size: .9rem; opacity: .7; margin: 4px 0 10px; }
+  .chords { font-family: 'Playfair Display', serif; font-size: 2rem; color: #FFFFFF; letter-spacing: .04em; }
+  .vibe { font-size: .88rem; opacity: .75; margin-top: 10px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .chords { font-size: 1.5rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Chord Progression Builder</h1>
+  <p class="sub">Pick a key, hit spin, and get classic progressions ready to play.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="key">Key</label><select id="key"><option>C</option><option>G</option><option>D</option><option>A</option><option>E</option><option>F</option><option>Bb</option><option>Eb</option></select></div>
+      <div><label for="quality">Quality</label><select id="quality"><option value="maj">Major</option><option value="min">Minor</option></select></div>
+    </div>
+    <button class="btn" onclick="gen()">Spin Progression</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <div class="out" id="out"><div class="name" id="name"></div><div class="roman" id="roman"></div><div class="chords" id="chords"></div><div class="vibe" id="vibe"></div></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const NOTES=['C','C#','D','Eb','E','F','F#','G','Ab','A','Bb','B'];
+  const FLATKEYS={'F':true,'Bb':true,'Eb':true,'Ab':true,'Db':true};
+  function idx(n){ const m={'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11}; return m[n]; }
+  function name(i,flat){ const sharp=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B']; const flats=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']; return (flat?flats:sharp)[(i%12+12)%12]; }
+  const MAJ=[0,2,4,5,7,9,11], MIN=[0,2,3,5,7,8,10];
+  const MAJQ=['','m','m','','','m','dim'], MINQ=['m','dim','','m','m','','']; // i,ii°,III,iv,v,VI,VII
+  function chord(key,isMin,deg){
+    const flat=FLATKEYS[key]; const root=idx(key);
+    const scale=isMin?MIN:MAJ, qs=isMin?MINQ:MAJQ;
+    return name(root+scale[deg-1],flat)+qs[deg-1];
+  }
+  const PROGS_MAJ=[
+    {n:'Pop',r:'I-V-vi-IV',d:[1,5,6,4],v:'Heard in a thousand songs — instantly singable.'},
+    {n:'50s Doo-wop',r:'I-vi-IV-V',d:[1,6,4,5],v:'Warm, nostalgic, slow-dance feel.'},
+    {n:'Sensitive female',r:'vi-IV-I-V',d:[6,4,1,5],v:'Emotional, contemplative — great for ballads.'},
+    {n:'Folk / blues',r:'I-IV-V',d:[1,4,5],v:'The simplest, most useful three-chord song.'},
+    {n:'Jazz turnaround',r:'ii-V-I',d:[2,5,1],v:'The heart of jazz harmony.'},
+    {n:'Andalusian (modal)',r:'I-VII-bVI-V',d:[1,7,6,5],v:'Dark and dramatic.'},
+    {n:'Pachelbel',r:'I-V-vi-iii-IV-I-IV-V',d:[1,5,6,3,4,1,4,5],v:'Classical, processional, satisfying loop.'},
+    {n:'Axis of Awesome',r:'I-V-vi-IV',d:[1,5,6,4],v:'Same as Pop — try it in a new key.'}
+  ];
+  const PROGS_MIN=[
+    {n:'Minor Pop',r:'i-VII-VI-VII',d:[1,7,6,7],v:'Brooding, modern minor.'},
+    {n:'Minor Andalusian',r:'i-VII-VI-V',d:[1,7,6,5],v:'Flamenco-style descent.'},
+    {n:'Folk Minor',r:'i-iv-v',d:[1,4,5],v:'Old folk, sad and steady.'},
+    {n:'Lament',r:'i-VI-III-VII',d:[1,6,3,7],v:'A classic minor lament — sad but uplifting.'},
+    {n:'Modern Indie',r:'i-VI-VII',d:[1,6,7],v:'Cinematic and atmospheric.'},
+    {n:'Minor 12-bar',r:'i-i-i-i-iv-iv-i-i-v-iv-i-i',d:[1,1,1,1,4,4,1,1,5,4,1,1],v:'Minor key blues feel.'}
+  ];
+  const g=id=>document.getElementById(id);
+  function gen(){
+    const key=g('key').value, isMin=g('quality').value==='min';
+    const list=isMin?PROGS_MIN:PROGS_MAJ;
+    const p=list[Math.floor(Math.random()*list.length)];
+    const chords=p.d.map(d=>chord(key,isMin,d)).join(' — ');
+    g('name').textContent=p.n+'  ·  '+key+(isMin?' minor':' major');
+    g('roman').textContent=p.r;
+    g('chords').textContent=chords;
+    g('vibe').textContent=p.v;
+    g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+    window._out='PROGRESSION: '+p.n+'\nKEY: '+key+(isMin?' minor':' major')+'\n'+p.r+'\n'+chords+'\n'+p.v;
+  }
+  function copyOut(){ if(!window._out){alert('Spin one first.');return;} navigator.clipboard.writeText(window._out).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Prompt Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 32px 20px; min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.2rem;
+    color: #5AE57A; text-align: center; margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: .8; margin-bottom: 28px; font-size: .95rem; }
+  label { display: block; font-weight: 500; margin: 18px 0 6px; font-size: .95rem; }
+  label span { color: #5AE57A; font-weight: 400; opacity: .7; font-size: .85rem; }
+  input, textarea, select {
+    width: 100%; background: #2A442A; color: #FFFFFF;
+    border: 1px solid #4C724C; border-radius: 8px;
+    padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { resize: vertical; min-height: 70px; }
+  button {
+    background: #5AE57A; color: #325132; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem;
+    padding: 14px 24px; border-radius: 8px; cursor: pointer;
+    width: 100%; margin-top: 24px; transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  .out-box {
+    background: #2A442A; border: 1px solid #5AE57A; border-radius: 8px;
+    padding: 18px; margin-top: 24px; white-space: pre-wrap;
+    font-size: .92rem; display: none;
+  }
+  .out-box.show { display: block; }
+  .copy-btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 14px; }
+  footer { text-align: center; margin-top: 40px; opacity: .55; font-size: .82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Claude Prompt Builder</h1>
+  <p class="sub">Fill in the pieces. Get a clean, structured prompt that gets better answers from Claude.</p>
+
+  <label>Who should Claude act as? <span>(role)</span></label>
+  <input id="role" placeholder="a senior copywriter with 10 years in DTC brands">
+
+  <label>What's the task? <span>(required)</span></label>
+  <textarea id="task" placeholder="Write 5 subject lines for a product launch email"></textarea>
+
+  <label>Context Claude needs to know</label>
+  <textarea id="context" placeholder="The product is a $17 digital planner for busy moms. Brand voice is warm and direct."></textarea>
+
+  <label>Output format</label>
+  <input id="format" placeholder="A numbered list, each line under 60 characters">
+
+  <label>Tone</label>
+  <select id="tone">
+    <option value="">— no preference —</option>
+    <option>Professional</option>
+    <option>Friendly &amp; warm</option>
+    <option>Bold &amp; punchy</option>
+    <option>Casual &amp; conversational</option>
+    <option>Authoritative</option>
+  </select>
+
+  <label>Constraints / rules <span>(what to avoid)</span></label>
+  <textarea id="rules" placeholder="No emojis. No clichés like 'game-changer'. Keep it concrete."></textarea>
+
+  <button onclick="build()">Build My Prompt</button>
+
+  <div id="out" class="out-box"></div>
+  <button id="copyBtn" class="copy-btn out-box" onclick="copyOut()">Copy Prompt</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  function build(){
+    var task = val('task');
+    if(!task){
+      alert('Add the task — that part is required.');
+      return;
+    }
+    var role = val('role'), context = val('context'),
+        format = val('format'), tone = val('tone'), rules = val('rules');
+
+    var p = '';
+    if(role) p += 'You are ' + role + '.\n\n';
+    p += 'Your task:\n' + task + '\n';
+    if(context) p += '\nContext:\n' + context + '\n';
+
+    var reqs = [];
+    if(format) reqs.push('Format the output as: ' + format);
+    if(tone) reqs.push('Use a ' + tone.toLowerCase() + ' tone');
+    if(rules) reqs.push('Follow these rules: ' + rules);
+
+    if(reqs.length){
+      p += '\nRequirements:\n';
+      for(var i=0;i<reqs.length;i++) p += '- ' + reqs[i] + '\n';
+    }
+    p += '\nIf anything is unclear, ask me one clarifying question before you begin.';
+
+    var box = document.getElementById('out');
+    box.textContent = p;
+    box.classList.add('show');
+    document.getElementById('copyBtn').classList.add('show');
+  }
+
+  function copyOut(){
+    var t = document.getElementById('out').textContent;
+    navigator.clipboard.writeText(t).then(function(){
+      var b = document.getElementById('copyBtn');
+      b.textContent = 'Copied ✓';
+      setTimeout(function(){ b.textContent = 'Copy Prompt'; }, 1800);
+    });
+  }
+</script>
+</body>
+</html>
