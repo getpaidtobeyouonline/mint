@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anti Inflammatory Food Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.9rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; border-radius: 18px; padding: 6px 12px; font-size: .82rem; cursor: pointer; }
+  .chip.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .chip.bad.on { background: #5AE57A; color: #FFFFFF; border-color: #5AE57A; }
+  .score { display: flex; gap: 10px; margin-bottom: 14px; }
+  .sc { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 13px; text-align: center; }
+  .sc .v { font-family: 'Playfair Display', serif; font-size: 1.6rem; }
+  .sc .l { font-size: .68rem; opacity: .65; text-transform: uppercase; }
+  .meter { background: #3C603C; border-radius: 6px; height: 16px; overflow: hidden; margin: 6px 0 4px; }
+  .meter>i { display: block; height: 100%; background: #5AE57A; transition: width .3s; }
+  .verdict { text-align: center; font-size: .9rem; margin-top: 8px; }
+  .btn { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; cursor: pointer; font-size: .85rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Anti Inflammatory Food Tracker</h1>
+  <p class="sub">Tap what you ate today. See the balance between calming and inflaming foods.</p>
+
+  <div class="score">
+    <div class="sc"><div class="v" id="gv" style="color:#5AE57A">0</div><div class="l">Calming foods</div></div>
+    <div class="sc"><div class="v" id="bv" style="color:#5AE57A">0</div><div class="l">Inflaming foods</div></div>
+  </div>
+  <div class="panel">
+    <div class="meter"><i id="bar" style="width:50%"></i></div>
+    <div class="verdict" id="verdict">Tap foods below to see your balance.</div>
+  </div>
+
+  <div class="panel">
+    <h3>Anti-inflammatory — tap what you ate</h3>
+    <div class="chips" id="goodChips"></div>
+  </div>
+  <div class="panel">
+    <h3>Pro-inflammatory — tap what you ate</h3>
+    <div class="chips" id="badChips"></div>
+    <button class="btn" onclick="resetDay()">Reset Day</button>
+    <div class="note">A general awareness tool, not medical or dietary advice. Inflammation responses vary person to person.</div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GOOD=["Leafy greens","Berries","Fatty fish","Olive oil","Nuts","Turmeric","Ginger","Tomatoes","Avocado","Green tea","Broccoli","Beans/lentils","Whole grains","Dark chocolate"];
+  const BAD=["Sugary drinks","White bread/pastries","Fried food","Processed meat","Refined snacks","Excess alcohol","Trans fats","Sweets/candy","Fast food","Sugary cereal"];
+  const today=new Date().toISOString().slice(0,10);
+  let D=JSON.parse(localStorage.getItem('aift')||'{}');
+  if(D.day!==today)D={day:today,good:[],bad:[]};
+  const save=()=>localStorage.setItem('aift',JSON.stringify(D));
+  function tog(type,item){
+    const arr=D[type];
+    arr.includes(item)?D[type]=arr.filter(x=>x!==item):arr.push(item);
+    save(); render();
+  }
+  function resetDay(){ D={day:today,good:[],bad:[]}; save(); render(); }
+  function render(){
+    g('goodChips').innerHTML=GOOD.map(f=>'<span class="chip'+(D.good.includes(f)?' on':'')+'" onclick="tog(\'good\',\''+f.replace(/'/g,"\\'")+'\')">'+f+'</span>').join('');
+    g('badChips').innerHTML=BAD.map(f=>'<span class="chip bad'+(D.bad.includes(f)?' on':'')+'" onclick="tog(\'bad\',\''+f.replace(/'/g,"\\'")+'\')">'+f+'</span>').join('');
+    const gd=D.good.length, bd=D.bad.length;
+    g('gv').textContent=gd; g('bv').textContent=bd;
+    const total=gd+bd, pct=total?Math.round(gd/total*100):50;
+    g('bar').style.width=pct+'%';
+    g('bar').style.background= pct>=60?'#5AE57A':pct>=40?'#5AE57A':'#5AE57A';
+    let msg;
+    if(!total) msg='Tap foods below to see your balance.';
+    else if(pct>=70) msg='Strongly anti-inflammatory day — well balanced.';
+    else if(pct>=50) msg='Leaning calming. A little more colour on the plate tips it further.';
+    else if(pct>=30) msg='Tilted toward inflaming foods — add a calming food at the next meal.';
+    else msg='Heavy on inflaming foods today. No guilt — just rebalance tomorrow.';
+    g('verdict').textContent=msg;
+  }
+  render();
+</script>
+</body>
+</html>

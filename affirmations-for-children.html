@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affirmations for Children</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .aff { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #FFFFFF; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .favs { text-align: left; }
+  .fav { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: .9rem; display: flex; justify-content: space-between; gap: 8px; }
+  .fav .x { cursor: pointer; opacity: .5; } .fav .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .5; font-size: .86rem; font-style: italic; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .aff { font-size: 1.2rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Affirmations for Children</h1>
+  <p class="sub">Kind, true words your child can carry into their day.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="aff" id="aff">Tap "New Affirmation" to begin.</div>
+    <div>
+      <button class="btn" onclick="next()">New Affirmation</button>
+      <button class="btn ghost" onclick="fav()">Save ♥</button>
+    </div>
+  </div>
+
+  <div class="panel favs">
+    <div style="font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:#5AE57A;margin-bottom:8px">Favourites</div>
+    <div id="favs"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A={
+    'Brave':['I can do hard things, one little step at a time.','It is okay to feel scared and brave at the same time.','I try, I learn, I try again.','When I am unsure, I take a deep breath and begin.','My heart is brave even when my tummy feels wobbly.'],
+    'Calm':['Big breath in, slow breath out — I am safe.','I am the boss of my breath.','I let the worry float by like a cloud.','My body knows how to rest.','Quiet is a gift I give myself.'],
+    'Confident':['I am proud of who I am, all of me.','I love how my brain works.','I am enough, just as I am today.','My voice is worth listening to.','I am made of good, strong, kind things.'],
+    'Kind':['Kindness makes my world bigger.','I treat others the way I want to be treated.','Tiny kind things make a big difference.','I look for the good in people.','I am kind to myself, too.'],
+    'Sleep':['My body is heavy and warm and ready to rest.','I am safe and loved as I drift off.','Tomorrow is fresh and ready for me.','I let the day go, gently.','Each breath rocks me a little closer to sleep.']
+  };
+  let cat='Brave';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(A).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=A[cat]; g('aff').textContent='"'+list[Math.floor(Math.random()*list.length)]+'"'; }
+  let F=JSON.parse(localStorage.getItem('afc')||'[]');
+  function fav(){ const t=g('aff').textContent; if(!t||t.indexOf('"')<0){ alert('Draw an affirmation first.'); return; }
+    if(!F.includes(t)){ F.unshift(t); localStorage.setItem('afc',JSON.stringify(F)); renderF(); } }
+  function delF(i){ F.splice(i,1); localStorage.setItem('afc',JSON.stringify(F)); renderF(); }
+  function renderF(){
+    g('favs').innerHTML=F.length?F.map((t,i)=>'<div class="fav"><span>'+t+'</span><span class="x" onclick="delF('+i+')">✕</span></div>').join(''):'<div class="empty">No favourites yet.</div>';
+  }
+  drawPresets(); next(); renderF();
+</script>
+</body>
+</html>

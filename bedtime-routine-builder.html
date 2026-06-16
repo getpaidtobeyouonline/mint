@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bedtime Routine Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bedtime Routine Builder</h1>
+  <p class="sub">A calm, predictable bedtime — the gold standard for everyone's sleep.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="lights">Lights out by</label><input id="lights" placeholder="e.g. 7:30pm"></div>
+      <div><label for="start">Wind-down starts</label><input id="start" placeholder="e.g. 6:30pm"></div>
+    </div>
+    <label for="signals">Wind-down signals (calmer house, lower lights)</label>
+    <textarea id="signals" placeholder="What changes 30-60 min before bed"></textarea>
+    <label for="bath">Bath / bodycare</label>
+    <input id="bath" placeholder="Bath, brushing teeth, pyjamas">
+    <label for="story">Story / connection time</label>
+    <textarea id="story" placeholder="A story, a chat, a song, a snuggle"></textarea>
+    <label for="lightsOff">Lights out — the soothing close</label>
+    <textarea id="lightsOff" placeholder="A goodnight phrase, a kiss, the night light on"></textarea>
+    <label for="extras">Any extras (lovey, white noise, water)</label>
+    <input id="extras" placeholder="Bits that help your child settle">
+    <button class="btn" onclick="gen()">Build Routine</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['lights','start','signals','bath','story','lightsOff','extras'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('brb_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('brb_'+k,g(k).value)); });
+  function gen(){
+    const t='BEDTIME ROUTINE'+(v('lights')?'  ·  Lights out by '+v('lights'):'')+
+    '\n\n1. WIND-DOWN STARTS'+(v('start')?' ('+v('start')+')':'')+'\n'+(v('signals')||'[calmer house, lower lights, screens off]')+
+    '\n\n2. BATH & BODYCARE\n'+(v('bath')||'[bath, teeth, pyjamas]')+
+    '\n\n3. CONNECTION TIME\n'+(v('story')||'[story, song, snuggle]')+
+    '\n\n4. LIGHTS OUT — SOOTHING CLOSE\n'+(v('lightsOff')||'[goodnight phrase, kiss, night light]')+
+    (v('extras')?'\n\nEXTRAS THAT HELP:\n'+v('extras'):'')+
+    '\n\n--- Bedtime tips ---\nSame steps, same order, every night — predictability is calming.\nScreens off at least 30-60 minutes before lights out.\nKeep the bedroom cool, dark and gently quiet.\nMeet meltdowns with calm — tired children do not need lectures, only rest.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

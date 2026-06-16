@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Income Method Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 24px; display: flex; min-height: 100vh; align-items: center; justify-content: center;
+  }
+  .wrap { max-width: 620px; width: 100%; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 26px; font-size: .95rem; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 14px; padding: 26px; }
+  .q { font-family: 'Playfair Display', serif; font-size: 1.3rem; }
+  .step { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 14px; }
+  .bar { height: 4px; background: #3C603C; border-radius: 4px; margin-bottom: 16px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .opt {
+    display: block; width: 100%; text-align: left; background: #2A442A; border: 1px solid #5A845A;
+    color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem;
+    padding: 14px 16px; border-radius: 9px; margin-bottom: 10px; cursor: pointer;
+  }
+  .opt:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn {
+    background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin-top: 16px; margin-right: 8px;
+  }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .res-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.5rem; }
+  .res-tag { opacity: .85; margin: 6px 0 18px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .blk h4 { font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 6px; }
+  .blk p, .blk li { font-size: .95rem; }
+  .blk ol { padding-left: 18px; }
+  .blk li { margin-bottom: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 30px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Income Method Selector</h1>
+  <p class="sub">Four quick questions to match you with the AI income path that fits your strengths, time, and budget.</p>
+  <div class="card" id="card"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const questions = [
+    { q: "What's your biggest strength?", key: "strength",
+      opts: [["Writing & communication","write"],["Design & visuals","design"],["Tech & automation","tech"],["Teaching & explaining","teach"],["Sales & audience building","sales"]] },
+    { q: "How much time can you commit weekly?", key: "time",
+      opts: [["Under 5 hours","low"],["5–15 hours","mid"],["15+ hours / full focus","high"]] },
+    { q: "What's your starting budget?", key: "budget",
+      opts: [["Basically $0","none"],["A little (~$100)","some"],["I can invest ($500+)","invest"]] },
+    { q: "How soon do you need income?", key: "speed",
+      opts: [["ASAP — this month","fast"],["Building over a few months","mid"],["Long-term asset","slow"]] }
+  ];
+
+  const methods = {
+    write: { title: "AI-Assisted Writing Service", tag: "Sell speed and quality on copy, ghostwriting, or content using AI as your engine.",
+      steps: ["Pick one niche (e.g. LinkedIn posts for founders)","Build 3 sample pieces with an AI assistant","Offer it as a fixed-price package to 10 targeted prospects"] },
+    design: { title: "AI Design & Visual Products", tag: "Turn AI image and layout tools into sellable visual assets and done-for-you design.",
+      steps: ["Choose a format: social templates, print-on-demand, or brand kits","Produce a 5-piece portfolio with text-to-image + an editor","List on a marketplace and pitch 5 small businesses directly"] },
+    tech: { title: "AI Automation Consulting", tag: "Build automations and AI workflows that save businesses real hours.",
+      steps: ["Pick one painful, common task (lead intake, reporting)","Build one reusable automation with an AI step","Sell setup + monthly maintenance to small businesses"] },
+    teach: { title: "AI Education Products", tag: "Package what you know about AI into courses, guides, and coaching.",
+      steps: ["Pick one specific outcome you can teach in 60 minutes","Record or write a tight mini-course or playbook","Sell it on a simple storefront and gather testimonials"] },
+    sales: { title: "AI-Powered Digital Products", tag: "Use AI to produce info products fast, then sell to an audience you build.",
+      steps: ["Pick a hungry niche and a $17–$47 product idea","Build it in days using AI for content and assets","Drive traffic with daily short-form content and an email list"] }
+  };
+
+  const speedNote = {
+    fast: "Fastest cash path: lead with a service (trade time for money now), reinvest into products later.",
+    mid: "Blend a small service offer with one product you build on the side over 6–10 weeks.",
+    slow: "Go product-first — it compounds. Expect 2–4 months before meaningful, hands-off income." };
+
+  function tailoredTip(a) {
+    const t = a.time === 'low' ? "With limited hours, niche down hard and template everything to protect your time."
+            : a.time === 'high' ? "With full focus, run outreach and build in parallel — volume is your advantage."
+            : "With moderate hours, time-box building vs. selling so neither stalls.";
+    const b = a.budget === 'none' ? "Stay on free tiers; your only investment is time and effort."
+            : a.budget === 'some' ? "Spend on one pro AI plan — it's the highest-ROI ~$20/mo you can spend."
+            : "Invest in a pro AI plan plus paid traffic or tools to compress your timeline.";
+    return t + " " + b;
+  }
+
+  let answers = {}, i = 0;
+  const card = document.getElementById('card');
+
+  function showQuestion() {
+    const Q = questions[i];
+    card.innerHTML =
+      `<div class="step">Step ${i+1} of ${questions.length}</div>
+       <div class="bar"><i style="width:${(i/questions.length)*100}%"></i></div>
+       <div class="q">${Q.q}</div><div style="margin-top:14px">` +
+      Q.opts.map(o => `<button class="opt" data-v="${o[1]}">${o[0]}</button>`).join('') + `</div>`;
+    card.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      answers[Q.key] = b.dataset.v;
+      i++;
+      i < questions.length ? showQuestion() : showResult();
+    });
+  }
+
+  function planText() {
+    const m = methods[answers.strength];
+    return `MY AI INCOME PLAN\n\nMethod: ${m.title}\nWhy: ${m.tag}\n\nFirst steps:\n` +
+      m.steps.map((s,n)=>`${n+1}. ${s}`).join('\n') +
+      `\n\nStrategy: ${speedNote[answers.speed]}\nTip: ${tailoredTip(answers)}`;
+  }
+
+  function showResult() {
+    const m = methods[answers.strength];
+    card.innerHTML =
+      `<div class="step">Your match</div>
+       <div class="bar"><i style="width:100%"></i></div>
+       <div class="res-title">${m.title}</div>
+       <p class="res-tag">${m.tag}</p>
+       <div class="blk"><h4>Your first 3 steps</h4><ol>${m.steps.map(s=>`<li>${s}</li>`).join('')}</ol></div>
+       <div class="blk"><h4>Strategy for your timeline</h4><p>${speedNote[answers.speed]}</p></div>
+       <div class="blk"><h4>Tailored to you</h4><p>${tailoredTip(answers)}</p></div>
+       <button class="btn" id="copy">Copy My Plan</button>
+       <button class="btn ghost" id="again">Start Over</button>`;
+    document.getElementById('copy').onclick = () =>
+      navigator.clipboard.writeText(planText()).then(
+        () => alert('Plan copied to clipboard!'),
+        () => alert('Copy failed — screenshot the plan instead.'));
+    document.getElementById('again').onclick = () => { answers = {}; i = 0; showQuestion(); };
+  }
+
+  showQuestion();
+</script>
+</body>
+</html>

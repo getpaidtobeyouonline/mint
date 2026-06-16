@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Product Validation Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .crit { display: flex; align-items: center; gap: 12px; justify-content: space-between; padding: 8px 0; border-top: 1px solid #3C603C; flex-wrap: wrap; }
+  .crit:first-child { border-top: none; }
+  .crit span { flex: 1; min-width: 210px; font-size: .92rem; }
+  .crit span small { display: block; opacity: .55; font-size: .78rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: 7px 9px; border-radius: 7px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin: 6px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .score { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 24px; margin: 20px 0; }
+  .score .big { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .score .vd { font-family: 'Playfair Display', serif; font-size: 1.35rem; color: #5AE57A; margin-top: 6px; }
+  .score .desc { opacity: .82; margin-top: 6px; font-size: .95rem; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .blk.risk { border-left-color: #5AE57A; }
+  .blk h4 { font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 6px; }
+  .blk.risk h4 { color: #5AE57A; }
+  .blk p { font-size: .95rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Product Validation Tool</h1>
+  <p class="sub">Pressure-test a product idea before you build it — get a verdict, your biggest risk, and the cheapest next test.</p>
+
+  <div class="panel">
+    <label for="pname">Product idea</label>
+    <input id="pname" placeholder="e.g. AI cold-email writer for solo recruiters">
+    <label for="pdesc">One-line description</label>
+    <input id="pdesc" placeholder="What it is and who it's for">
+    <div id="crits" style="margin-top:6px"></div>
+    <button class="btn" onclick="run()">Validate</button>
+    <button class="btn ghost" onclick="reset()">Reset</button>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  // [key, label, hint, weight, experiment-if-weak]
+  const C = [
+    ["prob","Problem severity","It's a real, frequent, painful problem",2,"Run 5 problem-interview calls this week — ask about their pain, don't pitch. If they shrug, the problem isn't sharp enough."],
+    ["target","Target clarity","You know exactly who has this problem",1.5,"Write a one-sentence description of the exact buyer (role, context, trigger). If you can't, you're not ready to build."],
+    ["wtp","Willingness to pay","Evidence people pay to solve this",2,"Run a pre-sale or paid waitlist. Ask for money or a deposit — opinions are not validation, payment is."],
+    ["demand","Demand signal","People actively search, ask, or buy for this",1.5,"Post the offer publicly (or a landing page) and measure clicks/replies/sign-ups before building anything."],
+    ["reach","Reachability","You can get in front of them affordably",1,"Test one channel with a tiny budget (a $50 ad or 20 cold DMs) to a simple page and measure response."],
+    ["diff","Differentiation","Clearly better or different than alternatives",1,"List 3 alternatives buyers use today and write your one-sentence wedge. If it's 'same but AI', sharpen it."],
+    ["feas","Build feasibility","You can ship a usable v1 fast",1,"Deliver a manual/concierge v1 to ONE user by hand before automating anything. Prove it works, then build."]
+  ];
+  const TW = C.reduce((s,c)=>s+c[3],0);
+  const saved = JSON.parse(localStorage.getItem('apvt') || '{}');
+  if (saved.pname) g('pname').value = saved.pname;
+  if (saved.pdesc) g('pdesc').value = saved.pdesc;
+  g('crits').innerHTML = C.map(c=>`
+    <div class="crit"><span>${c[1]}<small>${c[2]}</small></span>
+      <select id="c_${c[0]}">
+        <option value="1">No idea</option><option value="2">Assumed</option>
+        <option value="3">Some signal</option><option value="4">Strong evidence</option>
+      </select></div>`).join('');
+  C.forEach(c=>{ const el=g('c_'+c[0]); if(saved[c[0]])el.value=saved[c[0]]; el.addEventListener('change',persist); });
+  ['pname','pdesc'].forEach(k=>g(k).addEventListener('input',persist));
+  function persist(){ const o={pname:g('pname').value,pdesc:g('pdesc').value}; C.forEach(c=>o[c[0]]=g('c_'+c[0]).value); localStorage.setItem('apvt',JSON.stringify(o)); }
+
+  function run() {
+    persist();
+    const rated = C.map(c=>({ ...{} , key:c[0], label:c[1], w:c[3], exp:c[4], r:+g('c_'+c[0]).value }));
+    const score = Math.round(rated.reduce((s,x)=> s + (x.r/4)*x.w, 0)/TW*100);
+    const vd = score>=78 ? ["Green light","The fundamentals are validated. Build a lean v1 and keep testing as you go."]
+      : score>=58 ? ["Validate further","Promising, but key assumptions are still unproven. Run the test below before building."]
+      : score>=38 ? ["Refine the idea","Too many weak spots to commit. Reshape the offer or target around what's strongest."]
+      : ["Kill or pivot","The evidence isn't there. Don't build this as-is — fix the core problem first."];
+    // biggest risk = lowest rating, tie-break by highest weight (most damaging)
+    const risk = [...rated].sort((a,b)=> a.r-b.r || b.w-a.w )[0];
+    g('result').innerHTML =
+      `<div class="score"><div class="big">${score}%</div><div class="vd">${vd[0]}</div><div class="desc">${vd[1]}</div></div>
+       <div class="blk risk"><h4>Biggest risk — ${esc(risk.label)}</h4><p>This is your weakest, most damaging assumption. Everything else matters less until this is de-risked.</p></div>
+       <div class="blk"><h4>Cheapest next test</h4><p>${esc(risk.exp)}</p></div>
+       <div class="blk"><h4>Evidence snapshot</h4><p>${rated.map(x=>`${esc(x.label)}: ${['—','No idea','Assumed','Some signal','Strong'][x.r]}`).join(' · ')}</p></div>
+       <button class="btn" onclick="copyR()">Copy Report</button>`;
+    window._r = { name:g('pname').value, score, vd, risk, rated };
+    g('result').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function copyR() {
+    const r = window._r; if (!r) return;
+    const t = `PRODUCT VALIDATION — ${r.name||'Untitled'}\nScore: ${r.score}/100 — ${r.vd[0]}\n${r.vd[1]}\n\n`+
+      `BIGGEST RISK: ${r.risk.label}\nNEXT TEST: ${r.risk.exp}\n\nEVIDENCE\n`+
+      r.rated.map(x=>`- ${x.label}: ${['—','No idea','Assumed','Some signal','Strong'][x.r]}`).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Report copied!'),()=>alert('Copy failed.'));
+  }
+
+  function reset() {
+    if (!confirm('Reset everything?')) return;
+    localStorage.removeItem('apvt');
+    g('pname').value=''; g('pdesc').value='';
+    C.forEach(c=>g('c_'+c[0]).value='1');
+    g('result').innerHTML='';
+  }
+</script>
+</body>
+</html>

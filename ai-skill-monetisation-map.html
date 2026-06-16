@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Skill Monetisation Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 10px; }
+  .skill { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 7px 0; flex-wrap: wrap; }
+  .skill span { flex: 1; min-width: 200px; font-size: .93rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .88rem; padding: 7px 9px; border-radius: 7px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .bet { background: #2E4D2E; border: 1px solid #2E4D2E; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 9px; }
+  .bet .r { color: #5AE57A; font-weight: 500; }
+  .grp { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 14px 16px; margin-bottom: 12px; }
+  .grp h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .grp .lv { font-size: .76rem; opacity: .6; }
+  .route { background: #325132; border: 1px solid #3C603C; border-radius: 7px; padding: 10px 12px; margin-top: 8px; }
+  .route .rn { font-weight: 500; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; margin: 4px 0; }
+  .tag { font-size: .7rem; padding: 2px 8px; border-radius: 20px; border: 1px solid #5AE57A; color: #5AE57A; }
+  .route .st { font-size: .84rem; opacity: .75; }
+  .empty { text-align: center; opacity: .5; padding: 22px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Skill Monetisation Map</h1>
+  <p class="sub">Pick the AI skills you have and see exactly how each one turns into income — with your best bets ranked.</p>
+
+  <div class="panel">
+    <h2>Rate your AI skills</h2>
+    <div id="skills"></div>
+    <button class="btn" onclick="build()">Build My Money Map</button>
+    <button class="btn ghost" onclick="reset()">Reset</button>
+  </div>
+
+  <div id="out"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  // skill -> routes [name, type, speed, potential(1-3), starterStep]
+  const KB = [
+    ["Prompt writing / engineering", [
+      ["Sell prompt packs & templates","Product","Fast",2,"Package 20 prompts that solve one painful task; list them for $17–$47."],
+      ["Prompt optimization service","Service","Fast",2,"Offer to rewrite businesses' prompts for better output at a fixed fee."],
+      ["Build & sell prompt-powered tools","Product","Medium",3,"Wrap a strong prompt in a simple web tool and sell access."]]],
+    ["AI content writing", [
+      ["Done-for-you content service","Service","Fast",2,"Pick one niche/format and pitch a fixed monthly content package."],
+      ["Ghostwriting with AI leverage","Service","Medium",3,"Offer thought-leadership ghostwriting; AI speeds drafts, you add judgment."],
+      ["A paid newsletter","Recurring","Slow",3,"Publish free for weeks to prove the angle, then open paid tiers."]]],
+    ["AI image / design generation", [
+      ["Design assets & template packs","Product","Fast",2,"Sell social/print template sets made with text-to-image tools."],
+      ["Brand visuals as a service","Service","Medium",2,"Offer fast on-brand graphics to small businesses on retainer."],
+      ["Print-on-demand storefront","Product","Medium",2,"Generate niche designs and list them on a POD marketplace."]]],
+    ["AI automation / workflows", [
+      ["Automation setup & retainers","Service","Medium",3,"Automate one painful task for a business, then sell maintenance."],
+      ["Sell pre-built automations","Product","Medium",2,"Productize a popular workflow as a template others can install."],
+      ["Automation consulting","Service","Fast",3,"Audit a business's busywork and quote a setup project."]]],
+    ["AI research & analysis", [
+      ["Research reports as a product","Product","Medium",2,"Sell niche market/trend reports compiled with AI + your analysis."],
+      ["Research support service","Service","Fast",2,"Offer fast briefs/competitive analysis to founders and agencies."],
+      ["Data-to-insight dashboards","Service","Slow",3,"Turn a client's messy data into recurring insight deliverables."]]],
+    ["AI coding / app building", [
+      ["Build micro-tools & sell access","Product","Medium",3,"Ship a single-purpose web app that solves one job; charge for it."],
+      ["MVP-for-hire","Service","Fast",3,"Build founders' first prototype fast using AI-assisted coding."],
+      ["Templates & boilerplates","Product","Medium",2,"Sell starter codebases/components other builders reuse."]]],
+    ["Teaching / explaining AI", [
+      ["Mini-course or playbook","Product","Medium",3,"Teach one specific outcome in a tight paid mini-course."],
+      ["Cohort or workshop","Recurring","Medium",3,"Run a small live cohort on a high-value AI skill."],
+      ["1:1 coaching / consulting","Service","Fast",2,"Offer paid sessions to people stuck on applying AI."]]],
+    ["AI video / audio production", [
+      ["Short-form video service","Service","Fast",2,"Repurpose clients' content into short videos with AI tools."],
+      ["Voiceover / audio assets","Product","Medium",2,"Produce and license AI-assisted voiceover or audio packs."],
+      ["Faceless channel / content","Recurring","Slow",3,"Build a niche AI-produced channel monetized over time."]]]
+  ];
+  const LV = { '0':'None', '1':'Learning', '2':'Solid', '3':'Strong' };
+  const saved = JSON.parse(localStorage.getItem('asmm') || '{}');
+  g('skills').innerHTML = KB.map(([s],i)=>`
+    <div class="skill"><span>${s}</span>
+      <select id="s${i}">
+        <option value="0">None</option><option value="1">Learning</option>
+        <option value="2">Solid</option><option value="3">Strong</option>
+      </select></div>`).join('');
+  KB.forEach((_,i)=>{ const el=g('s'+i); if(saved[i]) el.value=saved[i]; el.addEventListener('change',persist); });
+  function persist(){ const o={}; KB.forEach((_,i)=>o[i]=g('s'+i).value); localStorage.setItem('asmm',JSON.stringify(o)); }
+
+  function build() {
+    persist();
+    const chosen = KB.map(([name,routes],i)=>({name,routes,lv:+g('s'+i).value})).filter(x=>x.lv>0);
+    if (!chosen.length) { g('out').innerHTML='<div class="panel"><div class="empty">Rate at least one skill above, then build your map.</div></div>'; return; }
+    const bets = [];
+    chosen.forEach(s => s.routes.forEach(r => bets.push({ skill:s.name, name:r[0], type:r[1], speed:r[2], score: s.lv*r[3], start:r[4] })));
+    bets.sort((a,b)=> b.score-a.score || (a.speed==='Fast'?-1:1));
+    const top = bets.slice(0,3);
+    let html = `<div class="panel"><h2>★ Your best bets</h2>` +
+      top.map((b,i)=>`<div class="bet"><div class="r">${i+1}. ${esc(b.name)}</div>
+        <div style="font-size:.84rem;opacity:.75">From <b>${esc(b.skill)}</b> · ${b.type} · ${b.speed} to first $</div>
+        <div style="font-size:.86rem;margin-top:3px">${esc(b.start)}</div></div>`).join('') + `</div>`;
+    html += chosen.map(s => `
+      <div class="grp"><h3>${esc(s.name)} <span class="lv">· ${LV[s.lv]}</span></h3>` +
+        s.routes.map(r=>`<div class="route">
+          <div class="rn">${esc(r[0])}</div>
+          <div class="tags"><span class="tag">${r[1]}</span><span class="tag">${r[2]} to first $</span><span class="tag">${'$'.repeat(r[3])}</span></div>
+          <div class="st">${esc(r[4])}</div>
+        </div>`).join('') + `</div>`).join('');
+    html += `<button class="btn" onclick="copyMap()">Copy Map</button>`;
+    g('out').innerHTML = html;
+    window._map = { chosen, top };
+    g('out').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function copyMap() {
+    const m = window._map; if (!m) return;
+    let t = `AI SKILL MONETISATION MAP\n\nBEST BETS\n` +
+      m.top.map((b,i)=>`${i+1}. ${b.name} — from ${b.skill} (${b.type}, ${b.speed}). ${b.start}`).join('\n') +
+      `\n\nFULL MAP\n`;
+    m.chosen.forEach(s => { t += `\n${s.name} (${LV[s.lv]})\n` + s.routes.map(r=>`  - ${r[0]} [${r[1]}, ${r[2]}]: ${r[4]}`).join('\n') + '\n'; });
+    navigator.clipboard.writeText(t).then(()=>alert('Map copied!'),()=>alert('Copy failed.'));
+  }
+
+  function reset() {
+    if (!confirm('Reset all skills?')) return;
+    localStorage.removeItem('asmm');
+    KB.forEach((_,i)=>g('s'+i).value='0');
+    g('out').innerHTML='';
+  }
+</script>
+</body>
+</html>

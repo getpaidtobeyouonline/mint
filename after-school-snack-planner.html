@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>After School Snack Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 50px; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 14px 8px 0 0; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>After School Snack Planner</h1>
+  <p class="sub">A balanced snack plan for tired-and-hungry pickups — no daily 4pm panic.</p>
+
+  <div class="panel">
+    <label for="dietary">Any allergies or dietary needs</label>
+    <input id="dietary" placeholder="e.g. nut-free, dairy-free, vegetarian">
+    <label for="loves">Snacks they love</label>
+    <textarea id="loves" placeholder="What you know will be eaten without a fight"></textarea>
+    <label for="have">What's in the cupboard / fridge this week</label>
+    <textarea id="have" placeholder="The ingredients you actually have"></textarea>
+    <button class="btn" onclick="gen()">Build Snack Plan</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['dietary','loves','have'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('assp_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('assp_'+k,g(k).value)); });
+  function gen(){
+    const t='AFTER-SCHOOL SNACK PLAN\n\nNEEDS & PREFERENCES:\n'+(v('dietary')||'[any dietary needs]')+
+    (v('loves')?'\n\nSNACKS THEY LOVE:\n'+v('loves'):'')+
+    (v('have')?'\n\nWHAT IS IN THE HOUSE:\n'+v('have'):'')+
+    '\n\n--- BALANCED SNACK IDEAS ---\n\nFRUIT + PROTEIN (slow-release energy)\n  • Apple slices + peanut butter (or sunflower butter)\n  • Banana + Greek yogurt\n  • Berries + cheese cubes\n  • Pear + a small handful of nuts (older kids)\n\nVEG + DIP\n  • Carrot sticks + hummus\n  • Cucumber + cream cheese\n  • Pepper strips + guacamole\n  • Sugar snap peas as they are\n\nMINI MEALS\n  • Wholemeal toast + cheese / banana / nut butter\n  • Mini pita + tuna / hummus\n  • Cheese and crackers + grapes\n  • Hard-boiled egg + cherry tomatoes\n\nLITTLE TREATS (in moderation)\n  • Homemade flapjack or banana bread\n  • Oat cookies\n  • A small piece of dark chocolate with strawberries\n\n--- Snack-time tips ---\nOffer water alongside — kids often confuse thirst with hunger.\nPair carbs with protein or fat so the snack actually lasts.\nLet them choose between two healthy options — kids eat better when they feel in charge.';
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ const t=g('out').textContent; if(!t){alert('Build it first.');return;} navigator.clipboard.writeText(t).then(()=>alert('Copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Research Assistant Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 13px 0 5px; }
+  .hint { text-transform: none; letter-spacing: 0; opacity: .55; font-size: .8rem; }
+  input, textarea, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .96rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 18px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 160px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 16px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-size: .9rem; font-family: 'DM Sans', sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Research Assistant Brief</h1>
+  <p class="sub">Turn a fuzzy "look into this" into a rigorous research brief so Claude delivers real findings, not vague summaries.</p>
+
+  <div class="panel">
+    <label for="q">Main research question</label>
+    <input id="q" placeholder="The one question this research must answer">
+
+    <label for="why">Why you need it <span class="hint">— the decision it informs</span></label>
+    <textarea id="why" placeholder="What you'll do differently based on the answer"></textarea>
+
+    <label for="subs">Key sub-questions <span class="hint">(one per line)</span></label>
+    <textarea id="subs" placeholder="Each angle you want covered"></textarea>
+
+    <label for="scope">Scope & boundaries <span class="hint">— what's in and out</span></label>
+    <textarea id="scope" placeholder="e.g. US market only; ignore enterprise tools"></textarea>
+
+    <div class="grid">
+      <div><label for="src">Source priority</label>
+        <select id="src"><option value="any">Any reputable source</option><option value="academic">Primary / academic / official</option><option value="industry">Industry & market data</option><option value="news">Recent reporting</option></select></div>
+      <div><label for="rec">Recency</label>
+        <select id="rec"><option>Any time</option><option>Last 3 years</option><option>Last 12 months</option><option>Last 3 months</option></select></div>
+    </div>
+    <div class="grid">
+      <div><label for="depth">Depth</label>
+        <select id="depth"><option value="quick">Quick overview</option><option value="solid">Solid summary</option><option value="deep">Deep dive</option></select></div>
+      <div><label for="fmt">Deliverable format</label>
+        <select id="fmt"><option>Briefing memo</option><option>Bulleted findings</option><option>Comparison table</option><option>Pros & cons</option><option>Annotated source list</option></select></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Generate Brief</button>
+  <button class="btn ghost" onclick="loadExample()">Load Example</button>
+  <button class="btn ghost" onclick="copyB()">Copy</button>
+  <button class="btn ghost" onclick="dlMd()">Download .md</button>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['q','why','subs','scope','src','rec','depth','fmt'];
+  F.forEach(id => { const s = localStorage.getItem('arab_'+id); if (s!==null) document.getElementById(id).value = s; });
+  F.forEach(id => document.getElementById(id).addEventListener('input', save));
+  function save() { F.forEach(id => localStorage.setItem('arab_'+id, document.getElementById(id).value)); }
+  const v = id => document.getElementById(id).value.trim();
+  const lines = id => v(id).split('\n').map(s=>s.trim()).filter(Boolean);
+
+  const srcNote = {
+    any: "Use any reputable, verifiable sources; prioritize quality and primary data over convenience.",
+    academic: "Prioritize primary sources, peer-reviewed work, and official statistics. Avoid blogs and SEO content.",
+    industry: "Prioritize industry reports, market data, and credible practitioner sources; name the publisher.",
+    news: "Prioritize recent, reputable reporting and always include the publication date of each claim."
+  };
+  const depthNote = {
+    quick: "Tight scope — only the 5–7 most decision-relevant points (~300 words). Speed over exhaustiveness.",
+    solid: "Balanced — cover each key angle with brief supporting evidence (~600–900 words).",
+    deep: "Thorough — explore nuance, competing views, and edge cases. Depth over brevity."
+  };
+
+  function briefText() {
+    const subs = lines('subs');
+    return `# Research Brief\n\n`+
+      `## Main question\n${v('q')||'(not set)'}\n\n`+
+      `## Why it matters\n${v('why')||'(not set)'}\n\n`+
+      `## Sub-questions\n${subs.length?subs.map((s,i)=>`${i+1}. ${s}`).join('\n'):'(none specified)'}\n\n`+
+      `## Scope & boundaries\n${v('scope')||'(none specified)'}\n\n`+
+      `## Sources\n${srcNote[v('src')]} Recency: ${v('rec')}.\n\n`+
+      `## Depth & format\n${depthNote[v('depth')]}\nDeliver as a ${document.getElementById('fmt').value.toLowerCase()}.\n\n`+
+      `---\n## Instructions for Claude (research assistant)\n`+
+      `- Answer the main question directly first, then support it.\n`+
+      `- Clearly separate established fact, reasonable inference, and opinion.\n`+
+      `- Cite the source for every specific claim, stat, or quote.\n`+
+      `- State your confidence and flag anything uncertain or contested.\n`+
+      `- Call out gaps — what you couldn't verify and what's still unknown.\n`+
+      `- Don't pad. If evidence is thin, say so instead of guessing.\n`+
+      `- Ask me any clarifying questions before you begin researching.`;
+  }
+
+  function build() {
+    if (!v('q')) { alert('Add the main research question first.'); return; }
+    const o = document.getElementById('out');
+    o.textContent = briefText();
+    o.style.display = 'block';
+    o.scrollIntoView({ behavior: 'smooth' });
+  }
+  function copyB() {
+    navigator.clipboard.writeText(briefText()).then(
+      ()=>alert('Brief copied — paste it into Claude.'),
+      ()=>alert('Copy failed.'));
+  }
+  function dlMd() {
+    const n = (v('q')||'research-brief').toLowerCase().replace(/[^a-z0-9]+/g,'-').slice(0,40);
+    const b = new Blob([briefText()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  function loadExample() {
+    if (F.some(id=>v(id)) && !confirm('Replace your current inputs with the example?')) return;
+    const ex = {
+      q: "Is launching a paid newsletter still viable for a solo creator in a crowded niche?",
+      why: "Deciding whether to invest 3 months building one or focus on digital products instead.",
+      subs: "What conversion rates do solo paid newsletters realistically see?\nWhich monetization models retain best?\nWhat are the most common failure reasons?",
+      scope: "Solo creators only; English-language; exclude large media companies and team-run publications.",
+      src: "industry",
+      rec: "Last 12 months",
+      depth: "solid",
+      fmt: "Briefing memo"
+    };
+    Object.keys(ex).forEach(k => document.getElementById(k).value = ex[k]);
+    save(); build();
+  }
+</script>
+</body>
+</html>

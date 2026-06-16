@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Automation Sequence Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 12px 15px; margin-bottom: 8px; display: flex; gap: 12px; }
+  .step .n { font-family: 'Playfair Display', serif; color: #5AE57A; width: 32px; flex: none; }
+  .step .b { font-size: .92rem; }
+  .step .b small { display: block; opacity: .6; font-size: .8rem; }
+  .arrow { text-align: center; opacity: .5; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Automation Sequence Planner</h1>
+  <p class="sub">Pick an automation type and get a logic map: trigger → conditions → actions → exit.</p>
+
+  <div class="panel">
+    <label for="type">Automation type</label>
+    <select id="type" onchange="render()">
+      <option value="welcome">New subscriber welcome</option>
+      <option value="abandon">Abandoned checkout / cart</option>
+      <option value="upsell">Post-purchase upsell</option>
+      <option value="reengage">Re-engagement (cold subs)</option>
+      <option value="lead">Lead-magnet → nurture → offer</option>
+      <option value="downsell">Cart closed → downsell offer</option>
+    </select>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const FLOWS={
+    welcome:[
+      ["Trigger","New subscriber added (from any opt-in form)"],
+      ["Action — Immediate","Send deliverable + welcome email. Set expectations & ask them to reply."],
+      ["Wait","24 hours"],
+      ["Action","Email 2: a quick win they can use today"],
+      ["Wait","48 hours"],
+      ["Action","Email 3: your story / why"],
+      ["Wait","48 hours"],
+      ["Action","Email 4: teach the gap, mention your offer softly"],
+      ["Wait","48 hours"],
+      ["Action","Email 5: the invitation (clear CTA to your offer)"],
+      ["Exit","Move to main broadcast list / tag as 'completed welcome'"]
+    ],
+    abandon:[
+      ["Trigger","Started checkout but did not purchase"],
+      ["Wait","1 hour"],
+      ["Action","Email 1: friendly nudge — 'still thinking?' + link back"],
+      ["Wait","24 hours"],
+      ["Action","Email 2: handle the top objection + a testimonial"],
+      ["Condition","If still not purchased after 48h"],
+      ["Action","Email 3: optional small incentive or final reminder + deadline"],
+      ["Exit","Stop on purchase OR after final email"]
+    ],
+    upsell:[
+      ["Trigger","Purchase of product A"],
+      ["Action — Immediate","Thank-you + delivery details"],
+      ["Wait","48 hours"],
+      ["Action","Quick-start tip so they get a fast win from product A"],
+      ["Wait","3 days"],
+      ["Action","Introduce the natural next step (product B) — show the bridge, not a hard sell"],
+      ["Wait","3 days"],
+      ["Action","Case study / result from someone who bought B"],
+      ["Wait","2 days"],
+      ["Action","Time-limited offer on B"],
+      ["Exit","Tag buyers; remove from this flow if B is purchased"]
+    ],
+    reengage:[
+      ["Trigger","60+ days since last open"],
+      ["Action","Email 1: 'is this goodbye?' — single button to stay"],
+      ["Wait","3 days"],
+      ["Action","Email 2: give your best free value, no ask"],
+      ["Wait","3 days"],
+      ["Action","Email 3: direct ask — keep me in / not interested"],
+      ["Wait","3 days"],
+      ["Action","Email 4: final notice — removing you tomorrow"],
+      ["Exit","If no click, remove from list (protect deliverability)"]
+    ],
+    lead:[
+      ["Trigger","Subscribed via lead magnet form"],
+      ["Action","Send the lead magnet + intro"],
+      ["Wait","1 day"],
+      ["Action","Reframe their problem in a new way"],
+      ["Wait","2 days"],
+      ["Action","Quick-win tactical email"],
+      ["Wait","2 days"],
+      ["Action","Story / proof of transformation"],
+      ["Wait","2 days"],
+      ["Action","Address the #1 objection"],
+      ["Wait","2 days"],
+      ["Action","Soft pitch your paid offer"],
+      ["Wait","2 days"],
+      ["Action","Clear invitation with CTA"],
+      ["Exit","Move to broadcast list; tag as 'pitched'"]
+    ],
+    downsell:[
+      ["Trigger","On launch list but did not buy by cart close"],
+      ["Wait","24 hours after cart close"],
+      ["Action","Email 1: acknowledge — and offer a smaller next-step product"],
+      ["Wait","2 days"],
+      ["Action","Email 2: explain why the downsell is the right fit if main was 'too much'"],
+      ["Wait","2 days"],
+      ["Action","Final email: deadline on the downsell"],
+      ["Exit","Stop on purchase; otherwise return to broadcast list"]
+    ]
+  };
+  function render(){
+    const t=g('type').value; localStorage.setItem('asp7_t',t);
+    g('out').innerHTML='<div class="panel">'+FLOWS[t].map((s,i,arr)=>{
+      const arr2 = i<arr.length-1?'<div class="arrow">▼</div>':'';
+      return `<div class="step"><span class="n">${i+1}</span><div class="b"><b>${s[0]}</b><small>${s[1]}</small></div></div>${arr2}`;
+    }).join('')+'</div>';
+  }
+  const sv=localStorage.getItem('asp7_t'); if(sv)g('type').value=sv;
+  render();
+</script>
+</body>
+</html>

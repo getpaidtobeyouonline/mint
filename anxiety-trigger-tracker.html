@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anxiety Trigger Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; resize: vertical; }
+  textarea { min-height: 48px; }
+  input[type=range] { padding: 0; accent-color: #5AE57A; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 12px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .insight { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 11px 14px; font-size: .85rem; margin-bottom: 12px; }
+  .row2 { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 9px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; font-size: .85rem; gap: 10px; }
+  .row2 .x { cursor: pointer; opacity: .5; } .row2 .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 14px 0; font-style: italic; }
+  .note { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 10px 13px; font-size: .8rem; opacity: .75; margin-top: 12px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Anxiety Trigger Tracker</h1>
+  <p class="sub">Log what set anxiety off and what eased it. Patterns make the invisible manageable.</p>
+
+  <div class="panel">
+    <label>What triggered it? (situation, thought, place)</label>
+    <input id="trig" placeholder="e.g. Unread message / crowded shop / a deadline">
+    <div class="row">
+      <div><label>Category</label><select id="cat"><option>Work / school</option><option>Social</option><option>Health</option><option>Money</option><option>Relationship</option><option>Uncertainty</option><option>No clear cause</option></select></div>
+      <div><label>Time of day</label><select id="tod"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Night</option></select></div>
+    </div>
+    <label>Intensity: <span id="iv" style="color:#5AE57A">5</span> / 10</label>
+    <input id="int" type="range" min="1" max="10" value="5" oninput="document.getElementById('iv').textContent=this.value">
+    <label>What helped (or what you tried)</label>
+    <textarea id="help" placeholder="e.g. Slow breathing, a walk, talking to someone"></textarea>
+    <button class="btn" onclick="add()">+ Log Trigger</button>
+    <div class="note">A self-awareness tool, not treatment. If anxiety is frequent or overwhelming, please reach out to a professional.</div>
+  </div>
+
+  <div class="panel">
+    <div id="insight"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('att')||'[]');
+  const save=()=>localStorage.setItem('att',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('trig')){ alert('What triggered the anxiety?'); return; }
+    R.push({t:Date.now(),trig:v('trig'),cat:g('cat').value,tod:g('tod').value,int:+g('int').value,help:v('help')});
+    g('trig').value=''; g('help').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all entries?')){ R=[]; save(); render(); } }
+  function topOf(key){ const c={}; R.forEach(x=>c[x[key]]=(c[x[key]]||0)+1);
+    return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]; }
+  function render(){
+    const I=g('insight'), L=g('list');
+    if(!R.length){ I.innerHTML=''; L.innerHTML='<div class="empty">No triggers logged yet.</div>'; return; }
+    const tc=topOf('cat'), tt=topOf('tod');
+    const avg=(R.reduce((s,x)=>s+x.int,0)/R.length).toFixed(1);
+    I.innerHTML='<div class="insight">'+R.length+' logged · avg intensity '+avg+'/10 · most common: <b style="color:#5AE57A">'+tc[0]+'</b> · peaks in the <b style="color:#5AE57A">'+tt[0].toLowerCase()+'</b>. Knowing the pattern is half the work.</div>';
+    L.innerHTML=[...R].reverse().map(x=>{ const i=R.indexOf(x);
+      const d=new Date(x.t).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+      return '<div class="row2"><span><b style="color:#5AE57A">'+esc(x.trig)+'</b><br><span style="opacity:.7">'+d+' · '+x.cat+' · '+x.tod+' · '+x.int+'/10'+(x.help?' · helped: '+esc(x.help):'')+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

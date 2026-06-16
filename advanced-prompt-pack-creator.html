@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Prompt Pack Creator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem;line-height:1.55}
+.container{max-width:700px;margin:0 auto}
+header{text-align:center;margin-bottom:1.75rem}
+h1{font-family:'Playfair Display',serif;font-size:2.05rem;color:#5AE57A;margin-bottom:.4rem}
+.subtitle{opacity:.65;font-size:.93rem;max-width:500px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.3rem 1.4rem;margin-bottom:1.15rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.85rem;padding-bottom:.45rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.8rem;font-weight:500;opacity:.7;margin:.8rem 0 .35rem}
+label:first-of-type{margin-top:0}
+input,select{width:100%;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.65rem .85rem;color:#FFFFFF;font-family:inherit;font-size:.93rem;outline:none;transition:border-color .2s;-webkit-appearance:none;appearance:none}
+input:focus,select:focus{border-color:#5AE57A}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.8rem}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.85rem;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-bottom:1.15rem}
+.btn:hover{opacity:.88}
+.results{display:none}.results.show{display:block}
+.name-box{background:#325132;border:1px solid #C9A84C44;border-left:3px solid #5AE57A;border-radius:10px;padding:.95rem 1.2rem;margin-bottom:1.15rem}
+.pack-name{font-family:'Playfair Display',serif;font-size:1.25rem;color:#5AE57A;margin-bottom:.35rem}
+.tagline{font-size:.85rem;opacity:.65}
+.price-badge{display:inline-block;background:#C9A84C22;border:1px solid #C9A84C44;color:#5AE57A;border-radius:5px;padding:.2rem .55rem;font-size:.75rem;font-weight:600;margin-top:.55rem}
+.p-row{display:flex;align-items:center;gap:.55rem;padding:.55rem 0;border-bottom:1px solid #3C603C}
+.p-row:last-child{border-bottom:none}
+.p-row.off{opacity:.38}
+.p-row input[type=checkbox]{width:auto;accent-color:#5AE57A;flex-shrink:0;cursor:pointer}
+.cat-badge{font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;border-radius:4px;padding:.16rem .42rem;white-space:nowrap;flex-shrink:0}
+.p-title{flex:1;font-size:.87rem;font-weight:500;min-width:0}
+.mini{background:transparent;border:1px solid #4C724C;color:#FFFFFF;border-radius:5px;padding:.18rem .5rem;font-family:inherit;font-size:.72rem;cursor:pointer;flex-shrink:0;transition:opacity .2s}
+.mini:hover{opacity:.6;border-color:#5AE57A}
+pre{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.9rem 1rem;font-family:inherit;font-size:.82rem;white-space:pre-wrap;max-height:300px;overflow:auto;opacity:.92}
+.copy-btn{width:100%;background:transparent;border:1px solid #C9A84C55;color:#5AE57A;border-radius:8px;padding:.7rem;font-family:inherit;font-size:.88rem;font-weight:600;cursor:pointer;margin-top:.75rem;transition:opacity .2s}
+.copy-btn:hover{opacity:.7}
+.dl-btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.75rem;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;margin-top:.55rem;transition:opacity .2s}
+.dl-btn:hover{opacity:.88}
+footer{text-align:center;font-size:.74rem;opacity:.4;margin-top:1.75rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.7rem}.g2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Advanced Prompt Pack Creator</h1>
+    <p class="subtitle">Auto-build a curated pack, then fine-tune it — pick prompts, reorder, set tone &amp; length, and get ready-to-paste sales copy.</p>
+  </header>
+
+  <div class="card">
+    <h2>Pack Setup</h2>
+    <label>Pack Topic</label>
+    <input id="topic" placeholder="e.g. email marketing, course launches">
+    <label>Target Audience</label>
+    <input id="audience" placeholder="e.g. coaches, Etsy sellers">
+    <label>What will buyers achieve?</label>
+    <input id="goal" placeholder="e.g. write a month of content in a day">
+    <div class="g2">
+      <div><label>Tone</label>
+        <select id="tone"><option>professional</option><option>conversational</option><option>bold and punchy</option><option>warm and friendly</option><option>authoritative</option></select></div>
+      <div><label>Length</label>
+        <select id="len"><option value="concise (under 200 words)">Short</option><option value="medium length (300–500 words)" selected>Medium</option><option value="in-depth (800–1200 words)">Long</option></select></div>
+    </div>
+    <div class="g2">
+      <div><label>Focus</label>
+        <select id="focus"><option value="content">Content Creation</option><option value="marketing">Marketing &amp; Sales</option><option value="social">Social Media</option><option value="strategy">Strategy</option><option value="analysis">Research &amp; Analysis</option></select></div>
+      <div><label>Pack Size</label>
+        <select id="size"><option value="8">8 Prompts</option><option value="12" selected>12 Prompts</option><option value="16">16 Prompts</option></select></div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="generate()">Build My Pack →</button>
+
+  <div class="results" id="results">
+    <div class="name-box">
+      <div class="pack-name" id="packName">—</div>
+      <div class="tagline" id="packTagline">—</div>
+      <span class="price-badge" id="priceBadge">—</span>
+      <button class="mini" style="float:right" onclick="regenName()">↻ Name</button>
+    </div>
+    <div class="card">
+      <h2>Prompts <span style="font-family:'DM Sans';font-weight:400;opacity:.4;font-size:.78rem">— uncheck to exclude, ↑↓ to reorder</span></h2>
+      <div id="promptList"></div>
+    </div>
+    <div class="card">
+      <h2>Sales Page Copy <span style="font-family:'DM Sans';font-weight:400;opacity:.4;font-size:.78rem">— paste into your listing</span></h2>
+      <pre id="salesCopy"></pre>
+      <button class="copy-btn" onclick="copyEl('salesCopy',this)">Copy Sales Copy</button>
+    </div>
+    <button class="copy-btn" onclick="copyPack(this)">Copy Full Pack as Text</button>
+    <button class="dl-btn" onclick="downloadPack()">⬇ Download Pack as .txt File</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const cap=s=>s?s.replace(/\b\w/g,c=>c.toUpperCase()):s;
+const fill=(s,S)=>s.replace(/\{T\}/g,S.T).replace(/\{A\}/g,S.A).replace(/\{TONE\}/g,S.tone).replace(/\{LEN\}/g,S.len);
+const cc={content:'#5AE57A',copy:'#5AE57A',social:'#5AE57A',strategy:'#5AE57A',analysis:'#5AE57A'};
+const cl={content:'Content',copy:'Copy',social:'Social',strategy:'Strategy',analysis:'Analysis'};
+const order={content:['content','social','copy','strategy','analysis'],marketing:['copy','strategy','content','social','analysis'],social:['social','content','copy','strategy','analysis'],strategy:['strategy','analysis','copy','content','social'],analysis:['analysis','strategy','content','copy','social']};
+const prices={8:'$17',12:'$27',16:'$37'};
+const nameForms=[S=>`The ${cap(S.T)} Prompt Pack`,S=>`Done-for-You ${cap(S.T)} AI Toolkit`,S=>`The ${cap(S.A)}'s ${cap(S.T)} Vault`,S=>`${cap(S.T)} Prompts: The Complete Pack`];
+const lib=[
+{c:'content',t:'Long-Form Article',p:'Act as a {T} expert writing for {A}. Write a {LEN} article on [your topic]. Open with a hook naming a real pain, deliver 3–5 concrete insights with examples, close with a clear next step. Tone: {TONE}.'},
+{c:'content',t:'Listicle',p:'Write a {LEN} listicle "[X] Ways {A} Can [outcome]" about {T}. Each item: bold heading, 2–3 sentence explanation, one example. Tone: {TONE}. End with a short CTA.'},
+{c:'content',t:'Email Newsletter',p:'Write a {LEN} email newsletter for {A} about {T}. Include subject line, short personal opener, one key insight with an example, a tip to use today, and a soft CTA. Tone: {TONE}.'},
+{c:'content',t:'Lead Magnet',p:'Write the full content of a {LEN} lead-magnet guide for {A} solving one specific {T} problem. Use simple language, 3–5 actionable steps, and a next step toward a paid offer. Tone: {TONE}.'},
+{c:'copy',t:'Sales Page Headlines',p:'Write 10 sales-page headline options for a {T} offer for {A}. Vary angles: outcome, curiosity, problem-solve, proof, speed, bold claim. Add a sub-headline each. Mark your top 3. Tone: {TONE}.'},
+{c:'copy',t:'Product Description',p:'Write a {LEN} product description for a {T} digital product for {A}: hook on their pain, what they get and achieve, 3–5 benefit bullets, "who it\'s for", and a CTA. Tone: {TONE}.'},
+{c:'copy',t:'Welcome Email Series',p:'Write a 5-email welcome sequence for new subscribers interested in {T}, audience {A}. Quick win, story, myth-bust, case study, soft pitch. Subject lines for all 5. Each email {LEN}. Tone: {TONE}.'},
+{c:'copy',t:'Bio (3 Lengths)',p:'Write 3 bios for a {T} expert serving {A}: 50-word social bio, 150-word site header, 300-word About story. Establish credibility and empathy, end with a CTA. Tone: {TONE}.'},
+{c:'social',t:'Instagram Carousel',p:'Write a 9-slide Instagram carousel for {A} about {T}. Slide 1 bold hook (≤8 words), slides 2–8 one tip each, slide 9 recap + CTA. Add a caption and 3–5 hashtags. Tone: {TONE}.'},
+{c:'social',t:'Short Video Script',p:'Write a 30–60s Reel/TikTok script for {A} about {T}: 3s hook, context, insight, CTA. Add on-screen text and visual notes per beat. Tone: {TONE}.'},
+{c:'social',t:'LinkedIn Post',p:'Write a {LEN} LinkedIn post for {A} about [{T} topic]: story or stat hook, 3–5 key points, an example, and a closing question to drive comments. Tone: {TONE}.'},
+{c:'social',t:'X / Twitter Thread',p:'Write an X thread for {A} about {T}: counterintuitive hook, 7 insight tweets (≤250 chars), summary, CTA tweet. Suggest 2–3 image ideas. Tone: {TONE}.'},
+{c:'strategy',t:'90-Day Plan',p:'Write a 90-day action plan for a {T} business serving {A}. Three 30-day sprints, each with a goal, 3–5 actions, one metric, one obstacle + fix. Specific, not generic. Tone: {TONE}.'},
+{c:'strategy',t:'Launch Plan',p:'Create a 21-day launch plan for a {T} offer for {A}: pre-launch warming, launch week daily content + emails, post-launch follow-up. Topic, format, goal per phase. Tone: {TONE}.'},
+{c:'analysis',t:'Audience Pain Map',p:'Act as a market researcher. List the top 10 pain points {A} have about {T}. For each: surface complaint, deeper fear, the transformation sought. Table format, in {A}\'s own words.'},
+{c:'analysis',t:'Competitor Gaps',p:'Analyze the top 5 players in the {T} space for {A}. For each: what they sell and price, content angle, gaps. Then list 5 underserved positioning opportunities. Tone: {TONE}.'}];
+
+let S={},nameIdx=0;
+
+function readInputs(){return{T:topic.value.trim(),A:audience.value.trim(),G:goal.value.trim(),tone:tone.value,len:len.value,focus:focus.value,size:+size.value};}
+
+function generate(){
+  const i=readInputs();
+  if(!i.T){alert('Enter a pack topic.');return;}
+  if(!i.A){alert('Enter your target audience.');return;}
+  if(!i.G){alert('Enter what buyers will achieve.');return;}
+  saveInputs();
+  const o=order[i.focus];
+  const sorted=[...lib].sort((a,b)=>o.indexOf(a.c)-o.indexOf(b.c)).slice(0,i.size);
+  S={...i,items:sorted.map(p=>({...p,inc:true}))};
+  nameIdx=Math.floor(Math.random()*nameForms.length);
+  render();
+  const r=document.getElementById('results');r.classList.add('show');r.scrollIntoView({behavior:'smooth'});
+}
+
+function active(){return S.items.filter(x=>x.inc);}
+
+function render(){
+  document.getElementById('packName').textContent=nameForms[nameIdx](S);
+  document.getElementById('packTagline').textContent=`${active().length} ready-to-use prompts to help ${S.A} ${S.G}.`;
+  document.getElementById('priceBadge').textContent=`Sell for ${prices[S.size]}`;
+  document.getElementById('promptList').innerHTML=S.items.map((p,i)=>{
+    const col=cc[p.c];
+    return `<div class="p-row${p.inc?'':' off'}">
+      <input type="checkbox" ${p.inc?'checked':''} onchange="toggle(${i})">
+      <span class="cat-badge" style="color:${col};background:${col}18;border:1px solid ${col}33">${cl[p.c]}</span>
+      <div class="p-title">${p.t}</div>
+      <button class="mini" onclick="mv(${i},-1)">↑</button>
+      <button class="mini" onclick="mv(${i},1)">↓</button>
+      <button class="mini" id="cp${i}" onclick="copyOne(${i})">Copy</button>
+    </div>`;}).join('');
+  document.getElementById('salesCopy').textContent=salesCopy();
+}
+
+function toggle(i){S.items[i].inc=!S.items[i].inc;render();}
+function mv(i,d){const j=i+d;if(j<0||j>=S.items.length)return;[S.items[i],S.items[j]]=[S.items[j],S.items[i]];render();}
+function regenName(){nameIdx=(nameIdx+1)%nameForms.length;document.getElementById('packName').textContent=nameForms[nameIdx](S);document.getElementById('salesCopy').textContent=salesCopy();}
+
+function salesCopy(){
+  const n=nameForms[nameIdx](S),a=active(),cats=[...new Set(a.map(p=>cl[p.c]))].join(', ');
+  return `${n.toUpperCase()}\n${a.length} Plug-and-Play AI Prompts to ${cap(S.G)}\n\n`+
+`THE PROBLEM\nIf you're one of the ${S.A} trying to nail ${S.T}, you already know the real cost isn't money — it's the hours lost staring at a blank screen wording prompts that still give you mediocre output.\n\n`+
+`THE SOLUTION\n${n} hands you ${a.length} pre-engineered, ${S.tone}-tone prompts built specifically for ${S.A}. Paste one into ChatGPT or Claude and get professional ${S.T} output in minutes — no prompt-writing skill required.\n\n`+
+`WHAT'S INSIDE\n- ${a.length} copy-paste prompts covering ${cats}\n- Tuned for a ${S.tone} tone and ${S.len} output\n- Works in any AI chat tool — no setup, no logins\n\n`+
+`WHO IT'S FOR\n${cap(S.A)} who want to ${S.G} without trial-and-error prompt writing.\n\n`+
+`GET IT NOW\nGrab the pack, paste a prompt, see results today — for ${prices[S.size]}.`;
+}
+
+function buildPackText(){
+  const n=nameForms[nameIdx](S);
+  let t=`PROMPT PACK: ${n}\nAudience: ${S.A} | Topic: ${S.T} | Tone: ${S.tone}\nPrompts: ${active().length} | Suggested Price: ${prices[S.size]}\n\n`;
+  active().forEach((p,i)=>{t+=`PROMPT ${String(i+1).padStart(2,'0')}: ${p.t} [${cl[p.c]}]\n\n${fill(p.p,S)}\n\n---\n\n`;});
+  return t+'Generated by GetPaidToBeYouOnline Advanced Prompt Pack Creator';
+}
+
+function flash(b,txt){const o=b.textContent;b.textContent=txt||'Copied!';setTimeout(()=>b.textContent=o,2000);}
+function cb(text,b){navigator.clipboard?navigator.clipboard.writeText(text).then(()=>flash(b)):(()=>{const t=document.createElement('textarea');t.value=text;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();flash(b);})();}
+function copyOne(i){cb(fill(S.items[i].p,S),document.getElementById('cp'+i));}
+function copyEl(id,b){cb(document.getElementById(id).textContent,b);}
+function copyPack(b){if(!active().length){alert('Select at least one prompt.');return;}cb(buildPackText(),b);}
+
+function downloadPack(){
+  if(!active().length){alert('Select at least one prompt.');return;}
+  const fn=nameForms[nameIdx](S).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')+'.txt';
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([buildPackText()],{type:'text/plain'}));
+  a.download=fn||'prompt-pack.txt';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href);
+}
+
+const SKEY='gptby_adv_pack_inputs',ids=['topic','audience','goal','tone','len','focus','size'];
+function saveInputs(){const d={};ids.forEach(k=>d[k]=document.getElementById(k).value);try{localStorage.setItem(SKEY,JSON.stringify(d));}catch(e){}}
+(function(){try{const d=JSON.parse(localStorage.getItem(SKEY));if(d)ids.forEach(k=>{if(d[k]!=null)document.getElementById(k).value=d[k];});}catch(e){}})();
+ids.forEach(k=>document.getElementById(k).addEventListener('input',saveInputs));
+</script>
+</body>
+</html>

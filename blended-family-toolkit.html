@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blended Family Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .98rem; margin-bottom: 4px; }
+  .blk li { font-size: .9rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Blended Family Toolkit</h1>
+  <p class="sub">Blending families is a slow, worthwhile process. Get guidance for what you are facing now.</p>
+
+  <div class="panel">
+    <label for="topic">What would help most right now?</label>
+    <select id="topic" onchange="gen()">
+      <option value="early">We are in the early days of blending</option>
+      <option value="step">Building a stepparent relationship</option>
+      <option value="discipline">Discipline &amp; house rules</option>
+      <option value="loyalty">A child feeling torn or loyal to the other parent</option>
+      <option value="couple">Protecting us as a couple</option>
+      <option value="traditions">Creating new shared traditions</option>
+    </select>
+    <button class="btn" onclick="gen()">Get Guidance</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const T={
+    early:{h:"The early days",tips:["Go slow — bonding cannot be rushed or forced. Years, not months.","Lower expectations: aim for respect first, love comes later if it comes.","Keep some one-on-one time between each child and their own parent.","Let kids set the pace of closeness with new family members."]},
+    step:{h:"Building a stepparent relationship",tips:["Start as a supportive adult or friend, not an instant parent.","Do not compete with the other biological parent — there is room for everyone.","Find shared interests; connection grows through small ordinary moments.","Let the child decide what to call you — never push a title."]},
+    discipline:{h:"Discipline & house rules",tips:["In the early stage, the biological parent leads on discipline.","Agree house rules together as a couple, then present them united.","The stepparent enforces routines and warmth before consequences.","Keep rules consistent and fair across all the children."]},
+    loyalty:{h:"When a child feels torn",tips:["Never criticise the other parent — it forces the child to choose.","Reassure them that loving a stepparent does not betray anyone.","Give space and patience; conflicted feelings are normal and okay.","Make it clear their feelings are allowed and safe to express."]},
+    couple:{h:"Protecting you as a couple",tips:["Your relationship is the foundation — protect couple time fiercely.","Present a united front to the children, disagree in private.","Talk often and honestly about what is working and what is not.","Consider a counsellor early — it is wisdom, not weakness."]},
+    traditions:{h:"Creating new shared traditions",tips:["Honour each side's existing traditions — do not erase them.","Build a few brand-new rituals that belong to this family only.","Involve the kids in inventing them so they feel ownership.","Keep them simple and repeatable — consistency builds belonging."]}
+  };
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function gen(){
+    const t=T[g('topic').value];
+    g('out').innerHTML='<div class="panel"><div class="blk"><h4>'+t.h+'</h4><ul>'+t.tips.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>Above all</h4><p style="font-size:.9rem">A blended family is built, not born. Patience and consistency win. Celebrate small steps — they add up to belonging.</p></div></div>';
+  }
+  gen();
+</script>
+</body>
+</html>

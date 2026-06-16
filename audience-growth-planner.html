@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audience Growth Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 130px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin-top: 14px; font-family:'DM Sans',sans-serif; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { flex: 1; min-width: 130px; background: #2A442A; border: 1px solid #5A845A; border-radius: 10px; padding: 14px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .72rem; opacity: .65; text-transform: uppercase; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .9rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Audience Growth Planner</h1>
+  <p class="sub">Set a target, get the monthly math, and the lever mix to actually hit it.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="now">Followers now</label><input id="now" type="number" min="0" value="1200" oninput="calc()"></div>
+      <div><label for="tgt">Target followers</label><input id="tgt" type="number" min="0" value="10000" oninput="calc()"></div>
+      <div><label for="mo">Months to get there</label><input id="mo" type="number" min="1" value="6" oninput="calc()"></div>
+    </div>
+    <label for="lever">Primary growth lever</label>
+    <select id="lever" onchange="calc()">
+      <option value="reach">Reach content (reels/short video)</option>
+      <option value="collab">Collabs & cross-promo</option>
+      <option value="seo">Searchable / evergreen content</option>
+      <option value="engage">Engagement & community</option>
+    </select>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="gap">0</div><div class="l">Followers to gain</div></div>
+    <div class="stat"><div class="v" id="perMo">0</div><div class="l">Per month</div></div>
+    <div class="stat"><div class="v" id="perWk">0</div><div class="l">Per week</div></div>
+    <div class="stat"><div class="v" id="real">—</div><div class="l">Reality check</div></div>
+  </div>
+
+  <div id="plan"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), n=id=>parseFloat(g(id).value)||0;
+  const PLAN={
+    reach:["Post 4–7 short videos/week; treat the first 2 seconds as the whole job","Reverse-engineer 3 viral posts in your niche weekly","Double down on any format that 2x's your average reach"],
+    collab:["Line up 2 collabs/month with peers your size","Lead with a specific idea, not 'wanna collab?'","Repurpose each collab into 3 solo posts"],
+    seo:["Publish keyword-led content people actively search","Make 5 evergreen pieces that compound for months","Optimise name, bio, and captions for discovery"],
+    engage:["Reply to every comment in the first hour","Spend 20 min/day commenting in your niche","Turn your best DMs/questions into public content"]
+  };
+  ['now','tgt','mo','lever'].forEach(k=>{ const s=localStorage.getItem('agp_'+k); if(s!==null)g(k).value=s; });
+  function calc(){
+    ['now','tgt','mo','lever'].forEach(k=>localStorage.setItem('agp_'+k,g(k).value));
+    const gap=Math.max(0,n('tgt')-n('now')), mo=Math.max(1,n('mo'));
+    const pm=Math.ceil(gap/mo), pw=Math.ceil(gap/(mo*4.33));
+    g('gap').textContent=gap.toLocaleString(); g('perMo').textContent=pm.toLocaleString(); g('perWk').textContent=pw.toLocaleString();
+    const monthlyRate = n('now')>0 ? pm/n('now')*100 : 999;
+    g('real').textContent = monthlyRate<=10?'✅ Doable':monthlyRate<=25?'⚠ Aggressive':'🔥 Very ambitious';
+    g('plan').innerHTML=`<div class="blk"><h4>Your lever: ${g('lever').selectedOptions[0].text}</h4><ul>${PLAN[g('lever').value].map(x=>`<li>${x}</li>`).join('')}</ul></div>
+      <div class="blk" style="border-left-color:#BFD8BF"><h4>The honest truth</h4><p style="font-size:.9rem">${monthlyRate<=10?'This pace is realistic with consistency. Protect the cadence above all.':monthlyRate<=25?'Possible but it needs one breakout format or collab engine. Don\'t spread thin — go deep on one lever.':'You\'re asking for ~'+Math.round(monthlyRate)+'%/mo growth. Either extend the timeline or accept it hinges on going viral. Plan for steady, treat viral as a bonus.'}</p></div>`;
+  }
+  calc();
+</script>
+</body>
+</html>

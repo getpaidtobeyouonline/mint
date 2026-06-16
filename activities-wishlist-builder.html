@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activities Wishlist Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 100px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .filter { display: flex; gap: 6px; margin-bottom: 10px; }
+  .fp { background: #2A442A; border: 1px solid #5A845A; border-radius: 16px; padding: 5px 13px; font-size: .8rem; cursor: pointer; }
+  .fp.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .act { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 9px 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 9px; font-size: .87rem; }
+  .act.done { border-left: 3px solid #5AE57A; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .act.done .lb { text-decoration: line-through; opacity: .55; }
+  .act .pr { font-size: .76rem; opacity: .6; }
+  .act .x { margin-left: auto; cursor: pointer; opacity: .5; } .act .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Activities Wishlist Builder</h1>
+  <p class="sub">Collect everything you want to see and do — then tick them off as the trip unfolds.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:2"><label>Activity or sight</label><input id="act" placeholder="e.g. Visit the old castle"></div>
+      <div><label>Priority</label><select id="pri"><option>Must do</option><option>Would love to</option><option>If time allows</option></select></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="filter" id="filter"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('awb')||'[]'), filter='all';
+  const save=()=>localStorage.setItem('awb',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const order={'Must do':0,'Would love to':1,'If time allows':2};
+  function add(){ if(!v('act')){ alert('Enter an activity.'); return; }
+    R.push({a:v('act'),p:g('pri').value,done:false}); g('act').value=''; save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the wishlist?')){ R=[]; save(); render(); } }
+  function setF(f){ filter=f; render(); }
+  function render(){
+    g('filter').innerHTML=['all','open','done'].map(f=>'<span class="fp'+(filter===f?' on':'')+'" onclick="setF(\''+f+'\')">'+(f==='all'?'All':f==='open'?'To do':'Done')+'</span>').join('');
+    const L=g('list');
+    let shown=R.map((x,i)=>({x,i}));
+    if(filter==='open')shown=shown.filter(o=>!o.x.done);
+    if(filter==='done')shown=shown.filter(o=>o.x.done);
+    if(!shown.length){ L.innerHTML='<div class="empty">Nothing here yet.</div>'; return; }
+    shown.sort((a,b)=>(a.x.done-b.x.done)||(order[a.x.p]-order[b.x.p]));
+    L.innerHTML=shown.map(({x,i})=>
+      '<div class="act'+(x.done?' done':'')+'"><span class="box'+(x.done?' on':'')+'" onclick="toggle('+i+')">'+(x.done?'✓':'')+'</span><span class="lb">'+esc(x.a)+' <span class="pr">· '+x.p+'</span></span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

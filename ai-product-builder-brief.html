@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Product Builder Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 26px; font-size: .95rem; }
+  label { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 14px 0 6px; }
+  input, textarea, select {
+    width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; resize: vertical;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 58px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin-top: 16px; margin-right: 8px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 22px; }
+  .feat { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 7px; padding: 9px 13px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; align-items: center; font-size: .94rem; }
+  .feat .x { cursor: pointer; opacity: .5; }
+  .feat .x:hover { opacity: 1; color: #5AE57A; }
+  .addrow { display: flex; gap: 8px; }
+  .addrow input { flex: 1; }
+  .addrow button { margin-top: 0; }
+  .empty { text-align: center; opacity: .5; padding: 14px 0; font-style: italic; font-size: .9rem; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-size: .92rem; font-family: 'DM Sans', sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Product Builder Brief</h1>
+  <p class="sub">Turn a product idea into a complete, build-ready brief you can hand straight to Claude to start building.</p>
+
+  <div class="panel">
+    <label for="name">Product Name</label>
+    <input id="name" placeholder="e.g. The 5-Minute Niche Finder">
+
+    <label for="concept">One-line concept</label>
+    <input id="concept" placeholder="What it is, in one sentence">
+
+    <label for="buyer">Who it's for & their pain</label>
+    <textarea id="buyer" placeholder="The buyer and the problem they're stuck on"></textarea>
+
+    <label for="outcome">The transformation it delivers</label>
+    <textarea id="outcome" placeholder="Where the buyer ends up after using it"></textarea>
+
+    <label for="format">Product format</label>
+    <select id="format" onchange="save()">
+      <option value="tool">Web tool / app</option>
+      <option value="pack">Prompt pack</option>
+      <option value="template">Template set</option>
+      <option value="course">Mini-course</option>
+      <option value="guide">Playbook / guide</option>
+      <option value="workflow">AI workflow</option>
+    </select>
+
+    <label for="price">Price (USD)</label>
+    <input id="price" type="number" min="1" value="17">
+
+    <label for="diff">Why it beats the alternative (e.g. a plain PDF)</label>
+    <textarea id="diff" placeholder="The unfair advantage / differentiator"></textarea>
+  </div>
+
+  <div class="panel">
+    <label>What's included (features)</label>
+    <div id="featList"></div>
+    <div class="addrow">
+      <input id="featIn" placeholder="Add a feature and press Enter">
+      <button class="btn" onclick="addFeat()">+ Add</button>
+    </div>
+  </div>
+
+  <button class="btn" onclick="build()">Generate Build Brief</button>
+  <button class="btn ghost" onclick="copyBrief()">Copy</button>
+  <button class="btn ghost" onclick="downloadMd()">Download .md</button>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['name','concept','buyer','outcome','format','price','diff'];
+  let feats = JSON.parse(localStorage.getItem('apb_feats') || '[]');
+  F.forEach(id => { const s = localStorage.getItem('apb_'+id); if (s!==null) document.getElementById(id).value = s; });
+  F.forEach(id => document.getElementById(id).addEventListener('input', save));
+  function save() {
+    F.forEach(id => localStorage.setItem('apb_'+id, document.getElementById(id).value));
+    localStorage.setItem('apb_feats', JSON.stringify(feats));
+  }
+  const v = id => document.getElementById(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  const approach = {
+    tool: "Build as a single self-contained HTML file — no backend, no external files, mobile responsive, works in any browser.",
+    pack: "Deliver as one organized document: prompts grouped by use-case, each with [bracketed] inputs and a quick-start index.",
+    template: "Deliver fill-in-the-blank templates, each with short instructions and one fully worked example.",
+    course: "Structure as 3–6 short outcome-focused modules, each with action steps and a done-for-you asset.",
+    guide: "Write as a step-by-step playbook with checklists, examples, and a troubleshooting section.",
+    workflow: "Document as a numbered workflow: the exact tool/prompt at each step plus the expected output."
+  };
+
+  function renderFeats() {
+    const l = document.getElementById('featList');
+    if (!feats.length) { l.innerHTML = '<div class="empty">No features yet — add what the buyer gets.</div>'; return; }
+    l.innerHTML = feats.map((f,i)=>`<div class="feat"><span>${esc(f)}</span><span class="x" onclick="delFeat(${i})">✕</span></div>`).join('');
+  }
+  function addFeat() {
+    const el = document.getElementById('featIn'); const val = el.value.trim();
+    if (!val) return;
+    feats.push(val); el.value = ''; save(); renderFeats();
+  }
+  document.getElementById('featIn').addEventListener('keydown', e => { if (e.key === 'Enter') addFeat(); });
+  function delFeat(i) { feats.splice(i,1); save(); renderFeats(); }
+
+  function briefText() {
+    const fmt = document.getElementById('format').selectedOptions[0].text;
+    return `# Build Brief: ${v('name')||'Untitled Product'}\n\n`+
+      `**Concept:** ${v('concept')||'(not set)'}\n`+
+      `**Format:** ${fmt}\n`+
+      `**Price:** $${v('price')||'?'}\n\n`+
+      `## Who it's for & their pain\n${v('buyer')||'(not set)'}\n\n`+
+      `## The transformation it delivers\n${v('outcome')||'(not set)'}\n\n`+
+      `## What's included\n${feats.length?feats.map(f=>`- ${f}`).join('\n'):'- (no features listed)'}\n\n`+
+      `## Why it beats the alternative\n${v('diff')||'(not set)'}\n\n`+
+      `## Build approach\n${approach[v('format')]}\n\n`+
+      `---\n## Instructions for Claude\nBuild this product end to end as described. Ask me any clarifying questions first, keep it simple and genuinely usable, and deliver something I could sell as-is. Flag anything that would weaken the offer.`;
+  }
+
+  function build() {
+    if (!v('name')) { alert('Give the product a name first.'); return; }
+    const o = document.getElementById('out');
+    o.textContent = briefText();
+    o.style.display = 'block';
+    o.scrollIntoView({ behavior: 'smooth' });
+  }
+  function copyBrief() {
+    navigator.clipboard.writeText(briefText()).then(
+      () => alert('Brief copied! Paste it into Claude to start building.'),
+      () => alert('Copy failed.'));
+  }
+  function downloadMd() {
+    const n = (v('name')||'build-brief').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const b = new Blob([briefText()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  renderFeats();
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Skill Audit Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 26px; font-size: .95rem; }
+  .cat { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .cat h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.15rem; margin-bottom: 8px; }
+  .item { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 7px 0; flex-wrap: wrap; }
+  .item span { flex: 1; min-width: 200px; font-size: .94rem; }
+  select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .9rem; padding: 8px 10px; border-radius: 7px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; margin-top: 6px; margin-right: 8px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .score { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 24px; margin: 22px 0; }
+  .score .big { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; line-height: 1; }
+  .score .lvl { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; margin-top: 6px; }
+  .score .desc { opacity: .8; margin-top: 6px; font-size: .95rem; }
+  .barrow { margin: 10px 0; }
+  .barrow .top { display: flex; justify-content: space-between; font-size: .88rem; margin-bottom: 4px; }
+  .track { background: #3C603C; border-radius: 5px; height: 9px; overflow: hidden; }
+  .track > i { display: block; height: 100%; background: #5AE57A; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .blk h4 { font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 6px; }
+  .blk p { font-size: .95rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Skill Audit Tool</h1>
+  <p class="sub">Rate yourself honestly across six AI skill areas and get a readiness score plus a focused plan for what to learn next.</p>
+
+  <div id="form"></div>
+  <button class="btn" onclick="run()">Get My Results</button>
+  <button class="btn ghost" onclick="reset()">Reset</button>
+
+  <div id="result"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const cats = [
+    { name: "Prompting & Communication", k: "prompt",
+      items: ["I give the AI clear context, goal, and format","I iterate and refine instead of accepting the first answer","I use roles, examples, and constraints deliberately"],
+      tip: "Practice the context-goal-format pattern: state who it's for, what you want, and the exact output shape. Save your best prompts as templates." },
+    { name: "Tool Fluency", k: "tools",
+      items: ["I know which AI tool fits which kind of task","I'm comfortable trying and switching tools","I use advanced features, not just the basic chat box"],
+      tip: "Pick one task you do weekly and deliberately test three tools on it. Depth on one tool beats shallow exposure to ten." },
+    { name: "Workflow & Automation", k: "flow",
+      items: ["I break big tasks into chained AI steps","I automate repetitive work instead of redoing it","I document workflows so they're repeatable"],
+      tip: "Map one recurring task into numbered steps, then insert an AI step where judgment is needed. Write it down so it's reusable." },
+    { name: "Content Creation", k: "content",
+      items: ["I produce publish-ready output, not rough drafts","I keep a consistent voice and brand with AI","I repurpose one piece into many formats"],
+      tip: "Build a reusable brief (audience, voice, do/don't list) you paste every time. Edit AI output to 100% — don't ship raw." },
+    { name: "Critical Evaluation", k: "eval",
+      items: ["I spot likely hallucinations and weak claims","I fact-check anything important before using it","I judge output quality against a clear standard"],
+      tip: "Adopt a rule: any claim, stat, or name gets verified from a primary source before it ships. Define what 'good' looks like first." },
+    { name: "Monetisation & Application", k: "money",
+      items: ["I turn AI skills into real results or income","I package what I do into an offer or product","I can explain my AI value to a buyer clearly"],
+      tip: "Take one workflow you've mastered and productize it: name it, price it, and pitch it to five potential buyers this month." }
+  ];
+  const levels = [
+    [0,40,"AI Explorer","You've started — focus on fundamentals and consistent practice."],
+    [40,60,"AI Practitioner","Solid base. Tighten your weak areas to start compounding results."],
+    [60,80,"AI Operator","Strong and capable. Systemize and apply this toward income."],
+    [80,101,"AI Pro","Top tier. Productize and teach what you know — that's the next leverage."]
+  ];
+
+  const saved = JSON.parse(localStorage.getItem('asa') || '{}');
+  document.getElementById('form').innerHTML = cats.map(c => `
+    <div class="cat"><h3>${c.name}</h3>${c.items.map((it,j)=>`
+      <div class="item"><span>${it}</span>
+        <select id="${c.k}_${j}">
+          <option value="1">Not yet</option><option value="2">Learning</option>
+          <option value="3">Confident</option><option value="4">Strong</option>
+        </select></div>`).join('')}</div>`).join('');
+  cats.forEach(c => c.items.forEach((_,j) => {
+    const el = document.getElementById(`${c.k}_${j}`);
+    if (saved[`${c.k}_${j}`]) el.value = saved[`${c.k}_${j}`];
+    el.addEventListener('change', persist);
+  }));
+  function persist() {
+    const s = {};
+    cats.forEach(c => c.items.forEach((_,j) => s[`${c.k}_${j}`] = document.getElementById(`${c.k}_${j}`).value));
+    localStorage.setItem('asa', JSON.stringify(s));
+  }
+
+  function run() {
+    persist();
+    const per = cats.map(c => {
+      let sum = 0;
+      c.items.forEach((_,j) => sum += +document.getElementById(`${c.k}_${j}`).value);
+      return { name: c.name, pct: Math.round((sum/(c.items.length*4))*100), tip: c.tip };
+    });
+    const overall = Math.round(per.reduce((s,p)=>s+p.pct,0)/per.length);
+    const lv = levels.find(l => overall >= l[0] && overall < l[1]);
+    const focus = [...per].sort((a,b)=>a.pct-b.pct).slice(0,2);
+    document.getElementById('result').innerHTML =
+      `<div class="score"><div class="big">${overall}%</div><div class="lvl">${lv[2]}</div><div class="desc">${lv[3]}</div></div>
+       <div class="cat"><h3>Skill Breakdown</h3>${per.map(p=>`
+         <div class="barrow"><div class="top"><span>${p.name}</span><span>${p.pct}%</span></div>
+         <div class="track"><i style="width:${p.pct}%"></i></div></div>`).join('')}</div>
+       <h3 style="font-family:'Playfair Display',serif;color:#5AE57A;margin:20px 0 10px">Focus next on these</h3>
+       ${focus.map(f=>`<div class="blk"><h4>${f.name} — ${f.pct}%</h4><p>${f.tip}</p></div>`).join('')}
+       <button class="btn" onclick="copyR(${overall})">Copy Report</button>`;
+    window._per = per; window._ov = overall; window._lv = lv;
+    document.getElementById('result').scrollIntoView({ behavior:'smooth' });
+  }
+
+  function copyR() {
+    const t = `AI SKILL AUDIT — ${window._ov}% (${window._lv[2]})\n${window._lv[3]}\n\n` +
+      window._per.map(p=>`${p.name}: ${p.pct}%`).join('\n') +
+      `\n\nFOCUS AREAS\n` + [...window._per].sort((a,b)=>a.pct-b.pct).slice(0,2)
+        .map(f=>`• ${f.name} (${f.pct}%): ${f.tip}`).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Report copied!'),()=>alert('Copy failed.'));
+  }
+
+  function reset() {
+    if (!confirm('Reset all answers?')) return;
+    localStorage.removeItem('asa');
+    cats.forEach(c => c.items.forEach((_,j)=> document.getElementById(`${c.k}_${j}`).value = '1'));
+    document.getElementById('result').innerHTML = '';
+  }
+</script>
+</body>
+</html>

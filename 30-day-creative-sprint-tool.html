@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>30 Day Creative Sprint Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.7rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid>div { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 18px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .count { text-align: center; font-size: .9rem; color: #5AE57A; margin-bottom: 4px; }
+  .bar { height: 9px; background: #2A442A; border-radius: 6px; overflow: hidden; margin: 8px 0 14px; }
+  .bar i { display: block; height: 100%; background: #5AE57A; width: 0; transition: width .3s; }
+  .days { display: grid; grid-template-columns: repeat(6,1fr); gap: 6px; }
+  .day { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 6px; text-align: center; cursor: pointer; font-size: .82rem; }
+  .day.done { background: #325132; border-color: #5AE57A; color: #5AE57A; font-weight: 500; }
+  .day .n { font-family: 'Playfair Display', serif; font-size: 1rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.45rem; } body { padding: 16px; } .days { grid-template-columns: repeat(5,1fr); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>30 Day Creative Sprint Tool</h1>
+  <p class="sub">Commit to 30 short days of showing up — tiny, daily, finished.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label>What you will do</label><input id="what" placeholder="e.g. one sketch a day, 100 words"></div>
+      <div><label>Daily limit</label><input id="limit" placeholder="e.g. 20 minutes"></div>
+    </div>
+    <button class="btn" onclick="reset()">Start / Restart Sprint</button>
+  </div>
+
+  <div class="panel">
+    <div class="count" id="count">0 / 30 days</div>
+    <div class="bar"><i id="fill"></i></div>
+    <div class="days" id="grid"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  let D=JSON.parse(localStorage.getItem('30cs')||'{}');
+  if(!D.start)D.start=new Date().toISOString().slice(0,10);
+  if(!D.done)D.done={};
+  const save=()=>localStorage.setItem('30cs',JSON.stringify(D));
+  ['what','limit'].forEach(k=>{ if(D[k])g(k).value=D[k]; g(k).addEventListener('input',()=>{ D[k]=g(k).value; save(); }); });
+  function reset(){ if(confirm('Start a fresh 30-day sprint? This clears the current grid.')){ D.start=new Date().toISOString().slice(0,10); D.done={}; save(); render(); } }
+  function tog(i){ D.done[i]=!D.done[i]; save(); render(); }
+  function render(){
+    const ch=Object.values(D.done).filter(Boolean).length;
+    g('count').textContent=ch+' / 30 days';
+    g('fill').style.width=Math.round(ch/30*100)+'%';
+    let html='';
+    for(let i=1;i<=30;i++){
+      html+='<div class="day'+(D.done[i]?' done':'')+'" onclick="tog('+i+')"><div class="n">'+i+'</div><div>'+(D.done[i]?'✓':'·')+'</div></div>';
+    }
+    g('grid').innerHTML=html;
+  }
+  render();
+</script>
+</body>
+</html>

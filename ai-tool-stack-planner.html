@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tool Stack Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 24px; font-size: .95rem; }
+  .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { flex: 1; min-width: 130px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 15px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; }
+  .stat .l { font-size: .74rem; opacity: .65; text-transform: uppercase; letter-spacing: .05em; }
+  .bar { background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .bar label { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; opacity: .7; }
+  .bar input { width: 110px; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; padding: 8px 10px; border-radius: 7px; }
+  .bar input:focus { outline: none; border-color: #5AE57A; }
+  .verdict { margin-left: auto; font-size: .92rem; }
+  .ok { color: #5AE57A; } .over { color: #5AE57A; }
+  .gap { background: #325132; border: 1px solid #4F8A55; border-radius: 8px; padding: 11px 15px; margin-bottom: 18px; font-size: .9rem; }
+  .cat { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .cat h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .cat .d { font-size: .82rem; opacity: .6; margin-bottom: 8px; }
+  .tool { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 6px 0; border-top: 1px solid #3C603C; font-size: .94rem; }
+  .tool .x { cursor: pointer; opacity: .5; }
+  .tool .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { font-size: .85rem; opacity: .45; font-style: italic; padding: 4px 0; }
+  .addrow { display: flex; gap: 8px; margin-top: 10px; }
+  .addrow input { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; padding: 9px 11px; border-radius: 7px; font-size: .9rem; }
+  .addrow .nm { flex: 1; } .addrow .ct { width: 90px; }
+  .addrow input:focus { outline: none; border-color: #5AE57A; }
+  .mini { background: transparent; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 8px 14px; border-radius: 7px; font-size: .85rem; }
+  .mini:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 6px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Tool Stack Planner</h1>
+  <p class="sub">Map your AI tools by function, track monthly spend, and spot gaps and overlap before you overpay.</p>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="sCount">0</div><div class="l">Tools</div></div>
+    <div class="stat"><div class="n" id="sMon">$0</div><div class="l">Per Month</div></div>
+    <div class="stat"><div class="n" id="sYr">$0</div><div class="l">Per Year</div></div>
+  </div>
+
+  <div class="bar">
+    <label for="budget">Monthly budget</label>
+    <input id="budget" type="number" min="0" placeholder="e.g. 80" oninput="recalc()">
+    <span class="verdict" id="verdict"></span>
+  </div>
+
+  <div class="gap" id="gap"></div>
+  <div id="cats"></div>
+
+  <button class="btn" onclick="exportMd()">Export Stack</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const cats = [
+    { k:"core", n:"Core Assistant", d:"Your main chat LLM for thinking, writing, and Q&A", essential:true },
+    { k:"content", n:"Writing & Content", d:"Drafting, editing, repurposing, SEO", essential:true },
+    { k:"visual", n:"Images & Design", d:"Image generation, graphics, layouts", essential:false },
+    { k:"auto", n:"Automation & Workflows", d:"Connecting steps and removing busywork", essential:true },
+    { k:"research", n:"Research & Knowledge", d:"Search, summarizing, knowledge base", essential:false },
+    { k:"media", n:"Audio & Video", d:"Voiceover, video, transcription", essential:false },
+    { k:"code", n:"Coding & Build", d:"Building tools, sites, automations", essential:false }
+  ];
+  let stack = JSON.parse(localStorage.getItem('atsp') || '{}');
+  const budgetEl = document.getElementById('budget');
+  budgetEl.value = localStorage.getItem('atsp_budget') || '';
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const save = () => { localStorage.setItem('atsp', JSON.stringify(stack)); localStorage.setItem('atsp_budget', budgetEl.value); };
+
+  function add(k) {
+    const nm = document.getElementById('nm_'+k).value.trim();
+    const ct = parseFloat(document.getElementById('ct_'+k).value) || 0;
+    if (!nm) { alert('Enter a tool name.'); return; }
+    (stack[k] = stack[k] || []).push({ nm, ct });
+    save(); render();
+  }
+  function del(k,i) { stack[k].splice(i,1); save(); render(); }
+  function clearAll() { if (confirm('Clear the whole stack?')) { stack = {}; budgetEl.value=''; save(); render(); } }
+
+  function totals() {
+    let cnt = 0, mon = 0;
+    cats.forEach(c => (stack[c.k]||[]).forEach(t => { cnt++; mon += t.ct; }));
+    return { cnt, mon };
+  }
+
+  function recalc() {
+    const { cnt, mon } = totals();
+    document.getElementById('sCount').textContent = cnt;
+    document.getElementById('sMon').textContent = '$' + mon.toLocaleString();
+    document.getElementById('sYr').textContent = '$' + (mon*12).toLocaleString();
+    const b = parseFloat(budgetEl.value);
+    const ve = document.getElementById('verdict');
+    if (!isNaN(b) && b > 0) {
+      ve.textContent = mon <= b ? `$${(b-mon).toLocaleString()} under budget` : `$${(mon-b).toLocaleString()} over budget`;
+      ve.className = 'verdict ' + (mon <= b ? 'ok' : 'over');
+    } else ve.textContent = '';
+    const missing = cats.filter(c => c.essential && !(stack[c.k]||[]).length).map(c => c.n);
+    const g = document.getElementById('gap');
+    g.style.display = missing.length ? 'block' : 'none';
+    if (missing.length) g.innerHTML = `⚠ Gap in essential layer${missing.length>1?'s':''}: <b>${missing.join(', ')}</b> — your stack is incomplete here.`;
+    save();
+  }
+
+  function render() {
+    document.getElementById('cats').innerHTML = cats.map(c => {
+      const list = stack[c.k] || [];
+      const sub = list.reduce((s,t)=>s+t.ct,0);
+      return `<div class="cat">
+        <h3>${c.n}${c.essential?' <span style="font-size:.7rem;color:#5AE57A">• essential</span>':''}</h3>
+        <div class="d">${c.d}${sub?` — $${sub.toLocaleString()}/mo`:''}</div>
+        ${list.length ? list.map((t,i)=>`<div class="tool"><span>${esc(t.nm)}</span><span>$${t.ct.toLocaleString()}/mo <span class="x" onclick="del('${c.k}',${i})">✕</span></span></div>`).join('')
+          : `<div class="empty">No tool added yet.</div>`}
+        <div class="addrow">
+          <input class="nm" id="nm_${c.k}" placeholder="Tool name">
+          <input class="ct" id="ct_${c.k}" type="number" min="0" placeholder="$/mo">
+          <button class="mini" onclick="add('${c.k}')">+ Add</button>
+        </div>
+      </div>`;
+    }).join('');
+    recalc();
+  }
+
+  function exportMd() {
+    const { cnt, mon } = totals();
+    if (!cnt) { alert('Add some tools first.'); return; }
+    let t = `# My AI Tool Stack\n\nTotal: ${cnt} tools · $${mon.toLocaleString()}/mo · $${(mon*12).toLocaleString()}/yr\n`;
+    const b = parseFloat(budgetEl.value);
+    if (!isNaN(b)&&b>0) t += `Budget: $${b.toLocaleString()}/mo (${mon<=b?'under':'OVER'})\n`;
+    cats.forEach(c => {
+      const list = stack[c.k]||[];
+      t += `\n## ${c.n}${c.essential?' (essential)':''}\n`;
+      t += list.length ? list.map(x=>`- ${x.nm} — $${x.ct}/mo`).join('\n')+'\n' : `- (none — gap)\n`;
+    });
+    const blob = new Blob([t.trim()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'ai-tool-stack.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  render();
+</script>
+</body>
+</html>

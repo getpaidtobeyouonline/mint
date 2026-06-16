@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beacons Store Optimisation Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.score-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:20px;max-width:700px;margin:0 auto 16px;display:flex;align-items:center;gap:20px}
+.grade-circle{width:72px;height:72px;border-radius:50%;border:3px solid #5AE57A;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.grade-letter{font-family:'Playfair Display',serif;font-size:1.8rem;color:#5AE57A;line-height:1}
+.grade-pct{font-size:.65rem;color:#BFD8BF;margin-top:2px}
+.score-info{flex:1}
+.score-label{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:6px}
+.score-desc{font-size:.82rem;opacity:.7;line-height:1.5}
+.prog-track{background:#325132;border-radius:20px;height:8px;overflow:hidden;margin-top:10px}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .5s}
+.actions{display:flex;gap:8px;max-width:700px;margin:0 auto 16px;flex-wrap:wrap}
+.btn{border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:opacity .2s}
+.btn-gold{background:#5AE57A;color:#325132}.btn-ghost{background:transparent;border:1px solid #4C724C;color:#FFFFFF}
+.btn:hover{opacity:.8}
+.section{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 12px}
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.sec-title{font-family:'Playfair Display',serif;font-size:.95rem;color:#5AE57A}
+.sec-count{font-size:.75rem;color:#BFD8BF}
+.item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #325132;cursor:pointer}
+.item:last-child{border-bottom:none;padding-bottom:0}
+.cb{width:18px;height:18px;border:2px solid #4C724C;border-radius:4px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.cb.chk{background:#5AE57A;border-color:#5AE57A}
+.cb.chk::after{content:'✓';font-size:.7rem;color:#325132;font-weight:700}
+.item-text{font-size:.88rem;line-height:1.5;flex:1}
+.item-text.chk{opacity:.4;text-decoration:line-through}
+.tag{font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;margin-left:6px;vertical-align:middle}
+.tag-k{background:#C9A84C22;color:#5AE57A}.tag-q{background:#44cc6622;color:#5AE57A}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#5AE57A;color:#325132;padding:10px 20px;border-radius:8px;font-weight:600;font-size:.85rem;opacity:0;transition:opacity .3s;pointer-events:none}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.score-card{flex-direction:column;text-align:center}.grade-circle{margin:0 auto}}
+</style>
+</head>
+<body>
+<h1>Beacons Store Optimisation Checklist</h1>
+<p class="sub">Audit every corner of your store. Fix what's leaking sales.</p>
+
+<div class="score-card">
+  <div class="grade-circle"><div class="grade-letter" id="gL">—</div><div class="grade-pct" id="gP">0%</div></div>
+  <div class="score-info">
+    <div class="score-label" id="gN">Start Checking Items Below</div>
+    <div class="score-desc" id="gD">Complete each section to get your optimisation score and see exactly where sales are slipping through the cracks.</div>
+    <div class="prog-track"><div class="prog-fill" id="pF" style="width:0%"></div></div>
+  </div>
+</div>
+<div class="actions">
+  <button class="btn btn-gold" onclick="copyRes()">Copy Results Summary</button>
+  <button class="btn btn-ghost" onclick="resetAll()">Reset Checklist</button>
+</div>
+<div id="secs"></div>
+<div class="toast" id="toast">Copied to clipboard!</div>
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const D=[
+  {c:'Profile & Branding',i:[
+    {t:'Profile photo is high-quality, on-brand, and shows your face or logo clearly',k:1},
+    {t:'Bio clearly states who you help, what you offer, and the outcome they\'ll get',k:1},
+    {t:'Banner/cover image matches your brand colours and aesthetic',q:1},
+    {t:'Username is consistent across all your active social platforms',q:1},
+    {t:'Custom brand colours applied in Beacons store settings'},
+    {t:'Custom domain connected to your store (e.g. shop.yourbrand.com)'},
+  ]},
+  {c:'Products & Offers',i:[
+    {t:'Every product has a professional, eye-catching cover image',k:1},
+    {t:'Product titles include keywords your ideal buyer searches for',k:1},
+    {t:'Descriptions answer: what it is, who it\'s for, and exactly what they get'},
+    {t:'All products have pricing set — no free placeholders or blank prices',k:1},
+    {t:'At least one entry-level product priced under $27 to lower the buy barrier',q:1},
+    {t:'Products are organised into logical categories or collections'},
+    {t:'Your most popular or best-converting product is listed first',k:1},
+  ]},
+  {c:'Social Proof',i:[
+    {t:'At least 3 written testimonials are displayed in your store',k:1},
+    {t:'Screenshots of customer wins, results, or positive DMs are visible'},
+    {t:'Follower or subscriber count is shown if it\'s over 1,000',q:1},
+    {t:'"As seen in" or media/podcast mention block added if applicable'},
+    {t:'Star ratings enabled on products that support reviews'},
+  ]},
+  {c:'Lead Capture',i:[
+    {t:'A free lead magnet (checklist, guide, or freebie) is available to grow your list',k:1},
+    {t:'Email opt-in block appears above the fold — visible without scrolling',k:1},
+    {t:'Your lead magnet is directly relevant to your paid offers'},
+    {t:'A welcome or nurture email sequence is connected to your opt-in',q:1},
+    {t:'Link to your newsletter or community is clearly visible in the store'},
+  ]},
+  {c:'Discovery & SEO',i:[
+    {t:'Your bio includes 2–3 niche-specific keywords your audience searches for',q:1},
+    {t:'Product descriptions include relevant search terms and phrases'},
+    {t:'Your Beacons link is in the bio on every active social profile',k:1},
+    {t:'Store is set to public and not accidentally set to private or hidden'},
+    {t:'You share your store URL consistently in content, captions, and emails'},
+  ]},
+  {c:'Monetisation',i:[
+    {t:'Stripe or PayPal is connected, verified, and test-purchase confirmed',k:1},
+    {t:'A bundle or "buy more, save more" offer exists in your store'},
+    {t:'An upsell or order bump is set up on your best-selling product'},
+    {t:'Your highest-ticket offer is listed with a clear, compelling description'},
+    {t:'At least one evergreen discount code created for launches or affiliates',q:1},
+  ]},
+  {c:'Analytics & Tracking',i:[
+    {t:'Beacons built-in analytics are reviewed at least once per week',k:1},
+    {t:'You know the click-through rate on your top 3 products'},
+    {t:'UTM parameters added to links shared in emails or paid content'},
+    {t:'You track which platform or content type drives the most store visits'},
+  ]},
+];
+
+const KEY='bchecklist';
+let ck=JSON.parse(localStorage.getItem(KEY)||'{}');
+const total=D.reduce((a,s)=>a+s.i.length,0);
+
+function doneCount(){return Object.values(ck).filter(Boolean).length;}
+
+function grade(p){
+  if(p>=90)return{l:'A',n:'Store Ready to Sell',d:'Excellent — your store is fully optimised. Focus on driving traffic and content to bring more buyers through it.',c:'#5AE57A'};
+  if(p>=75)return{l:'B',n:'Almost There',d:'Strong foundation with just a few gaps left. Fix the remaining items and your store will convert consistently.',c:'#5AE57A'};
+  if(p>=60)return{l:'C',n:'Needs Work',d:'You\'ve got the basics covered but key conversion elements are missing. Prioritise KEY items first for the fastest lift.',c:'#5AE57A'};
+  if(p>=40)return{l:'D',n:'Major Gaps',d:'Several critical sections are incomplete. Your store is likely losing sales daily — work through each category systematically.',c:'#5AE57A'};
+  return{l:'F',n:'Start Here',d:'Your store needs significant work before it\'s ready to sell. Begin with Profile & Branding, then Products & Offers.',c:'#5AE57A'};
+}
+
+function render(){
+  const p=Math.round(doneCount()/total*100);
+  const g=grade(p);
+  const started=doneCount()>0;
+  document.getElementById('gL').textContent=started?g.l:'—';
+  document.getElementById('gL').style.color=started?g.c:'#5AE57A';
+  document.getElementById('gP').textContent=p+'%';
+  document.getElementById('gN').textContent=started?g.n:'Start Checking Items Below';
+  document.getElementById('gD').textContent=started?g.d:'Complete each section to get your optimisation score and see exactly where sales are slipping through the cracks.';
+  document.getElementById('pF').style.width=p+'%';
+
+  document.getElementById('secs').innerHTML=D.map((sec,si)=>{
+    const sd=sec.i.filter((_,ii)=>ck[si+'-'+ii]).length;
+    return`<div class="section">
+      <div class="sec-head"><div class="sec-title">${sec.c}</div><div class="sec-count">${sd}/${sec.i.length}</div></div>
+      ${sec.i.map((item,ii)=>{
+        const id=si+'-'+ii,isChk=!!ck[id];
+        const tag=item.k?'<span class="tag tag-k">KEY</span>':item.q?'<span class="tag tag-q">QUICK WIN</span>':'';
+        return`<div class="item" onclick="tog('${id}')">
+          <div class="cb ${isChk?'chk':''}"></div>
+          <div class="item-text ${isChk?'chk':''}">${item.t}${tag}</div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function tog(id){ck[id]=!ck[id];localStorage.setItem(KEY,JSON.stringify(ck));render();}
+function resetAll(){if(confirm('Reset all checklist items?')){ck={};localStorage.setItem(KEY,JSON.stringify(ck));render();}}
+
+function copyRes(){
+  const p=Math.round(doneCount()/total*100);
+  const g=grade(p);
+  let out=`BEACONS STORE OPTIMISATION — ${p}% — ${g.n}\n\n`;
+  D.forEach((sec,si)=>{
+    out+=`${sec.c.toUpperCase()}\n`;
+    sec.i.forEach((item,ii)=>{out+=(ck[si+'-'+ii]?'[✓] ':'[ ] ')+item.t+'\n';});
+    out+='\n';
+  });
+  navigator.clipboard.writeText(out).then(()=>{
+    const t=document.getElementById('toast');
+    t.style.opacity=1;setTimeout(()=>t.style.opacity=0,2200);
+  });
+}
+
+render();
+</script>
+</body>
+</html>

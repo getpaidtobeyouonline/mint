@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Content Type Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .wrap { max-width: 600px; width: 100%; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 24px; font-size: .95rem; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 14px; padding: 26px; }
+  .q { font-family: 'Playfair Display', serif; font-size: 1.25rem; }
+  .step { font-size: .76rem; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 14px; }
+  .opt { display: block; width: 100%; text-align: left; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 13px 15px; border-radius: 9px; margin-bottom: 9px; cursor: pointer; }
+  .opt:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .95rem; padding: 12px 24px; border-radius: 8px; margin-top: 16px; font-family:'DM Sans',sans-serif; }
+  .rec { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.5rem; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 15px; margin: 10px 0; font-size: .93rem; }
+  .blk h4 { font-size: .74rem; text-transform: uppercase; color: #5AE57A; margin-bottom: 4px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 28px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Best Content Type Selector</h1>
+  <p class="sub">Three questions to find the content format that fits your goal, strength, and time.</p>
+  <div class="card" id="card"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const QS=[
+    {q:"What's your main goal right now?",k:"goal",opts:[["Maximise reach / new audience","reach"],["Deepen trust with existing followers","trust"],["Drive sales / conversions","sell"]]},
+    {q:"What are you naturally best at?",k:"skill",opts:[["On camera / talking","camera"],["Writing & ideas","writing"],["Design / visuals","visual"]]},
+    {q:"Time you can give per piece?",k:"time",opts:[["Minimal — fast & repeatable","low"],["Moderate","mid"],["I can go deep","high"]]}
+  ];
+  const REC = (a)=>{
+    if(a.goal==='reach' && a.skill==='camera') return ["Short-form video (Reels/TikTok/Shorts)","Highest reach ceiling and you're comfortable on camera — lean all the way in.","Batch 5–7/week. First 2s is the whole game. Reverse-engineer 3 viral posts weekly."];
+    if(a.goal==='reach' && a.skill==='writing') return ["Hook-led carousels & text posts","Writing strength + reach goal = carousels (IG) and threads (X/LinkedIn).","One bold idea per slide/tweet. Hook slide does 90% of the work."];
+    if(a.goal==='reach' && a.skill==='visual') return ["Scroll-stopping visual posts & short video covers","Use design to win the thumbnail/first frame battle.","Make the cover so good people stop. Pair visuals with a tight hook."];
+    if(a.goal==='trust') return ["Story-led & educational posts","Trust is built by depth, not virality. Teach and share real experience.","Share process, mistakes, and behind-the-scenes. Reply to every comment."];
+    if(a.goal==='sell' && a.skill==='camera') return ["Talking-head demos & testimonials","Selling needs proof and a face. Show it working and let results talk.","Problem → product → proof → CTA. Pin your best one."];
+    if(a.goal==='sell') return ["Proof-driven posts & soft-sell stories","Case studies, before/afters, and 'how I'd do it' content convert without feeling salesy.","One clear CTA per post. Show the transformation, not just features."];
+    return ["Educational carousels / threads","Versatile, repeatable, and they get saved & shared.","Pick 3 recurring formats and rotate them. Consistency compounds."];
+  };
+  const TIME={low:"Keep it repeatable — a templated format you can ship in under 30 min beats an ambitious one you skip.",mid:"Batch a week in one session so a busy day never breaks the streak.",high:"Use the depth to build flagship pieces, then chop each into 4–5 small ones."};
+  const g=id=>document.getElementById(id); let ans={}, i=0;
+  function show(){ const Q=QS[i];
+    g('card').innerHTML=`<div class="step">Step ${i+1} of ${QS.length}</div><div class="q">${Q.q}</div><div style="margin-top:14px">`+
+      Q.opts.map(o=>`<button class="opt" data-v="${o[1]}">${o[0]}</button>`).join('')+`</div>`;
+    g('card').querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ ans[Q.k]=b.dataset.v; i++; i<QS.length?show():result(); });
+  }
+  function result(){ const r=REC(ans);
+    g('card').innerHTML=`<div class="step">Your best fit</div><div class="rec">${r[0]}</div>
+      <div class="blk"><h4>Why</h4>${r[1]}</div>
+      <div class="blk"><h4>How to run it</h4>${r[2]}</div>
+      <div class="blk"><h4>For your time</h4>${TIME[ans.time]}</div>
+      <button class="btn" id="again">Start Over</button>`;
+    g('again').onclick=()=>{ ans={}; i=0; show(); };
+  }
+  show();
+</script>
+</body>
+</html>

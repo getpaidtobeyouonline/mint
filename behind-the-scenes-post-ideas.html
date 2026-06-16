@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Behind The Scenes Post Ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px;
+    line-height: 1.6;
+  }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    color: #5AE57A;
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .subtitle {
+    text-align: center;
+    opacity: 0.8;
+    margin-bottom: 32px;
+    font-size: 1rem;
+  }
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .chip {
+    background: transparent;
+    color: #FFFFFF;
+    border: 1px solid rgba(201, 168, 76, 0.4);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover { border-color: #5AE57A; }
+  .chip.active {
+    background: #5AE57A;
+    color: #325132;
+    border-color: #5AE57A;
+    font-weight: 500;
+  }
+  .generate-btn {
+    display: block;
+    margin: 0 auto 32px;
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,168,76,0.3); }
+  .generate-btn:active { transform: translateY(0); }
+  .idea-card {
+    background: rgba(201, 168, 76, 0.06);
+    border: 1px solid rgba(201, 168, 76, 0.25);
+    border-radius: 12px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .category-tag {
+    display: inline-block;
+    color: #5AE57A;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+  .idea-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: #FFFFFF;
+    line-height: 1.4;
+  }
+  .empty {
+    text-align: center;
+    opacity: 0.6;
+    font-style: italic;
+    padding: 40px 20px;
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .secondary-btn {
+    background: transparent;
+    color: #5AE57A;
+    border: 1px solid #5AE57A;
+    padding: 10px 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .secondary-btn:hover { background: rgba(201, 168, 76, 0.1); }
+  footer {
+    text-align: center;
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(240, 235, 224, 0.1);
+    font-size: 0.85rem;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Behind The Scenes Post Ideas</h1>
+  <p class="subtitle">Stop staring at a blank screen. Tap generate for instant BTS content prompts your audience actually wants to see.</p>
+
+  <div class="controls">
+    <button class="chip active" data-cat="all">All</button>
+    <button class="chip" data-cat="workspace">Workspace</button>
+    <button class="chip" data-cat="process">Process</button>
+    <button class="chip" data-cat="struggle">Struggle</button>
+    <button class="chip" data-cat="win">Wins</button>
+    <button class="chip" data-cat="routine">Routine</button>
+  </div>
+
+  <button class="generate-btn" id="generateBtn">Generate Idea</button>
+
+  <div id="ideaContainer">
+    <div class="empty">Pick a category and hit generate to see your first idea.</div>
+  </div>
+
+  <div class="actions" id="actions" style="display:none;">
+    <button class="secondary-btn" id="copyBtn">Copy Idea</button>
+    <button class="secondary-btn" id="anotherBtn">Another One</button>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const ideas = {
+    workspace: [
+      "Film a slow pan of your desk at the exact moment inspiration hits.",
+      "Show the 3 weirdest things on your workspace and the story behind each.",
+      "A time-lapse of your space going from chaos to focus mode.",
+      "Your morning workspace setup ritual in 15 seconds.",
+      "What's on your screen right now? A messy honest screenshot tour.",
+      "The corner of your room nobody sees on camera.",
+      "Your favorite mug, why you bought it, what it represents now.",
+      "Tools, tabs, and apps you can't work without — labeled."
+    ],
+    process: [
+      "Film yourself naming your latest product — out loud, on the spot.",
+      "Show the first ugly draft of your last finished piece.",
+      "A voice memo you sent yourself that became an actual offer.",
+      "Sticky notes plastered on a wall — your real planning method.",
+      "Record you talking through a pricing decision in real time.",
+      "The 'before launch' moment: what's open on your desk right now.",
+      "How you decide what to post tomorrow — the messy version.",
+      "Read your own old work and react in real time."
+    ],
+    struggle: [
+      "The post you almost didn't publish and why you did anyway.",
+      "Show the screenshot of your bank account when you started.",
+      "Your loudest impostor syndrome moment from this week.",
+      "Three rejections you got before the yes that changed everything.",
+      "Talk about a launch that flopped and what it actually taught you.",
+      "The criticism that stung — and how you sat with it.",
+      "A day you wanted to quit. Walk us through the hour you didn't.",
+      "What no one tells you about working alone all day."
+    ],
+    win: [
+      "Read your favorite DM from a customer out loud.",
+      "Show the first dollar you ever made online — screenshot or memory.",
+      "Celebrate a tiny win nobody else noticed today.",
+      "The milestone that made you cry — tell the whole story.",
+      "Compare your work from one year ago to right now.",
+      "A win you're not allowed to brag about anywhere else. Brag here.",
+      "Show the moment you realized this could actually work.",
+      "Read a testimonial that you still re-read on hard days."
+    ],
+    routine: [
+      "Your real 6am vs your 6am highlight reel.",
+      "Document one boring Tuesday from start to end.",
+      "Three non-negotiables in your day — and why each one stays.",
+      "The unsexy 30 minutes that actually grow your business.",
+      "What you eat on a deep work day. Show the snacks.",
+      "Your shutdown ritual — how you stop working at night.",
+      "The walk, the playlist, the journal — your reset stack.",
+      "A day in your life with the boring parts left in."
+    ]
+  };
+
+  let activeCat = 'all';
+  let lastIdea = null;
+  let lastCategory = null;
+
+  const chips = document.querySelectorAll('.chip');
+  const generateBtn = document.getElementById('generateBtn');
+  const container = document.getElementById('ideaContainer');
+  const actions = document.getElementById('actions');
+  const copyBtn = document.getElementById('copyBtn');
+  const anotherBtn = document.getElementById('anotherBtn');
+
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = chip.dataset.cat;
+    });
+  });
+
+  function pickIdea() {
+    let pool = [];
+    if (activeCat === 'all') {
+      for (const cat in ideas) {
+        ideas[cat].forEach(i => pool.push({ text: i, cat }));
+      }
+    } else {
+      ideas[activeCat].forEach(i => pool.push({ text: i, cat: activeCat }));
+    }
+    let pick;
+    do {
+      pick = pool[Math.floor(Math.random() * pool.length)];
+    } while (pool.length > 1 && pick.text === lastIdea);
+    lastIdea = pick.text;
+    lastCategory = pick.cat;
+    return pick;
+  }
+
+  function render() {
+    const pick = pickIdea();
+    container.innerHTML = `
+      <div class="idea-card">
+        <span class="category-tag">${pick.cat}</span>
+        <div class="idea-text">${pick.text}</div>
+      </div>
+    `;
+    actions.style.display = 'flex';
+  }
+
+  generateBtn.addEventListener('click', render);
+  anotherBtn.addEventListener('click', render);
+
+  copyBtn.addEventListener('click', () => {
+    if (!lastIdea) return;
+    navigator.clipboard.writeText(lastIdea).then(() => {
+      const original = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => copyBtn.textContent = original, 1500);
+    });
+  });
+</script>
+</body>
+</html>

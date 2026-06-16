@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Business Idea Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 24px; font-size: .95rem; }
+  label { display: block; font-size: .78rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 0 0 6px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: 1rem; padding: 11px 13px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 13px 26px; border-radius: 8px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .mini { background: transparent; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 5px 12px; border-radius: 6px; font-size: .8rem; }
+  .mini:hover { border-color: #5AE57A; color: #5AE57A; }
+  .controls { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 22px; }
+  .gen-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .idea { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 22px; margin-bottom: 16px; }
+  .idea h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.5rem; line-height: 1.25; }
+  .idea .pitch { font-style: italic; opacity: .9; margin: 6px 0 14px; }
+  .field { margin-bottom: 9px; font-size: .95rem; }
+  .field b { color: #5AE57A; font-size: .76rem; letter-spacing: .05em; text-transform: uppercase; display: block; }
+  .idea .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .saved h3 { font-family: 'Playfair Display', serif; color: #5AE57A; margin: 26px 0 12px; }
+  .sitem { background: #3C603C; border: 1px solid #4C724C; border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; font-size: .92rem; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .empty { text-align: center; opacity: .5; padding: 26px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Business Idea Generator</h1>
+  <p class="sub">Spin up concrete, AI-powered business ideas — complete with the offer, the customer, and your first move.</p>
+
+  <div class="controls">
+    <label for="niche">Niche (or leave on Surprise me)</label>
+    <select id="niche"></select>
+    <div class="gen-row">
+      <button class="btn" onclick="generate()">Generate Idea</button>
+      <button class="btn ghost" onclick="saveIdea()">Save This Idea</button>
+    </div>
+  </div>
+
+  <div id="out"><div class="empty">Hit “Generate Idea” to get your first concept.</div></div>
+
+  <div class="saved">
+    <h3>Saved Ideas</h3>
+    <div id="savedList"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const niches = ["fitness coaches","real estate agents","e-commerce stores","local restaurants","online course creators","freelance designers","SaaS startups","wedding planners","dental clinics","nonprofits","podcasters","real estate investors","law firms","Etsy sellers","life coaches","B2B agencies","authors","financial advisors","gyms","travel bloggers"];
+  const offers = [
+    { o: "a done-for-you service", price: "$500–$2,000 per project or a monthly retainer",
+      step: "Build one polished sample and pitch it to 10 ideal clients this week." },
+    { o: "a productized subscription tool", price: "$19–$49/month per user",
+      step: "Mock up the core screen and get 5 people on a waitlist before building." },
+    { o: "a digital product / template pack", price: "$17–$97 one-time",
+      step: "Create the first version in a weekend and sell it on a simple storefront." },
+    { o: "a niche AI-powered agency", price: "$1,500–$5,000/month retainers",
+      step: "Land one paying client manually before you systemize anything." },
+    { o: "a paid newsletter + community", price: "$10–$30/month membership",
+      step: "Publish 3 free issues to prove the angle, then open paid tiers." }
+  ];
+  const leverage = [
+    "auto-generates personalized content at scale",
+    "turns messy data into clear, actionable insights",
+    "handles repetitive busywork end to end",
+    "qualifies and follows up with leads 24/7",
+    "repurposes one input into a week of assets",
+    "delivers instant, on-brand customer answers"
+  ];
+  const adjectives = ["Instant","Effortless","Autopilot","Sharp","Signal","Compound","Momentum","Clarity","Leverage","Flux"];
+  const nouns = ["Engine","Lab","Forge","Studio","Stack","System","Loop","Desk","Pilot","Works"];
+
+  const sel = document.getElementById('niche');
+  sel.innerHTML = '<option value="">🎲 Surprise me</option>' + niches.map(n=>`<option>${n}</option>`).join('');
+  const pick = a => a[Math.floor(Math.random()*a.length)];
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let current = null;
+  let saved = JSON.parse(localStorage.getItem('abig') || '[]');
+
+  function generate() {
+    const niche = sel.value || pick(niches);
+    const of = pick(offers);
+    const lev = pick(leverage);
+    const name = pick(adjectives) + " " + pick(nouns);
+    current = {
+      name, niche, offer: of.o, lev, price: of.price, step: of.step,
+      pitch: `${of.o.charAt(0).toUpperCase()+of.o.slice(1)} for ${niche} that ${lev}.`
+    };
+    renderIdea();
+  }
+
+  function renderIdea() {
+    document.getElementById('out').innerHTML = `
+      <div class="idea">
+        <h2>${esc(current.name)}</h2>
+        <div class="pitch">${esc(current.pitch)}</div>
+        <div class="field"><b>Who it's for</b>${esc(current.niche)}</div>
+        <div class="field"><b>The offer</b>${esc(current.offer)}</div>
+        <div class="field"><b>How AI powers it</b>It ${esc(current.lev)}.</div>
+        <div class="field"><b>Pricing idea</b>${esc(current.price)}</div>
+        <div class="field"><b>Your first step</b>${esc(current.step)}</div>
+        <div class="row">
+          <button class="mini" onclick="generate()">↻ Another</button>
+          <button class="mini" onclick="saveIdea()">★ Save</button>
+          <button class="mini" onclick="copyIdea()">⧉ Copy</button>
+        </div>
+      </div>`;
+  }
+
+  function ideaText(x) {
+    return `${x.name}\n${x.pitch}\n\nWho: ${x.niche}\nOffer: ${x.offer}\nAI role: It ${x.lev}.\nPricing: ${x.price}\nFirst step: ${x.step}`;
+  }
+
+  function copyIdea() {
+    if (!current) return;
+    navigator.clipboard.writeText(ideaText(current)).then(
+      () => alert('Idea copied!'), () => alert('Copy failed.'));
+  }
+
+  function saveIdea() {
+    if (!current) { alert('Generate an idea first.'); return; }
+    saved.unshift(current);
+    localStorage.setItem('abig', JSON.stringify(saved));
+    renderSaved();
+  }
+
+  function delSaved(i) { saved.splice(i,1); localStorage.setItem('abig', JSON.stringify(saved)); renderSaved(); }
+
+  function renderSaved() {
+    const l = document.getElementById('savedList');
+    if (!saved.length) { l.innerHTML = '<div class="empty">No saved ideas yet.</div>'; return; }
+    l.innerHTML = saved.map((x,i)=>`
+      <div class="sitem">
+        <span><b style="color:#5AE57A">${esc(x.name)}</b> — ${esc(x.pitch)}</span>
+        <button class="mini" onclick="delSaved(${i})">✕</button>
+      </div>`).join('');
+  }
+
+  renderSaved();
+</script>
+</body>
+</html>

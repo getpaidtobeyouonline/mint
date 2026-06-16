@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Beginner Roadmap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 150px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .prog { text-align: center; background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .prog .n { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; }
+  .track { background: #3C603C; border-radius: 5px; height: 9px; overflow: hidden; margin-top: 8px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .phase { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 15px 17px; margin-bottom: 12px; }
+  .phase h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; }
+  .phase .wk { font-size: .74rem; opacity: .6; font-family: 'DM Sans', sans-serif; }
+  .phase .focus { font-size: .88rem; opacity: .8; margin: 3px 0 8px; }
+  .stepc { display: flex; gap: 10px; padding: 6px 0; cursor: pointer; }
+  .box { flex: none; width: 20px; height: 20px; border: 1px solid #BFD8BF; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: .8rem; margin-top: 2px; }
+  .stepc.on .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .stepc.on .tx { opacity: .5; text-decoration: line-through; }
+  .tx { font-size: .92rem; }
+  .ckpt { font-size: .82rem; opacity: .7; font-style: italic; margin-top: 8px; border-top: 1px solid #4C724C; padding-top: 7px; }
+  .skip { font-size: .78rem; color: #5AE57A; opacity: .8; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Beginner Roadmap</h1>
+  <p class="sub">Tell us your goal and starting point — get a phased, checkable roadmap from zero to results.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="goal">Your main goal</label>
+        <select id="goal"><option value="money">Make money with AI</option><option value="auto">Automate my work</option><option value="content">Create content faster</option><option value="build">Build tools / apps</option><option value="understand">Just understand AI</option></select></div>
+      <div><label for="level">Where you're at</label>
+        <select id="level"><option value="0">Total beginner</option><option value="1">Dabbled a bit</option><option value="2">Comfortable with basics</option></select></div>
+      <div><label for="time">Hours / week</label>
+        <select id="time"><option value="2">Under 3</option><option value="1">3–7</option><option value="0.6">8+</option></select></div>
+    </div>
+    <button class="btn" onclick="build()">Build My Roadmap</button>
+    <button class="btn ghost" onclick="resetChecks()">Reset Progress</button>
+  </div>
+
+  <div id="out"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const FOUND = { t:"Foundations", f:"Get fluent with a frontier chat assistant.",
+    s:["Pick one assistant and use it daily for a week on real tasks","Learn the context → goal → format prompt pattern","Save 5 prompts that worked into a notes file"],
+    c:"You reach for AI by reflex and get usable answers most of the time." };
+  const ROADS = {
+    money: [FOUND,
+      { t:"Find your angle", f:"Match an AI skill to a payable problem.", s:["List skills you have and problems people pay to solve","Pick ONE niche + offer you could deliver this month","Validate it: talk to 5 potential buyers"], c:"You can name exactly who'd pay and for what." },
+      { t:"Build the offer", f:"Create one sellable thing.", s:["Build a small product or define a clear service package","Use AI to produce it fast; you add the judgment","Set a price and a simple way to buy"], c:"Someone could pay you today without you scrambling." },
+      { t:"Get first sales", f:"Trade outreach for proof.", s:["Tell your network and 10 targeted prospects","Deliver, then ask for a testimonial","Fix what felt clunky and repeat"], c:"You've made real money and have at least one testimonial." },
+      { t:"Systemize & grow", f:"Turn it into a repeatable engine.", s:["Document your delivery as a reusable workflow","Add one passive or recurring revenue line","Double down on the channel that worked"], c:"Income is repeatable, not a one-off fluke." }],
+    auto: [FOUND,
+      { t:"Map the busywork", f:"Find what's worth automating.", s:["List your weekly repetitive tasks and time each","Pick the highest time × frequency one","Write its steps out manually, in order"], c:"You know your single most expensive recurring task." },
+      { t:"Insert AI", f:"Replace the judgment step with a prompt.", s:["Identify which step needs thinking vs. mechanics","Write and test a prompt for the thinking step","Run it end to end manually a few times"], c:"The task is noticeably faster with AI in the loop." },
+      { t:"Automate the chain", f:"Connect the steps.", s:["Use a no-code automation tool to link the steps","Add the AI step as an action in the flow","Test with real inputs and add a fallback"], c:"It runs with little or no manual effort." },
+      { t:"Scale the system", f:"Reclaim more hours.", s:["Document it so it's not all in your head","Automate the next task on your list","Track hours saved to prove the ROI"], c:"You've reclaimed measurable hours every week." }],
+    content: [FOUND,
+      { t:"Define your voice", f:"Make AI sound like you.", s:["Write down tone, audience, do's and don'ts","Create a reusable brief you paste every time","Collect 3 samples of writing in your real voice"], c:"AI drafts come back already on-brand." },
+      { t:"Build a workflow", f:"From idea to published, fast.", s:["Pick one core format and one platform","Draft → edit → polish with AI at each step","Ship 3 pieces and note what stuck"], c:"You can go from blank to published in under an hour." },
+      { t:"Repurpose everything", f:"One input, many outputs.", s:["Turn one piece into 4 platform-native formats","Batch a week of content in one session","Build a simple content calendar"], c:"One core idea reliably becomes a week of content." },
+      { t:"Grow consistently", f:"Compound the output.", s:["Commit to a realistic posting cadence","Double down on your best-performing format","Review metrics monthly and adjust"], c:"You publish consistently without burning out." }],
+    build: [FOUND,
+      { t:"Spec small", f:"Scope a tiny, single-purpose tool.", s:["Pick one job a tool could do in one screen","Write the core action, inputs, and output","Keep the scope ruthlessly small"], c:"You can describe your tool in two sentences." },
+      { t:"Build v1 with AI", f:"Ship something that runs.", s:["Have AI build it as a single self-contained file","Test the core action until it's solid","Cut anything that isn't essential"], c:"A working v1 exists that you actually use." },
+      { t:"Polish & ship", f:"Make it usable by others.", s:["Tighten the UI and add clear instructions","Get one other person to try it","Fix the friction they hit"], c:"Someone other than you can use it without help." },
+      { t:"Iterate or sell", f:"Decide its future.", s:["Decide: keep building, give away, or charge","If selling, write a simple offer page","Plan the next small tool"], c:"It's launched and you know its next step." }],
+    understand: [FOUND,
+      { t:"The mental model", f:"Get how these tools actually work.", s:["Learn what an LLM is and isn't (no code needed)","Understand why prompting and context matter","Learn where it confidently makes things up"], c:"You can explain AI's strengths and limits to a friend." },
+      { t:"Hands-on range", f:"Try the main use types.", s:["Use it to write, analyze, learn, and brainstorm","Compare a vague vs. a structured prompt","Try one image or automation tool too"], c:"You've felt the difference good input makes." },
+      { t:"Judgment & safety", f:"Use it responsibly.", s:["Fact-check anything important from a real source","Learn what not to paste into AI tools","Form a simple rule for verifying output"], c:"You trust it appropriately — not too much, not too little." },
+      { t:"Apply it", f:"Make it useful to you.", s:["Pick one real area of your life to apply AI","Build one small habit around it","Decide what to explore deeper next"], c:"AI is a normal, useful part of how you work." }]
+  };
+  const GL = { money:"Make money with AI", auto:"Automate my work", content:"Create content faster", build:"Build tools / apps", understand:"Just understand AI" };
+
+  let checks = JSON.parse(localStorage.getItem('abr_checks') || '{}');
+  ['goal','level','time'].forEach(k=>{ const s=localStorage.getItem('abr_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('change',()=>{localStorage.setItem('abr_'+k,g(k).value);build();}); });
+
+  function build() {
+    const goal=g('goal').value, lvl=+g('level').value, tf=+g('time').value;
+    const phases = ROADS[goal];
+    let html = '';
+    let total=0, doneN=0;
+    phases.forEach((p,pi)=>{
+      const skip = pi===0 && lvl>=2;
+      const wk = Math.max(1, Math.round(2*tf*(pi===0?1:1)));
+      const wk2 = wk + (tf>=2?2:1);
+      html += `<div class="phase"><h3>Phase ${pi+1}: ${esc(p.t)} <span class="wk">· ~${wk}–${wk2} wks</span></h3>
+        <div class="focus">${esc(p.f)}</div>
+        ${skip?'<div class="skip">You said you\'re comfortable with basics — skim this and tick what you\'ve got.</div>':''}`;
+      p.s.forEach((st,si)=>{
+        const key=`${goal}|${pi}|${si}`; const on=!!checks[key]; total++; if(on)doneN++;
+        html += `<div class="stepc ${on?'on':''}" data-k="${key}"><div class="box">${on?'✓':''}</div><div class="tx">${esc(st)}</div></div>`;
+      });
+      html += `<div class="ckpt">Ready for the next phase when: ${esc(p.c)}</div></div>`;
+    });
+    const pct = total?Math.round(doneN/total*100):0;
+    g('out').innerHTML =
+      `<div class="prog"><div class="n">${pct}% complete</div><div style="font-size:.82rem;opacity:.7">${doneN}/${total} steps · Goal: ${GL[goal]}</div><div class="track"><i style="width:${pct}%"></i></div></div>`
+      + html + `<button class="btn" onclick="exportMd()">Export Roadmap</button>`;
+    g('out').querySelectorAll('.stepc').forEach(el=>el.onclick=()=>{
+      const k=el.dataset.k; checks[k]=!checks[k]; localStorage.setItem('abr_checks',JSON.stringify(checks)); build();
+    });
+  }
+
+  function resetChecks(){ if(!confirm('Reset all progress?'))return; checks={}; localStorage.setItem('abr_checks','{}'); build(); }
+
+  function exportMd() {
+    const goal=g('goal').value, phases=ROADS[goal];
+    let t=`# My AI Roadmap — ${GL[goal]}\n`;
+    phases.forEach((p,pi)=>{
+      t+=`\n## Phase ${pi+1}: ${p.t}\n${p.f}\n`;
+      p.s.forEach((st,si)=>{ t+=`- [${checks[`${goal}|${pi}|${si}`]?'x':' '}] ${st}\n`; });
+      t+=`> Ready when: ${p.c}\n`;
+    });
+    const b=new Blob([t.trim()],{type:'text/markdown'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='ai-roadmap.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  build();
+</script>
+</body>
+</html>

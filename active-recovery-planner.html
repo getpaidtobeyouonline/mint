@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Active Recovery Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin-top: 14px; }
+  .blk { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 16px; margin-bottom: 10px; }
+  .blk h4 { color: #5AE57A; font-size: .95rem; margin-bottom: 4px; } .blk li { font-size: .9rem; margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Active Recovery Planner</h1>
+  <p class="sub">Recovery is not nothing — it is light, intentional movement that helps you bounce back.</p>
+
+  <div class="panel">
+    <label for="part">What worked hardest yesterday?</label>
+    <select id="part" onchange="gen()">
+      <option value="legs">Legs / lower body</option>
+      <option value="upper">Upper body / arms</option>
+      <option value="full">Full body / heavy day</option>
+      <option value="cardio">Cardio / endurance</option>
+      <option value="none">General fatigue — no single area</option>
+    </select>
+    <label for="time">Time you have today</label>
+    <select id="time" onchange="gen()"><option>15 minutes</option><option>30 minutes</option><option>45+ minutes</option></select>
+    <button class="btn" onclick="gen()">Plan Active Recovery</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  ['part','time'].forEach(k=>{ const s=localStorage.getItem('arp_'+k); if(s!==null)g(k).value=s; });
+  function gen(){
+    ['part','time'].forEach(k=>localStorage.setItem('arp_'+k,g(k).value));
+    const move={
+      legs:["Easy 15-20 min walk on flat ground","Gentle cycling or swimming at conversation pace","Foam roll quads, calves and glutes — slow passes","Hip and ankle mobility flow"],
+      upper:["Light band pull-aparts and shoulder circles","Gentle thoracic spine rotations","Foam roll lats and upper back","Easy walk to move blood without loading arms"],
+      full:["Very easy walk or gentle yoga flow","Full-body mobility: hips, shoulders, spine","Foam roll the two sorest areas only","Keep heart rate low — this is not a workout"],
+      cardio:["Short, slow walk — half your usual pace","Gentle stretching for hips and calves","Mobility work, no impact","Hydrate and refuel properly today"],
+      none:["20 min relaxed walk, ideally outdoors","Full-body gentle stretch, hold each 30s","Foam roll wherever feels tight","Light yoga or a mobility routine"]
+    }[g('part').value];
+    const rule=["Stay at an effort where you could hold a conversation","Stop before anything feels like a workout","Breathe slow and deep — recovery is a nervous-system reset too"];
+    g('out').innerHTML='<div class="blk"><h4>Your recovery movement</h4><ul>'+move.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk"><h4>Keep it light — the rules</h4><ul>'+rule.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>'+
+      '<div class="blk" style="border-left-color:#BFD8BF"><h4>Also today</h4><p style="font-size:.9rem">Protein, water, and sleep do more for recovery than any stretch. Active recovery moves blood; rest does the repair.</p></div>';
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  gen();
+</script>
+</body>
+</html>

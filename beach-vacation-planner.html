@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beach Vacation Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid #4C724C; cursor: pointer; font-size: .87rem; }
+  .item:last-child { border-bottom: none; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; font-size: .68rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 6px; }
+  .grp { font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; color: #5AE57A; opacity: .85; margin: 10px 0 4px; }
+  .add { display: flex; gap: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 15px; border-radius: 8px; font-family:'DM Sans',sans-serif; flex: none; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .actitem { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 7px 12px; margin: 5px 0; display: flex; justify-content: space-between; font-size: .87rem; }
+  .actitem .x { cursor: pointer; opacity: .5; } .actitem .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .45; font-size: .82rem; font-style: italic; padding: 3px 0; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Beach Vacation Planner</h1>
+  <p class="sub">Sun, sand and zero stress — pack the right kit and plan the relaxing bits.</p>
+
+  <div class="panel">
+    <h3>Beach packing checklist</h3>
+    <div id="checks"></div>
+  </div>
+
+  <div class="panel">
+    <h3>Things to do</h3>
+    <div class="add"><input id="act" placeholder="e.g. Sunset boat trip" onkeydown="if(event.key==='Enter')add()" style="flex:1"><button class="btn" onclick="add()">Add</button></div>
+    <div id="list" style="margin-top:8px"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const GROUPS={
+    "Sun & sea":["Swimwear (x2)","High-SPF sunscreen","Sunglasses &amp; sun hat","Beach towel","After-sun / aloe vera","Flip-flops or sandals"],
+    "Beach kit":["Beach bag","Reusable water bottle","Cover-up or sarong","Waterproof phone pouch","A good book / e-reader","Snacks"],
+    "Comfort":["Light, breathable clothing","Insect repellent","Portable fan or cooling towel","Cash for beach vendors"]
+  };
+  let st=JSON.parse(localStorage.getItem('bvp_chk')||'{}');
+  let R=JSON.parse(localStorage.getItem('bvp')||'[]');
+  const save=()=>{ localStorage.setItem('bvp_chk',JSON.stringify(st)); localStorage.setItem('bvp',JSON.stringify(R)); };
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function tog(k){ st[k]=!st[k]; save(); draw(); }
+  function add(){ const t=g('act').value.trim(); if(!t)return; R.push(t); g('act').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear activities?')){ R=[]; save(); render(); } }
+  function draw(){
+    let h='';
+    Object.entries(GROUPS).forEach(([grp,items])=>{
+      h+='<div class="grp">'+grp+'</div>';
+      items.forEach(it=>{ const k=grp+'|'+it;
+        h+='<div class="item" onclick="tog(\''+k.replace(/'/g,"\\'")+'\')"><span class="box'+(st[k]?' on':'')+'">'+(st[k]?'✓':'')+'</span><span>'+it+'</span></div>';
+      });
+    });
+    g('checks').innerHTML=h;
+  }
+  function render(){
+    g('list').innerHTML=R.length?R.map((x,i)=>'<div class="actitem"><span>🏖️ '+esc(x)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join(''):'<div class="empty">No activities added yet.</div>';
+  }
+  draw(); render();
+</script>
+</body>
+</html>

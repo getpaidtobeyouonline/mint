@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tool ROI Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  .hint { text-transform: none; letter-spacing: 0; opacity: .55; font-size: .8rem; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 140px; }
+  .reco { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .reco .big { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #5AE57A; line-height: 1; }
+  .reco .vd { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; margin-top: 4px; }
+  .reco .why { font-size: .85rem; opacity: .75; margin-top: 4px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .71rem; opacity: .65; text-transform: uppercase; }
+  .be { background: #2E4D2E; border: 1px solid #2E4D2E; border-radius: 8px; padding: 11px 15px; margin: 14px 0; font-size: .9rem; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .cmp { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .cmp .nm { font-weight: 500; }
+  .cmp .x { cursor: pointer; opacity: .55; }
+  .cmp .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 18px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Tool ROI Calculator</h1>
+  <p class="sub">Find out if an AI subscription actually earns its keep — or quietly drains money every month.</p>
+
+  <div class="panel">
+    <label for="name">Tool name</label>
+    <input id="name" placeholder="e.g. Pro AI assistant plan">
+    <div class="grid">
+      <div><label for="cost">Cost / month ($)</label><input id="cost" type="number" min="0" value="20" oninput="calc()"></div>
+      <div><label for="rate">Your time is worth ($/hr)</label><input id="rate" type="number" min="0" value="50" oninput="calc()"></div>
+    </div>
+    <div class="grid">
+      <div><label for="saved">Hours saved / week</label><input id="saved" type="number" min="0" step="0.5" value="3" oninput="calc()"></div>
+      <div><label for="rev">Extra revenue / mo it enables <span class="hint">(optional)</span></label><input id="rev" type="number" min="0" value="0" oninput="calc()"></div>
+    </div>
+    <label for="setup">One-time setup / learning hours <span class="hint">(optional)</span></label>
+    <input id="setup" type="number" min="0" value="2" oninput="calc()">
+  </div>
+
+  <div class="reco">
+    <div class="big" id="roi">0%</div>
+    <div class="vd" id="verdict">Monthly ROI</div>
+    <div class="why" id="why"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="value">$0</div><div class="l">Value / mo</div></div>
+    <div class="stat"><div class="n" id="net">$0</div><div class="l">Net / mo</div></div>
+    <div class="stat"><div class="n" id="yr">$0</div><div class="l">Net / yr (incl. setup)</div></div>
+    <div class="stat"><div class="n" id="pay">—</div><div class="l">Setup payback</div></div>
+  </div>
+
+  <div class="be" id="be"></div>
+
+  <button class="btn" onclick="addCmp()">+ Add to Comparison</button>
+  <button class="btn ghost" onclick="copyOut()">Copy</button>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:8px">Comparison — best ROI wins</div>
+    <div id="cmpList"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['name','cost','rate','saved','rev','setup'];
+  F.forEach(id => { const s = localStorage.getItem('atrc_'+id); if (s!==null) document.getElementById(id).value = s; });
+  const g = id => document.getElementById(id);
+  const n = id => parseFloat(g(id).value)||0;
+  const WPM = 4.33;
+
+  function model() {
+    const cost = n('cost'), rate = n('rate'), savedMo = n('saved')*WPM, rev = n('rev'), setupCost = n('setup')*rate;
+    const timeVal = savedMo*rate;
+    const gross = timeVal + rev;
+    const net = gross - cost;
+    const roi = cost>0 ? net/cost*100 : (net>0?Infinity:0);
+    return { cost, rate, gross, net, roi, setupCost, savedMo };
+  }
+
+  function calc() {
+    F.forEach(id => localStorage.setItem('atrc_'+id, g(id).value));
+    const m = model();
+    g('roi').textContent = m.roi===Infinity ? '∞' : Math.round(m.roi)+'%';
+    g('value').textContent = '$'+Math.round(m.gross).toLocaleString();
+    g('net').textContent = (m.net<0?'-$':'$')+Math.abs(Math.round(m.net)).toLocaleString();
+    g('yr').textContent = (m.net*12-m.setupCost<0?'-$':'$')+Math.abs(Math.round(m.net*12-m.setupCost)).toLocaleString();
+    let vd, why;
+    if (m.net <= 0) { vd='Cut it'; why='It costs more than it returns. Drop it or change how you use it.'; }
+    else if (m.roi < 50) { vd='Marginal'; why='Barely positive — keep only if it has strategic upside beyond the math.'; }
+    else if (m.roi < 200) { vd='Worth it'; why='Solid return. This tool is earning its place.'; }
+    else { vd='No-brainer'; why='Exceptional ROI — keep it and look for ways to lean in further.'; }
+    g('verdict').textContent = vd; g('why').textContent = why;
+
+    if (m.net>0 && m.setupCost>0) {
+      const wks = m.setupCost/(m.net/WPM);
+      g('pay').textContent = wks<1? '<1 wk' : Math.round(wks)+' wk';
+    } else g('pay').textContent = m.setupCost>0 ? '∞' : 'none';
+
+    const beHrs = m.rate>0 ? m.cost/m.rate : 0;
+    const beHrsWk = beHrs/WPM;
+    g('be').innerHTML = `Break-even: you only need to save <b>${beHrsWk.toFixed(1)} hr/week</b> (${beHrs.toFixed(1)} hr/mo) for this tool to pay for itself. `+
+      (n('saved') >= beHrsWk ? `You're saving ${n('saved')} hr/week — <b style="color:#5AE57A">above break-even.</b>` : `You're saving ${n('saved')} hr/week — <b style="color:#5AE57A">below break-even.</b>`);
+  }
+
+  let cmp = JSON.parse(localStorage.getItem('atrc_cmp') || '[]');
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function addCmp() {
+    const name = g('name').value.trim();
+    if (!name) { alert('Name the tool first.'); return; }
+    const m = model();
+    cmp.push({ name, roi: m.roi===Infinity?99999:Math.round(m.roi), net: Math.round(m.net) });
+    localStorage.setItem('atrc_cmp', JSON.stringify(cmp));
+    renderCmp();
+  }
+  function delCmp(i) { cmp.splice(i,1); localStorage.setItem('atrc_cmp', JSON.stringify(cmp)); renderCmp(); }
+  function renderCmp() {
+    const l = g('cmpList');
+    if (!cmp.length) { l.innerHTML = '<div class="empty">Add tools to rank them by ROI.</div>'; return; }
+    const best = Math.max(...cmp.map(c=>c.roi));
+    l.innerHTML = [...cmp].map((c,i)=>({c,i})).sort((a,b)=>b.c.roi-a.c.roi).map(({c,i})=>`
+      <div class="cmp"><span class="nm">${esc(c.name)}${c.roi===best?' ★':''}</span>
+        <span>${c.roi===99999?'∞':c.roi+'%'} ROI · ${c.net<0?'-$':'$'}${Math.abs(c.net).toLocaleString()}/mo
+        <span class="x" onclick="delCmp(${i})">✕</span></span></div>`).join('');
+  }
+
+  function copyOut() {
+    const m = model();
+    const t = `AI TOOL ROI — ${g('name').value||'Tool'}\nMonthly ROI: ${g('roi').textContent} (${g('verdict').textContent})\nValue: ${g('value').textContent}/mo · Net: ${g('net').textContent}/mo · Year 1: ${g('yr').textContent}\n${g('be').textContent.replace(/<[^>]+>/g,'')}`;
+    navigator.clipboard.writeText(t).then(()=>alert('ROI copied!'),()=>alert('Copy failed.'));
+  }
+
+  calc(); renderCmp();
+</script>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Batch Cooking Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 660px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.95rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .total { text-align: center; font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 10px; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; align-items: center; gap: 9px; font-size: .87rem; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .step.done .lb { text-decoration: line-through; opacity: .5; }
+  .step .tm { color: #5AE57A; font-size: .78rem; flex: none; width: 52px; }
+  .step .x { margin-left: auto; cursor: pointer; opacity: .5; } .step .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.55rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Batch Cooking Schedule</h1>
+  <p class="sub">Order your batch-cook tasks by time — start the longest jobs first, work efficiently.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:3"><label>Cooking task</label><input id="task" placeholder="e.g. Roast vegetables"></div>
+      <div><label>Minutes</label><input id="mins" type="number" min="1" placeholder="e.g. 40"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Add</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="total" id="total"></div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('bcs')||'[]');
+  const save=()=>localStorage.setItem('bcs',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const m=parseInt(g('mins').value)||0; if(!v('task')||!m){ alert('Enter a task and minutes.'); return; }
+    R.push({t:v('task'),m,done:false}); g('task').value=''; g('mins').value=''; save(); render(); }
+  function toggle(i){ R[i].done=!R[i].done; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear the schedule?')){ R=[]; save(); render(); } }
+  function render(){
+    const L=g('list');
+    if(!R.length){ g('total').textContent=''; L.innerHTML='<div class="empty">No tasks added yet.</div>'; return; }
+    const longest=Math.max(...R.map(x=>x.m));
+    g('total').textContent='Hands-on time ~'+longest+' min (longest task) · '+R.length+' tasks';
+    L.innerHTML=R.map((x,i)=>({x,i})).sort((a,b)=>b.x.m-a.x.m).map(({x,i})=>
+      '<div class="step'+(x.done?' done':'')+'"><span class="box'+(x.done?' on':'')+'" onclick="toggle('+i+')">'+(x.done?'✓':'')+'</span><span class="tm">'+x.m+' min</span><span class="lb">'+esc(x.t)+'</span><span class="x" onclick="del('+i+')">✕</span></div>').join('')+
+      '<div style="font-size:.8rem;opacity:.6;margin-top:8px;font-style:italic">Tip: start the longest task first, then fit shorter jobs around it.</div>';
+  }
+  render();
+</script>
+</body>
+</html>

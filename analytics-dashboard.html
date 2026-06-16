@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .addrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; }
+  .addrow > div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin-top: 12px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .v { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat .l { font-size: .7rem; opacity: .65; text-transform: uppercase; }
+  .mrow { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: .82rem; }
+  .ml { width: 70px; opacity: .75; flex: none; }
+  .mt { flex: 1; background: #3C603C; border-radius: 4px; height: 13px; overflow: hidden; }
+  .mt>i { display: block; height: 100%; background: #5AE57A; }
+  .mv { width: 70px; text-align: right; flex: none; }
+  .row { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 6px; display: flex; justify-content: space-between; font-size: .85rem; gap: 10px; }
+  .row .x { cursor: pointer; opacity: .5; } .row .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .88rem; padding: 16px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Analytics Dashboard</h1>
+  <p class="sub">Log your weekly numbers and watch your real trend — no platform exports needed.</p>
+
+  <div class="panel">
+    <div class="addrow">
+      <div><label for="wk">Week (label)</label><input id="wk" placeholder="e.g. Wk of 12 May"></div>
+      <div><label for="fol">Followers</label><input id="fol" type="number" min="0"></div>
+      <div><label for="reach">Reach</label><input id="reach" type="number" min="0"></div>
+      <div><label for="eng">Engagements</label><input id="eng" type="number" min="0"></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v" id="sFol">—</div><div class="l">Followers</div></div>
+    <div class="stat"><div class="v" id="sGr">—</div><div class="l">WoW growth</div></div>
+    <div class="stat"><div class="v" id="sEr">—</div><div class="l">Eng. rate</div></div>
+    <div class="stat"><div class="v" id="sWk">0</div><div class="l">Weeks logged</div></div>
+  </div>
+
+  <div class="panel">
+    <div style="font-family:'Playfair Display',serif;color:#5AE57A;margin-bottom:10px">Reach trend</div>
+    <div id="chart"><div class="empty">Log a few weeks to see the trend.</div></div>
+  </div>
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim(), nu=id=>parseFloat(g(id).value)||0;
+  let R=JSON.parse(localStorage.getItem('andb')||'[]');
+  const save=()=>localStorage.setItem('andb',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ const w=v('wk'); if(!w){alert('Add a week label.');return;} R.push({w,f:nu('fol'),r:nu('reach'),e:nu('eng')}); ['wk','fol','reach','eng'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all data?')){ R=[]; save(); render(); } }
+  function render(){
+    g('sWk').textContent=R.length;
+    if(R.length){
+      const last=R[R.length-1], prev=R.length>1?R[R.length-2]:null;
+      g('sFol').textContent=last.f.toLocaleString();
+      g('sGr').textContent= prev&&prev.f>0 ? ((last.f-prev.f)/prev.f*100).toFixed(1)+'%' : '—';
+      g('sEr').textContent= last.r>0 ? (last.e/last.r*100).toFixed(1)+'%' : (last.f>0?(last.e/last.f*100).toFixed(1)+'%':'—');
+      const mx=Math.max(...R.map(x=>x.r),1);
+      g('chart').innerHTML=R.slice(-10).map(x=>`<div class="mrow"><span class="ml">${esc(x.w).slice(0,9)}</span><div class="mt"><i style="width:${Math.round(x.r/mx*100)}%"></i></div><span class="mv">${x.r.toLocaleString()}</span></div>`).join('');
+    } else { g('sFol').textContent=g('sGr').textContent=g('sEr').textContent='—'; g('chart').innerHTML='<div class="empty">Log a few weeks to see the trend.</div>'; }
+    g('list').innerHTML = R.length ? [...R].map((x,i)=>({x,i})).reverse().map(({x,i})=>`<div class="row"><span>${esc(x.w)}</span><span>👥 ${x.f.toLocaleString()} · 👁 ${x.r.toLocaleString()} · ❤ ${x.e.toLocaleString()} <span class="x" onclick="del(${i})">✕</span></span></div>`).join('') : '<div class="empty">No weeks logged yet.</div>';
+  }
+  render();
+</script>
+</body>
+</html>

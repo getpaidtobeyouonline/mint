@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Launch Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 10px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 130px; }
+  .count { text-align: center; background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 10px; padding: 18px; margin-bottom: 14px; }
+  .count .big { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #5AE57A; line-height: 1; }
+  .count .l { font-size: .85rem; opacity: .75; margin-top: 4px; }
+  .track { background: #3C603C; border-radius: 5px; height: 9px; overflow: hidden; margin-top: 12px; }
+  .track > i { display: block; height: 100%; background: #5AE57A; transition: width .25s; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .phase h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin: 18px 0 8px; }
+  .task { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+  .task.done { opacity: .5; }
+  .task.over { border-left-color: #5AE57A; }
+  .box { flex: none; width: 21px; height: 21px; border: 1px solid #BFD8BF; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: .85rem; }
+  .task.done .box { background: #5AE57A; border-color: #5AE57A; color: #325132; }
+  .task .body { flex: 1; }
+  .task .tt { font-size: .93rem; }
+  .task.done .tt { text-decoration: line-through; }
+  .task .dt { font-size: .76rem; opacity: .6; }
+  .task .x { cursor: pointer; opacity: .5; font-size: .8rem; }
+  .task .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 22px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Launch Planner</h1>
+  <p class="sub">Anchor every task to launch day. See the countdown, what's due when, and how ready you actually are.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="prod">Product name</label><input id="prod" placeholder="What are you launching?"></div>
+      <div><label for="ldate">Launch date</label><input id="ldate" type="date"></div>
+    </div>
+    <button class="btn ghost" onclick="loadStarter()">Load Proven Launch Plan</button>
+  </div>
+
+  <div class="count">
+    <div class="big" id="cdn">—</div>
+    <div class="l" id="cdl">Set a launch date</div>
+    <div class="track"><i id="bar" style="width:0%"></i></div>
+    <div class="l" id="prog" style="margin-top:6px"></div>
+  </div>
+
+  <div class="panel">
+    <label>Add a task</label>
+    <input id="tT" placeholder="Task (e.g. Write launch email)">
+    <div class="grid" style="margin-top:8px">
+      <div><label for="tP">Phase</label><select id="tP"><option>Pre-launch</option><option>Launch day</option><option>Post-launch</option></select></div>
+      <div><label for="tO">Days from launch <span style="text-transform:none;opacity:.55">(− before, + after)</span></label><input id="tO" type="number" value="-7"></div>
+    </div>
+    <button class="btn" onclick="addTask()">+ Add Task</button>
+  </div>
+
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportMd()">Export Plan</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let tasks = JSON.parse(localStorage.getItem('alp_tasks') || '[]');
+  let info = JSON.parse(localStorage.getItem('alp_info') || '{}');
+  if (info.prod) g('prod').value = info.prod;
+  g('ldate').value = info.ldate || '';
+  ['prod','ldate'].forEach(k => g(k).addEventListener('input', () => { info={prod:v('prod'),ldate:v('ldate')}; localStorage.setItem('alp_info',JSON.stringify(info)); render(); }));
+  const save = () => localStorage.setItem('alp_tasks', JSON.stringify(tasks));
+
+  const DAY = 86400000;
+  const todayUTC = () => { const d=new Date(); return Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()); };
+  const parseUTC = s => { const [y,m,d]=s.split('-').map(Number); return Date.UTC(y,m-1,d); };
+  const isoFrom = ms => new Date(ms).toISOString().slice(0,10);
+
+  const phases = ['Pre-launch','Launch day','Post-launch'];
+  function addTask() {
+    const t=v('tT'); if(!t){alert('Add a task name.');return;}
+    tasks.push({ t, p:g('tP').value, o:parseInt(g('tO').value)||0, done:false });
+    g('tT').value=''; save(); render();
+  }
+  function tog(i){ tasks[i].done=!tasks[i].done; save(); render(); }
+  function del(i){ tasks.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all tasks?')){ tasks=[]; save(); render(); } }
+
+  function loadStarter() {
+    if (tasks.length && !confirm('Replace current tasks with the proven plan?')) return;
+    const S = [
+      ['Lock the offer & pricing','Pre-launch',-21],['Build the product/deliverable','Pre-launch',-18],
+      ['Set up sales page & checkout','Pre-launch',-14],['Create launch assets & copy','Pre-launch',-12],
+      ['Warm up audience: tease the problem','Pre-launch',-10],['Build email list & sequence','Pre-launch',-9],
+      ['Run a beta / collect early feedback','Pre-launch',-7],['Write all launch emails & posts','Pre-launch',-5],
+      ['Final QA: links, payment, delivery','Pre-launch',-2],
+      ['Send the launch email','Launch day',0],['Post announcement everywhere','Launch day',0],['Go live & monitor','Launch day',0],
+      ['Send reminder + social proof','Post-launch',2],['Last-call / cart-close push','Post-launch',4],
+      ['Thank buyers & gather testimonials','Post-launch',6],['Debrief: what worked, iterate','Post-launch',9]
+    ];
+    tasks = S.map(([t,p,o])=>({t,p,o,done:false}));
+    save(); render();
+  }
+
+  function render() {
+    const ld = v('ldate');
+    if (ld) {
+      const diff = Math.round((parseUTC(ld)-todayUTC())/DAY);
+      g('cdn').textContent = diff>0?diff:diff===0?'TODAY':Math.abs(diff);
+      g('cdl').textContent = diff>0?`days until ${v('prod')||'launch'}`:diff===0?`🚀 ${v('prod')||'Launch'} day!`:`days since launch`;
+    } else { g('cdn').textContent='—'; g('cdl').textContent='Set a launch date'; }
+    const done = tasks.filter(t=>t.done).length;
+    const pct = tasks.length?Math.round(done/tasks.length*100):0;
+    g('bar').style.width=pct+'%';
+    g('prog').textContent = tasks.length?`${done}/${tasks.length} done · ${pct}% launch-ready`:'';
+    const L = g('list');
+    if (!tasks.length) { L.innerHTML='<div class="empty">No tasks yet — add one or load the proven plan.</div>'; return; }
+    const tdy = todayUTC();
+    L.innerHTML = phases.map(ph => {
+      const grp = tasks.map((t,i)=>({t,i})).filter(o=>o.t.p===ph).sort((a,b)=>a.t.o-b.t.o);
+      if (!grp.length) return '';
+      return `<div class="phase"><h3>${ph}</h3>` + grp.map(({t,i})=>{
+        let dstr='', over=false;
+        if (ld) { const ms=parseUTC(ld)+t.o*DAY; const tm=Math.round((ms-tdy)/DAY);
+          dstr = `${isoFrom(ms)} · ${tm>0?'T-'+tm:tm===0?'today':tm+'d'}`;
+          over = !t.done && tm<0; }
+        else dstr = `${t.o>0?'+':''}${t.o} days from launch`;
+        return `<div class="task ${t.done?'done':''} ${over?'over':''}">
+          <div class="box" onclick="tog(${i})">${t.done?'✓':''}</div>
+          <div class="body"><div class="tt">${esc(t.t)}</div><div class="dt">${dstr}${over?' · overdue':''}</div></div>
+          <div class="x" onclick="del(${i})">✕</div></div>`;
+      }).join('') + `</div>`;
+    }).join('');
+  }
+
+  function exportMd() {
+    if (!tasks.length) { alert('Add tasks first.'); return; }
+    const ld=v('ldate'), done=tasks.filter(t=>t.done).length;
+    let t = `# Launch Plan: ${v('prod')||'Untitled'}\n\nLaunch date: ${ld||'(not set)'}\nProgress: ${done}/${tasks.length} (${tasks.length?Math.round(done/tasks.length*100):0}%)\n`;
+    phases.forEach(ph=>{
+      const grp=tasks.filter(x=>x.p===ph).sort((a,b)=>a.o-b.o); if(!grp.length)return;
+      t+=`\n## ${ph}\n`;
+      grp.forEach(x=>{ const d=ld?isoFrom(parseUTC(ld)+x.o*DAY):`${x.o>0?'+':''}${x.o}d`; t+=`- [${x.done?'x':' '}] ${x.t} (${d})\n`; });
+    });
+    const b=new Blob([t.trim()],{type:'text/markdown'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='launch-plan.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+
+  render();
+</script>
+</body>
+</html>

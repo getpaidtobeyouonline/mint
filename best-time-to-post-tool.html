@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Time To Post Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132;
+    color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  .container { max-width: 820px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: clamp(28px, 5vw, 42px);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .subtitle { text-align: center; opacity: 0.8; margin-bottom: 28px; font-size: 15px; }
+  .card {
+    background: #2A442A;
+    border: 1px solid #4C724C;
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+  label { display: block; font-weight: 500; margin-bottom: 8px; color: #5AE57A; font-size: 14px; }
+  select {
+    width: 100%;
+    background: #325132;
+    color: #FFFFFF;
+    border: 1px solid #4C724C;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: inherit;
+    font-size: 15px;
+    margin-bottom: 14px;
+  }
+  select:focus { outline: none; border-color: #5AE57A; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+  button {
+    background: #5AE57A;
+    color: #325132;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  button:hover { opacity: 0.9; }
+  button:active { transform: scale(0.98); }
+  .top-slots {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 520px) { .top-slots { grid-template-columns: 1fr; } }
+  .slot {
+    background: #325132;
+    border: 1px solid #4C724C;
+    border-left: 3px solid #5AE57A;
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+  .slot-rank {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.6;
+    margin-bottom: 4px;
+  }
+  .slot-time {
+    font-family: 'Playfair Display', serif;
+    color: #5AE57A;
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .slot-day { font-size: 13px; opacity: 0.85; }
+  .heatmap {
+    display: grid;
+    grid-template-columns: 50px repeat(7, 1fr);
+    gap: 4px;
+    margin-top: 14px;
+    font-size: 11px;
+  }
+  .heat-label { padding: 4px 2px; opacity: 0.6; text-align: right; }
+  .heat-day { text-align: center; padding: 4px 2px; opacity: 0.75; font-weight: 700; }
+  .heat-cell {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.1s;
+    min-height: 22px;
+  }
+  .heat-cell:hover { transform: scale(1.15); }
+  .heat-cell.score-1 { background: #3C603C; }
+  .heat-cell.score-2 { background: #2E4D2E; }
+  .heat-cell.score-3 { background: #5AE57A; }
+  .heat-cell.score-4 { background: #5AE57A; }
+  .heat-cell.score-5 { background: #5AE57A; }
+  .legend {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: 0.7;
+  }
+  .legend-cell { width: 14px; height: 14px; border-radius: 3px; }
+  .insights { list-style: none; }
+  .insights li {
+    padding: 10px 0 10px 26px;
+    border-bottom: 1px solid #4C724C;
+    position: relative;
+    font-size: 14.5px;
+  }
+  .insights li:before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #5AE57A;
+    font-weight: 700;
+  }
+  .insights li:last-child { border-bottom: none; }
+  .hidden { display: none; }
+  footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #4C724C;
+    font-size: 13px;
+    opacity: 0.6;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Best Time To Post Tool</h1>
+  <p class="subtitle">Get your top 3 posting slots and a full weekly heatmap — tailored to your platform and audience.</p>
+
+  <div class="card">
+    <label>Platform</label>
+    <select id="platform">
+      <option value="instagram">Instagram</option>
+      <option value="tiktok">TikTok</option>
+      <option value="twitter">Twitter / X</option>
+      <option value="linkedin">LinkedIn</option>
+      <option value="youtube">YouTube</option>
+      <option value="facebook">Facebook</option>
+    </select>
+    <div class="row">
+      <div>
+        <label>Audience type</label>
+        <select id="audience">
+          <option value="b2b">Professionals / B2B</option>
+          <option value="creators">Creators / entrepreneurs</option>
+          <option value="lifestyle">Lifestyle / wellness</option>
+          <option value="genz">Gen Z / students</option>
+          <option value="parents">Parents</option>
+        </select>
+      </div>
+      <div>
+        <label>Audience timezone</label>
+        <select id="tz">
+          <option>US Eastern</option>
+          <option>US Central</option>
+          <option>US Pacific</option>
+          <option>UK / Western Europe</option>
+          <option>Central Europe</option>
+          <option>Asia / Australia</option>
+        </select>
+      </div>
+    </div>
+    <button onclick="generate()">Show Best Times</button>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="card">
+      <label style="margin-bottom:14px;font-size:16px;">Top 3 Posting Slots</label>
+      <div class="top-slots" id="topSlots"></div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:6px;font-size:16px;">Weekly Heatmap</label>
+      <div style="font-size:13px;opacity:0.7;margin-bottom:10px;">Times shown in your audience's timezone. Brighter = better.</div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="legend">
+        <span>less</span>
+        <div class="legend-cell score-1"></div>
+        <div class="legend-cell score-2"></div>
+        <div class="legend-cell score-3"></div>
+        <div class="legend-cell score-4"></div>
+        <div class="legend-cell score-5"></div>
+        <span>more</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <label style="margin-bottom:6px;">Tips For Your Platform</label>
+      <ul class="insights" id="insights"></ul>
+    </div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const HOURS = [6, 8, 10, 12, 14, 16, 18, 20, 22];
+
+const PEAK_HOURS = {
+  instagram: {b2b: [8,12,18], creators: [10,12,20], lifestyle: [8,12,20], genz: [16,20,22], parents: [6,12,20]},
+  tiktok: {b2b: [12,18,21], creators: [18,20,22], lifestyle: [16,20,22], genz: [16,20,22], parents: [20,21,22]},
+  twitter: {b2b: [8,12,16], creators: [10,14,20], lifestyle: [8,12,20], genz: [16,20,22], parents: [8,12,20]},
+  linkedin: {b2b: [8,10,12], creators: [10,12,16], lifestyle: [8,12,16], genz: [10,12,16], parents: [8,12,16]},
+  youtube: {b2b: [12,18,20], creators: [16,18,20], lifestyle: [16,20,22], genz: [16,20,22], parents: [20,21,22]},
+  facebook: {b2b: [10,14,20], creators: [12,18,20], lifestyle: [10,14,20], genz: [16,20,22], parents: [10,14,20]}
+};
+
+const PEAK_DAYS = {
+  instagram: [1,2,4],
+  tiktok: [1,2,4,6],
+  twitter: [1,2,3],
+  linkedin: [1,2,3],
+  youtube: [3,4,5],
+  facebook: [1,2,3,6]
+};
+
+const PLATFORM_TIPS = {
+  instagram: ['Reels get 2-3x reach posted between peaks — feed posts do better at peaks.', 'Stories drop in 24h, so post them when your audience is actively scrolling.', 'Carousel posts perform best mid-morning when people read longer.'],
+  tiktok: ['Evening posts dominate — the algorithm rewards initial watch time.', 'Post 1-3x daily with at least 4 hours between to avoid suppressing each other.', 'Sunday evenings see the biggest engagement spike of the week.'],
+  twitter: ['Threads do best in the morning when people are reading on commutes.', 'Single posts perform during lunch and right after work.', 'Late-night posts get fewer impressions but higher engagement per impression.'],
+  linkedin: ['Tuesday–Thursday morning is the holy trinity — business hours rule here.', 'Avoid weekends entirely — engagement drops 60%+.', 'Long-form posts hit harder than links — write directly in the post.'],
+  youtube: ['Upload 1-2 hours before your peak watch time so the algorithm has indexing room.', 'Shorts can be posted anytime — long-form needs proper timing.', 'Friday + Saturday evenings are the biggest watch windows.'],
+  facebook: ['Reels and short videos dominate engagement — pure text is dying here.', 'Sunday morning has a quiet but loyal audience.', 'Posts with 1 question get 2x more comments than statements.']
+};
+
+function generate() {
+  const platform = document.getElementById('platform').value;
+  const audience = document.getElementById('audience').value;
+  const tz = document.getElementById('tz').value;
+
+  const peaks = PEAK_HOURS[platform][audience];
+  const peakDays = PEAK_DAYS[platform];
+
+  let cells = '<div class="heat-label"></div>';
+  DAYS.forEach(d => { cells += `<div class="heat-day">${d}</div>`; });
+  const allScores = [];
+  HOURS.forEach(h => {
+    cells += `<div class="heat-label">${h}:00</div>`;
+    DAYS.forEach((d, di) => {
+      let score = 1;
+      const hourDist = Math.min(...peaks.map(p => Math.abs(p - h)));
+      if (hourDist === 0) score = 5;
+      else if (hourDist === 1) score = 4;
+      else if (hourDist === 2) score = 3;
+      else if (hourDist <= 4) score = 2;
+      if (peakDays.includes(di)) score = Math.min(5, score + 1);
+      if (di === 5 || di === 6) score = Math.max(1, score - 1);
+      allScores.push({day: d, hour: h, score, di});
+      cells += `<div class="heat-cell score-${score}" title="${d} ${h}:00 — score ${score}/5"></div>`;
+    });
+  });
+  document.getElementById('heatmap').innerHTML = cells;
+
+  const top = allScores
+    .filter(s => s.score === 5)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+  while (top.length < 3) {
+    const filler = allScores.filter(s => s.score === 4 && !top.includes(s));
+    if (filler.length) top.push(filler[Math.floor(Math.random() * filler.length)]);
+    else break;
+  }
+
+  document.getElementById('topSlots').innerHTML = top.map((s, i) => {
+    const ampm = s.hour < 12 ? `${s.hour}:00 AM` : s.hour === 12 ? '12:00 PM' : `${s.hour - 12}:00 PM`;
+    return `<div class="slot">
+      <div class="slot-rank">#${i + 1} ${i === 0 ? '· peak' : ''}</div>
+      <div class="slot-time">${ampm}</div>
+      <div class="slot-day">${s.day} · ${tz}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('insights').innerHTML = PLATFORM_TIPS[platform].map(t => `<li>${t}</li>`).join('');
+  document.getElementById('results').classList.remove('hidden');
+  document.getElementById('results').scrollIntoView({behavior: 'smooth'});
+}
+</script>
+</body>
+</html>

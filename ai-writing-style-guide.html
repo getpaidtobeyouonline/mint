@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Writing Style Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 740px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 13px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .96rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 56px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; margin-bottom: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 7px 14px; border-radius: 20px; font-size: .85rem; }
+  .chip:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 16px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .label-q { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; margin-bottom: 10px; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-size: .92rem; font-family: 'DM Sans', sans-serif; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Writing Style Guide</h1>
+  <p class="sub">Define your voice once, then paste it into any AI so everything it writes sounds like you — not a robot.</p>
+
+  <div class="panel">
+    <div class="label-q">Start from a voice preset</div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="panel">
+    <label for="brand">Brand / Your Name</label>
+    <input id="brand" placeholder="e.g. Lena Cole Coaching">
+
+    <label for="audience">Who you're writing for</label>
+    <input id="audience" placeholder="e.g. overwhelmed first-time founders">
+
+    <label for="tone">Three tone words</label>
+    <input id="tone" placeholder="e.g. warm, sharp, encouraging">
+
+    <label for="voice">How you sound (one or two sentences)</label>
+    <textarea id="voice" placeholder="e.g. Like a smart friend who's done it before — direct but never cold."></textarea>
+
+    <label for="use">Signature words / phrases to use</label>
+    <textarea id="use" placeholder="Comma-separated"></textarea>
+
+    <label for="avoid">Words / phrases to never use</label>
+    <textarea id="avoid" placeholder="e.g. synergy, leverage, game-changer, unlock"></textarea>
+
+    <label for="rules">Formatting & writing rules (one per line)</label>
+    <textarea id="rules" placeholder="Short paragraphs&#10;Address the reader as 'you'&#10;No emojis&#10;Active voice only"></textarea>
+
+    <label for="good">Sample of writing that sounds right</label>
+    <textarea id="good" placeholder="Paste a sentence or two in your real voice"></textarea>
+
+    <label for="bad">Sample that's NOT your voice</label>
+    <textarea id="bad" placeholder="Paste an off-brand example to contrast"></textarea>
+  </div>
+
+  <button class="btn" onclick="build()">Generate Style Guide</button>
+  <button class="btn ghost" onclick="copyG()">Copy</button>
+  <button class="btn ghost" onclick="dlMd()">Download .md</button>
+
+  <pre id="out" style="display:none"></pre>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F = ['brand','audience','tone','voice','use','avoid','rules','good','bad'];
+  F.forEach(id => { const s = localStorage.getItem('awsg_'+id); if (s!==null) document.getElementById(id).value = s; });
+  F.forEach(id => document.getElementById(id).addEventListener('input', save));
+  function save() { F.forEach(id => localStorage.setItem('awsg_'+id, document.getElementById(id).value)); }
+  const v = id => document.getElementById(id).value.trim();
+
+  const presets = {
+    "Friendly & warm": { tone:"warm, encouraging, down-to-earth", voice:"Like a supportive friend who's been there — approachable, never preachy.", rules:"Short paragraphs\nAddress the reader as 'you'\nContractions are good\nNo jargon", avoid:"synergy, leverage, paradigm, robust" },
+    "Authoritative expert": { tone:"confident, precise, credible", voice:"A seasoned expert who explains clearly and backs claims with reasoning.", rules:"Lead with the point\nUse specific examples\nNo hedging or fluff\nActive voice only", avoid:"maybe, kind of, just, very" },
+    "Playful & bold": { tone:"punchy, witty, irreverent", voice:"Bold and a little cheeky — strong opinions, zero corporate speak.", rules:"Short, snappy sentences\nOne idea per line\nStrong verbs\nIt's fine to break grammar rules for effect", avoid:"utilize, in order to, furthermore, it is important to note" },
+    "Minimal & direct": { tone:"clear, calm, concise", voice:"Says exactly what's needed and stops. Respects the reader's time.", rules:"Cut every unnecessary word\nNo intros or wind-ups\nOne point per paragraph\nPlain words over fancy ones", avoid:"basically, actually, in today's world, at the end of the day" },
+    "Inspirational": { tone:"uplifting, vivid, motivating", voice:"Energizing and human — paints a picture of what's possible without empty hype.", rules:"Open with a hook\nUse concrete imagery\nEnd on a forward push\nNo clichés", avoid:"game-changer, unlock, next level, crush it" }
+  };
+
+  const chips = document.getElementById('chips');
+  chips.innerHTML = Object.keys(presets).map(k=>`<button class="chip" data-k="${k}">${k}</button>`).join('');
+  chips.querySelectorAll('.chip').forEach(b => b.onclick = () => {
+    const p = presets[b.dataset.k];
+    document.getElementById('tone').value = p.tone;
+    document.getElementById('voice').value = p.voice;
+    document.getElementById('rules').value = p.rules;
+    if (!v('avoid')) document.getElementById('avoid').value = p.avoid;
+    save();
+  });
+
+  function guideText() {
+    const rules = v('rules').split('\n').map(s=>s.trim()).filter(Boolean);
+    return `# Writing Style Guide${v('brand')?` — ${v('brand')}`:''}\n\n`+
+      `## Audience\n${v('audience')||'(not set)'}\n\n`+
+      `## Voice & Tone\nTone: ${v('tone')||'(not set)'}\n${v('voice')||''}\n\n`+
+      `## Use these\n${v('use')||'(none specified)'}\n\n`+
+      `## Never use these\n${v('avoid')||'(none specified)'}\n\n`+
+      `## Rules\n${rules.length?rules.map(r=>`- ${r}`).join('\n'):'- (none specified)'}\n\n`+
+      `## Sounds right ✅\n${v('good')||'(no example)'}\n\n`+
+      `## Off-brand ❌\n${v('bad')||'(no example)'}\n\n`+
+      `---\n## Instruction for the AI\nWrite everything in the voice above. Match the tone, follow every rule, use the preferred phrasing, and never use the banned words. Before delivering, re-read your draft and fix anything that sounds off-brand compared to the ✅ example.`;
+  }
+
+  function build() {
+    const o = document.getElementById('out');
+    o.textContent = guideText();
+    o.style.display = 'block';
+    o.scrollIntoView({ behavior: 'smooth' });
+  }
+  function copyG() {
+    navigator.clipboard.writeText(guideText()).then(
+      ()=>alert('Style guide copied — paste it into your AI.'),
+      ()=>alert('Copy failed.'));
+  }
+  function dlMd() {
+    const n = (v('brand')||'style-guide').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const b = new Blob([guideText()], { type:'text/markdown' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = n+'.md'; a.click(); URL.revokeObjectURL(a.href);
+  }
+</script>
+</body>
+</html>

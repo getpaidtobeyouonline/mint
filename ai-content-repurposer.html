@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Content Repurposer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .76rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .95rem; padding: 10px 12px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea#src { min-height: 140px; }
+  .count { text-align: right; font-size: .78rem; opacity: .55; margin-top: 4px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grid > div { flex: 1; min-width: 160px; }
+  .fmts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .fmt { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; cursor: pointer; padding: 8px 14px; border-radius: 20px; font-size: .85rem; user-select: none; }
+  .fmt.on { border-color: #5AE57A; color: #5AE57A; background: #2E4D2E; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem; padding: 12px 22px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .block { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 9px; padding: 14px 16px; margin-bottom: 12px; }
+  .block h3 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .block .cp { font-size: .8rem; cursor: pointer; opacity: .7; }
+  .block .cp:hover { opacity: 1; color: #5AE57A; }
+  .block pre { white-space: pre-wrap; font-size: .86rem; font-family: 'DM Sans', sans-serif; margin-top: 8px; opacity: .9; }
+  .outline { font-size: .85rem; opacity: .75; }
+  .outline li { margin-left: 16px; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Content Repurposer</h1>
+  <p class="sub">Paste one piece of content, pick your channels, and get a tailored repurposing prompt for each — ready for Claude.</p>
+
+  <div class="panel">
+    <label for="src">Source content</label>
+    <textarea id="src" placeholder="Paste your blog post, transcript, or notes…" oninput="cnt()"></textarea>
+    <div class="count" id="cIn">0 words</div>
+    <div class="grid">
+      <div><label for="aud">Audience (optional)</label><input id="aud" placeholder="e.g. early-stage founders"></div>
+      <div><label for="tone">Tone (optional)</label><input id="tone" placeholder="e.g. punchy, no fluff"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <label>Repurpose into</label>
+    <div class="fmts" id="fmts"></div>
+    <button class="btn" onclick="gen()">Generate Repurposing Pack</button>
+    <button class="btn ghost" onclick="copyAll()">Copy All</button>
+    <button class="btn ghost" onclick="showOutline()">Quick Outline</button>
+  </div>
+
+  <div id="out"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const formats = [
+    ["thread","X / Twitter thread","Write a thread: a scroll-stopping hook tweet, then 5–9 tweets with one idea each, plain language, no mid-thread hashtags, and a final tweet with a clear CTA. Number them."],
+    ["linkedin","LinkedIn post","Write a LinkedIn post: a strong one-line hook, short punchy lines with white space, one core insight or story, and a soft question/CTA at the end. No link in the body."],
+    ["carousel","Instagram carousel","Write a 6–10 slide carousel: slide 1 is a bold hook, one idea per slide in <20 words, final slide is the CTA. Then give a caption with a hook line and 5 relevant hashtags."],
+    ["email","Email newsletter","Write an email: 3 subject-line options, a one-line preview, a conversational body around ONE idea, and a single clear CTA. Keep it skimmable."],
+    ["short","Short-form video script","Write a 45–60s script (~150 words): a 0–3s pattern-interrupt hook, fast value in 3 beats, on-screen text cues in [brackets], and a spoken CTA."],
+    ["yt","YouTube description","Write a YouTube description: a 2–3 line hook summary, a bulleted 'what you'll learn', placeholder timestamps, and a keyword line."],
+    ["tldr","Blog TL;DR + takeaways","Write a tight 2-sentence TL;DR followed by 5 bold, standalone key takeaways as bullets."],
+    ["quotes","Quote graphics","Pull 5 short, punchy, standalone quotes (under 15 words each) suitable for quote-graphic images."]
+  ];
+  let picked = JSON.parse(localStorage.getItem('acr_pick') || '["thread","linkedin","email"]');
+  ['src','aud','tone'].forEach(k => { const s=localStorage.getItem('acr_'+k); if(s!==null) g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('acr_'+k,g(k).value)); });
+
+  g('fmts').innerHTML = formats.map(([k,l])=>`<span class="fmt ${picked.includes(k)?'on':''}" data-k="${k}">${l}</span>`).join('');
+  g('fmts').querySelectorAll('.fmt').forEach(el => el.onclick = () => {
+    const k = el.dataset.k;
+    picked = picked.includes(k) ? picked.filter(x=>x!==k) : [...picked, k];
+    el.classList.toggle('on');
+    localStorage.setItem('acr_pick', JSON.stringify(picked));
+  });
+
+  function words(s){ return s.trim()?s.trim().split(/\s+/).length:0; }
+  function cnt(){ g('cIn').textContent = words(v('src'))+' words'; localStorage.setItem('acr_src', g('src').value); }
+
+  function ctx() {
+    let c = '';
+    if (v('aud')) c += `Audience: ${v('aud')}. `;
+    if (v('tone')) c += `Tone: ${v('tone')}. `;
+    return c;
+  }
+  function promptFor(label, rule) {
+    return `You are an expert content repurposer. ${ctx()}Repurpose the SOURCE below into: ${label}.\n\n${rule}\n\nStay faithful to the source's substance, keep it native to the platform, and don't invent facts. If the source is too thin, say what's missing.\n\n--- SOURCE ---\n${v('src')}`;
+  }
+
+  function gen() {
+    if (!v('src')) { alert('Paste some source content first.'); return; }
+    if (!picked.length) { alert('Pick at least one format.'); return; }
+    const sel = formats.filter(f=>picked.includes(f[0]));
+    g('out').innerHTML = sel.map(([k,l,r])=>`
+      <div class="block">
+        <h3>${l}<span class="cp" onclick="copyOne('${k}')">⧉ Copy</span></h3>
+        <pre id="bk_${k}">${escapeHtml(promptFor(l,r))}</pre>
+      </div>`).join('');
+    g('out').scrollIntoView({ behavior:'smooth' });
+  }
+  function escapeHtml(t){ return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+  function copyOne(k) {
+    const f = formats.find(x=>x[0]===k);
+    navigator.clipboard.writeText(promptFor(f[1],f[2])).then(
+      ()=>alert(f[1]+' prompt copied — paste into Claude.'), ()=>alert('Copy failed.'));
+  }
+  function copyAll() {
+    if (!v('src')) { alert('Paste source content first.'); return; }
+    if (!picked.length) { alert('Pick at least one format.'); return; }
+    const all = formats.filter(f=>picked.includes(f[0]))
+      .map(([k,l,r])=>`===== ${l.toUpperCase()} =====\n${promptFor(l,r)}`).join('\n\n\n');
+    navigator.clipboard.writeText(all).then(()=>alert('All repurposing prompts copied!'),()=>alert('Copy failed.'));
+  }
+  function showOutline() {
+    const src = v('src');
+    if (!src) { alert('Paste source content first.'); return; }
+    const paras = src.split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean);
+    const points = paras.map(p => p.split(/(?<=[.!?])\s/)[0].trim()).filter(Boolean).slice(0,12);
+    g('out').innerHTML = `<div class="block"><h3>Quick outline (from your content)</h3>
+      <ul class="outline">${points.map(p=>`<li>• ${escapeHtml(p)}</li>`).join('')}</ul>
+      <div style="font-size:.8rem;opacity:.55;margin-top:8px">A rough skeleton — useful as a sanity check before you generate.</div></div>`;
+    g('out').scrollIntoView({ behavior:'smooth' });
+  }
+
+  cnt();
+</script>
+</body>
+</html>

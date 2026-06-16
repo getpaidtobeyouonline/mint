@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Output Checker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 32px 20px; min-height: 100vh;
+  }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.1rem;
+    color: #5AE57A; text-align: center; margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: .8; margin-bottom: 26px; font-size: .95rem; }
+  label { display: block; font-weight: 500; margin-bottom: 6px; font-size: .95rem; }
+  textarea {
+    width: 100%; background: #2A442A; color: #FFFFFF;
+    border: 1px solid #4C724C; border-radius: 8px;
+    padding: 13px 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem;
+    resize: vertical; min-height: 150px;
+  }
+  textarea:focus { outline: none; border-color: #5AE57A; }
+  button {
+    background: #5AE57A; color: #325132; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1rem;
+    padding: 14px 24px; border-radius: 8px; cursor: pointer;
+    width: 100%; margin-top: 16px; transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  .panel { display: none; margin-top: 28px; }
+  .panel.show { display: block; }
+  .score { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #5AE57A; }
+  .scoresub { opacity: .72; font-size: .88rem; margin: 4px 0 20px; }
+  h2 { font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #5AE57A; margin: 22px 0 12px; }
+  .issue { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #3C603C; font-size: .92rem; }
+  .mark { flex-shrink: 0; width: 18px; font-weight: 700; }
+  .ok { color: #5AE57A; }
+  .warn { color: #5AE57A; }
+  .issue b { color: #FFFFFF; }
+  .preview {
+    background: #2A442A; border: 1px solid #3C603C; border-radius: 8px;
+    padding: 16px; font-size: .92rem; margin-top: 8px; white-space: pre-wrap;
+  }
+  mark { background: #5AE57A; color: #FFFFFF; padding: 0 3px; border-radius: 3px; }
+  footer { text-align: center; margin-top: 44px; opacity: .55; font-size: .82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Output Checker</h1>
+  <p class="sub">Paste AI-written text. Catch the clichés, robotic tells, and red flags before you publish.</p>
+
+  <label>Your AI-generated text</label>
+  <textarea id="txt" placeholder="Paste the text you got from ChatGPT or Claude here..."></textarea>
+  <button onclick="check()">Check This Text</button>
+
+  <div id="panel" class="panel">
+    <div class="score" id="score"></div>
+    <div class="scoresub" id="scoresub"></div>
+
+    <h2>Findings</h2>
+    <div id="issues"></div>
+
+    <h2>Flagged text</h2>
+    <div class="preview" id="preview"></div>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  var cliches = ['delve','tapestry','in today\'s fast-paced','in conclusion','it is important to note',
+    'it\'s important to note','game-changer','game changer','unlock the','harness the power','elevate your',
+    'seamless','leverage','testament to','navigate the','in the realm of','at the end of the day',
+    'when it comes to','a myriad of','plays a crucial role','pave the way','dive into','it\'s worth noting',
+    'cutting-edge','robust solution','ever-evolving','look no further','rest assured'];
+  var disclaimers = ['as an ai','i cannot','i\'m unable to','as a language model','i don\'t have personal',
+    'it\'s important to remember','please note that'];
+
+  function esc(s){ return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+
+  function check(){
+    var raw = document.getElementById('txt').value.trim();
+    if(!raw){ alert('Paste some text to check.'); return; }
+    var low = raw.toLowerCase();
+
+    var foundC = cliches.filter(function(p){ return low.indexOf(p) > -1; });
+    var foundD = disclaimers.filter(function(p){ return low.indexOf(p) > -1; });
+    var emdash = (raw.match(/—/g) || []).length;
+    var sentences = raw.split(/[.!?]+/).filter(function(s){ return s.trim().length > 0; });
+    var words = raw.split(/\s+/).filter(Boolean).length;
+    var avgLen = sentences.length ? Math.round(words / sentences.length) : 0;
+
+    var issues = [];
+    issues.push(foundC.length
+      ? { ok:false, t:'<b>' + foundC.length + ' AI cliché phrase(s):</b> ' + esc(foundC.slice(0,8).join(', ')) }
+      : { ok:true, t:'No common AI cliché phrases detected.' });
+    issues.push(foundD.length
+      ? { ok:false, t:'<b>Leftover AI disclaimer(s):</b> ' + esc(foundD.join(', ')) + ' — delete these.' }
+      : { ok:true, t:'No leftover AI disclaimers.' });
+    issues.push(emdash > 4
+      ? { ok:false, t:'<b>Heavy em-dash use (' + emdash + ').</b> A classic AI tell — vary your punctuation.' }
+      : { ok:true, t:'Em-dash use is in a natural range.' });
+    issues.push(avgLen > 24
+      ? { ok:false, t:'<b>Long average sentence (' + avgLen + ' words).</b> Break some up for rhythm.' }
+      : { ok:true, t:'Sentence length reads naturally (' + avgLen + ' words avg).' });
+
+    var fails = issues.filter(function(i){ return !i.ok; }).length;
+    var pct = Math.round((issues.length - fails) / issues.length * 100);
+    var verdict = pct >= 75 ? 'Reads human — good to go' : pct >= 50 ? 'Edit before publishing' : 'Obviously AI — rewrite';
+    document.getElementById('score').textContent = pct + '/100 · ' + verdict;
+    document.getElementById('scoresub').textContent = words + ' words · ' + sentences.length + ' sentences · ' + fails + ' issue(s) found.';
+
+    document.getElementById('issues').innerHTML = issues.map(function(i){
+      return '<div class="issue"><span class="mark ' + (i.ok?'ok':'warn') + '">' +
+        (i.ok?'✓':'!') + '</span><span>' + i.t + '</span></div>';
+    }).join('');
+
+    var marked = esc(raw);
+    foundC.concat(foundD).forEach(function(p){
+      var re = new RegExp('(' + p.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','gi');
+      marked = marked.replace(re,'<mark>$1</mark>');
+    });
+    document.getElementById('preview').innerHTML = marked;
+    document.getElementById('panel').classList.add('show');
+  }
+</script>
+</body>
+</html>

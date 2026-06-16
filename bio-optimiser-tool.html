@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bio Optimiser Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .opt { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 13px 15px; margin-bottom: 10px; }
+  .opt pre { white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .95rem; }
+  .opt .meta { display: flex; justify-content: space-between; margin-top: 8px; font-size: .8rem; }
+  .cc { opacity: .7; } .cc.over { color: #5AE57A; }
+  .opt .cp { cursor: pointer; color: #5AE57A; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bio Optimiser Tool</h1>
+  <p class="sub">Turn four answers into three scroll-stopping bio options that fit every platform's limit.</p>
+
+  <div class="panel">
+    <label for="who">Who you help</label>
+    <input id="who" placeholder="e.g. busy female founders">
+    <label for="out">The outcome you give them</label>
+    <input id="out" placeholder="e.g. build a brand without burnout">
+    <label for="proof">Proof / credibility (optional)</label>
+    <input id="proof" placeholder="e.g. 10k+ helped · ex-agency">
+    <label for="cta">Call to action</label>
+    <input id="cta" placeholder="e.g. Free guide ↓">
+    <label for="plat">Optimise length for</label>
+    <select id="plat">
+      <option value="150">Instagram (150)</option><option value="160">X / Twitter (160)</option>
+      <option value="80">TikTok (80)</option><option value="220">LinkedIn headline (220)</option>
+      <option value="1000">YouTube / general (1000)</option>
+    </select>
+    <button class="btn" onclick="gen()">Generate Bios</button>
+    <button class="btn ghost" onclick="clearAll()">Clear</button>
+  </div>
+
+  <div id="out2"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  ['who','out','proof','cta','plat'].forEach(k=>{ const s=localStorage.getItem('bot_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('bot_'+k,g(k).value)); });
+
+  function gen() {
+    const who=v('who'), out=v('out'), proof=v('proof'), cta=v('cta');
+    if(!who||!out){ alert('Fill in who you help and the outcome.'); return; }
+    const lim=+g('plat').value;
+    const P = proof?` · ${proof}`:'';
+    const C = cta?`\n${cta}`:'';
+    const bios = [
+      `I help ${who} ${out}.${P}${C}`,
+      `${cap(out)} for ${who}.${proof?` ${proof}.`:''}${C}`,
+      `Helping ${who} ${out} — without the overwhelm.${P}${C}`
+    ];
+    g('out2').innerHTML = bios.map((b,i)=>{
+      const len=b.length, over=len>lim;
+      return `<div class="opt"><pre id="b${i}">${esc(b)}</pre>
+        <div class="meta"><span class="cc ${over?'over':''}">${len}/${lim} chars${over?' · over limit':''}</span>
+        <span class="cp" onclick="cp(${i})">⧉ Copy</span></div></div>`;
+    }).join('');
+  }
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+  function esc(t){ return t.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function cp(i){ navigator.clipboard.writeText(g('b'+i).textContent).then(()=>alert('Bio copied!'),()=>alert('Copy failed.')); }
+  function clearAll(){ ['who','out','proof','cta'].forEach(k=>{g(k).value='';localStorage.removeItem('bot_'+k);}); g('out2').innerHTML=''; }
+</script>
+</body>
+</html>

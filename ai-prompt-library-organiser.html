@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prompt Library Organiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif;
+    line-height: 1.6; padding: 32px 20px; min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 {
+    font-family: 'Playfair Display', serif; font-size: 2.1rem;
+    color: #5AE57A; text-align: center; margin-bottom: 8px;
+  }
+  .sub { text-align: center; opacity: .8; margin-bottom: 26px; font-size: .95rem; }
+  label { display: block; font-weight: 500; margin: 14px 0 6px; font-size: .92rem; }
+  input, textarea {
+    width: 100%; background: #2A442A; color: #FFFFFF;
+    border: 1px solid #4C724C; border-radius: 8px;
+    padding: 12px 14px; font-family: 'DM Sans', sans-serif; font-size: .95rem;
+  }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { resize: vertical; min-height: 70px; }
+  button {
+    background: #5AE57A; color: #325132; border: none;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem;
+    padding: 13px 22px; border-radius: 8px; cursor: pointer; transition: opacity .2s;
+  }
+  button:hover { opacity: .88; }
+  .add-btn { width: 100%; margin-top: 18px; }
+  .bar { display: flex; gap: 10px; margin: 30px 0 8px; }
+  .bar input { flex: 1; }
+  .count { opacity: .6; font-size: .85rem; margin-bottom: 14px; }
+  .card {
+    background: #2A442A; border: 1px solid #3C603C; border-radius: 10px;
+    padding: 16px 18px; margin-bottom: 14px;
+  }
+  .card .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .card .title { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #5AE57A; }
+  .tag { font-size: .72rem; background: #2E4D2E; color: #5AE57A; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+  .card pre {
+    white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .9rem;
+    margin: 10px 0 14px; opacity: .92;
+  }
+  .row { display: flex; gap: 8px; }
+  .ghost { background: transparent; color: #5AE57A; border: 1px solid #4C724C; font-size: .82rem; padding: 8px 14px; }
+  .ghost:hover { border-color: #5AE57A; opacity: 1; }
+  .empty { text-align: center; opacity: .5; padding: 30px 0; }
+  footer { text-align: center; margin-top: 44px; opacity: .55; font-size: .82rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Prompt Library Organiser</h1>
+  <p class="sub">Save your best prompts once. Find and reuse them in seconds. Stored privately in your browser.</p>
+
+  <label>Prompt name</label>
+  <input id="f-title" placeholder="Cold email opener">
+  <label>Category</label>
+  <input id="f-cat" placeholder="Marketing">
+  <label>The prompt</label>
+  <textarea id="f-text" placeholder="Write a 2-sentence cold email opener for..."></textarea>
+  <button class="add-btn" onclick="addPrompt()">Save to Library</button>
+
+  <div class="bar">
+    <input id="search" placeholder="Search prompts..." oninput="render()">
+  </div>
+  <div class="count" id="count"></div>
+  <div id="list"></div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  var KEY = 'gptby_prompt_library';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; } }
+  function save(d){ localStorage.setItem(KEY, JSON.stringify(d)); }
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  function addPrompt(){
+    var title = val('f-title'), text = val('f-text'),
+        cat = val('f-cat') || 'General';
+    if(!title || !text){ alert('Add a name and the prompt text.'); return; }
+    var d = load();
+    d.unshift({ id: Date.now(), title: title, cat: cat, text: text });
+    save(d);
+    document.getElementById('f-title').value = '';
+    document.getElementById('f-cat').value = '';
+    document.getElementById('f-text').value = '';
+    render();
+  }
+
+  function del(id){
+    if(!confirm('Delete this prompt?')) return;
+    save(load().filter(function(p){ return p.id !== id; }));
+    render();
+  }
+
+  function copyP(id){
+    var p = load().filter(function(x){ return x.id === id; })[0];
+    if(!p) return;
+    navigator.clipboard.writeText(p.text).then(function(){
+      var b = document.getElementById('cp-' + id);
+      b.textContent = 'Copied ✓';
+      setTimeout(function(){ b.textContent = 'Copy'; }, 1600);
+    });
+  }
+
+  function esc(s){
+    return s.replace(/[&<>]/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c];
+    });
+  }
+
+  function render(){
+    var q = document.getElementById('search').value.toLowerCase();
+    var all = load();
+    var d = all.filter(function(p){
+      return (p.title + ' ' + p.cat + ' ' + p.text).toLowerCase().indexOf(q) > -1;
+    });
+    var c = document.getElementById('count');
+    c.textContent = all.length ? d.length + ' of ' + all.length + ' prompt' + (all.length>1?'s':'') : '';
+    var list = document.getElementById('list');
+    if(!all.length){ list.innerHTML = '<div class="empty">Your library is empty. Save your first prompt above.</div>'; return; }
+    if(!d.length){ list.innerHTML = '<div class="empty">No prompts match that search.</div>'; return; }
+    list.innerHTML = d.map(function(p){
+      return '<div class="card"><div class="top">' +
+        '<div class="title">' + esc(p.title) + '</div>' +
+        '<span class="tag">' + esc(p.cat) + '</span></div>' +
+        '<pre>' + esc(p.text) + '</pre><div class="row">' +
+        '<button class="ghost" id="cp-' + p.id + '" onclick="copyP(' + p.id + ')">Copy</button>' +
+        '<button class="ghost" onclick="del(' + p.id + ')">Delete</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  render();
+</script>
+</body>
+</html>

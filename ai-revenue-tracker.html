@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Revenue Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 800px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 8px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .93rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; }
+  .grid { display: flex; gap: 10px; flex-wrap: wrap; } .grid > div { flex: 1; min-width: 120px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .9rem; padding: 10px 18px; border-radius: 8px; margin: 12px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat { flex: 1; min-width: 120px; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 13px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.45rem; color: #5AE57A; }
+  .stat .l { font-size: .7rem; opacity: .65; text-transform: uppercase; }
+  .stat .d { font-size: .74rem; }
+  .up { color: #5AE57A; } .down { color: #5AE57A; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 12px; }
+  .mrow { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; font-size: .82rem; }
+  .mrow .ml { width: 78px; opacity: .75; flex: none; }
+  .mtrack { flex: 1; background: #3C603C; border-radius: 4px; height: 14px; overflow: hidden; }
+  .mtrack > i { display: block; height: 100%; background: #5AE57A; }
+  .mrow .mv { width: 80px; text-align: right; flex: none; }
+  .src { display: flex; justify-content: space-between; gap: 10px; font-size: .86rem; padding: 5px 0; border-bottom: 1px solid #3C603C; }
+  .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .filters select { flex: 1; min-width: 130px; }
+  .entry { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .entry .nm { font-weight: 500; }
+  .entry .meta { font-size: .78rem; opacity: .65; }
+  .entry .amt { color: #5AE57A; font-weight: 500; }
+  .entry .x, .entry .e { cursor: pointer; opacity: .55; font-size: .8rem; margin-left: 8px; }
+  .entry .x:hover, .entry .e:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; padding: 20px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Revenue Tracker</h1>
+  <p class="sub">Log real income, see your monthly trend, and know which AI products actually make money.</p>
+
+  <div class="panel">
+    <div class="grid">
+      <div><label for="date">Date</label><input id="date" type="date"></div>
+      <div><label for="src">Product / source</label><input id="src" list="srcs" placeholder="e.g. Prompt Pack"><datalist id="srcs"></datalist></div>
+      <div><label for="amt">Amount ($)</label><input id="amt" type="number" min="0" step="0.01" value="17"></div>
+    </div>
+    <label for="note">Note (optional)</label>
+    <input id="note" placeholder="e.g. Gumroad sale">
+    <button class="btn" onclick="saveEntry()" id="saveBtn">+ Log Revenue</button>
+    <button class="btn ghost" onclick="cancelEdit()" id="cancelBtn" style="display:none">Cancel</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n" id="sTot">$0</div><div class="l">All-time</div></div>
+    <div class="stat"><div class="n" id="sMon">$0</div><div class="l">This month</div><div class="d" id="sMoM">&nbsp;</div></div>
+    <div class="stat"><div class="n" id="sBest">$0</div><div class="l">Best month</div></div>
+    <div class="stat"><div class="n" id="sCnt">0</div><div class="l">Sales logged</div></div>
+  </div>
+
+  <div class="panel" id="chartPanel" style="display:none">
+    <h2>Monthly trend</h2>
+    <div id="chart"></div>
+  </div>
+
+  <div class="panel" id="srcPanel" style="display:none">
+    <h2>By product</h2>
+    <div id="srcBreak"></div>
+  </div>
+
+  <div class="filters">
+    <select id="fMonth" onchange="render()"><option value="">All months</option></select>
+    <select id="fSrc" onchange="render()"><option value="">All products</option></select>
+  </div>
+  <div id="list"></div>
+
+  <button class="btn" onclick="exportCsv()">Export CSV</button>
+  <button class="btn ghost" onclick="exportMd()">Export Summary</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id), v = id => g(id).value.trim();
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let rows = JSON.parse(localStorage.getItem('art') || '[]');
+  let editing = -1;
+  const save = () => localStorage.setItem('art', JSON.stringify(rows));
+  g('date').value = new Date().toISOString().slice(0,10);
+  const mKey = d => (d||'').slice(0,7);
+  const mLabel = k => { const [y,m]=k.split('-'); return new Date(y, m-1, 1).toLocaleString(undefined,{month:'short'})+" '"+y.slice(2); };
+  const money = n => '$'+Math.round(n).toLocaleString();
+
+  function saveEntry() {
+    const src = v('src'), amt = parseFloat(v('amt'));
+    if (!src) { alert('Add a product/source.'); return; }
+    if (isNaN(amt) || amt<0) { alert('Enter a valid amount.'); return; }
+    const obj = { date:v('date')||new Date().toISOString().slice(0,10), src, amt, note:v('note') };
+    if (editing>=0) { rows[editing]=obj; editing=-1; g('saveBtn').textContent='+ Log Revenue'; g('cancelBtn').style.display='none'; }
+    else rows.push(obj);
+    g('src').value=''; g('note').value=''; g('amt').value=17;
+    save(); render();
+  }
+  function edit(i){ const x=rows[i]; g('date').value=x.date; g('src').value=x.src; g('amt').value=x.amt; g('note').value=x.note||''; editing=i; g('saveBtn').textContent='✓ Update'; g('cancelBtn').style.display='inline-block'; window.scrollTo({top:0,behavior:'smooth'}); }
+  function cancelEdit(){ editing=-1; g('saveBtn').textContent='+ Log Revenue'; g('cancelBtn').style.display='none'; g('src').value=''; g('note').value=''; }
+  function del(i){ if(confirm('Delete this entry?')){ rows.splice(i,1); if(editing===i)cancelEdit(); save(); render(); } }
+  function clearAll(){ if(confirm('Clear all revenue?')){ rows=[]; save(); render(); } }
+
+  function render() {
+    g('srcs').innerHTML = [...new Set(rows.map(r=>r.src))].map(s=>`<option>${esc(s)}</option>`).join('');
+    const byMonth = {}, bySrc = {};
+    rows.forEach(r => { byMonth[mKey(r.date)]=(byMonth[mKey(r.date)]||0)+r.amt; bySrc[r.src]=(bySrc[r.src]||0)+r.amt; });
+    const total = rows.reduce((s,r)=>s+r.amt,0);
+    const nowK = new Date().toISOString().slice(0,7);
+    const d=new Date(); const lastK = new Date(d.getFullYear(), d.getMonth()-1, 1).toISOString().slice(0,7);
+    const thisM = byMonth[nowK]||0, lastM = byMonth[lastK]||0;
+    const best = Object.entries(byMonth).sort((a,b)=>b[1]-a[1])[0];
+    g('sTot').textContent = money(total);
+    g('sMon').textContent = money(thisM);
+    g('sBest').textContent = best?money(best[1]):'$0';
+    g('sCnt').textContent = rows.length;
+    const mom = g('sMoM');
+    if (lastM>0) { const ch=Math.round((thisM-lastM)/lastM*100); mom.textContent=(ch>=0?'▲ +':'▼ ')+ch+'% vs last'; mom.className='d '+(ch>=0?'up':'down'); }
+    else mom.innerHTML='&nbsp;';
+
+    // monthly chart (last up to 8 months present)
+    const mk = Object.keys(byMonth).sort();
+    const recent = mk.slice(-8);
+    const cp = g('chartPanel');
+    if (recent.length) {
+      cp.style.display='block';
+      const mx = Math.max(...recent.map(k=>byMonth[k]));
+      g('chart').innerHTML = recent.map(k=>`<div class="mrow"><span class="ml">${mLabel(k)}</span>
+        <div class="mtrack"><i style="width:${mx?byMonth[k]/mx*100:0}%"></i></div>
+        <span class="mv">${money(byMonth[k])}</span></div>`).join('');
+    } else cp.style.display='none';
+
+    // by source
+    const sp = g('srcPanel'), se = Object.entries(bySrc).sort((a,b)=>b[1]-a[1]);
+    if (se.length) {
+      sp.style.display='block';
+      g('srcBreak').innerHTML = se.map(([s,a])=>`<div class="src"><span>${esc(s)}</span><span>${money(a)} · ${total?Math.round(a/total*100):0}%</span></div>`).join('');
+    } else sp.style.display='none';
+
+    // filters
+    const fM=g('fMonth'), fS=g('fSrc'), km=fM.value, ks=fS.value;
+    fM.innerHTML='<option value="">All months</option>'+mk.slice().reverse().map(k=>`<option ${k===km?'selected':''} value="${k}">${mLabel(k)}</option>`).join('');
+    fS.innerHTML='<option value="">All products</option>'+Object.keys(bySrc).sort().map(s=>`<option ${s===ks?'selected':''}>${esc(s)}</option>`).join('');
+
+    const shown = rows.map((r,i)=>({r,i})).filter(({r})=>(!km||mKey(r.date)===km)&&(!ks||r.src===ks))
+      .sort((a,b)=> a.r.date<b.r.date?1:a.r.date>b.r.date?-1:0);
+    const L=g('list');
+    if (!rows.length) { L.innerHTML='<div class="empty">No revenue logged yet — add your first entry above.</div>'; return; }
+    if (!shown.length) { L.innerHTML='<div class="empty">Nothing matches that filter.</div>'; return; }
+    L.innerHTML = shown.map(({r,i})=>`
+      <div class="entry">
+        <div><span class="nm">${esc(r.src)}</span><div class="meta">${r.date}${r.note?' · '+esc(r.note):''}</div></div>
+        <div><span class="amt">${money(r.amt)}</span><span class="e" onclick="edit(${i})">✎</span><span class="x" onclick="del(${i})">✕</span></div>
+      </div>`).join('');
+  }
+
+  function exportCsv() {
+    if (!rows.length) { alert('Log something first.'); return; }
+    const out=[['Date','Product','Amount','Note']].concat([...rows].sort((a,b)=>a.date<b.date?-1:1).map(r=>[r.date,r.src,r.amt,r.note||'']));
+    const csv=out.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    dl(new Blob([csv],{type:'text/csv'}),'ai-revenue.csv');
+  }
+  function exportMd() {
+    if (!rows.length) { alert('Log something first.'); return; }
+    const byM={},byS={}; rows.forEach(r=>{byM[mKey(r.date)]=(byM[mKey(r.date)]||0)+r.amt;byS[r.src]=(byS[r.src]||0)+r.amt;});
+    const tot=rows.reduce((s,r)=>s+r.amt,0);
+    let t=`# AI Revenue Summary\n\nAll-time: ${money(tot)} across ${rows.length} sales\n\n## By month\n`+
+      Object.keys(byM).sort().map(k=>`- ${mLabel(k)}: ${money(byM[k])}`).join('\n')+
+      `\n\n## By product\n`+Object.entries(byS).sort((a,b)=>b[1]-a[1]).map(([s,a])=>`- ${s}: ${money(a)} (${Math.round(a/tot*100)}%)`).join('\n');
+    dl(new Blob([t],{type:'text/markdown'}),'ai-revenue-summary.md');
+  }
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+
+  render();
+</script>
+</body>
+</html>

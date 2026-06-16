@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ADHD Learning Support Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.85rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .tab { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; font-size: .8rem; cursor: pointer; }
+  .tab.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .timer-display { font-family: 'Playfair Display', serif; font-size: 3rem; color: #5AE57A; text-align: center; margin: 10px 0; }
+  .step { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 8px 12px; margin-bottom: 5px; display: flex; align-items: center; gap: 9px; font-size: .87rem; }
+  .box { width: 19px; height: 19px; border: 2px solid #5AE57A; border-radius: 5px; flex: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: .7rem; font-weight: 700; }
+  .box.on { background: #5AE57A; color: #325132; }
+  .step.done .lb { text-decoration: line-through; opacity: .5; }
+  .step .x { margin-left: auto; cursor: pointer; opacity: .5; } .step .x:hover { opacity: 1; color: #5AE57A; }
+  .tip { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 10px 13px; font-size: .87rem; margin-bottom: 7px; }
+  .tip b { color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .84rem; padding: 8px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>ADHD Learning Support Tool</h1>
+  <p class="sub">Focus tools built for ADHD brains — break tasks down, time-box, and reduce overwhelm.</p>
+
+  <div class="panel">
+    <div class="tabs">
+      <div class="tab on" id="t0" onclick="tab(0)">Task breakdown</div>
+      <div class="tab" id="t1" onclick="tab(1)">Focus timer</div>
+      <div class="tab" id="t2" onclick="tab(2)">Tips</div>
+    </div>
+    <div id="pane"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let steps=JSON.parse(localStorage.getItem('alst')||'[]');
+  const saveSteps=()=>localStorage.setItem('alst',JSON.stringify(steps));
+  function tab(n){
+    [0,1,2].forEach(i=>g('t'+i).className='tab'+(i===n?' on':''));
+    stopTimer();
+    if(n===0)paneTasks();
+    if(n===1)paneTimer();
+    if(n===2)paneTips();
+  }
+  function paneTasks(){
+    g('pane').innerHTML='<p style="font-size:.85rem;opacity:.8;margin-bottom:8px">Big tasks freeze the ADHD brain. Smash one into tiny, obvious steps.</p>'+
+      '<label>Add a tiny step</label><div style="display:flex;gap:8px"><input id="step" placeholder="So small it feels easy" onkeydown="if(event.key===\'Enter\')addStep()"><button class="btn" onclick="addStep()">Add</button></div>'+
+      '<div id="stepList" style="margin-top:10px"></div>';
+    renderSteps();
+  }
+  function addStep(){ const t=g('step').value.trim(); if(!t)return; steps.push({t,done:false}); g('step').value=''; saveSteps(); renderSteps(); }
+  function toggleStep(i){ steps[i].done=!steps[i].done; saveSteps(); renderSteps(); }
+  function delStep(i){ steps.splice(i,1); saveSteps(); renderSteps(); }
+  function renderSteps(){
+    const L=g('stepList'); if(!L)return;
+    if(!steps.length){ L.innerHTML='<div class="empty">No steps yet — break it down.</div>'; return; }
+    L.innerHTML=steps.map((x,i)=>'<div class="step'+(x.done?' done':'')+'"><span class="box'+(x.done?' on':'')+'" onclick="toggleStep('+i+')">'+(x.done?'✓':'')+'</span><span class="lb">'+esc(x.t)+'</span><span class="x" onclick="delStep('+i+')">✕</span></div>').join('');
+  }
+  let tInt=null, tLeft=0;
+  function paneTimer(){
+    g('pane').innerHTML='<p style="font-size:.85rem;opacity:.8;margin-bottom:8px">Short, visible sprints. Pick a length you believe you can finish.</p>'+
+      '<label>Sprint length</label><select id="len"><option value="600">10 minutes</option><option value="900" selected>15 minutes</option><option value="1500">25 minutes</option></select>'+
+      '<div class="timer-display" id="disp">15:00</div>'+
+      '<div style="text-align:center"><button class="btn" id="tbtn" onclick="toggleTimer()">Start sprint</button> <button class="btn ghost" onclick="resetTimer()">Reset</button></div>';
+  }
+  function toggleTimer(){
+    if(tInt){ stopTimer(); g('tbtn').textContent='Resume'; return; }
+    if(!tLeft)tLeft=+g('len').value;
+    g('tbtn').textContent='Pause';
+    tInt=setInterval(()=>{ tLeft--; paintTimer(); if(tLeft<=0){ stopTimer(); g('disp').textContent='Done!'; g('tbtn').textContent='Start sprint'; tLeft=0; } },1000);
+  }
+  function stopTimer(){ if(tInt){ clearInterval(tInt); tInt=null; } }
+  function resetTimer(){ stopTimer(); tLeft=g('len')?+g('len').value:900; if(g('disp'))paintTimer(); if(g('tbtn'))g('tbtn').textContent='Start sprint'; }
+  function paintTimer(){ if(g('disp'))g('disp').textContent=Math.floor(tLeft/60)+':'+String(tLeft%60).padStart(2,'0'); }
+  function paneTips(){
+    const TIPS=[["Body double","Work alongside someone, even on a video call — presence boosts focus."],["Make it visible","Out of sight is out of mind. Keep tasks and timers where you can see them."],["Reduce friction","Set up everything you need before you start. The hardest part is starting."],["Novelty helps","Change rooms, music or method when focus fades — new is fuel."],["Forgive the reset","Distracted? No guilt. Just gently return. Every restart still counts."],["Reward fast","ADHD brains need quick wins. Celebrate finishing each tiny step."]];
+    g('pane').innerHTML=TIPS.map(t=>'<div class="tip"><b>'+t[0]+'</b><br>'+t[1]+'</div>').join('');
+  }
+  paneTasks();
+</script>
+</body>
+</html>

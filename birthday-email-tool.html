@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Birthday Email Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 11px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  pre { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 16px; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; font-size: .92rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Birthday Email Tool</h1>
+  <p class="sub">Birthday emails have some of the highest open rates of any send. Build one that delivers a real gift.</p>
+
+  <div class="panel">
+    <label for="style">Style</label>
+    <select id="style"><option value="warm">Warm & personal</option><option value="gift">Gift / discount</option><option value="charm">Cheeky & charming</option></select>
+    <label for="gift">Your gift / offer (if any)</label>
+    <input id="gift" placeholder="e.g. 20% off any product today only">
+    <label for="link">Where they redeem / find it</label>
+    <input id="link" placeholder="e.g. yourstore.com/birthday">
+    <button class="btn" onclick="gen()">Build Birthday Email</button>
+    <button class="btn ghost" onclick="copyOut()">Copy</button>
+  </div>
+
+  <pre id="out" style="display:none"></pre>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['style','gift','link'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('bet_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('bet_'+k,g(k).value)); });
+  function gen(){
+    const s=g('style').value, gi=v('gift'), li=v('link');
+    let t;
+    if(s==='warm'){
+      t='Subject: happy birthday — for real\n\nHi {first name},\n\nA quick birthday hello — not a sales pitch.\n\nWhatever you are doing today, I hope you take a moment for yourself. Even five minutes counts.\n\n'+(gi?'And because you are here: '+gi+'. No strings — '+(li?li:'reply if you want to use it')+'.\n\n':'')+'Thank you for being part of this little corner of the internet.\n\n— [your name]';
+    } else if(s==='gift'){
+      t='Subject: a birthday gift — today only\n\nHi {first name},\n\nIt is your birthday. So here is something on me:\n\n→ '+(gi||'a special birthday gift')+'\n\n'+(li?'Claim it here: '+li:'Reply and I will sort it out')+'\n\nValid today only. Enjoy your day.\n\n— [your name]\n\nP.S. No pressure. Even if you don\'t use it, happy birthday.';
+    } else {
+      t='Subject: it is your birthday — and you deserve more than spam\n\nHi {first name},\n\nMost brands will email you today with a "treat yourself" line that ends in their checkout. I see you.\n\nSo here is what I will actually do: '+(gi?gi+' — yours, no strings: '+(li||'reply and I\'ll sort it'):'wish you a genuinely good day and step away')+'.\n\nGo have cake.\n\n— [your name]';
+    }
+    g('out').textContent=t; g('out').style.display='block'; g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function copyOut(){ if(g('out').style.display==='none'){alert('Build it first.');return;} navigator.clipboard.writeText(g('out').textContent).then(()=>alert('Email copied!'),()=>alert('Copy failed.')); }
+</script>
+</body>
+</html>

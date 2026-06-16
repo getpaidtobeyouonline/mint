@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Allowance Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 620px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; } .row>div { flex: 1; min-width: 90px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .big { text-align: center; }
+  .big .n { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: #5AE57A; }
+  .stats { display: flex; gap: 8px; margin: 10px 0; }
+  .stat { flex: 1; background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px; text-align: center; }
+  .stat .n { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #5AE57A; }
+  .stat .l { font-size: .68rem; text-transform: uppercase; opacity: .6; }
+  .item { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 12px; margin-bottom: 5px; display: flex; justify-content: space-between; gap: 8px; font-size: .9rem; }
+  .item .val.pos { color: #5AE57A; } .item .val.neg { color: #5AE57A; }
+  .item .x { cursor: pointer; opacity: .5; } .item .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 10px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Allowance Tracker</h1>
+  <p class="sub">Track pocket money in, out and saved — pocket-money maths made real.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Type</label><select id="type"><option>Earned</option><option>Spent</option><option>Saved</option></select></div>
+      <div><label>Amount</label><input id="amt" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div style="flex:2"><label>What for</label><input id="what" placeholder="Chore, treat, savings jar..."></div>
+      <div style="flex:0"><button class="btn" onclick="add()">+ Log</button></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="big"><div class="n" id="balance">0.00</div><div style="opacity:.7;font-size:.85rem">in the purse</div></div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="earned">0</div><div class="l">earned</div></div>
+      <div class="stat"><div class="n" id="spent">0</div><div class="l">spent</div></div>
+      <div class="stat"><div class="n" id="saved">0</div><div class="l">saved</div></div>
+    </div>
+    <div id="list"></div>
+    <button class="btn ghost" onclick="clearAll()" style="margin-top:8px">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('alw')||'[]');
+  const save=()=>localStorage.setItem('alw',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const fmt=n=>n.toFixed(2);
+  function add(){ const a=parseFloat(g('amt').value)||0; if(!a){ alert('Enter an amount.'); return; }
+    R.unshift({t:g('type').value,a:a,w:v('what'),d:new Date().toLocaleDateString()}); g('amt').value=''; g('what').value=''; save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all entries?')){ R=[]; save(); render(); } }
+  function render(){
+    const earned=R.filter(x=>x.t==='Earned').reduce((s,x)=>s+x.a,0);
+    const spent=R.filter(x=>x.t==='Spent').reduce((s,x)=>s+x.a,0);
+    const saved=R.filter(x=>x.t==='Saved').reduce((s,x)=>s+x.a,0);
+    g('balance').textContent=fmt(earned-spent-saved);
+    g('earned').textContent=fmt(earned); g('spent').textContent=fmt(spent); g('saved').textContent=fmt(saved);
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No entries yet.</div>'; return; }
+    L.innerHTML=R.map((x,i)=>{
+      const sign=x.t==='Earned'?'+':x.t==='Spent'?'-':'→ jar ';
+      const cls=x.t==='Earned'?'pos':(x.t==='Spent'?'neg':'');
+      return '<div class="item"><span>'+x.d+' · '+esc(x.w||x.t)+'</span><span><span class="val '+cls+'">'+sign+fmt(x.a)+'</span>  <span class="x" onclick="del('+i+')">✕</span></span></div>';
+    }).join('');
+  }
+  render();
+</script>
+</body>
+</html>

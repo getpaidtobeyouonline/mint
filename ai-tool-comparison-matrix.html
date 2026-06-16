@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tool Comparison Matrix</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  input, select { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .9rem; padding: 8px 10px; border-radius: 7px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; }
+  .panel h2 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 10px; }
+  .addrow { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .addrow input { flex: 1; min-width: 140px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .88rem; padding: 9px 16px; border-radius: 7px; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; margin: 12px 8px 0 0; padding: 10px 18px; }
+  .win { background: #2E4D2E; border: 1px solid #4F8A55; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; font-size: .95rem; }
+  .win b { color: #5AE57A; }
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; }
+  th, td { padding: 9px 10px; text-align: center; border-bottom: 1px solid #4C724C; font-size: .88rem; }
+  th { color: #5AE57A; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; vertical-align: top; }
+  th .w { display: block; font-size: .68rem; opacity: .6; text-transform: none; letter-spacing: 0; }
+  td:first-child, th:first-child { text-align: left; position: sticky; left: 0; background: #325132; }
+  tr.top td { background: #2E4D2E; }
+  .tname { font-weight: 500; }
+  .scorecell { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.05rem; }
+  .rk { font-size: .72rem; opacity: .6; display: block; }
+  .x { cursor: pointer; opacity: .45; margin-left: 6px; font-size: .8rem; }
+  .x:hover { opacity: 1; color: #5AE57A; }
+  .wsel { background: #2A442A; border: 1px solid #5A845A; color: #5AE57A; font-size: .72rem; padding: 1px 3px; border-radius: 5px; margin-top: 3px; }
+  .empty { text-align: center; opacity: .5; padding: 22px 0; font-style: italic; font-size: .9rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Tool Comparison Matrix</h1>
+  <p class="sub">Compare AI tools on your own weighted criteria — and let the score pick the winner objectively.</p>
+
+  <div class="panel">
+    <h2>Criteria</h2>
+    <div class="addrow">
+      <input id="cName" placeholder="Add a criterion (e.g. Price, Quality)">
+      <select id="cW"><option value="1">Weight 1 (minor)</option><option value="2">Weight 2</option><option value="3" selected>Weight 3</option><option value="4">Weight 4</option><option value="5">Weight 5 (critical)</option></select>
+      <button class="btn" onclick="addCrit()">+ Add</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Tools to compare</h2>
+    <div class="addrow">
+      <input id="tName" placeholder="Add a tool / option name" onkeydown="if(event.key==='Enter')addTool()">
+      <button class="btn" onclick="addTool()">+ Add</button>
+    </div>
+  </div>
+
+  <div class="win" id="win" style="display:none"></div>
+
+  <div class="panel scroll">
+    <div id="matrix"></div>
+  </div>
+
+  <button class="btn ghost" onclick="exportCsv()">Export CSV</button>
+  <button class="btn ghost" onclick="exportMd()">Export Summary</button>
+  <button class="btn ghost" onclick="clearAll()">Clear All</button>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g = id => document.getElementById(id);
+  const esc = t => (t||'').replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let S = JSON.parse(localStorage.getItem('atcm') || 'null');
+  if (!S) S = { nc:1, nt:1, crit:[
+    {id:'c0',name:'Price / value',w:4},{id:'cq',name:'Output quality',w:5},
+    {id:'ce',name:'Ease of use',w:3},{id:'cs',name:'Speed',w:3},{id:'ci',name:'Integrations',w:2}], tools:[] };
+  const save = () => localStorage.setItem('atcm', JSON.stringify(S));
+
+  function addCrit() {
+    const n = g('cName').value.trim(); if (!n) { alert('Name the criterion.'); return; }
+    S.crit.push({ id:'k'+(S.nc++), name:n, w:+g('cW').value }); g('cName').value=''; save(); render();
+  }
+  function delCrit(id) { S.crit = S.crit.filter(c=>c.id!==id); S.tools.forEach(t=>delete t.sc[id]); save(); render(); }
+  function setW(id,w) { const c=S.crit.find(x=>x.id===id); if(c){c.w=+w; save(); render();} }
+  function addTool() {
+    const n = g('tName').value.trim(); if (!n) { alert('Name the tool.'); return; }
+    S.tools.push({ id:'t'+(S.nt++), name:n, sc:{} }); g('tName').value=''; save(); render();
+  }
+  function delTool(id) { S.tools = S.tools.filter(t=>t.id!==id); save(); render(); }
+  function rate(tid,cid,val) { const t=S.tools.find(x=>x.id===tid); if(t){t.sc[cid]=+val; save(); render();} }
+  function clearAll() { if(confirm('Clear the whole matrix?')){ localStorage.removeItem('atcm'); location.reload(); } }
+
+  const ratingOf = (t,c) => (t.sc[c.id] ?? 3);
+  function scoreOf(t) {
+    const tw = S.crit.reduce((s,c)=>s+c.w,0);
+    if (!tw) return 0;
+    return Math.round(S.crit.reduce((s,c)=> s + ratingOf(t,c)*c.w, 0) / (tw*5) * 100);
+  }
+
+  function render() {
+    const ranked = [...S.tools].map(t=>({t,score:scoreOf(t)})).sort((a,b)=>b.score-a.score);
+    const W = g('win');
+    if (ranked.length>=2 && S.crit.length) {
+      const top = ranked[0], second = ranked[1];
+      const best = [...S.crit].sort((a,b)=> ratingOf(top.t,b)*b.w - ratingOf(top.t,a)*a.w)[0];
+      W.style.display='block';
+      W.innerHTML = `🏆 Winner: <b>${esc(top.t.name)}</b> at <b>${top.score}/100</b>`+
+        (top.score>second.score?` — ahead of ${esc(second.t.name)} (${second.score})`:` — tied with ${esc(second.t.name)}`)+
+        `. Strongest on <b>${esc(best.name)}</b>.`;
+    } else W.style.display='none';
+
+    const M = g('matrix');
+    if (!S.crit.length) { M.innerHTML='<div class="empty">Add at least one criterion to build the matrix.</div>'; return; }
+    if (!S.tools.length) { M.innerHTML='<div class="empty">Add the tools you want to compare.</div>'; return; }
+    let h = `<table><tr><th>Tool</th>` +
+      S.crit.map(c=>`<th>${esc(c.name)}<span class="x" onclick="delCrit('${c.id}')">✕</span>
+        <select class="wsel" onchange="setW('${c.id}',this.value)">${[1,2,3,4,5].map(w=>`<option value="${w}" ${c.w===w?'selected':''}>w${w}</option>`).join('')}</select></th>`).join('') +
+      `<th>Score</th></tr>`;
+    ranked.forEach(({t,score},ri)=>{
+      h += `<tr class="${ri===0&&S.tools.length>1?'top':''}"><td><span class="tname">${esc(t.name)}</span><span class="x" onclick="delTool('${t.id}')">✕</span></td>` +
+        S.crit.map(c=>`<td><select onchange="rate('${t.id}','${c.id}',this.value)">${[1,2,3,4,5].map(v=>`<option value="${v}" ${ratingOf(t,c)===v?'selected':''}>${v}</option>`).join('')}</select></td>`).join('') +
+        `<td><span class="scorecell">${score}</span><span class="rk">#${ri+1}</span></td></tr>`;
+    });
+    h += `</table>`;
+    M.innerHTML = h;
+  }
+
+  function dl(b,n){ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=n; a.click(); URL.revokeObjectURL(a.href); }
+  function exportCsv() {
+    if (!S.tools.length || !S.crit.length) { alert('Add tools and criteria first.'); return; }
+    const head = ['Tool', ...S.crit.map(c=>`${c.name} (w${c.w})`), 'Score'];
+    const rows = [...S.tools].map(t=>({t,score:scoreOf(t)})).sort((a,b)=>b.score-a.score)
+      .map(({t,score})=>[t.name, ...S.crit.map(c=>ratingOf(t,c)), score]);
+    const csv = [head,...rows].map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    dl(new Blob([csv],{type:'text/csv'}),'ai-tool-comparison.csv');
+  }
+  function exportMd() {
+    if (!S.tools.length || !S.crit.length) { alert('Add tools and criteria first.'); return; }
+    const ranked = [...S.tools].map(t=>({t,score:scoreOf(t)})).sort((a,b)=>b.score-a.score);
+    let t = `# AI Tool Comparison\n\nCriteria: ${S.crit.map(c=>`${c.name} (w${c.w})`).join(', ')}\n\n## Ranking\n`;
+    ranked.forEach(({t:x,score},i)=>{ t+=`${i+1}. **${x.name}** — ${score}/100 (${S.crit.map(c=>`${c.name}: ${ratingOf(x,c)}`).join(', ')})\n`; });
+    dl(new Blob([t],{type:'text/markdown'}),'ai-tool-comparison.md');
+  }
+
+  render();
+</script>
+</body>
+</html>

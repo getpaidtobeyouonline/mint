@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Best Seller Identifier</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:2rem 1rem}
+.container{max-width:680px;margin:0 auto}
+header{text-align:center;margin-bottom:2rem}
+h1{font-family:'Playfair Display',serif;font-size:2.1rem;color:#5AE57A;margin-bottom:.5rem}
+.subtitle{opacity:.65;font-size:.95rem;max-width:480px;margin:0 auto}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:1.4rem 1.5rem;margin-bottom:1.25rem}
+.card h2{font-family:'Playfair Display',serif;color:#5AE57A;font-size:1rem;margin-bottom:.9rem;padding-bottom:.5rem;border-bottom:1px solid #4C724C}
+label{display:block;font-size:.82rem;font-weight:500;opacity:.7;margin-bottom:.4rem;margin-top:.85rem}
+label:first-of-type{margin-top:0}
+input[type=text],input[type=number]{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.65rem .8rem;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+input[type=text]:focus,input[type=number]:focus{border-color:#5AE57A}
+input[type=number]{-moz-appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none}
+.opt-row{display:flex;gap:.55rem;margin-top:.6rem;flex-wrap:wrap}
+.opt{flex:1;min-width:0;background:#325132;border:1px solid #4C724C;border-radius:8px;padding:.55rem .4rem;text-align:center;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;color:#FFFFFF;transition:border-color .2s,color .2s,background .2s}
+.opt.sel{border-color:#5AE57A;color:#5AE57A;background:#325132}
+.btn{width:100%;background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:.9rem;font-family:'DM Sans',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:opacity .2s;margin-top:.9rem}
+.btn:hover{opacity:.88}
+.col-heads{display:grid;grid-template-columns:1fr 80px 90px 80px;gap:.5rem;font-size:.68rem;opacity:.4;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.3rem;padding:0 .1rem}
+.prod-row{display:grid;grid-template-columns:1fr 80px 90px 80px;gap:.5rem;margin-bottom:.45rem;align-items:center}
+.results{display:none}
+.results.show{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:.75rem}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:8px;padding:.65rem .5rem;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.2rem;color:#5AE57A;display:block}
+.stat-lbl{font-size:.63rem;opacity:.45;display:block;margin-top:.15rem;text-transform:uppercase;letter-spacing:.06em}
+.rank-card{background:#3C603C;border-radius:10px;padding:1.1rem 1.25rem;margin-bottom:.85rem}
+.rank-head{display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem}
+.rank-badge{font-family:'Playfair Display',serif;font-size:1.5rem;min-width:2rem;text-align:center}
+.rank-info{flex:1}
+.rank-name{font-family:'Playfair Display',serif;font-size:1.05rem}
+.rank-tag{font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding:.2rem .5rem;border-radius:4px;display:inline-block;margin-top:.2rem}
+.rank-rev{font-family:'Playfair Display',serif;font-size:1.15rem;text-align:right}
+.rank-rev-lbl{font-size:.62rem;opacity:.4;text-transform:uppercase;letter-spacing:.05em;display:block;text-align:right}
+.bsi-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.bsi-label{font-size:.7rem;opacity:.5;text-transform:uppercase;letter-spacing:.05em;min-width:52px}
+.bsi-bar-wrap{flex:1;background:#325132;border-radius:4px;height:6px;overflow:hidden}
+.bsi-fill{height:100%;border-radius:4px}
+.bsi-val{font-family:'Playfair Display',serif;font-size:.95rem;min-width:36px;text-align:right}
+.scores-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-bottom:.65rem}
+.score-box{background:#325132;border-radius:6px;padding:.5rem .6rem;text-align:center}
+.score-box-val{font-family:'Playfair Display',serif;font-size:1rem;display:block}
+.score-box-lbl{font-size:.6rem;opacity:.4;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:.1rem}
+.rank-rec{background:#325132;border-radius:6px;padding:.55rem .75rem;font-size:.78rem;opacity:.6;line-height:1.45}
+.rank-rec strong{color:#5AE57A;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:.15rem}
+.copy-btn{width:100%;background:transparent;border:1px solid #5AE57A;color:#5AE57A;border-radius:8px;padding:.75rem;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:.25rem}
+.copy-btn:hover{opacity:.7}
+footer{text-align:center;font-size:.75rem;opacity:.4;margin-top:2rem;padding-bottom:1rem}
+@media(max-width:480px){h1{font-size:1.75rem}.stats{grid-template-columns:repeat(2,1fr)}.col-heads,.prod-row{grid-template-columns:1fr 65px 80px 65px}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Best Seller Identifier</h1>
+    <p class="subtitle">Score and rank your digital products across revenue, volume, and social proof — so you always know which one to double down on.</p>
+  </header>
+
+  <div class="card">
+    <h2>Your Products</h2>
+    <label>Period</label>
+    <div class="opt-row">
+      <button class="opt" onclick="pickP(0)" id="p0">Last 30 Days</button>
+      <button class="opt sel" onclick="pickP(1)" id="p1">Last 90 Days</button>
+      <button class="opt" onclick="pickP(2)" id="p2">Last 12 Months</button>
+    </div>
+    <label style="margin-top:1rem">Product Data</label>
+    <div class="col-heads"><span>Product Name</span><span>Price ($)</span><span>Units Sold</span><span>Reviews</span></div>
+    <div class="prod-row"><input type="text" class="pname" placeholder="Product 1"><input type="number" class="pprice" placeholder="27" min="0"><input type="number" class="psales" placeholder="40" min="0"><input type="number" class="prevs" placeholder="12" min="0"></div>
+    <div class="prod-row"><input type="text" class="pname" placeholder="Product 2"><input type="number" class="pprice" placeholder="47" min="0"><input type="number" class="psales" placeholder="25" min="0"><input type="number" class="prevs" placeholder="8" min="0"></div>
+    <div class="prod-row"><input type="text" class="pname" placeholder="Product 3"><input type="number" class="pprice" placeholder="17" min="0"><input type="number" class="psales" placeholder="80" min="0"><input type="number" class="prevs" placeholder="30" min="0"></div>
+    <div class="prod-row"><input type="text" class="pname" placeholder="Product 4"><input type="number" class="pprice" placeholder="97" min="0"><input type="number" class="psales" placeholder="8" min="0"><input type="number" class="prevs" placeholder="5" min="0"></div>
+    <div class="prod-row"><input type="text" class="pname" placeholder="Product 5"><input type="number" class="pprice" placeholder="197" min="0"><input type="number" class="psales" placeholder="3" min="0"><input type="number" class="prevs" placeholder="2" min="0"></div>
+    <button class="btn" onclick="generate()">Identify My Best Sellers →</button>
+  </div>
+
+  <div class="results" id="results">
+    <div class="stats" id="statsBar"></div>
+    <div id="rankCards"></div>
+    <button class="copy-btn" id="copyBtn" onclick="copyResults()">Copy Best Seller Report as Text</button>
+  </div>
+
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+<script>
+const st    = (v,l) => `<div class="stat"><span class="stat-val">${v}</span><span class="stat-lbl">${l}</span></div>`;
+const fmtM  = n => n >= 10000 ? '$'+(n/1000).toFixed(0)+'k' : n >= 1000 ? '$'+(n/1000).toFixed(1)+'k' : '$'+Math.round(n);
+const periods = ['Last 30 Days','Last 90 Days','Last 12 Months'];
+
+const tiers = [
+  {label:'Best Seller',      bg:'#325132', col:'#5AE57A', border:'#5AE57A'},
+  {label:'Strong Performer', bg:'#325132', col:'#5AE57A', border:'#5AE57A'},
+  {label:'Growing',          bg:'#325132', col:'#5AE57A', border:'#5AE57A'},
+  {label:'Early Stage',      bg:'#325132', col:'#BFD8BF', border:'#4C724C'},
+];
+
+const recs = [
+  ['This is your portfolio anchor — protect it. Build a companion product or upsell to extend its revenue ceiling.',
+   'Your #1 by BSI. Feature it front and centre in your emails and ads — let it pull up your other offers.',
+   'Top of the pack. Use this product\'s testimonials everywhere and consider a premium version at a higher price point.'],
+  ['Close to #1 but not there yet. One focused promotional sequence could push it to the top — the fundamentals are solid.',
+   'A strong second. Test bundling it with your best seller to lift average order value for both.',
+   'Solid #2. Collect 3 more targeted reviews and run a dedicated email spotlight — it has room to break out.'],
+  ['Not leading yet — identify whether revenue, volume, or proof is the easiest gap to close first.',
+   'Contributing to the portfolio but has room to grow. A single promotion or a clearer sales page could move the needle.',
+   'Lower in the rankings right now. Diagnose whether pricing, traffic, or social proof is the primary constraint.'],
+];
+
+let state = {p:1};
+
+function pickP(i) {
+  state.p = i;
+  [0,1,2].forEach(x => document.getElementById(`p${x}`).classList.toggle('sel', x===i));
+}
+
+function getProducts() {
+  const names  = [...document.querySelectorAll('.pname')].map(e => e.value.trim());
+  const prices = [...document.querySelectorAll('.pprice')].map(e => parseFloat(e.value));
+  const salesA = [...document.querySelectorAll('.psales')].map(e => parseInt(e.value));
+  const revsA  = [...document.querySelectorAll('.prevs')].map(e => parseInt(e.value) || 0);
+  return names.map((n,i) => ({name:n, price:prices[i], sales:salesA[i], reviews:revsA[i], rev:prices[i]*salesA[i]}))
+    .filter(p => p.name && !isNaN(p.price) && p.price > 0 && !isNaN(p.sales) && p.sales >= 0);
+}
+
+function scoredProducts(prods) {
+  const maxRev   = Math.max(...prods.map(p => p.rev));
+  const maxSales = Math.max(...prods.map(p => p.sales));
+  return prods.map(p => {
+    const rS = maxRev   > 0 ? p.rev   / maxRev   : 0;
+    const vS = maxSales > 0 ? p.sales / maxSales : 0;
+    const pS = Math.min(p.reviews / 30, 1);
+    const bsi = Math.round((0.45*rS + 0.35*vS + 0.20*pS) * 100);
+    return {...p, rS, vS, pS, bsi};
+  }).sort((a,b) => b.bsi - a.bsi);
+}
+
+function getTier(bsi) {
+  return bsi >= 75 ? tiers[0] : bsi >= 50 ? tiers[1] : bsi >= 30 ? tiers[2] : tiers[3];
+}
+
+function generate() {
+  const prods = getProducts();
+  if (prods.length < 2) { alert('Please enter at least 2 products to compare.'); return; }
+
+  const sc = scoredProducts(prods);
+  const totalRev = prods.reduce((s,p) => s+p.rev, 0);
+  const bestName = sc[0].name.split(' ').slice(0,3).join(' ');
+
+  document.getElementById('statsBar').innerHTML =
+    st(sc.length,'Products') + st(periods[state.p],'Period') + st(bestName,'Best Seller') + st(fmtM(totalRev),'Total Revenue');
+
+  document.getElementById('rankCards').innerHTML = sc.map((p,i) => {
+    const tier = getTier(p.bsi);
+    const rec  = recs[Math.min(i,2)][i % recs[Math.min(i,2)].length];
+    return `<div class="rank-card" style="border:1px solid ${tier.border}33;border-left:3px solid ${tier.border}">
+      <div class="rank-head">
+        <div class="rank-badge" style="color:${tier.col}">#${i+1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${p.name}</div>
+          <span class="rank-tag" style="background:${tier.bg};color:${tier.col}">${tier.label}</span>
+        </div>
+        <div>
+          <div class="rank-rev" style="color:${tier.col}">${fmtM(p.rev)}</div>
+          <span class="rank-rev-lbl">${periods[state.p]}</span>
+        </div>
+      </div>
+      <div class="bsi-row">
+        <span class="bsi-label">BSI Score</span>
+        <div class="bsi-bar-wrap"><div class="bsi-fill" style="width:${p.bsi}%;background:${tier.col}"></div></div>
+        <span class="bsi-val" style="color:${tier.col}">${p.bsi}</span>
+      </div>
+      <div class="scores-row">
+        <div class="score-box"><span class="score-box-val" style="color:${tier.col}">${Math.round(p.rS*100)}</span><span class="score-box-lbl">Revenue</span></div>
+        <div class="score-box"><span class="score-box-val" style="color:${tier.col}">${Math.round(p.vS*100)}</span><span class="score-box-lbl">Volume</span></div>
+        <div class="score-box"><span class="score-box-val" style="color:${tier.col}">${Math.round(p.pS*100)}</span><span class="score-box-lbl">Proof</span></div>
+      </div>
+      <div class="rank-rec"><strong>Next move</strong>${rec}</div>
+    </div>`;
+  }).join('');
+
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  r.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyResults() {
+  const prods = getProducts();
+  if (prods.length < 2) return;
+  const sc = scoredProducts(prods);
+  const totalRev = prods.reduce((s,p) => s+p.rev, 0);
+  let text = `BEST SELLER REPORT\nPeriod: ${periods[state.p]} · Total Revenue: ${fmtM(totalRev)}\n\n`;
+  sc.forEach((p,i) => {
+    const tier = getTier(p.bsi);
+    const rec  = recs[Math.min(i,2)][i % recs[Math.min(i,2)].length];
+    text += `#${i+1} ${p.name} — ${tier.label}\n`;
+    text += `BSI: ${p.bsi}/100 · Revenue: ${fmtM(p.rev)} · Units: ${p.sales} · Reviews: ${p.reviews}\n`;
+    text += `Scores — Revenue: ${Math.round(p.rS*100)} · Volume: ${Math.round(p.vS*100)} · Proof: ${Math.round(p.pS*100)}\n`;
+    text += `Next move: ${rec}\n${'─'.repeat(36)}\n`;
+  });
+  text += `\n---\nCreated with Best Seller Identifier by GetPaidToBeYouOnline`;
+
+  const btn  = document.getElementById('copyBtn');
+  const done = () => { btn.textContent='Copied!'; setTimeout(()=>btn.textContent='Copy Best Seller Report as Text',2200); };
+  navigator.clipboard ? navigator.clipboard.writeText(text).then(done)
+    : (()=>{ const ta=document.createElement('textarea'); ta.value=text; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); done(); })();
+}
+</script>
+</body>
+</html>

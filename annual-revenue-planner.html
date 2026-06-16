@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Revenue Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:28px;font-size:.9rem}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;max-width:660px;margin:0 auto 18px}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+label{display:block;margin-bottom:5px;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:10px 13px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+.goal-row{display:flex;align-items:center;gap:12px}
+.goal-prefix{font-family:'Playfair Display',serif;font-size:1.8rem;color:#5AE57A}
+#goalInput{font-size:1.4rem;font-weight:700;letter-spacing:.02em;flex:1}
+.offer-row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;align-items:center;margin-bottom:10px}
+.offer-row input{margin:0}
+.del-btn{background:transparent;border:1px solid #4C724C;color:#BFD8BF;border-radius:6px;padding:9px 11px;cursor:pointer;font-size:.85rem;transition:all .2s;white-space:nowrap}
+.del-btn:hover{border-color:#5AE57A;color:#5AE57A}
+.col-heads{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:6px}
+.col-head{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:#BFD8BF}
+.add-btn{background:transparent;border:1px dashed #4C724C;color:#BFD8BF;border-radius:8px;padding:10px;width:100%;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;transition:all .2s;margin-top:4px}
+.add-btn:hover{border-color:#5AE57A;color:#5AE57A}
+.results{max-width:660px;margin:0 auto 18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:16px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:4px}
+.stat-lbl{font-size:.7rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.05em}
+.green{color:#5AE57A}.gold{color:#5AE57A}.red{color:#5AE57A}
+.offer-breakdown{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:18px}
+.ob-title{font-family:'Playfair Display',serif;font-size:1.05rem;color:#5AE57A;margin-bottom:16px}
+.ob-row{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;margin-bottom:10px;align-items:center;font-size:.85rem}
+.ob-row.head{font-size:.7rem;color:#BFD8BF;letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.ob-bar-wrap{grid-column:1/-1;margin-bottom:4px}
+.ob-bar{height:5px;border-radius:20px;background:linear-gradient(90deg,#5AE57A,#5AE57A);transition:width .6s}
+.ob-bar-track{background:#325132;border-radius:20px;height:5px;overflow:hidden}
+.months-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px;margin-bottom:18px}
+.months-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.month-cell{background:#325132;border-radius:8px;padding:10px 8px;text-align:center}
+.month-name{font-size:.68rem;color:#BFD8BF;text-transform:uppercase;margin-bottom:4px}
+.month-val{font-size:.82rem;font-weight:600;color:#5AE57A}
+.gap-card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:22px}
+.gap-msg{font-size:.92rem;line-height:1.7;opacity:.9}
+.gap-msg strong{color:#5AE57A}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:520px){.stats{grid-template-columns:1fr 1fr}.months-grid{grid-template-columns:repeat(3,1fr)}.offer-row{grid-template-columns:1fr 1fr}.offer-row .offer-name{grid-column:1/-1}}
+</style>
+</head>
+<body>
+
+<h1>Annual Revenue Planner</h1>
+<p class="sub">Set your goal, map your offers, and see exactly what it takes to get there</p>
+
+<div class="card">
+  <div class="card-title">Your Annual Revenue Goal</div>
+  <div class="goal-row">
+    <span class="goal-prefix">$</span>
+    <input id="goalInput" type="number" min="0" placeholder="100,000" oninput="recalc()">
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">Your Offers</div>
+  <div class="col-heads">
+    <div class="col-head">Offer / Product</div>
+    <div class="col-head">Price ($)</div>
+    <div class="col-head">Sales / Mo</div>
+    <div class="col-head"></div>
+  </div>
+  <div id="offerRows"></div>
+  <button class="add-btn" onclick="addOffer()">+ Add Offer</button>
+</div>
+
+<div class="results" id="results" style="display:none">
+  <div class="stats">
+    <div class="stat"><div class="stat-val gold" id="statMonthly">$0</div><div class="stat-lbl">Monthly Revenue</div></div>
+    <div class="stat"><div class="stat-val" id="statAnnual">$0</div><div class="stat-lbl">Projected Annual</div></div>
+    <div class="stat"><div class="stat-val" id="statGap">$0</div><div class="stat-lbl" id="statGapLbl">Gap to Goal</div></div>
+  </div>
+
+  <div class="offer-breakdown" id="offerBreak">
+    <div class="ob-title">Revenue by Offer</div>
+    <div class="ob-row head"><span>Offer</span><span>Monthly</span><span>Annual</span></div>
+    <div id="obRows"></div>
+  </div>
+
+  <div class="months-card">
+    <div class="ob-title">Monthly Targets Needed</div>
+    <div class="months-grid" id="monthsGrid"></div>
+  </div>
+
+  <div class="gap-card" id="gapCard">
+    <div class="ob-title">Your Action Plan</div>
+    <div class="gap-msg" id="gapMsg"></div>
+  </div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+let offers=[
+  {name:'',price:'',qty:''},
+  {name:'',price:'',qty:''}
+];
+
+function fmt(n){return'$'+Math.round(n).toLocaleString()}
+function fmtN(n){return Math.round(n).toLocaleString()}
+
+function renderRows(){
+  document.getElementById('offerRows').innerHTML=offers.map((o,i)=>`
+    <div class="offer-row">
+      <input class="offer-name" type="text" placeholder="e.g. 1:1 Coaching" value="${o.name}" oninput="upd(${i},'name',this.value)">
+      <input type="number" min="0" placeholder="500" value="${o.price}" oninput="upd(${i},'price',this.value)">
+      <input type="number" min="0" placeholder="4" value="${o.qty}" oninput="upd(${i},'qty',this.value)">
+      <button class="del-btn" onclick="delOffer(${i})" title="Remove">✕</button>
+    </div>`).join('');
+}
+
+function upd(i,field,val){offers[i][field]=val;recalc()}
+function addOffer(){if(offers.length<6){offers.push({name:'',price:'',qty:''});renderRows();}}
+function delOffer(i){if(offers.length>1){offers.splice(i,1);renderRows();recalc();}}
+
+function recalc(){
+  const goal=parseFloat(document.getElementById('goalInput').value)||0;
+  const active=offers.filter(o=>parseFloat(o.price)>0&&parseFloat(o.qty)>0);
+  if(!active.length&&!goal){document.getElementById('results').style.display='none';return;}
+  document.getElementById('results').style.display='block';
+
+  const monthly=active.reduce((s,o)=>s+parseFloat(o.price)*parseFloat(o.qty),0);
+  const annual=monthly*12;
+  const gap=goal-annual;
+  const monthlyGoal=goal/12;
+
+  document.getElementById('statMonthly').textContent=fmt(monthly);
+  document.getElementById('statAnnual').textContent=fmt(annual);
+
+  const gapEl=document.getElementById('statGap');
+  const gapLbl=document.getElementById('statGapLbl');
+  if(gap>0){gapEl.textContent=fmt(gap);gapEl.className='stat-val red';gapLbl.textContent='Gap to Goal';}
+  else if(gap<0){gapEl.textContent=fmt(Math.abs(gap));gapEl.className='stat-val green';gapLbl.textContent='Above Goal!';}
+  else{gapEl.textContent='$0';gapEl.className='stat-val gold';gapLbl.textContent='Exactly On Goal';}
+
+  const maxAnnual=Math.max(...active.map(o=>parseFloat(o.price)*parseFloat(o.qty)*12),1);
+  document.getElementById('obRows').innerHTML=active.map(o=>{
+    const mo=parseFloat(o.price)*parseFloat(o.qty);
+    const ann=mo*12;
+    const pct=Math.round(ann/Math.max(annual,1)*100);
+    const barW=Math.round(ann/maxAnnual*100);
+    return`<div class="ob-row">
+      <span>${o.name||'Unnamed Offer'}</span>
+      <span class="gold">${fmt(mo)}</span>
+      <span>${fmt(ann)}</span>
+    </div>
+    <div class="ob-bar-wrap"><div class="ob-bar-track"><div class="ob-bar" style="width:${barW}%"></div></div></div>`;
+  }).join('');
+
+  const mo12=goal>0?monthlyGoal:monthly;
+  document.getElementById('monthsGrid').innerHTML=MONTHS.map(m=>`
+    <div class="month-cell">
+      <div class="month-name">${m}</div>
+      <div class="month-val">${fmt(mo12)}</div>
+    </div>`).join('');
+
+  // Action plan
+  let msg='';
+  if(!goal){
+    msg=`Your offers are projected to bring in <strong>${fmt(annual)}</strong> this year — <strong>${fmt(monthly)}</strong> per month. Set an annual goal above to see your gap analysis.`;
+  } else if(gap<=0){
+    msg=`You're on track — your current offers project <strong>${fmt(annual)}</strong> against a goal of <strong>${fmt(goal)}</strong>. That's <strong>${fmt(Math.abs(gap))}</strong> above your goal. Consider raising prices, adding a premium offer, or reinvesting the surplus into growth.`;
+  } else {
+    const best=active.sort((a,b)=>parseFloat(b.price)-parseFloat(a.price))[0];
+    const extraMo=best?Math.ceil(gap/12/parseFloat(best.price)):0;
+    msg=`You have a <strong>${fmt(gap)}</strong> annual gap to close. To hit your goal, you need an extra <strong>${fmt(gap/12)}/month</strong>. `;
+    if(best&&extraMo){
+      msg+=`The fastest path: sell <strong>${extraMo} more ${best.name||'units'}</strong> per month at your highest price point (<strong>${fmt(parseFloat(best.price))}</strong>). `;
+    }
+    msg+=`Alternatively, raise prices on your existing offers or add a new high-ticket product to bridge the gap.`;
+  }
+  document.getElementById('gapMsg').innerHTML=msg;
+}
+
+renderRows();
+recalc();
+</script>
+</body>
+</html>

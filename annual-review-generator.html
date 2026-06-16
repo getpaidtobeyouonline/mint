@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Annual Review Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .year-chip { text-align: center; font-size: 0.8rem; color: #5AE57A; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px; max-width: 620px; margin: 0 auto 20px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.1rem; margin-bottom: 4px; }
+  .card-sub { font-size: 0.78rem; color: #BFD8BF; font-style: italic; margin-bottom: 18px; }
+  .section-label { font-size: 0.78rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; margin-top: 14px; }
+  .section-label:first-child { margin-top: 0; }
+  textarea { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 13px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; resize: vertical; min-height: 68px; line-height: 1.6; margin-bottom: 2px; }
+  textarea:focus { border-color: #5AE57A; }
+  .solo-input { width: 100%; background: #325132; border: none; border-bottom: 2px solid #4C724C; color: #5AE57A; padding: 8px 4px; font-family: 'Playfair Display', serif; font-size: 1.6rem; outline: none; text-align: center; }
+  .solo-input:focus { border-color: #5AE57A; }
+  .solo-input::placeholder { color: #4C724C; font-size: 1.3rem; }
+
+  /* Life areas */
+  .area-item { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #3C603C; }
+  .area-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .area-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .area-icon { font-size: 1rem; }
+  .area-name { font-size: 0.92rem; font-weight: 500; flex: 1; }
+  .area-rating-num { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #5AE57A; width: 28px; text-align: right; flex-shrink: 0; }
+  .rating-strip { display: flex; gap: 3px; margin-bottom: 7px; }
+  .rnum { flex: 1; height: 28px; border-radius: 5px; border: 1px solid #3C603C; background: #325132; color: #5A845A; font-size: 0.72rem; cursor: pointer; transition: all 0.12s; display: flex; align-items: center; justify-content: center; }
+  .rnum.filled { background: #C9A84C22; border-color: #5AE57A; color: #5AE57A; }
+  .rnum.high { background: #2E4D2E; border-color: #5AE57A; color: #5AE57A; }
+  .area-note { width: 100%; background: #325132; border: 1px solid #3C603C; color: #F0EBE0aa; padding: 7px 11px; border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; outline: none; }
+  .area-note:focus { border-color: #5AE57A; color: #FFFFFF; }
+
+  /* Generate */
+  .gen-row { text-align: center; max-width: 620px; margin: 0 auto 24px; }
+  .btn-generate { background: #5AE57A; color: #325132; border: none; padding: 14px 56px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 1.05rem; cursor: pointer; }
+  .btn-generate:hover { background: #5AE57A; }
+
+  /* Output */
+  .review-doc { background: #325132; border: 1px solid #4C724C; border-radius: 8px; padding: 20px; font-size: 0.85rem; line-height: 1.85; white-space: pre-wrap; font-family: 'DM Sans', sans-serif; color: #FFFFFF; max-height: 480px; overflow-y: auto; margin-bottom: 14px; }
+  .output-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-outline { background: none; border: 1px solid #5AE57A; color: #5AE57A; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-outline:hover { background: #C9A84C22; }
+  .btn-ghost { background: none; border: 1px solid #4C724C; color: #F0EBE0aa; padding: 9px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; cursor: pointer; }
+  .btn-ghost:hover { border-color: #BFD8BF; color: #FFFFFF; }
+  .copy-note { font-size: 0.78rem; color: #BFD8BF; margin-top: 8px; height: 16px; }
+
+  /* Archive */
+  .arch-item { padding: 10px 0; border-bottom: 1px solid #3C603C; }
+  .arch-item:last-child { border-bottom: none; }
+  .arch-year { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 0.95rem; }
+  .arch-word { font-size: 0.8rem; color: #F0EBE0aa; font-style: italic; }
+  .arch-del { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; float: right; }
+  .arch-del:hover { color: #5AE57A; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 12px 0; }
+
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Annual Review Generator</h1>
+<p class="subtitle">Close the year with honesty. Open the next with intention.</p>
+<p class="year-chip" id="yearChip"></p>
+
+<!-- Part 1: Year in Review -->
+<div class="card">
+  <div class="card-title">Part I — The Year in Review</div>
+  <div class="card-sub">Look back before you look forward.</div>
+  <div class="section-label">Top wins of the year</div>
+  <textarea id="wins" placeholder="What are you most proud of achieving? Big or small…"></textarea>
+  <div class="section-label">Biggest challenges</div>
+  <textarea id="challenges" placeholder="What was hard? What didn't go as planned?"></textarea>
+  <div class="section-label">What you learned about yourself</div>
+  <textarea id="learned" placeholder="New strengths discovered, old patterns noticed, surprises…"></textarea>
+  <div class="section-label">What you'd do differently</div>
+  <textarea id="different" placeholder="If you could replay the year, what would you change?"></textarea>
+</div>
+
+<!-- Part 2: Life Areas -->
+<div class="card">
+  <div class="card-title">Part II — Life Area Ratings</div>
+  <div class="card-sub">Rate each area 1–10. Be honest — this is just for you.</div>
+  <div id="areasContainer"></div>
+</div>
+
+<!-- Part 3: Year Ahead -->
+<div class="card">
+  <div class="card-title">Part III — The Year Ahead</div>
+  <div class="card-sub">Intentions, not just goals.</div>
+  <div class="section-label">Your word for the year</div>
+  <input class="solo-input" id="wordOfYear" placeholder="One word…" maxlength="30" />
+  <div class="section-label" style="margin-top:16px">Three themes or intentions</div>
+  <textarea id="intentions" placeholder="How do you want to approach this year? What do you want more of?"></textarea>
+  <div class="section-label">What you're committed to starting</div>
+  <textarea id="starting" placeholder="New habits, projects, relationships, practices…"></textarea>
+  <div class="section-label">What you're committed to stopping</div>
+  <textarea id="stopping" placeholder="Habits, obligations, or patterns that no longer serve you…"></textarea>
+</div>
+
+<div class="gen-row">
+  <button class="btn-generate" onclick="generate()">Generate My Annual Review</button>
+</div>
+
+<div class="card" id="outputCard" style="display:none">
+  <div class="card-title" style="margin-bottom:14px">Your Annual Review</div>
+  <div class="review-doc" id="reviewDoc"></div>
+  <div class="output-btns">
+    <button class="btn-outline" onclick="copyReview()">Copy to Clipboard</button>
+    <button class="btn-ghost"   onclick="saveReview()">Save to Archive</button>
+  </div>
+  <div class="copy-note" id="copyNote"></div>
+</div>
+
+<div class="card" id="archiveCard">
+  <div class="card-title" style="margin-bottom:14px">Past Annual Reviews</div>
+  <div id="archiveList"><p class="empty">No saved reviews yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+  const YEAR     = new Date().getFullYear();
+  const PREV     = YEAR - 1;
+  const AREAS    = [
+    { id:'work',     icon:'💼', name:'Work & Career'    },
+    { id:'health',   icon:'💪', name:'Health & Fitness'  },
+    { id:'finance',  icon:'💰', name:'Finances'           },
+    { id:'relations',icon:'❤️', name:'Relationships'     },
+    { id:'growth',   icon:'🧠', name:'Learning & Growth' },
+    { id:'purpose',  icon:'🎯', name:'Purpose & Joy'     },
+  ];
+
+  document.getElementById('yearChip').textContent = `Reviewing ${PREV} · Setting intentions for ${YEAR}`;
+
+  let ratings  = {};
+  let notes    = {};
+  let reviews  = JSON.parse(localStorage.getItem('arg_reviews') || '[]');
+  let generated = '';
+
+  AREAS.forEach(a => { ratings[a.id] = 0; notes[a.id] = ''; });
+
+  // Build life areas
+  document.getElementById('areasContainer').innerHTML = AREAS.map(a => `
+    <div class="area-item">
+      <div class="area-header">
+        <span class="area-icon">${a.icon}</span>
+        <span class="area-name">${a.name}</span>
+        <span class="area-rating-num" id="rn-${a.id}">—</span>
+      </div>
+      <div class="rating-strip">${Array.from({length:10},(_,i)=>{
+        const v=i+1;
+        return `<div class="rnum" id="rb-${a.id}-${v}" onclick="setRating('${a.id}',${v})">${v}</div>`;
+      }).join('')}</div>
+      <input class="area-note" id="note-${a.id}" placeholder="One insight about this area…" maxlength="100"
+        oninput="notes['${a.id}']=this.value" />
+    </div>`).join('');
+
+  function setRating(areaId, val) {
+    ratings[areaId] = val;
+    document.getElementById('rn-' + areaId).textContent = val;
+    for (let v = 1; v <= 10; v++) {
+      const el = document.getElementById(`rb-${areaId}-${v}`);
+      el.className = 'rnum' + (v <= val ? (val >= 8 ? ' high' : ' filled') : '');
+    }
+  }
+
+  function val(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+  function generate() {
+    const word = val('wordOfYear');
+    const areaLines = AREAS.map(a => {
+      const r = ratings[a.id];
+      const n = (document.getElementById('note-'+a.id)?.value||'').trim();
+      return `  ${a.icon} ${a.name}: ${r ? r + '/10' : '—'}${n ? ' · ' + n : ''}`;
+    }).join('\n');
+
+    generated = [
+      `ANNUAL REVIEW — ${PREV}`,
+      `${'═'.repeat(44)}`,
+      val('wins')       && `\nWINS & HIGHLIGHTS\n${val('wins')}`,
+      val('challenges') && `\nBIGGEST CHALLENGES\n${val('challenges')}`,
+      val('learned')    && `\nWHAT I LEARNED ABOUT MYSELF\n${val('learned')}`,
+      val('different')  && `\nWHAT I'D DO DIFFERENTLY\n${val('different')}`,
+      `\nLIFE AREA RATINGS\n${areaLines}`,
+      `\n${'─'.repeat(44)}`,
+      `INTENTIONS FOR ${YEAR}`,
+      `${'─'.repeat(44)}`,
+      word              && `\nWORD OF THE YEAR: ${word}`,
+      val('intentions') && `\nTHEMES & INTENTIONS\n${val('intentions')}`,
+      val('starting')   && `\nCOMMITTED TO STARTING\n${val('starting')}`,
+      val('stopping')   && `\nCOMMITTED TO STOPPING\n${val('stopping')}`,
+      `\n${'═'.repeat(44)}`,
+    ].filter(Boolean).join('\n');
+
+    document.getElementById('reviewDoc').textContent = generated;
+    document.getElementById('outputCard').style.display = 'block';
+    document.getElementById('outputCard').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function copyReview() {
+    if (!generated) return;
+    navigator.clipboard.writeText(generated).then(() => {
+      flash('Copied to clipboard ✓');
+    });
+  }
+
+  function saveReview() {
+    if (!generated) return;
+    reviews = reviews.filter(r => r.year !== PREV);
+    reviews.unshift({ year: PREV, word: val('wordOfYear'), text: generated });
+    localStorage.setItem('arg_reviews', JSON.stringify(reviews));
+    renderArchive(); flash('Saved to archive ✓');
+  }
+
+  function deleteReview(year) {
+    reviews = reviews.filter(r => r.year !== year);
+    localStorage.setItem('arg_reviews', JSON.stringify(reviews));
+    renderArchive();
+  }
+
+  function flash(msg) {
+    const el = document.getElementById('copyNote');
+    el.textContent = msg; setTimeout(() => el.textContent = '', 2500);
+  }
+
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  function renderArchive() {
+    const el = document.getElementById('archiveList');
+    if (!reviews.length) { el.innerHTML = '<p class="empty">No saved reviews yet.</p>'; return; }
+    el.innerHTML = reviews.map(r => `
+      <div class="arch-item">
+        <button class="arch-del" onclick="deleteReview(${r.year})">✕</button>
+        <div class="arch-year">${r.year} Annual Review</div>
+        ${r.word ? `<div class="arch-word">Word of the year: "${esc(r.word)}"</div>` : ''}
+      </div>`).join('');
+  }
+
+  renderArchive();
+</script>
+</body>
+</html>

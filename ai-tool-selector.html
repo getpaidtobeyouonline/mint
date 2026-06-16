@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Tool Selector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #325132; color: #FFFFFF;
+    font-family: 'DM Sans', sans-serif; line-height: 1.6;
+    padding: 24px; display: flex; min-height: 100vh; align-items: center; justify-content: center;
+  }
+  .wrap { max-width: 600px; width: 100%; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2.1rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 26px; font-size: .95rem; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 14px; padding: 26px; }
+  .q { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 4px; }
+  .step { font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-bottom: 16px; }
+  .opt {
+    display: block; width: 100%; text-align: left; background: #2A442A;
+    border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif;
+    font-size: 1rem; padding: 14px 16px; border-radius: 9px; margin-bottom: 10px; cursor: pointer;
+  }
+  .opt:hover { border-color: #5AE57A; color: #5AE57A; }
+  .btn {
+    background: #5AE57A; color: #325132; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .95rem;
+    padding: 12px 24px; border-radius: 8px; margin-top: 18px;
+  }
+  .btn:hover { opacity: .9; }
+  .res-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1.5rem; }
+  .res-tag { opacity: .8; margin: 6px 0 18px; }
+  .res-block { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .res-block h4 { font-size: .78rem; letter-spacing: .06em; text-transform: uppercase; color: #5AE57A; margin-bottom: 5px; }
+  .res-block p { font-size: .95rem; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 32px; }
+  @media (max-width: 600px) { h1 { font-size: 1.7rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Tool Selector</h1>
+  <p class="sub">Answer three quick questions and get a clear recommendation on which kind of AI tool actually fits your job.</p>
+  <div class="card" id="card"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const questions = [
+    { q: "What do you want to do?", key: "task",
+      opts: [
+        ["Write content or copy", "write"],
+        ["Create images or visuals", "image"],
+        ["Write or debug code", "code"],
+        ["Analyze data or documents", "data"],
+        ["Automate repetitive tasks", "auto"],
+        ["Make audio or video", "media"]
+      ] },
+    { q: "What's your budget?", key: "budget",
+      opts: [["Free only", "free"], ["Around $20/month", "low"], ["Flexible if it delivers", "flex"]] },
+    { q: "How technical are you?", key: "skill",
+      opts: [["I want no-code", "nocode"], ["I'm comfortable tinkering", "mid"], ["I can write code", "dev"]] }
+  ];
+
+  const recs = {
+    write: { title: "Conversational LLM Assistant", tag: "General chat-based AI is your best leverage for any writing task.",
+      tools: "A frontier chat assistant (e.g. Claude, ChatGPT). Pair with a grammar/style checker for polish.",
+      tip: "Give it your audience, goal, and tone — then ask for 3 variations and refine the best one." },
+    image: { title: "Text-to-Image Generator", tag: "Diffusion-based image tools turn prompts into visuals fast.",
+      tools: "A text-to-image model (Midjourney, DALL·E, Stable Diffusion). Use a free tier to test prompts first.",
+      tip: "Describe subject, style, lighting, and aspect ratio. Iterate on one variable at a time." },
+    code: { title: "AI Coding Assistant", tag: "Use an AI that lives in or near your editor.",
+      tools: "An in-editor assistant (Claude Code, Copilot, Cursor) plus a chat LLM for architecture questions.",
+      tip: "Describe the change and constraints, not just the bug. Ask it to explain before it edits." },
+    data: { title: "Document & Data Analysis AI", tag: "You need an LLM with file upload and long context.",
+      tools: "A chat assistant with document/spreadsheet upload and a large context window.",
+      tip: "Upload the file, state the exact question, and ask it to show its reasoning and cite the rows." },
+    auto: { title: "Workflow Automation + AI", tag: "Combine an automation platform with AI steps.",
+      tools: "A no-code automation tool (Zapier, Make, n8n) with an AI/LLM action node wired in.",
+      tip: "Map the trigger and steps on paper first, then add one AI step where judgment is needed." },
+    media: { title: "Generative Audio / Video Tool", tag: "Specialized media models beat general chat here.",
+      tools: "A dedicated voice or video generator (ElevenLabs, Runway, Descript) for production work.",
+      tip: "Start from a tight script. Generate short segments and stitch — quality drops on long single takes." }
+  };
+
+  const budgetNote = { free: "Stick to free tiers and open models — slower but workable to learn.",
+    low: "A single ~$20/mo pro plan on your main tool gives the biggest jump in quality.",
+    flex: "Invest in the paid tier of your core tool; the time saved pays for it quickly." };
+  const skillNote = { nocode: "Choose tools with a polished UI — avoid anything requiring an API key.",
+    mid: "You can safely use browser tools plus light templates and presets.",
+    dev: "Consider API access for automation and to wire tools into your own scripts." };
+
+  let answers = {}, i = 0;
+  const card = document.getElementById('card');
+
+  function showQuestion() {
+    const Q = questions[i];
+    card.innerHTML =
+      `<div class="step">Step ${i+1} of ${questions.length}</div>
+       <div class="q">${Q.q}</div><div style="margin-top:14px">` +
+      Q.opts.map(o => `<button class="opt" data-v="${o[1]}">${o[0]}</button>`).join('') + `</div>`;
+    card.querySelectorAll('.opt').forEach(b => b.onclick = () => {
+      answers[Q.key] = b.dataset.v;
+      i++;
+      i < questions.length ? showQuestion() : showResult();
+    });
+  }
+
+  function showResult() {
+    const r = recs[answers.task];
+    card.innerHTML =
+      `<div class="step">Your recommendation</div>
+       <div class="res-title">${r.title}</div>
+       <p class="res-tag">${r.tag}</p>
+       <div class="res-block"><h4>Use this</h4><p>${r.tools}</p></div>
+       <div class="res-block"><h4>Budget fit</h4><p>${budgetNote[answers.budget]}</p></div>
+       <div class="res-block"><h4>For your skill level</h4><p>${skillNote[answers.skill]}</p></div>
+       <div class="res-block"><h4>Pro tip</h4><p>${r.tip}</p></div>
+       <button class="btn" id="again">Start Over</button>`;
+    document.getElementById('again').onclick = () => { answers = {}; i = 0; showQuestion(); };
+  }
+
+  showQuestion();
+</script>
+</body>
+</html>

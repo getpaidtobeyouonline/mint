@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bibliography Organiser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 680px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .73rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 9px 0 5px; }
+  input, select { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .92rem; padding: 8px 10px; border-radius: 8px; }
+  input:focus, select:focus { outline: none; border-color: #5AE57A; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; } .row>div { flex: 1; min-width: 110px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .9rem; padding: 9px 16px; border-radius: 7px; font-family:'DM Sans',sans-serif; margin-top: 10px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .ref { background: #2A442A; border: 1px solid #5A845A; border-radius: 7px; padding: 9px 13px; margin-bottom: 6px; display: flex; justify-content: space-between; gap: 10px; font-size: .87rem; }
+  .ref .x { cursor: pointer; opacity: .5; flex: none; } .ref .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { text-align: center; opacity: .5; font-size: .86rem; padding: 12px 0; font-style: italic; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Bibliography Organiser</h1>
+  <p class="sub">Collect your sources as you research — then copy a tidy, alphabetised reference list.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div><label>Author(s)</label><input id="author" placeholder="Surname, Initials"></div>
+      <div><label>Year</label><input id="year" placeholder="2024"></div>
+    </div>
+    <label>Title of work</label>
+    <input id="title" placeholder="Title of book, article or page">
+    <div class="row">
+      <div><label>Source / publisher</label><input id="source" placeholder="Journal, publisher or website"></div>
+      <div><label>Type</label><select id="type"><option>Book</option><option>Journal article</option><option>Website</option><option>Report</option><option>Other</option></select></div>
+    </div>
+    <button class="btn" onclick="add()">+ Add Reference</button>
+  </div>
+
+  <div class="panel">
+    <div id="list"></div>
+    <button class="btn" onclick="copyAll()">Copy Reference List</button>
+    <button class="btn ghost" onclick="clearAll()">Clear All</button>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  let R=JSON.parse(localStorage.getItem('bib')||'[]');
+  const save=()=>localStorage.setItem('bib',JSON.stringify(R));
+  const esc=t=>(t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  function add(){ if(!v('author')&&!v('title')){ alert('Enter at least an author or title.'); return; }
+    R.push({a:v('author'),y:v('year'),t:v('title'),s:v('source'),type:g('type').value});
+    ['author','year','title','source'].forEach(k=>g(k).value=''); save(); render(); }
+  function del(i){ R.splice(i,1); save(); render(); }
+  function clearAll(){ if(confirm('Clear all references?')){ R=[]; save(); render(); } }
+  function fmt(x){ return (x.a||'[Author]')+' ('+(x.y||'n.d.')+'). '+(x.t||'[Title]')+'. '+(x.s||'')+'.'; }
+  function copyAll(){ if(!R.length){ alert('No references yet.'); return; }
+    const sorted=[...R].sort((a,b)=>(a.a||'').toLowerCase()<(b.a||'').toLowerCase()?-1:1);
+    navigator.clipboard.writeText('REFERENCES\n\n'+sorted.map(fmt).join('\n\n')).then(()=>alert('Reference list copied!'),()=>alert('Copy failed.'));
+  }
+  function render(){
+    const L=g('list');
+    if(!R.length){ L.innerHTML='<div class="empty">No references added yet.</div>'; return; }
+    const sorted=R.map((x,i)=>({x,i})).sort((a,b)=>(a.x.a||'').toLowerCase()<(b.x.a||'').toLowerCase()?-1:1);
+    L.innerHTML=sorted.map(({x,i})=>'<div class="ref"><span>'+esc(fmt(x))+' <span style="opacity:.5">['+x.type+']</span></span><span class="x" onclick="del('+i+')">✕</span></div>').join('');
+  }
+  render();
+</script>
+</body>
+</html>

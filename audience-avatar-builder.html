@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audience Avatar Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 700px; margin: 0 auto; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 2rem; color: #5AE57A; text-align: center; }
+  .sub { text-align: center; opacity: .75; margin: 8px 0 22px; font-size: .95rem; }
+  label { display: block; font-size: .74rem; letter-spacing: .04em; text-transform: uppercase; opacity: .7; margin: 12px 0 5px; }
+  input, textarea { width: 100%; background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; font-family: 'DM Sans', sans-serif; font-size: .94rem; padding: 9px 11px; border-radius: 8px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #5AE57A; }
+  textarea { min-height: 50px; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: .92rem; padding: 11px 20px; border-radius: 8px; margin: 14px 8px 0 0; }
+  .btn:hover { opacity: .9; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .card { background: #2A442A; border: 1px solid #5A845A; border-left: 3px solid #5AE57A; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+  .card h4 { font-size: .74rem; letter-spacing: .05em; text-transform: uppercase; color: #5AE57A; margin-bottom: 4px; }
+  .card p { font-size: .95rem; white-space: pre-wrap; }
+  footer { text-align: center; opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.6rem; } body { padding: 16px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Audience Avatar Builder</h1>
+  <p class="sub">Define the one person you create for — so every post feels written just for them.</p>
+
+  <div class="panel">
+    <label for="name">Avatar name & snapshot</label>
+    <input id="name" placeholder="e.g. Side-Hustle Sarah, 32, marketing manager">
+    <label for="goal">What they badly want</label>
+    <textarea id="goal" placeholder="Their dream outcome"></textarea>
+    <label for="pain">What's frustrating them right now</label>
+    <textarea id="pain" placeholder="The pain that keeps them up"></textarea>
+    <label for="objection">Why they hesitate / their objection</label>
+    <textarea id="objection" placeholder="What stops them buying or acting"></textarea>
+    <label for="follow">Who they already follow</label>
+    <input id="follow" placeholder="Accounts/creators in their feed">
+    <label for="words">Words & phrases they actually use</label>
+    <textarea id="words" placeholder="Their language, not yours"></textarea>
+    <button class="btn" onclick="build()">Build Avatar</button>
+    <button class="btn ghost" onclick="copyA()">Copy</button>
+  </div>
+
+  <div id="out"></div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const F=['name','goal','pain','objection','follow','words'];
+  const g=id=>document.getElementById(id), v=id=>g(id).value.trim();
+  F.forEach(k=>{ const s=localStorage.getItem('aab_'+k); if(s!==null)g(k).value=s; g(k).addEventListener('input',()=>localStorage.setItem('aab_'+k,g(k).value)); });
+  const LB={name:'Snapshot',goal:'What they want',pain:'Their pain',objection:'Their objection',follow:'Already follows',words:'Their words'};
+  function build() {
+    if(!v('name')){ alert('Give the avatar a name first.'); return; }
+    g('out').innerHTML = `<div class="panel">`+F.map(k=>`<div class="card"><h4>${LB[k]}</h4><p>${esc(v(k)||'—')}</p></div>`).join('')+
+      `<div class="card" style="border-left-color:#BFD8BF"><h4>Use it</h4><p>Before posting, ask: would this stop ${esc(v('name').split(/[,—-]/)[0].trim()||'them')} mid-scroll and feel made for them?</p></div></div>`;
+    g('out').scrollIntoView({behavior:'smooth'});
+  }
+  function esc(t){ return (t||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+  function copyA() {
+    const t='AUDIENCE AVATAR\n\n'+F.map(k=>`${LB[k]}: ${v(k)||'—'}`).join('\n');
+    navigator.clipboard.writeText(t).then(()=>alert('Avatar copied!'),()=>alert('Copy failed.'));
+  }
+</script>
+</body>
+</html>

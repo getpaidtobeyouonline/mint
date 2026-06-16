@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affiliate Income Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#325132;color:#FFFFFF;font-family:'DM Sans',sans-serif;min-height:100vh;padding:28px 16px}
+h1{font-family:'Playfair Display',serif;font-size:2rem;color:#5AE57A;text-align:center;margin-bottom:6px}
+.sub{text-align:center;opacity:.6;margin-bottom:24px;font-size:.9rem}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:700px;margin:0 auto 14px}
+.stat{background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Playfair Display',serif;font-size:1.4rem;margin-bottom:3px}
+.stat-lbl{font-size:.62rem;color:#BFD8BF;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
+.gold{color:#5AE57A}.green{color:#5AE57A}.blue{color:#5AE57A}
+.card{background:#3C603C;border:1px solid #4C724C;border-radius:14px;padding:18px;max-width:700px;margin:0 auto 14px}
+.card-title{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;margin-bottom:12px}
+.form-row{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+.fg{flex:1;min-width:140px}
+label{display:block;margin-bottom:5px;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:#5AE57A;font-weight:600}
+input,select{background:#325132;border:1px solid #4C724C;border-radius:8px;padding:9px 12px;color:#FFFFFF;font-family:'DM Sans',sans-serif;font-size:.9rem;width:100%;transition:border .2s}
+input:focus,select:focus{outline:none;border-color:#5AE57A}
+input::placeholder{color:#5A845A}
+select option{background:#3C603C}
+input[type="month"]{color-scheme:dark}
+.add-btn{background:#5AE57A;color:#325132;border:none;border-radius:8px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .2s}
+.add-btn:hover{opacity:.85}
+.prog-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #325132;cursor:pointer;transition:background .15s}
+.prog-row:last-child{border-bottom:none}
+.prog-row.filt{background:#C9A84C08;border-radius:8px;padding:10px 8px}
+.prog-info{flex:1;min-width:0}
+.prog-name{font-size:.9rem;font-weight:600;margin-bottom:4px}
+.prog-rate{font-size:.72rem;color:#5AE57A;font-weight:400;margin-left:6px;font-family:monospace}
+.prog-bar-track{background:#325132;border-radius:10px;height:4px;overflow:hidden}
+.prog-bar-fill{height:100%;border-radius:10px;background:#5AE57A;transition:width .4s}
+.prog-totals{text-align:right;flex-shrink:0}
+.prog-earned{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A}
+.prog-meta{font-size:.68rem;color:#BFD8BF;margin-top:2px}
+.del-btn{background:transparent;border:none;color:#4C724C;cursor:pointer;font-size:.85rem;padding:3px 6px;transition:color .2s;flex-shrink:0}
+.del-btn:hover{color:#5AE57A}
+.entry-row{background:#325132;border:1px solid #3C603C;border-radius:10px;padding:11px 14px;margin-bottom:7px;display:flex;align-items:center;gap:10px}
+.entry-prog{flex:1;font-size:.87rem;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.entry-month{font-size:.78rem;color:#BFD8BF;flex-shrink:0;white-space:nowrap}
+.entry-amount{font-family:'Playfair Display',serif;font-size:1rem;color:#5AE57A;flex-shrink:0;white-space:nowrap}
+.badge{font-size:.67rem;font-weight:700;padding:3px 10px;border-radius:20px;cursor:pointer;flex-shrink:0;transition:opacity .2s}
+.badge:hover{opacity:.75}
+.b-paid{background:#44cc6622;color:#5AE57A}
+.b-pend{background:#C9A84C22;color:#5AE57A}
+.filter-bar{max-width:700px;margin:0 auto 8px;font-size:.78rem;color:#BFD8BF;display:flex;align-items:center;gap:8px}
+.filter-clear{color:#5AE57A;cursor:pointer;text-decoration:underline;font-size:.75rem}
+.empty{text-align:center;opacity:.35;padding:20px;font-size:.85rem}
+footer{text-align:center;margin-top:40px;opacity:.35;font-size:.78rem}
+@media(max-width:540px){h1{font-size:1.7rem}.stats{grid-template-columns:1fr 1fr}.form-row{flex-direction:column}.add-btn{width:100%}}
+</style>
+</head>
+<body>
+<h1>Affiliate Income Tracker</h1>
+<p class="sub">Log every commission. See which programs pay. Know your affiliate income at a glance.</p>
+
+<div class="stats">
+  <div class="stat"><div class="stat-val gold" id="sTotal">$0.00</div><div class="stat-lbl">Total Earned</div></div>
+  <div class="stat"><div class="stat-val green" id="sPaid">$0.00</div><div class="stat-lbl">Paid Out</div></div>
+  <div class="stat"><div class="stat-val blue" id="sPending">$0.00</div><div class="stat-lbl">Pending</div></div>
+  <div class="stat"><div class="stat-val" id="sProgs">0</div><div class="stat-lbl">Active Programs</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Add Affiliate Program</div>
+  <div class="form-row">
+    <div class="fg"><label>Program Name</label><input id="pName" type="text" placeholder="e.g. Amazon Associates"></div>
+    <div style="width:130px"><label>Commission Rate</label><input id="pRate" type="text" placeholder="e.g. 5% or $2"></div>
+    <div style="width:110px"><label>Status</label><select id="pStatus"><option>Active</option><option>Paused</option></select></div>
+    <button class="add-btn" onclick="addProg()">+ Add</button>
+  </div>
+</div>
+
+<div class="card" id="progCard">
+  <div class="card-title">Program Breakdown <span style="font-size:.72rem;color:#BFD8BF;font-family:'DM Sans';font-weight:400">— click a program to filter the log</span></div>
+  <div id="progList"><div class="empty">No programs yet — add your first above.</div></div>
+</div>
+
+<div class="card">
+  <div class="card-title">Log Commission</div>
+  <div class="form-row">
+    <div class="fg"><label>Program</label><select id="eProg"><option value="">Select program…</option></select></div>
+    <div style="width:110px"><label>Amount ($)</label><input id="eAmt" type="number" placeholder="45.00" min="0" step="0.01"></div>
+    <div style="width:145px"><label>Month</label><input id="eMon" type="month"></div>
+    <div style="width:110px"><label>Status</label><select id="ePaid"><option value="pending">Pending</option><option value="paid">Paid</option></select></div>
+    <button class="add-btn" onclick="logEntry()">Log →</button>
+  </div>
+</div>
+
+<div class="filter-bar" id="filterBar" style="display:none">
+  Showing: <strong id="filterLabel"></strong> <span class="filter-clear" onclick="setFilter(null)">Show all</span>
+</div>
+<div id="entryLog"></div>
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const KEY='affTracker';
+let S=JSON.parse(localStorage.getItem(KEY)||'{"p":[],"e":[]}');
+let progs=S.p||[];
+let entries=S.e||[];
+let filt=null;
+
+function save(){localStorage.setItem(KEY,JSON.stringify({p:progs,e:entries}));}
+function fmt(n){return'$'+parseFloat(n||0).toFixed(2);}
+function fmtMon(m){return m?new Date(m+'-02').toLocaleDateString('en-US',{month:'short',year:'numeric'}):'—';}
+
+function addProg(){
+  const name=document.getElementById('pName').value.trim();
+  const rate=document.getElementById('pRate').value.trim();
+  const status=document.getElementById('pStatus').value;
+  if(!name){alert('Enter a program name.');return;}
+  progs.push({id:Date.now(),name,rate,status});
+  save();
+  document.getElementById('pName').value='';
+  document.getElementById('pRate').value='';
+  render();
+}
+
+function delProg(id){
+  if(!confirm('Delete this program and all its entries?'))return;
+  progs=progs.filter(p=>p.id!==id);
+  entries=entries.filter(e=>e.pid!==id);
+  if(filt===id)filt=null;
+  save();render();
+}
+
+function logEntry(){
+  const pid=parseInt(document.getElementById('eProg').value)||0;
+  const amt=parseFloat(document.getElementById('eAmt').value)||0;
+  const mon=document.getElementById('eMon').value;
+  const paid=document.getElementById('ePaid').value==='paid';
+  if(!pid||amt<=0||!mon){alert('Please fill in all fields.');return;}
+  entries.push({id:Date.now(),pid,amt,mon,paid});
+  save();
+  document.getElementById('eAmt').value='';
+  render();
+}
+
+function delEntry(id){entries=entries.filter(e=>e.id!==id);save();render();}
+function togglePaid(id){const e=entries.find(e=>e.id===id);if(e){e.paid=!e.paid;save();render();}}
+function setFilter(id){filt=id;render();}
+
+function render(){
+  const total=entries.reduce((a,e)=>a+e.amt,0);
+  const paid=entries.filter(e=>e.paid).reduce((a,e)=>a+e.amt,0);
+  document.getElementById('sTotal').textContent=fmt(total);
+  document.getElementById('sPaid').textContent=fmt(paid);
+  document.getElementById('sPending').textContent=fmt(total-paid);
+  document.getElementById('sProgs').textContent=progs.filter(p=>p.status==='Active').length;
+
+  document.getElementById('eProg').innerHTML='<option value="">Select program…</option>'+
+    progs.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+
+  document.getElementById('progList').innerHTML=progs.length
+    ?progs.map(p=>{
+        const pe=entries.filter(e=>e.pid===p.id);
+        const pt=pe.reduce((a,e)=>a+e.amt,0);
+        const pp=pe.filter(e=>e.paid).reduce((a,e)=>a+e.amt,0);
+        const pct=total>0?pt/total*100:0;
+        return`<div class="prog-row ${filt===p.id?'filt':''}" onclick="setFilter(filt===${p.id}?null:${p.id})">
+          <div class="prog-info">
+            <div class="prog-name">${p.name}${p.rate?`<span class="prog-rate">${p.rate}</span>`:''} <span style="font-size:.67rem;color:${p.status==='Active'?'#5AE57A':'#BFD8BF'};margin-left:4px">${p.status}</span></div>
+            <div class="prog-bar-track"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+          </div>
+          <div class="prog-totals"><div class="prog-earned">${fmt(pt)}</div><div class="prog-meta">Paid ${fmt(pp)} · Pending ${fmt(pt-pp)}</div></div>
+          <button class="del-btn" onclick="event.stopPropagation();delProg(${p.id})">✕</button>
+        </div>`;
+      }).join('')
+    :'<div class="empty">No programs yet — add your first above.</div>';
+
+  const vis=filt?entries.filter(e=>e.pid===filt):entries;
+  const sorted=[...vis].sort((a,b)=>b.mon.localeCompare(a.mon));
+  const fb=document.getElementById('filterBar');
+  if(filt){
+    fb.style.display='flex';
+    document.getElementById('filterLabel').textContent=progs.find(p=>p.id===filt)?.name||'';
+  }else{fb.style.display='none';}
+
+  document.getElementById('entryLog').innerHTML=sorted.length
+    ?sorted.map(e=>{
+        const prog=progs.find(p=>p.id===e.pid);
+        return`<div class="entry-row">
+          <div class="entry-prog">${prog?.name||'Unknown'}</div>
+          <div class="entry-month">${fmtMon(e.mon)}</div>
+          <div class="entry-amount">${fmt(e.amt)}</div>
+          <div class="badge ${e.paid?'b-paid':'b-pend'}" onclick="togglePaid(${e.id})">${e.paid?'Paid':'Pending'}</div>
+          <button class="del-btn" onclick="delEntry(${e.id})">✕</button>
+        </div>`;
+      }).join('')
+    :`<div class="empty" style="background:#3C603C;border-radius:14px;margin:0 auto;max-width:700px">${filt?'No commissions logged for this program yet.':'No commissions logged yet — add a program and start logging.'}</div>`;
+}
+
+render();
+</script>
+</body>
+</html>

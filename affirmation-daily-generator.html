@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Affirmation Daily Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; line-height: 1.6; padding: 24px; }
+  .wrap { max-width: 560px; margin: 0 auto; text-align: center; }
+  h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #5AE57A; }
+  .sub { opacity: .75; margin: 8px 0 20px; font-size: .95rem; }
+  .panel { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 22px 20px; margin-bottom: 14px; }
+  .presets { display: flex; gap: 7px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .pre { background: #2A442A; border: 1px solid #5A845A; color: #FFFFFF; border-radius: 20px; padding: 6px 14px; cursor: pointer; font-size: .84rem; font-family:'DM Sans',sans-serif; }
+  .pre.on { background: #5AE57A; color: #325132; border-color: #5AE57A; font-weight: 500; }
+  .aff { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFFFFF; min-height: 90px; display: flex; align-items: center; justify-content: center; padding: 8px; }
+  .btn { background: #5AE57A; color: #325132; border: none; cursor: pointer; font-weight: 500; font-size: .92rem; padding: 11px 22px; border-radius: 8px; font-family:'DM Sans',sans-serif; margin: 4px; }
+  .btn.ghost { background: transparent; color: #5AE57A; border: 1px solid #5AE57A; }
+  .favs { text-align: left; }
+  .fav { background: #2A442A; border: 1px solid #5A845A; border-radius: 8px; padding: 8px 12px; margin-bottom: 6px; font-size: .9rem; display: flex; justify-content: space-between; gap: 8px; }
+  .fav .x { cursor: pointer; opacity: .5; flex: none; } .fav .x:hover { opacity: 1; color: #5AE57A; }
+  .empty { opacity: .5; font-size: .86rem; font-style: italic; }
+  footer { opacity: .55; font-size: .82rem; margin-top: 38px; }
+  @media (max-width: 600px) { h1 { font-size: 1.5rem; } body { padding: 16px; } .aff { font-size: 1.25rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Affirmation Daily Generator</h1>
+  <p class="sub">Choose a focus, draw an affirmation, and save the ones that land.</p>
+
+  <div class="panel">
+    <div class="presets" id="presets"></div>
+    <div class="aff" id="aff">Tap "New Affirmation" to begin.</div>
+    <div>
+      <button class="btn" onclick="next()">New Affirmation</button>
+      <button class="btn ghost" onclick="fav()">Save ♥</button>
+    </div>
+  </div>
+
+  <div class="panel favs">
+    <div style="font-size:.76rem;text-transform:uppercase;letter-spacing:.04em;color:#5AE57A;margin-bottom:8px">Saved Affirmations</div>
+    <div id="favs"></div>
+  </div>
+  <footer>Powered by GetPaidToBeYouOnline</footer>
+</div>
+
+<script>
+  const g=id=>document.getElementById(id);
+  const A={
+    'Confidence':['I trust myself and my decisions.','I am capable of more than I know.','I speak my truth with calm and clarity.','I am worthy of every good thing coming to me.','My presence has value.'],
+    'Abundance':['Abundance flows to me with ease.','I am open to receiving in unexpected ways.','There is more than enough for me.','Money is a tool I welcome and use wisely.','I attract opportunities that align with me.'],
+    'Peace':['I breathe in calm and release all tension.','I am exactly where I need to be.','I let go of what I cannot control.','Stillness is always available to me.','My mind is quiet and my heart is at ease.'],
+    'Healing':['I give myself permission to heal at my own pace.','Every part of me is worthy of love.','I release what no longer serves me.','I am gentle and patient with myself.','Healing is happening, even when I cannot see it.'],
+    'Love':['I am open to giving and receiving love.','I am surrounded by loving energy.','I treat myself with deep kindness.','I am worthy of healthy, loving connection.','My heart is open and safe.'],
+    'Purpose':['I am guided toward my highest path.','My life has meaning and direction.','I trust the unfolding of my journey.','I am here for a reason and I honour it.','I align my days with what matters most.']
+  };
+  let cat='Confidence';
+  function drawPresets(){ g('presets').innerHTML=Object.keys(A).map(c=>'<span class="pre'+(c===cat?' on':'')+'" onclick="setCat(\''+c+'\')">'+c+'</span>').join(''); }
+  function setCat(c){ cat=c; drawPresets(); next(); }
+  function next(){ const list=A[cat]; g('aff').textContent='"'+list[Math.floor(Math.random()*list.length)]+'"'; }
+  let F=JSON.parse(localStorage.getItem('adg')||'[]');
+  function fav(){ const t=g('aff').textContent; if(!t||t.indexOf('"')<0){ alert('Draw an affirmation first.'); return; }
+    if(!F.includes(t)){ F.unshift(t); localStorage.setItem('adg',JSON.stringify(F)); renderF(); } }
+  function delF(i){ F.splice(i,1); localStorage.setItem('adg',JSON.stringify(F)); renderF(); }
+  function renderF(){
+    g('favs').innerHTML=F.length?F.map((t,i)=>'<div class="fav"><span>'+t+'</span><span class="x" onclick="delF('+i+')">✕</span></div>').join(''):'<div class="empty">No saved affirmations yet.</div>';
+  }
+  drawPresets(); next(); renderF();
+</script>
+</body>
+</html>

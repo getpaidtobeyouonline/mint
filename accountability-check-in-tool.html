@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Accountability Check-In Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #325132; color: #FFFFFF; font-family: 'DM Sans', sans-serif; min-height: 100vh; padding: 24px 16px 60px; }
+  h1 { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 2rem; text-align: center; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #F0EBE0aa; font-size: 0.88rem; margin-bottom: 6px; }
+  .date-label { text-align: center; color: #BFD8BF; font-size: 0.8rem; margin-bottom: 24px; }
+  .card { background: #3C603C; border: 1px solid #4C724C; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto 16px; }
+  .card-title { font-family: 'Playfair Display', serif; color: #5AE57A; font-size: 1rem; margin-bottom: 14px; }
+  .field-label { font-size: 0.72rem; color: #5AE57A; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+  .f-input { width: 100%; background: #325132; border: 1px solid #3C603C; color: #FFFFFF; padding: 10px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none; }
+  .f-input:focus { border-color: #5AE57A; }
+  .form-row { display: flex; gap: 8px; align-items: flex-end; }
+  .btn-add { background: #5AE57A; color: #325132; border: none; padding: 10px 22px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.9rem; cursor: pointer; white-space: nowrap; }
+  .btn-add:hover { background: #5AE57A; }
+  .stats-row { display: flex; gap: 10px; max-width: 600px; margin: 0 auto 16px; }
+  .stat-box { flex: 1; background: #3C603C; border: 1px solid #4C724C; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat-n { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #5AE57A; }
+  .stat-l { font-size: 0.68rem; color: #BFD8BF; margin-top: 3px; }
+  .cc-wrap { max-width: 600px; margin: 0 auto; }
+  .cc { border-radius: 12px; overflow: hidden; border: 1px solid #4C724C; margin-bottom: 12px; }
+  .cc-top { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px 10px; border-left: 4px solid var(--cb,#4C724C); background: #3C603C; }
+  .cc-info { flex: 1; }
+  .cc-title { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 3px; }
+  .cc-desc { font-size: 0.76rem; color: #BFD8BF; }
+  .cc-meta { font-size: 0.73rem; color: #5A845A; margin-top: 5px; }
+  .kept-badge { display: inline-block; font-size: 0.68rem; padding: 2px 9px; border-radius: 10px; border: 1px solid; margin-left: 6px; }
+  .cc-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .cc-prog-bar { height: 3px; background: #325132; }
+  .cc-prog-fill { height: 100%; transition: width 0.4s ease; }
+  .cc-footer { background: #2A442A; padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-top: 1px solid #3C603C; }
+  .btn-checkin { background: none; border: 1px solid #C9A84C44; color: #5AE57A; padding: 7px 18px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.82rem; cursor: pointer; transition: all 0.15s; }
+  .btn-checkin:hover { border-color: #5AE57A; background: #1a150820; }
+  .btn-done-today { font-size: 0.78rem; color: #5AE57A; }
+  .btn-ghost { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 4px; transition: color 0.15s; }
+  .btn-ghost:hover { color: #5AE57A; }
+  .btn-complete { background: none; border: none; color: #4C724C; cursor: pointer; font-size: 0.8rem; padding: 4px; transition: color 0.15s; }
+  .btn-complete:hover { color: #5AE57A; }
+  .ci-form { background: #325132; border-top: 1px solid #3C603C; padding: 16px; }
+  .last-commit-note { font-size: 0.8rem; color: #F0EBE0aa; background: #325132; border-left: 2px solid #5AE57A; padding: 8px 12px; border-radius: 0 6px 6px 0; margin-bottom: 14px; }
+  .kept-chips { display: flex; gap: 8px; margin-bottom: 14px; }
+  .kchip { flex: 1; padding: 9px 6px; border-radius: 8px; border: 1px solid #3C603C; background: #325132; font-size: 0.82rem; text-align: center; cursor: pointer; transition: all 0.15s; }
+  .kchip.sel-yes { border-color: #5AE57A; color: #5AE57A; background: #08140820; }
+  .kchip.sel-partial { border-color: #5AE57A; color: #5AE57A; background: #1a150820; }
+  .kchip.sel-no { border-color: #5AE57A; color: #5AE57A; background: #18080820; }
+  .prog-chips { display: flex; gap: 5px; margin-bottom: 12px; }
+  .pchip { flex: 1; padding: 6px 4px; border-radius: 7px; border: 1px solid #3C603C; background: #325132; font-size: 0.78rem; text-align: center; cursor: pointer; color: #BFD8BF; transition: all 0.15s; }
+  .pchip.sel { border-color: #5AE57A; color: #5AE57A; background: #1a150820; }
+  .btn-submit { background: #5AE57A; color: #325132; border: none; padding: 10px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-weight: 500; font-size: 0.88rem; cursor: pointer; width: 100%; margin-top: 4px; }
+  .btn-submit:hover { background: #5AE57A; }
+  .err { font-size: 0.76rem; color: #5AE57A; min-height: 14px; }
+  .hist-item { padding: 8px 0; border-bottom: 1px solid #325132; font-size: 0.81rem; display: flex; gap: 10px; align-items: flex-start; }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .hist-body { flex: 1; }
+  .hist-title { color: #F0EBE0aa; }
+  .hist-meta { font-size: 0.72rem; color: #5A845A; margin-top: 2px; }
+  .empty { text-align: center; color: #5A845A; font-size: 0.85rem; padding: 14px; }
+  footer { position: fixed; bottom: 0; left: 0; right: 0; text-align: center; color: #5A845A; font-size: 0.78rem; padding: 10px; background: #325132; border-top: 1px solid #3C603C; }
+</style>
+</head>
+<body>
+
+<h1>Accountability Check-In</h1>
+<p class="subtitle">Did you do what you said you'd do? Answer honestly.</p>
+<p class="date-label" id="dateLabel"></p>
+
+<div class="card">
+  <div class="card-title">Add a Commitment</div>
+  <div class="form-row" style="margin-bottom:10px">
+    <div style="flex:1"><div class="field-label">What are you committing to?</div>
+      <input class="f-input" id="titleInput" placeholder="e.g. Write 500 words every day" maxlength="80" />
+    </div>
+    <div style="padding-top:22px"><button class="btn-add" onclick="addCommit()">Add</button></div>
+  </div>
+  <div class="field-label">What does success look like? <span style="color:#4C724C;font-size:0.68rem;text-transform:none;letter-spacing:0">(optional)</span></div>
+  <input class="f-input" id="descInput" placeholder="e.g. Draft completed, book launched, 10k steps daily" maxlength="100" />
+</div>
+
+<div class="stats-row">
+  <div class="stat-box"><div class="stat-n" id="statActive">0</div><div class="stat-l">active commitments</div></div>
+  <div class="stat-box"><div class="stat-n" id="statStreak">0</div><div class="stat-l">check-in streak</div></div>
+  <div class="stat-box"><div class="stat-n" id="statToday">0</div><div class="stat-l">checked in today</div></div>
+</div>
+
+<div class="cc-wrap" id="commitList"></div>
+
+<div class="card">
+  <div class="card-title">Recent Check-Ins</div>
+  <div id="histList"><p class="empty">No check-ins yet.</p></div>
+</div>
+
+<footer>Powered by GetPaidToBeYouOnline</footer>
+
+<script>
+const TODAY = new Date().toISOString().slice(0,10);
+document.getElementById('dateLabel').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+let commits  = JSON.parse(localStorage.getItem('act_commits')||'[]');
+let checkins = JSON.parse(localStorage.getItem('act_checkins')||'[]');
+let expandedId = null, selKept = '', selProg = null;
+
+function saveCommits()  { localStorage.setItem('act_commits',  JSON.stringify(commits)); }
+function saveCheckins() { localStorage.setItem('act_checkins', JSON.stringify(checkins)); }
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function daysSince(ts){return Math.floor((Date.now()-ts)/86400000);}
+function fmtDate(ts){return new Date(ts+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+
+function getLastCheckin(cid) { return checkins.filter(c=>c.commitId===cid).sort((a,b)=>b.ts-a.ts)[0]||null; }
+function checkedToday(cid)   { return checkins.some(c=>c.commitId===cid&&c.date===TODAY); }
+
+function addCommit() {
+  const title=document.getElementById('titleInput').value.trim();
+  if(!title) return;
+  const desc=document.getElementById('descInput').value.trim();
+  commits.push({id:Date.now(),title,desc,created:TODAY,status:'active'});
+  document.getElementById('titleInput').value='';
+  document.getElementById('descInput').value='';
+  saveCommits(); render();
+}
+
+function deleteCommit(id) { commits=commits.filter(c=>c.id!==id); saveCommits(); render(); }
+function completeCommit(id) { const c=commits.find(c=>c.id===id); if(c) c.status='complete'; saveCommits(); render(); }
+function reopenCommit(id)   { const c=commits.find(c=>c.id===id); if(c) c.status='active'; saveCommits(); render(); }
+
+function openCheckin(id) {
+  expandedId = expandedId===id ? null : id;
+  selKept=''; selProg=null;
+  render();
+  if(expandedId) setTimeout(()=>document.getElementById('cf-'+id)?.scrollIntoView({behavior:'smooth',block:'nearest'}),100);
+}
+
+function pickKept(val) {
+  selKept=val;
+  ['yes','partial','no'].forEach(v=>{
+    const el=document.getElementById('k-'+v);
+    if(el) el.className='kchip'+(v===val?' sel-'+v:'');
+  });
+}
+
+function pickProg(val) {
+  selProg=val;
+  [0,25,50,75,100].forEach(v=>{const el=document.getElementById('p-'+v);if(el)el.classList.toggle('sel',v===val);});
+}
+
+function submitCheckin(id) {
+  if(!selKept){document.getElementById('ci-err-'+id).textContent='Select whether you kept your commitment.';return;}
+  const note=document.getElementById('ci-note-'+id)?.value.trim()||'';
+  const nextCommit=document.getElementById('ci-next-'+id)?.value.trim()||'';
+  const color=selKept==='yes'?'#5AE57A':selKept==='partial'?'#5AE57A':'#5AE57A';
+  checkins.push({id:Date.now(),ts:Date.now(),date:TODAY,commitId:id,kept:selKept,progress:selProg,note,nextCommit,color});
+  saveCheckins();
+  expandedId=null; selKept=''; selProg=null;
+  render();
+}
+
+function getStreak() {
+  const days=[...new Set(checkins.map(c=>c.date))].sort((a,b)=>b.localeCompare(a));
+  let streak=0,prev=null;
+  for(const d of days){
+    if(!prev){prev=d;streak=1;continue;}
+    const diff=(new Date(prev+'T12:00:00')-new Date(d+'T12:00:00'))/86400000;
+    if(diff<=1){streak++;prev=d;}else break;
+  }
+  return streak;
+}
+
+function render() {
+  const active=commits.filter(c=>c.status==='active');
+  const doneToday=commits.filter(c=>checkedToday(c.id)).length;
+  document.getElementById('statActive').textContent=active.length;
+  document.getElementById('statStreak').textContent=getStreak();
+  document.getElementById('statToday').textContent=doneToday;
+
+  const cl=document.getElementById('commitList');
+  if(!commits.length){cl.innerHTML='<div style="max-width:600px;margin:0 auto"><p class="empty" style="background:#3C603C;border:1px solid #4C724C;border-radius:12px;padding:24px">No commitments yet — add your first one above.</p></div>';renderHist();return;}
+
+  cl.innerHTML=commits.map(cm=>{
+    const last=getLastCheckin(cm.id);
+    const doneT=checkedToday(cm.id);
+    const borderColor=doneT?(last?.color||'#BFD8BF'):cm.status==='complete'?'#5A845A':'#4C724C';
+    const keptColors={'yes':'#5AE57A','partial':'#5AE57A','no':'#5AE57A'};
+    const keptLabels={'yes':'✓ Kept','partial':'~ Partial','no':'✗ Missed'};
+    const lastBadge=last?`<span class="kept-badge" style="color:${keptColors[last.kept]||'#BFD8BF'};border-color:${keptColors[last.kept]||'#BFD8BF'}">${keptLabels[last.kept]||''}</span>`:'';
+    const daysAgo=last?daysSince(last.date):null;
+    const metaText=!last?'Never checked in':daysAgo===0?'Checked in today'+lastBadge:daysAgo===1?'Yesterday'+lastBadge:fmtDate(last.date)+lastBadge;
+    const prog=last?.progress;
+    const expanded=expandedId===cm.id;
+    const lc=last?.nextCommit;
+
+    return `<div class="cc">
+      <div class="cc-top" style="--cb:${borderColor}">
+        <div class="cc-info">
+          <div class="cc-title">${esc(cm.title)}</div>
+          ${cm.desc?`<div class="cc-desc">${esc(cm.desc)}</div>`:''}
+          <div class="cc-meta">${metaText}</div>
+        </div>
+        <div class="cc-actions">
+          ${cm.status==='active'?`<button class="btn-complete" title="Mark complete" onclick="completeCommit(${cm.id})">✓</button>`:`<button class="btn-complete" style="color:#BFD8BF" title="Reopen" onclick="reopenCommit(${cm.id})">↩</button>`}
+          <button class="btn-ghost" onclick="deleteCommit(${cm.id})">✕</button>
+        </div>
+      </div>
+      ${prog!=null?`<div class="cc-prog-bar"><div class="cc-prog-fill" style="width:${prog}%;background:${borderColor}"></div></div>`:''}
+      <div class="cc-footer">
+        ${doneT?`<span class="btn-done-today">✦ Checked in today</span>`:cm.status==='active'?`<button class="btn-checkin" onclick="openCheckin(${cm.id})">${expanded?'↑ Cancel':'Check In Today'}</button>`:'<span style="font-size:0.78rem;color:#BFD8BF">Completed</span>'}
+      </div>
+      ${expanded?`<div class="ci-form" id="cf-${cm.id}">
+        ${lc?`<div class="last-commit-note">Your last commitment: <strong style="color:#FFFFFF">"${esc(lc)}"</strong></div>`:''}
+        <div class="field-label" style="margin-bottom:8px">Did you keep${lc?'it':'your commitment'}?</div>
+        <div class="kept-chips">
+          <div class="kchip" id="k-yes"     onclick="pickKept('yes')">✓ Yes</div>
+          <div class="kchip" id="k-partial" onclick="pickKept('partial')">~ Partially</div>
+          <div class="kchip" id="k-no"      onclick="pickKept('no')">✗ No</div>
+        </div>
+        <div class="field-label" style="margin-bottom:7px">Progress toward goal <span style="color:#4C724C;font-size:0.68rem;text-transform:none;letter-spacing:0">(optional)</span></div>
+        <div class="prog-chips" style="margin-bottom:12px">
+          ${[0,25,50,75,100].map(v=>`<div class="pchip" id="p-${v}" onclick="pickProg(${v})">${v}%</div>`).join('')}
+        </div>
+        <div class="field-label" style="margin-bottom:6px">What happened? <span style="color:#4C724C;font-size:0.68rem;text-transform:none;letter-spacing:0">(optional)</span></div>
+        <input class="f-input" id="ci-note-${cm.id}" placeholder="What worked or got in the way?" maxlength="120" style="margin-bottom:10px" />
+        <div class="field-label" style="margin-bottom:6px">By next check-in, I will:</div>
+        <input class="f-input" id="ci-next-${cm.id}" placeholder="A specific, honest commitment..." maxlength="120" style="margin-bottom:8px" />
+        <div class="err" id="ci-err-${cm.id}"></div>
+        <button class="btn-submit" onclick="submitCheckin(${cm.id})">Submit Check-In</button>
+      </div>`:''}
+    </div>`;
+  }).join('');
+
+  renderHist();
+}
+
+function renderHist() {
+  const el=document.getElementById('histList');
+  const recent=[...checkins].sort((a,b)=>b.ts-a.ts).slice(0,20);
+  if(!recent.length){el.innerHTML='<p class="empty">No check-ins yet.</p>';return;}
+  el.innerHTML=recent.map(ci=>{
+    const cm=commits.find(c=>c.id===ci.commitId);
+    const kLabels={'yes':'Kept','partial':'Partial','no':'Missed'};
+    const d=new Date(ci.date+'T12:00:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    return `<div class="hist-item">
+      <div class="hist-dot" style="background:${ci.color||'#BFD8BF'}"></div>
+      <div class="hist-body">
+        <div class="hist-title">${esc(cm?.title||'Deleted commitment')}</div>
+        <div class="hist-meta">${d} · ${kLabels[ci.kept]||ci.kept}${ci.progress!=null?' · '+ci.progress+'%':''}${ci.note?' · '+esc(ci.note):''}</div>
+        ${ci.nextCommit?`<div class="hist-meta" style="color:#C9A84C44;margin-top:2px">→ "${esc(ci.nextCommit)}"</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('titleInput').addEventListener('keydown',e=>{if(e.key==='Enter')addCommit();});
+render();
+</script>
+</body>
+</html>
